@@ -71,13 +71,12 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo}) => {
         navigate('/dashboard');
         break;
       case 'Log Out':
-        // Implement logout functionality
         navigate('/');
         break;
       case 'SuperAdmin':
         navigate('/superadmin');
         break;
-      case 'DashboardSettings': // Handle Dashboard Settings navigation
+      case 'DashboardSettings':
         onSubmenuClick('dashboard-settings');
         navigate('/dashboard/dashboard-settings');
         break;
@@ -114,12 +113,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo}) => {
     { label: 'Manage Users', key: 'addedit-users' },
   ];
 
-  // Super Admin submenu items
   const superAdminSubmenuItems = [
     { label: 'All Users', key: 'all-users' },
     { label: 'All Projects', key: 'superadmin-all-projects' },
     { label: 'Messages', key: 'superadmin-all-messages' },
-    { label: 'Dashboard Settings', key: 'dashboard-settings' }, // Added Dashboard Settings
+    { label: 'Dashboard Settings', key: 'dashboard-settings' },
   ];
 
   return (

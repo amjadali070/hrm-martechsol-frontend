@@ -130,9 +130,9 @@ const ProjectList: React.FC = () => {
   //   return <p className="text-red-500">{error}</p>;
   // }
 
-  // if (filteredProjects.length === 0) {
-  //   return <p>No projects with uploaded files found.</p>;
-  // }
+  if (filteredProjects.length === 0) {
+    return <p>No projects with uploaded files found.</p>;
+  }
 
   return (
     <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
