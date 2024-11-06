@@ -15,11 +15,11 @@ const SuperAdminUsers: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/superadmin/users', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/users`, { withCredentials: true });
         setUsers(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch users');
@@ -37,7 +37,7 @@ const SuperAdminUsers: React.FC = () => {
 
     try {
       setDeletingUserId(userId);
-      await axios.delete(`/api/superadmin/users/${userId}`, { withCredentials: true });
+      await axios.delete(`${backendUrl}/api/superadmin/users/${userId}`, { withCredentials: true });
       setUsers(prevUsers => prevUsers.filter(user => user._id !== userId));
       alert('User deleted successfully.');
     } catch (err: any) {

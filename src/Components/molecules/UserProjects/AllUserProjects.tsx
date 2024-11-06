@@ -27,10 +27,11 @@ const UserProjects: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/projects', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
         setProjects(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch projects');
@@ -48,7 +49,7 @@ const UserProjects: React.FC = () => {
 
     try {
       setApprovingProjectId(projectId);
-      const response = await axios.put(`/api/projects/${projectId}/approve`, {}, { withCredentials: true });
+      const response = await axios.put(`${backendUrl}/api/projects/${projectId}/approve`, {}, { withCredentials: true });
       setProjects(prevProjects =>
         prevProjects.map(project =>
           project._id === projectId ? response.data : project
@@ -89,7 +90,7 @@ const UserProjects: React.FC = () => {
 
     try {
       setReviseProjectId(currentProjectId);
-      const response = await axios.put(`/api/projects/${currentProjectId}/revise`, { revisionNotes: notes }, { withCredentials: true });
+      const response = await axios.put(`${backendUrl}/api/projects/${currentProjectId}/revise`, { revisionNotes: notes }, { withCredentials: true });
       setProjects(prevProjects =>
         prevProjects.map(project =>
           project._id === currentProjectId ? response.data : project

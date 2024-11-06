@@ -21,11 +21,12 @@ const ProfileForm: React.FC = () => {
     country: null,
     businessAddress: '',
   });
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const { data } = await axios.get('/api/users/profile', { withCredentials: true });
+        const { data } = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
         setFormData({ ...data, country: { value: data.country, label: data.country } });
       } catch (error) {
         console.error('Error fetching profile data', error);
@@ -46,7 +47,7 @@ const ProfileForm: React.FC = () => {
     e.preventDefault();
     try {
       const updatedData = { ...formData, country: formData.country?.value };
-      const { data } = await axios.put('/api/users/profile', updatedData, { withCredentials: true });
+      const { data } = await axios.put(`${backendUrl}/api/users/profile`, updatedData, { withCredentials: true });
       console.log('Profile updated:', data);
     } catch (error) {
       console.error('Error updating profile:', error);

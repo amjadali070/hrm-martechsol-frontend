@@ -51,7 +51,7 @@ const ProjectList: React.FC = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/projects', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
         setProjects(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch projects.');

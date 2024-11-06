@@ -13,6 +13,7 @@ const AcceptInvitation: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [message, setMessage] = useState('');
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const handleAcceptInvitation = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -27,7 +28,7 @@ const AcceptInvitation: React.FC = () => {
     }
 
     try {
-      const response = await axios.post('/api/subusers/accept', {
+      const response = await axios.post(`${backendUrl}/api/subusers/accept`, {
         token,
         name,
         password,

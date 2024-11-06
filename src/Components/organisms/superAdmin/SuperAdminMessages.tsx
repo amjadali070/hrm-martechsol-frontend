@@ -32,11 +32,11 @@ const SuperAdminMessages: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchAllMessages = async () => {
       try {
-        const response = await axios.get('/api/superadmin/messages', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/messages`, { withCredentials: true });
         setMessages(response.data);
       } catch (error: any) {
         const errorMsg = error.response?.data?.message || 'Failed to fetch messages.';
@@ -69,7 +69,7 @@ const SuperAdminMessages: React.FC = () => {
       if (message.project?._id) formData.append('projectId', message.project._id);
       if (replyFile) formData.append('file', replyFile);
 
-      const response = await axios.post('/api/messages', formData, {
+      const response = await axios.post(`${backendUrl}/api/messages`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

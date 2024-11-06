@@ -30,11 +30,11 @@ const SuperAdminProjects: React.FC = () => {
   const [deletingProjectId, setDeletingProjectId] = useState<string | null>(null);
   const [modalIsOpen, setModalIsOpen] = useState<boolean>(false);
   const [selectedProjectNotes, setSelectedProjectNotes] = useState<string>('');
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/superadmin/projects', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/projects`, { withCredentials: true });
         setProjects(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch projects');
@@ -52,7 +52,7 @@ const SuperAdminProjects: React.FC = () => {
 
     try {
       setDeletingProjectId(projectId);
-      await axios.delete(`/api/superadmin/projects/${projectId}`, { withCredentials: true });
+      await axios.delete(`${backendUrl}/api/superadmin/projects/${projectId}`, { withCredentials: true });
       setProjects(prevProjects => prevProjects.filter(project => project._id !== projectId));
       alert('Project deleted successfully.');
     } catch (err: any) {
@@ -84,7 +84,7 @@ const SuperAdminProjects: React.FC = () => {
 
     try {
       setUpdatingProjectId(projectId);
-      await axios.put(`/api/superadmin/projects/${projectId}/status`, {
+      await axios.put(`${backendUrl}/api/superadmin/projects/${projectId}/status`, {
         projectStatus: project.projectStatus,
         completion: project.completion,
       }, { withCredentials: true });
@@ -103,7 +103,7 @@ const SuperAdminProjects: React.FC = () => {
 
     try {
       setMarkingRevisionId(projectId);
-      const response = await axios.put(`/api/superadmin/projects/${projectId}/complete-revision`, {}, { withCredentials: true });
+      const response = await axios.put(`${backendUrl}/api/superadmin/projects/${projectId}/complete-revision`, {}, { withCredentials: true });
       setProjects(prevProjects =>
         prevProjects.map(project =>
           project._id === projectId ? response.data : project

@@ -34,17 +34,17 @@ const AllMessages: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const { user } = useContext(AuthContext);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchMessages = async () => {
       try {
         if (user?.role === 'superAdmin') {
           // Fetch all messages for Super Admin
-          const response = await axios.get('/api/superadmin/messages', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/superadmin/messages`, { withCredentials: true });
           setMessages(response.data);
         } else {
           // Fetch messages for Normal User
-          const response = await axios.get('/api/messages', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/messages`, { withCredentials: true });
           setMessages(response.data);
         }
       } catch (err: any) {
@@ -59,11 +59,11 @@ const AllMessages: React.FC = () => {
         if (user?.role === 'superAdmin') {
           // For Super Admins, calculate unread messages if necessary
           // You might need to adjust the backend to provide this
-          const response = await axios.get('/api/messages/unread-count', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/messages/unread-count`, { withCredentials: true });
           setUnreadCount(response.data.unreadCount);
         } else {
           // For Normal Users
-          const response = await axios.get('/api/messages/unread-count', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/messages/unread-count`, { withCredentials: true });
           setUnreadCount(response.data.unreadCount);
         }
       } catch (err: any) {
@@ -100,7 +100,7 @@ const AllMessages: React.FC = () => {
       }
       if (replyFile) formData.append('file', replyFile);
 
-      const response = await axios.post('/api/messages', formData, {
+      const response = await axios.post(`${backendUrl}/api/messages`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

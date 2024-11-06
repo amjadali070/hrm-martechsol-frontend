@@ -26,12 +26,12 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     // Fetch all users to allow Super Admin to select one
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('/api/superadmin/users', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/users`, { withCredentials: true });
         setUsers(response.data);
       } catch (error) {
         console.error('Error fetching users:', error);
@@ -53,7 +53,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
 
       setLoading(true);
       try {
-        const response = await axios.get(`/api/superadmin/dashboard-settings/${selectedUserId}`, { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/dashboard-settings/${selectedUserId}`, { withCredentials: true });
         setTitle(response.data.title);
         setExistingLogo(response.data.logo);
       } catch (error: any) {
@@ -94,7 +94,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
 
     try {
       const response = await axios.put(
-        `/api/superadmin/dashboard-settings/${selectedUserId}`,
+        `${backendUrl}/api/superadmin/dashboard-settings/${selectedUserId}`,
         formData,
         {
           withCredentials: true,

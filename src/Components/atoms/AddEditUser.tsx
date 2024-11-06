@@ -20,14 +20,14 @@ const AddEditUsers: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [subUsers, setSubUsers] = useState<SubUser[]>([]);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     fetchSubUsers();
   }, []);
 
   const fetchSubUsers = async () => {
     try {
-      const response = await axios.get<SubUser[]>('/api/subusers', { withCredentials: true });
+      const response = await axios.get<SubUser[]>(`${backendUrl}/api/subusers`, { withCredentials: true });
       setSubUsers(response.data);
     } catch (error) {
       console.error('Failed to fetch sub-users:', error);
@@ -45,7 +45,7 @@ const AddEditUsers: React.FC = () => {
 
     try {
       const response = await axios.post(
-        '/api/subusers/invite',
+        `${backendUrl}/api/subusers/invite`,
         { email },
         {
           withCredentials: true, // Ensure cookies are sent if needed
@@ -67,7 +67,7 @@ const AddEditUsers: React.FC = () => {
   const handlePermissionChange = async (subUserId: string, permission: keyof SubUser['permissions'], value: boolean) => {
     try {
       const response = await axios.patch(
-        `/api/subusers/${subUserId}/permissions`,
+        `${backendUrl}/api/subusers/${subUserId}/permissions`,
         { [permission]: value },
         {
           withCredentials: true,
@@ -91,7 +91,7 @@ const AddEditUsers: React.FC = () => {
     if (!confirmDelete) return;
 
     try {
-      const response = await axios.delete(`/api/subusers/${subUserId}`, { withCredentials: true });
+      const response = await axios.delete(`${backendUrl}/api/subusers/${subUserId}`, { withCredentials: true });
       setMessage(response.data.message);
       // Remove the sub-user from the state
       setSubUsers((prevSubUsers) => prevSubUsers.filter((user) => user._id !== subUserId));

@@ -37,6 +37,7 @@ const Search: React.FC = () => {
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const handleSearchOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchOption(event.target.value);
     // Clear previous results and errors when changing search options
@@ -65,13 +66,13 @@ const Search: React.FC = () => {
 
       if (searchOption === 'projectTitle') {
         // Search Projects by Title
-        response = await axios.get(`/api/search/projects?q=${encodeURIComponent(searchInput)}`, {
+        response = await axios.get(`${backendUrl}/api/search/projects?q=${encodeURIComponent(searchInput)}`, {
           withCredentials: true,
         });
         setProjects(response.data);
       } else if (searchOption === 'fileTitle') {
         // Search Files by Title
-        response = await axios.get(`/api/search/files?q=${encodeURIComponent(searchInput)}`, {
+        response = await axios.get(`${backendUrl}/api/search/files?q=${encodeURIComponent(searchInput)}`, {
           withCredentials: true,
         });
         setFiles(response.data);

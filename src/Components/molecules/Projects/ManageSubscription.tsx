@@ -26,6 +26,7 @@ const columns: Column[] = [
 const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscription }) => {
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [cardDetails, setCardDetails] = useState({
     cardHolderName: '',
@@ -48,7 +49,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscripti
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/payment/update', cardDetails, { withCredentials: true });
+      const response = await axios.post(`${backendUrl}/api/payment/update`, cardDetails, { withCredentials: true });
       console.log(response.data);
       toast.success('Payment details updated successfully!');
       closeModal();
