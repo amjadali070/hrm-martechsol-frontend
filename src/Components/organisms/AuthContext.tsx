@@ -26,7 +26,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const response = await axios.get('https://stormwave-backend.onrender.com/api/users/profile/api/users/profile', { withCredentials: true });
+        const backendUrl = process.env.REACT_APP_BACKEND_URL;
+        const response = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
         setUser(response.data);
       } catch (error) {
         setUser(null);
