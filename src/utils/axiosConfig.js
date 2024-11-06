@@ -2,11 +2,9 @@ import axios from 'axios';
 
 // Create an Axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL,
+  baseURL:'https://stormwave-backend-dashboard.onrender.com/api',
   withCredentials: true, // Send cookies with requests
 });
-
-console.log("baseURL", process.env.REACT_APP_API_BASE_URL)
 
 // Optional: Add interceptors for request and response if needed
 axiosInstance.interceptors.request.use(
