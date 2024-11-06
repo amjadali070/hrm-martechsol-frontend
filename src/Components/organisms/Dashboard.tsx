@@ -52,8 +52,8 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     title: 'Dashboard',
   });
 
-  
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  
   useEffect(() => {
     const fetchDashboardSettings = async () => {
       try {
@@ -78,7 +78,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   }, [backendUrl, user]);
 
   // Determine the logo to pass to Header
-  const logoSrc = dashboardSettings.logo === 'default-logo.png' ? defaultLogo : `/uploads/${dashboardSettings.logo}`;
+  const logoSrc = dashboardSettings.logo === 'default-logo.png' ? defaultLogo : `${backendUrl}/uploads/${dashboardSettings.logo}`;
 
   const handleSubmenuClick = (submenuKey: string) => {
     setSelectedContent(submenuKey);
@@ -89,7 +89,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     setSelectedContent('dashboard');
     setSelectedProjectId(null);
   };
-
+  
   // Handler for adding new subscription
   const handleAddSubscription = () => {
     setSelectedContent('add-project');

@@ -183,7 +183,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
             <div className="mt-4">
               <p className="text-gray-700 mb-2">Current Logo:</p>
               <img
-                src={existingLogo === 'default-logo.png' ? defaultLogo : `/uploads/${existingLogo}`}
+                src={existingLogo === 'default-logo.png' ? defaultLogo : `${backendUrl}/uploads/${existingLogo}`}
                 alt="Existing Logo"
                 className="h-16 w-auto"
               />
