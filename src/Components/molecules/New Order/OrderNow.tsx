@@ -1,5 +1,4 @@
 import React from 'react';
-import PlaceNewOrder from '../../atoms/PlaceNewOrder';
 import ProjectForm from '../../organisms/ProjectForm';
 
 interface DashboardProps {}
