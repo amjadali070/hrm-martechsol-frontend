@@ -20,7 +20,7 @@ const SignInPage: React.FC = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMessage('')
+    setErrorMessage('');
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -28,7 +28,7 @@ const SignInPage: React.FC = () => {
         `${backendUrl}/api/users/auth`,
         { email, password },
         {
-          withCredentials: true, // Send cookies with the request
+          withCredentials: true,
           headers: {
             'Content-Type': 'application/json',
           },
