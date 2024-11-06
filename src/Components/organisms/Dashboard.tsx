@@ -52,11 +52,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     title: 'Dashboard',
   });
 
-  // Fetch dashboard settings for the authenticated user
+  
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchDashboardSettings = async () => {
       try {
-        const response = await axios.get('/api/superadmin/dashboard-settings', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/superadmin/dashboard-settings`, { withCredentials: true });
         setDashboardSettings({
           title: response.data.title,
           logo: response.data.logo,
@@ -74,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     if (user) {
       fetchDashboardSettings();
     }
-  }, [user]);
+  }, [backendUrl, user]);
 
   // Determine the logo to pass to Header
   const logoSrc = dashboardSettings.logo === 'default-logo.png' ? defaultLogo : `/uploads/${dashboardSettings.logo}`;

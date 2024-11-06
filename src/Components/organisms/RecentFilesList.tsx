@@ -100,10 +100,11 @@ const ProjectList: React.FC = () => {
   //   navigate(`/projects/${projectId}`);
   // };
 
-  // Handler for downloading all files of a project
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   const handleDownloadAll = async (project: Project) => {
     try {
-      const response = await axios.get(`/api/projects/${project._id}/download-all`, {
+      const response = await axios.get(`${backendUrl}/api/projects/${project._id}/download-all`, {
         withCredentials: true,
         responseType: 'blob',
       });

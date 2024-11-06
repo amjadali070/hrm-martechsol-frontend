@@ -30,17 +30,18 @@ const InputMessage: React.FC = () => {
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
 
   const { user } = useContext(AuthContext);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchReceivers = async () => {
       try {
         if (user?.role === 'superAdmin') {
           // Super Admins send messages to Normal Users
-          const response = await axios.get('/api/superadmin/users', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/superadmin/users`, { withCredentials: true });
           setReceivers(response.data);
         } else {
           // Normal Users send messages to Super Admins
-          const response = await axios.get('/api/users/superadmins', { withCredentials: true });
+          const response = await axios.get(`${backendUrl}/api/users/superadmins`, { withCredentials: true });
           setReceivers(response.data);
         }
       } catch (error: any) {
@@ -52,9 +53,10 @@ const InputMessage: React.FC = () => {
       }
     };
 
+
     const fetchProjects = async () => {
       try {
-        const response = await axios.get('/api/projects', { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
         setProjects(response.data);
       } catch (error: any) {
         const errorMsg = error.response?.data?.message || 'Failed to fetch projects.';
@@ -106,7 +108,7 @@ const InputMessage: React.FC = () => {
     if (file) formData.append('file', file);
 
     try {
-      const response = await axios.post('/api/messages', formData, {
+      const response = await axios.post(`${backendUrl}/api/messages`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

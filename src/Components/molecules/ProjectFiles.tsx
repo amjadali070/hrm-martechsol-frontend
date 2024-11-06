@@ -17,10 +17,11 @@ const ProjectFiles: React.FC<{ projectId: string }> = ({ projectId }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`/api/projects/${projectId}`, { withCredentials: true });
+        const response = await axios.get(`${backendUrl}/api/projects/${projectId}`, { withCredentials: true });
         setProject(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch project details.');
