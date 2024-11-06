@@ -106,7 +106,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
 
       setMessage('Dashboard settings updated successfully.');
       setExistingLogo(response.data.logo);
-      setLogo(null); // Reset logo state after successful upload
+      setLogo(null);
 
     } catch (error: any) {
       console.error('Error updating dashboard settings:', error.response?.data?.message || error.message);
@@ -128,7 +128,6 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Select User */}
         <div>
           <label htmlFor="user" className="block text-gray-700 mb-2">
             Select User <span className="text-red-500">*</span>

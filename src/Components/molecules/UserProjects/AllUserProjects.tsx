@@ -106,7 +106,7 @@ const UserProjects: React.FC = () => {
   };
 
   if (loading) return <div>Loading projects...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  // if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
