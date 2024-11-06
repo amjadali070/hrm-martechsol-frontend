@@ -9,7 +9,6 @@ import { VscEyeClosed } from 'react-icons/vsc';
 import { FiMessageSquare } from 'react-icons/fi';
 import { SiVirustotal } from 'react-icons/si';
 import Footer from '../atoms/Footer';
-import AllProjects from '../molecules/Projects/AllProjects';
 import ClosedProjects from '../molecules/Projects/ClosedProjects';
 import OpenProjects from '../molecules/Projects/OpenProjects';
 import AllMessages from '../molecules/Messages/Allmessages';
@@ -19,12 +18,10 @@ import UpdateUsers from '../molecules/ProfileSettings/UpdateUsers';
 import ManageSubscription from '../molecules/Projects/ManageSubscription';
 import SearchFiles from '../molecules/Search/SearchFiles';
 import ProjectDetails from './ProjectDetails';
-import MessageTable from '../atoms/Message';
 import UpdatedProjectTable, {
   Project as ProjectType,
 } from '../atoms/UpdateProjectsTable';
 import ReturnToHomeButton from '../atoms/ReturnHomeButton';
-import OrderNow from '../molecules/New Order/OrderNow';
 import SendProposal from '../molecules/New Order/SendProposal';
 import ProjectForm from './ProjectForm';
 import ProjectList from './RecentFilesList';
@@ -92,43 +89,10 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     setSelectedProjectId(null);
   };
 
-  const handleProjectTitleClick = (projectId: string) => {
-    setSelectedProjectId(projectId);
-    setSelectedContent('project-details');
-  };
-
   // Handler for adding new subscription
   const handleAddSubscription = () => {
     setSelectedContent('add-project');
   };
-
-  // Sample messages data (you may replace this with actual data)
-  const messages = [
-    {
-      id: 1,
-      projectTitle: 'Video 60-90 seconds',
-      messageType: 'Project',
-      receivedDate: '18 Oct 2024',
-    },
-    {
-      id: 2,
-      projectTitle: 'Video 60-90 seconds',
-      messageType: 'Project',
-      receivedDate: '17 Oct 2024',
-    },
-    {
-      id: 3,
-      projectTitle: 'Video 60-90 seconds',
-      messageType: 'Project',
-      receivedDate: '16 Oct 2024',
-    },
-    {
-      id: 4,
-      projectTitle: 'Video 60-90 seconds',
-      messageType: 'Project',
-      receivedDate: '15 Oct 2024',
-    },
-  ];
 
   interface Column {
     key: keyof ProjectType;
@@ -278,7 +242,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
            />
           <div className="flex flex-col w-full max-md:ml-0 max-md:w-full">
             <Header
-              logo={logoSrc}
               title={dashboardSettings.title}
             />
             <div className="flex flex-col mt-4 w-full text-lg text-gray-500">

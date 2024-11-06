@@ -15,14 +15,12 @@ import AllProjects from './Components/molecules/Projects/AllProjects';
 import { AuthProvider } from './Components/organisms/AuthContext';
 import PrivateRoute from './Components/organisms/PrivateRoute';
 import SignInPage from './Components/organisms/SiignInPage';
-import ProjectForm from './Components/organisms/ProjectForm';
 import Register from './Components/organisms/RegisterUser';
 import AddEditUsers from './Components/atoms/AddEditUser';
 import AcceptInvitation from './Components/atoms/AcceptInvitation';
 import ProtectedRoute from './Components/organisms/ProtectedRoute';
 import SuperAdminPage from './Components/organisms/superAdmin/SuperAdminPage';
 import { ToastContainer } from 'react-toastify';
-import DashboardSettings from './Components/organisms/superAdmin/DashboardSettings';
 
 const App: React.FC = () => {
 

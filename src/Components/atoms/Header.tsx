@@ -3,30 +3,15 @@
 import React, { useContext } from 'react';
 import { IoCallSharp } from "react-icons/io5";
 import { FaClock } from "react-icons/fa";
-import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../organisms/AuthContext';
 import { FaUserCircle } from "react-icons/fa";
-import { IoLogOut } from "react-icons/io5";
 
 interface HeaderProps {
-  logo: string;
   title: string;
 }
 
-const Header: React.FC<HeaderProps> = ({ logo, title }) => {
-  const { user, setUser } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const handleLogout = async () => {
-    try {
-      await axios.post('/api/users/logout', {}, { withCredentials: true });
-      setUser(null);
-      navigate('/');
-    } catch (error) {
-      console.error('Failed to logout', error);
-    }
-  };
+const Header: React.FC<HeaderProps> = ({ title }) => {
+  const { user } = useContext(AuthContext);
 
   return (
     <header className="flex flex-col gap-2 py-2 px-2 w-full">
@@ -47,14 +32,6 @@ const Header: React.FC<HeaderProps> = ({ logo, title }) => {
             {user ? user.name : 'Loading...'}
           </span>
           <FaUserCircle className="w-7 h-7 md:w-8 md:h-8" />
-          {/* Logout Button
-          <button
-            onClick={handleLogout}
-            className="ml-4 text-black hover:text-black flex items-center"
-          >
-            <IoLogOut className="w-6 h-6 mr-1" />
-            <span className="hidden md:inline">Logout</span>
-          </button> */}
         </div>
       </div>
 

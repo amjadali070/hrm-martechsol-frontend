@@ -1,10 +1,9 @@
 // frontend/src/components/superAdmin/SuperAdminMessages.tsx
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import InputMessage from '../../atoms/InputMessage';
 import { toast } from 'react-toastify';
-import { AuthContext } from '../AuthContext';
 import MessageTable from '../../atoms/Message';
 
 interface Message {
@@ -30,7 +29,6 @@ interface Message {
 }
 
 const SuperAdminMessages: React.FC = () => {
-  const { user } = useContext(AuthContext);
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);

@@ -108,18 +108,6 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
       setExistingLogo(response.data.logo);
       setLogo(null); // Reset logo state after successful upload
 
-      // If the Super Admin updates their own settings, update the Dashboard's header
-      // This requires knowing the current user's ID. Assuming it's stored in AuthContext.
-      // For example:
-      /*
-      const currentUserId = user?._id;
-      if (currentUserId === selectedUserId) {
-        setDashboardSettings({
-          title: response.data.title,
-          logo: response.data.logo,
-        });
-      }
-      */
     } catch (error: any) {
       console.error('Error updating dashboard settings:', error.response?.data?.message || error.message);
       setMessage('Failed to update dashboard settings.');
