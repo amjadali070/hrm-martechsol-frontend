@@ -15,6 +15,13 @@ interface Project {
   deadline: string;
 }
 
+interface PaginatedResponse {
+  projects: Project[];
+  page: number;
+  pages: number;
+  total: number;
+}
+
 Modal.setAppElement('#root'); // For accessibility
 
 const UserProjects: React.FC = () => {
@@ -27,12 +34,32 @@ const UserProjects: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [entriesPerPage, setEntriesPerPage] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalProjects, setTotalProjects] = useState<number>(0);
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
-        setProjects(response.data);
+        setLoading(true);
+        const response = await axios.get<PaginatedResponse>(
+          `${backendUrl}/api/projects`,
+          {
+            params: {
+              page: currentPage,
+              limit: entriesPerPage,
+            },
+            withCredentials: true,
+          }
+        );
+        setProjects(response.data.projects);
+        setTotalPages(response.data.pages);
+        setTotalProjects(response.data.total);
+        setError(null);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch projects');
       } finally {
@@ -41,7 +68,7 @@ const UserProjects: React.FC = () => {
     };
 
     fetchProjects();
-  }, []);
+  }, [backendUrl, currentPage, entriesPerPage]);
 
   const approveProject = async (projectId: string) => {
     const confirmApprove = window.confirm('Are you sure you want to approve this project?');
@@ -105,8 +132,21 @@ const UserProjects: React.FC = () => {
     }
   };
 
+  const handleEntriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setEntriesPerPage(Number(e.target.value));
+    setCurrentPage(1); // Reset to first page when entries per page changes
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
   if (loading) return <div>Loading projects...</div>;
-  // if (error) return <div className="text-red-500">{error}</div>;
+  if (error) return <div className="text-red-500">{error}</div>;
 
   return (
     <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
@@ -123,6 +163,13 @@ const UserProjects: React.FC = () => {
           </tr>
         </thead>
         <tbody>
+          {projects.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-4 py-2 text-center">
+                No projects found.
+              </td>
+            </tr>
+          )}
           {projects.map(project => (
             <tr key={project._id} className="text-center border-t">
               <td className="px-4 py-2">{project.projectName}</td>
@@ -161,6 +208,60 @@ const UserProjects: React.FC = () => {
         </tbody>
       </table>
 
+      {/* Pagination Controls */}
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0">
+        {/* Entries Per Page Selector */}
+        <div className="flex items-center">
+          <span className="text-sm md:text-base">Show</span>
+          <select
+            value={entriesPerPage}
+            onChange={handleEntriesChange}
+            className="ml-2 border rounded-md p-1 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+          <span className="ml-2 text-sm md:text-base">entries</span>
+        </div>
+
+        {/* Showing X of Y entries */}
+        <div className="text-sm md:text-base">
+          Showing {projects.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1}-
+          {Math.min(currentPage * entriesPerPage, totalProjects)} of {totalProjects} entries
+        </div>
+
+        {/* Pagination Buttons */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`border rounded-md p-2 text-sm md:text-base ${
+              currentPage === 1
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-blue-600 hover:bg-blue-100'
+            }`}
+          >
+            Previous
+          </button>
+          <span className="border rounded-md px-3 py-1 bg-blue-600 text-white text-sm md:text-base">
+            {currentPage}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages || totalPages === 0}
+            className={`border rounded-md p-2 text-sm md:text-base ${
+              currentPage === totalPages || totalPages === 0
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-blue-600 hover:bg-blue-100'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
+      {/* Modal for Revision Notes */}
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeRevisionModal}
