@@ -1,6 +1,11 @@
+// frontend/src/molecules/UserProjects.tsx
+
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
+import { MdEdit, MdFileDownload } from 'react-icons/md';
+import { AiOutlineFileSearch } from 'react-icons/ai';
+import { toast } from 'react-toastify';
 
 interface Project {
   _id: string;
@@ -20,9 +25,11 @@ interface PaginatedResponse {
   total: number;
 }
 
-Modal.setAppElement('#root'); // For accessibility
+interface UserProjectsProps {
+  onProjectClick: (projectId: string) => void;
+}
 
-const UserProjects: React.FC = () => {
+const UserProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,10 +97,10 @@ const UserProjects: React.FC = () => {
           project._id === projectId ? response.data : project
         )
       );
-      alert('Project approved successfully.');
+      toast.success('Project approved successfully.');
     } catch (err: any) {
       console.error('Error approving project:', err);
-      alert(err.response?.data?.message || 'Failed to approve project.');
+      toast.error(err.response?.data?.message || 'Failed to approve project.');
     } finally {
       setApprovingProjectId(null);
     }
@@ -120,7 +127,7 @@ const UserProjects: React.FC = () => {
     const notes = revisionNotes[currentProjectId];
 
     if (!notes.trim()) {
-      alert('Please enter revision notes.');
+      toast.error('Please enter revision notes.');
       return;
     }
 
@@ -132,11 +139,11 @@ const UserProjects: React.FC = () => {
           project._id === currentProjectId ? response.data : project
         )
       );
-      alert('Project sent to revision successfully.');
+      toast.success('Project sent to revision successfully.');
       closeRevisionModal();
     } catch (err: any) {
       console.error('Error sending project to revision:', err);
-      alert(err.response?.data?.message || 'Failed to send project to revision.');
+      toast.error(err.response?.data?.message || 'Failed to send project to revision.');
     } finally {
       setReviseProjectId(null);
     }
@@ -155,8 +162,8 @@ const UserProjects: React.FC = () => {
     setCurrentPage(prev => Math.min(prev + 1, totalPages));
   };
 
-  if (loading) return <div>Loading projects...</div>;
-  if (error) return <div className="text-red-500">{error}</div>;
+  if (loading) return <div className="text-center text-gray-500">Loading projects...</div>;
+  if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
     <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
@@ -184,7 +191,9 @@ const UserProjects: React.FC = () => {
           {projects.map((project, index) => (
             <tr key={project._id} className="text-center border-t">
               <td className="px-4 py-2 text-left">{(currentPage - 1) * entriesPerPage + index + 1}</td>
-              <td className="px-4 py-2 text-left">{project.projectName}</td>
+              <td className="px-4 py-2 text-left text-blue-500 underline cursor-pointer">
+                <button onClick={() => onProjectClick(project._id)}>{project.projectName}</button>
+              </td>
               <td className="px-4 py-2">{project.category}</td>
               <td className="px-4 py-2">{project.projectStatus}</td>
               <td className="px-4 py-2">{project.completion}</td>

@@ -23,8 +23,11 @@ interface PaginatedResponse {
 }
 
 Modal.setAppElement('#root');
+interface UserProjectsProps {
+  onProjectClick: (projectId: string) => void;
+}
 
-const AllOpenProjects: React.FC = () => {
+const AllOpenProjects : React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -170,7 +173,9 @@ const AllOpenProjects: React.FC = () => {
               <td className="px-4 py-2 text-left">
                 {(currentPage - 1) * entriesPerPage + index + 1}
               </td>
-              <td className="px-4 py-2 text-left">{project.projectName}</td>
+              <td className="px-4 py-2 text-left text-blue-500 underline cursor-pointer">
+                <button onClick={() => onProjectClick(project._id)}>{project.projectName}</button>
+              </td>
               <td className="px-4 py-2">{project.category}</td>
               <td className="px-4 py-2">{project.projectStatus}</td>
               <td className="px-4 py-2">{project.completion}</td>

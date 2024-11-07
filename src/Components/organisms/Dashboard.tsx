@@ -190,11 +190,11 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
     switch (selectedContent) {
       case 'all-projects':
-        return <UserProjects />;
+        return <UserProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />;
       case 'open-projects':
-        return <AllOpenProjects />;
+        return <AllOpenProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />;
       case 'closed-projects':
-        return <AllCloseProjects />;
+        return <AllCloseProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)} />;
       case 'subscription-management':
         return <ManageSubscription onAddSubscription={handleAddSubscription} />;
       case 'all-messages':
@@ -257,15 +257,15 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             </div>
 
             <section className='mt-6'>
-              <AllOpenProjects />
+              <AllOpenProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />
             </section>
 
             <section className='mt-6'>
-              <AllCloseProjects />
+              <AllCloseProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />
             </section>
 
             <section className='mt-6'>
-              <AllProjectFiles />
+              <AllProjectFiles onProjectClick={(projectId: string) => setSelectedProjectId(projectId)} />
             </section>
 
             <section className='mt-6'>
