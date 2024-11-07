@@ -1,55 +1,52 @@
+// frontend/src/molecules/ProjectOverView/ProjectInformation.tsx
+
 import React, { useState } from 'react';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
+import { ProjectInfo, ProjectOverviewProps } from '../../types/projectInfo';
 
-interface Project {
-  id: number;
-  title: string;
-  status: string;
-  startDate: string;
-  completionDate: string;
-  completionPercentage: number;
-  files: number;
-  noOfWords: number;
-  brief: string;
-  additionalFiles: string[];
-}
-
-
-interface ProjectOverviewProps {
-
-  projectId: string | undefined;
-
-}
-
-const ProjectInformation = ({ project }: { project: Project }) => {
-  const [isBriefOpen, setIsBriefOpen] = useState(true);
-  const [isFilesOpen, setIsFilesOpen] = useState(false);
+const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
+  const [isBriefOpen, setIsBriefOpen] = useState<boolean>(true);
+  const [isFilesOpen, setIsFilesOpen] = useState<boolean>(false);
 
   const toggleBrief = () => setIsBriefOpen(!isBriefOpen);
   const toggleFiles = () => setIsFilesOpen(!isFilesOpen);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
+
+  const getProgressValue = () => {
+    switch (project.completion) {
+      case 'Not Started':
+        return 0;
+      case 'In Progress':
+        return 50;
+      case 'Completed':
+        return 100;
+      default:
+        return 0;
+    }
+  };
+
 
   return (
-    <div className="bg-white p-4 rounded-lg shadow-md space-y-2 w-[100%]">
-
+    <div className="bg-white p-4 rounded-lg shadow-md space-y-2 w-full">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold">{project.title}</h2>
+          <h2 className="text-xl font-semibold"><strong>Project Name:</strong> {project.projectName}</h2>
           <ul className="mt-2 space-y-1">
-            <li><strong>Status:</strong> {project.status}</li>
-            <li><strong>Start Date:</strong> {project.startDate}</li>
-            <li><strong>Completion Date:</strong> {project.completionDate}</li>
-            <li><strong>Completion:</strong> {project.completionPercentage} %</li>
-            <li><strong>File(s):</strong> {project.files}</li>
-            <li><strong>No of Words:</strong> {project.noOfWords}</li>
+            <li><strong>Status:</strong> {project.projectStatus}</li>
+            <li><strong>Start Date:</strong> {new Date(project.createdAt).toLocaleDateString()}</li>
+            {/* <li><strong>Completion Date:</strong> {new Date(project.deadline).toLocaleDateString()}</li> */}
+            <li><strong>Completion:</strong> {project.completion}</li>
+            <li><strong>File(s):</strong> {project.uploadedArticles.length}</li> {/* Updated Field */}
+            <li><strong>No of Words:</strong> {project.numberOfWords}</li> {/* Updated Field */}
           </ul>
         </div>
 
         <div className="w-24">
           <CircularProgressbar
-            value={project.completionPercentage}
-            text={`${project.completionPercentage}%`}
+            value={getProgressValue()}
+            text={`${getProgressValue()}%`}
             styles={buildStyles({
               textColor: '#FF7700',
               pathColor: '#FF7700',
@@ -66,7 +63,7 @@ const ProjectInformation = ({ project }: { project: Project }) => {
         </div>
         {isBriefOpen && (
           <div className="mt-3 text-gray-700">
-            <p>{project.brief}</p>
+            <p>{project.projectDetails}</p> {/* Updated Field */}
           </div>
         )}
       </div>
@@ -78,10 +75,19 @@ const ProjectInformation = ({ project }: { project: Project }) => {
         </div>
         {isFilesOpen && (
           <div className="mt-3 text-gray-700">
-            {project.additionalFiles.length > 0 ? (
-              <ul className="list-disc ml-5">
-                {project.additionalFiles.map((file, index) => (
-                  <li key={index}>{file}</li>
+            {project.uploadedArticles.length > 0 ? ( // Updated Field
+              <ul className="list-disc list-inside">
+                {project.uploadedArticles.map((file) => (
+                  <li key={file._id}>
+                    <a
+                      href={`${backendUrl}${file.filepath}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 underline"
+                    >
+                      {file.filename}
+                    </a>
+                  </li>
                 ))}
               </ul>
             ) : (
@@ -94,23 +100,18 @@ const ProjectInformation = ({ project }: { project: Project }) => {
   );
 };
 
-const sampleProject = {
-  id: 1,
-  title: "1 Video 60-90 seconds",
-  status: "Completed",  
-  startDate: "03 Oct 2024",
-  completionDate: "21 Oct 2024",
-  completionPercentage: 100,
-  files: 1,
-  noOfWords: 60,
-  brief: "This project involves creating a 60-90 second video with a focus on highlighting the client’s product features.",
-  additionalFiles: ["script.docx", "voiceover.mp3"]
-};
+const ProjectOverview: React.FC<ProjectOverviewProps> = ({ projectId, projectData }) => {
+  if (!projectData) {
+    return (
+     <div>
+        No project data available
+      </div>
+    );
+  }
 
-const ProjectOverview: React.FC<ProjectOverviewProps> = ({ projectId }) => {
   return (
-    <div className="container mx-auto p-4 w-[auto]">
-      <ProjectInformation project={sampleProject} />
+    <div className="container mx-auto p-4 w-auto">
+      <ProjectInformation project={projectData} />
     </div>
   );
 };

@@ -14,7 +14,7 @@ import ChangePassword from '../molecules/ProfileSettings/ChangePassword';
 import UpdateUsers from '../molecules/ProfileSettings/UpdateUsers';
 import ManageSubscription from '../molecules/UserProjects/ManageSubscription';
 import SearchFiles from '../molecules/Search/SearchFiles';
-import ProjectDetails from './ProjectDetails';
+import ProjectDetails from './ProjectDetails'; // Updated Import
 import ReturnToHomeButton from '../atoms/ReturnHomeButton';
 import SendProposal from '../molecules/New Order/SendProposal';
 import ProjectForm from './ProjectForm';
@@ -31,9 +31,44 @@ import AllOpenProjects from '../molecules/UserProjects/OpenUserProjects';
 import AllProjectFiles from '../molecules/AllProjectFiles';
 import AllMessages from '../molecules/Messages/Allmessages';
 import Preferences from '../molecules/ProfileSettings/Prefrences';
+import { toast } from 'react-toastify';
+import { ProjectInfo } from '../../types/projectInfo';
 
 interface DashboardProps {
   children?: React.ReactNode;
+}
+
+interface Project {
+  _id: string;
+  projectName: string;
+  projectDetails: string;
+  category: string;
+  completion: string;
+  projectStatus: string;
+  deadline: string;
+  // Include other fields as necessary
+  uploadedArticles: UploadedArticle[];
+  uploadedBusinessPlan: string | null;
+  uploadedProposal: string | null;
+  user: User;
+  revisionNotes?: string;
+  revisionStatus?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+interface UploadedArticle {
+  filename: string;
+  filepath: string;
+  filetype: string;
+  filesize: number;
+  _id: string;
+}
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
 }
 
 const sanitizeFilename = (filename: string) => {
@@ -44,6 +79,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const { user } = useContext(AuthContext);
   const [selectedContent, setSelectedContent] = useState<string>('dashboard');
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const [projectData, setProjectData] = useState<ProjectInfo | null>(null); // New State for Project Data
   
   const [dashboardSettings, setDashboardSettings] = useState<{
     logo: string;
@@ -157,20 +193,35 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const handleSubmenuClick = (submenuKey: string) => {
     setSelectedContent(submenuKey);
     setSelectedProjectId(null);
+    setProjectData(null); // Reset project data when navigating to other sections
   };
 
   const handleReturnHome = () => {
     setSelectedContent('dashboard');
     setSelectedProjectId(null);
+    setProjectData(null); // Reset project data when returning home
   };
   
   const handleAddSubscription = () => {
     setSelectedContent('add-project');
   };
 
+  // **New onProjectClick Handler with Data Fetching**
+  const handleProjectClick = async (projectId: string) => {
+    try {
+      // Fetch the detailed project data
+      const response = await axios.get<ProjectInfo>(`${backendUrl}/api/projects/${projectId}`, { withCredentials: true });
+      setProjectData(response.data);
+      setSelectedProjectId(projectId);
+    } catch (error: any) {
+      console.error('Error fetching project data:', error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || 'Failed to fetch project data.');
+    }
+  };
+
   const renderContent = () => {
-    if (selectedProjectId) {
-      return <ProjectDetails />;
+    if (selectedProjectId && projectData) {
+      return <ProjectDetails projectId={selectedProjectId} onBack={handleReturnHome} />;
     }
 
     if (user?.role === 'superAdmin') {
@@ -190,11 +241,11 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
     switch (selectedContent) {
       case 'all-projects':
-        return <UserProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />;
+        return <UserProjects onProjectClick={handleProjectClick} />;
       case 'open-projects':
-        return <AllOpenProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />;
+        return <AllOpenProjects onProjectClick={handleProjectClick} />;
       case 'closed-projects':
-        return <AllCloseProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)} />;
+        return <AllCloseProjects onProjectClick={handleProjectClick} />;
       case 'subscription-management':
         return <ManageSubscription onAddSubscription={handleAddSubscription} />;
       case 'all-messages':
@@ -256,16 +307,17 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
               </div>
             </div>
 
+            {/* Conditionally render sections based on selectedContent or other logic */}
             <section className='mt-6'>
-              <AllOpenProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />
+              <AllOpenProjects onProjectClick={handleProjectClick} />
             </section>
 
             <section className='mt-6'>
-              <AllCloseProjects onProjectClick={(projectId: string) => setSelectedProjectId(projectId)}  />
+              <AllCloseProjects onProjectClick={handleProjectClick} />
             </section>
 
             <section className='mt-6'>
-              <AllProjectFiles onProjectClick={(projectId: string) => setSelectedProjectId(projectId)} />
+              <AllProjectFiles onProjectClick={handleProjectClick} />
             </section>
 
             <section className='mt-6'>

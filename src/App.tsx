@@ -77,7 +77,7 @@ const App: React.FC = () => {
           <Route path="/dashboard/change-password" element={<ChangePassword />} />
           <Route path="/dashboard/addedit-users" element={<UpdateUsers />} />
           <Route path="/dashboard/search-projects" element={<SearchFiles />} />
-          <Route path="/dashboard/project-details/:projectId" element={<ProjectDetails />} />
+          {/* <Route path="/dashboard/project-details/:projectId" element={<ProjectDetails />} /> */}
         </Routes>
       </Router>
       </div>
