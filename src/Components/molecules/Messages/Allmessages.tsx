@@ -35,6 +35,7 @@ const AllMessages: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [currentTab, setCurrentTab] = useState<'received' | 'sent'>('received');
 
   const { user } = useContext(AuthContext);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
@@ -48,15 +49,11 @@ const AllMessages: React.FC = () => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        if (user?.role === 'superAdmin') {
-          // Fetch all messages for Super Admin
-          const response = await axios.get(`${backendUrl}/api/superadmin/messages`, { withCredentials: true });
-          setMessages(response.data);
-        } else {
-          // Fetch messages for Normal User
-          const response = await axios.get(`${backendUrl}/api/messages`, { withCredentials: true });
-          setMessages(response.data);
-        }
+        const response = await axios.get(`${backendUrl}/api/messages`, {
+          params: { type: currentTab },
+          withCredentials: true
+        });
+        setMessages(response.data);
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch messages.');
         toast.error(err.response?.data?.message || 'Failed to fetch messages.');
@@ -76,13 +73,13 @@ const AllMessages: React.FC = () => {
 
     fetchMessages();
     fetchUnreadCount();
-  }, [backendUrl, user?.role]);
+  }, [backendUrl, currentTab]);
 
-  const handleReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
-    onReply(messageId, replyMessage, replyFile);
+  const handleReply = (messageId: string) => {
+    onReply(messageId);
   };
 
-  const onReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
+  const onReply = (messageId: string) => {
     setSelectedMessageId(messageId);
     setIsReplyModalOpen(true);
   };
@@ -142,13 +139,35 @@ const AllMessages: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4">All Messages ({unreadCount} Unread)</h2>
+      
+      {/* Tabs for Sent and Received Messages */}
+      <div className="flex mb-4">
+        <button
+          className={`flex-1 py-2 px-4 text-center rounded-t-lg ${
+            currentTab === 'received' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+          onClick={() => setCurrentTab('received')}
+        >
+          Received Messages
+        </button>
+        <button
+          className={`flex-1 py-2 px-4 text-center rounded-t-lg ${
+            currentTab === 'sent' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          }`}
+          onClick={() => setCurrentTab('sent')}
+        >
+          Sent Messages
+        </button>
+      </div>
+
       <MessageTable
         messages={messages}
         onReply={handleReply}
         backendUrl={backendUrl}
+        messageType={currentTab}
+        currentUserId={user?._id || ''}
       />
-      
-      {/* Reply Modal */}
+
       {isReplyModalOpen && selectedMessageId && (
         <WriteMessageModal
           onClose={() => setIsReplyModalOpen(false)}

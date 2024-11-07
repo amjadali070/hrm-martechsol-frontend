@@ -29,20 +29,27 @@ interface Message {
 
 interface MessageTableProps {
   messages: Message[];
-  onReply: (messageId: string, replyMessage: string, replyFile: File | null) => void;
+  onReply: (messageId: string) => void;
   backendUrl: string;
+  messageType: 'sent' | 'received';
+  currentUserId: string;
 }
 
-const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendUrl }) => {
+const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendUrl, messageType, currentUserId }) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [entriesPerPage, setEntriesPerPage] = useState<number>(5);
   const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
 
+  // Filter messages based on messageType and currentUserId
+  const filteredMessages = messages.filter(msg => 
+    messageType === 'sent' ? msg.sender._id === currentUserId : msg.receiver._id === currentUserId
+  );
+
   const indexOfLastMessage = currentPage * entriesPerPage;
   const indexOfFirstMessage = indexOfLastMessage - entriesPerPage;
-  const currentMessages = messages.slice(indexOfFirstMessage, indexOfLastMessage);
-  const totalPages = Math.ceil(messages.length / entriesPerPage);
+  const currentMessages = filteredMessages.slice(indexOfFirstMessage, indexOfLastMessage);
+  const totalPages = Math.ceil(filteredMessages.length / entriesPerPage);
 
   const handleNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(prev => prev + 1);
@@ -135,13 +142,16 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                   )}
                 </td>
                 <td className="py-3 px-4 border-b text-center">
-                  <button
-                    onClick={() => onReply(msg._id, '', null)}
-                    className="text-indigo-600 hover:text-indigo-800"
-                    title="Reply"
-                  >
-                    <MdReply size={24} />
-                  </button>
+                  {/* Show Reply button only for Received Messages */}
+                  {messageType === 'received' && (
+                    <button
+                      onClick={() => onReply(msg._id)}
+                      className="text-indigo-600 hover:text-indigo-800"
+                      title="Reply"
+                    >
+                      <MdReply size={24} />
+                    </button>
+                  )}
                 </td>
               </tr>
             ))
@@ -174,8 +184,8 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
 
         {/* Showing X of Y entries */}
         <div className="text-sm">
-          Showing {messages.length === 0 ? 0 : indexOfFirstMessage + 1}-
-          {Math.min(indexOfLastMessage, messages.length)} of {messages.length} entries
+          Showing {filteredMessages.length === 0 ? 0 : indexOfFirstMessage + 1}-
+          {Math.min(indexOfLastMessage, filteredMessages.length)} of {filteredMessages.length} entries
         </div>
 
         {/* Pagination Buttons */}

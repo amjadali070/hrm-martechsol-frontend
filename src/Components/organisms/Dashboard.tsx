@@ -245,7 +245,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
                   loading={countsLoading}
                   error={countsError}
                 />
-                {/* **New Unread Messages StatCard** */}
                 <StatCard
                   title="Unread Messages"
                   count={unreadError ? null : unreadCount}
@@ -269,7 +268,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
               <AllProjectFiles />
             </section>
 
-            {/* **New All Messages Section** */}
             <section className='mt-6'>
               <AllMessages />
             </section>

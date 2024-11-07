@@ -23,7 +23,7 @@ interface ProjectOverviewProps {
 
 }
 
-const ProjectDetails = ({ project }: { project: Project }) => {
+const ProjectInformation = ({ project }: { project: Project }) => {
   const [isBriefOpen, setIsBriefOpen] = useState(true);
   const [isFilesOpen, setIsFilesOpen] = useState(false);
 
@@ -110,7 +110,7 @@ const sampleProject = {
 const ProjectOverview: React.FC<ProjectOverviewProps> = ({ projectId }) => {
   return (
     <div className="container mx-auto p-4 w-[auto]">
-      <ProjectDetails project={sampleProject} />
+      <ProjectInformation project={sampleProject} />
     </div>
   );
 };

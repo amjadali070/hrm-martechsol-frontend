@@ -20,7 +20,6 @@ const columns: Column[] = [
   { key: 'projectStatus', label: 'Project Status' },
   { key: 'deadline', label: 'Deadline' },
   { key: 'invoice', label: 'Invoice' },
-  // { key: 'riForm', label: 'RI Form' }
 ];
 
 const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscription }) => {
