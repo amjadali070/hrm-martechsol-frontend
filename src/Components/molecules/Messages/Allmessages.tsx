@@ -3,9 +3,10 @@
 import React, { useEffect, useState, useContext } from 'react';
 import axios from 'axios';
 import { AuthContext } from '../../organisms/AuthContext';
-import MessageTable from '../../atoms/MessageTable';
+import { toast } from 'react-toastify';
 import WriteMessageModal from '../../atoms/MessageModal';
-
+import MessageTable from '../../atoms/MessageTable';
+import ViewMessageModal from '../../atoms/ViewMessageModal';
 
 interface Message {
   _id: string;
@@ -36,10 +37,13 @@ const AllMessages: React.FC = () => {
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
   const { user } = useContext(AuthContext);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState<boolean>(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+
+  const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -55,6 +59,7 @@ const AllMessages: React.FC = () => {
         }
       } catch (err: any) {
         setError(err.response?.data?.message || 'Failed to fetch messages.');
+        toast.error(err.response?.data?.message || 'Failed to fetch messages.');
       } finally {
         setLoading(false);
       }
@@ -73,27 +78,32 @@ const AllMessages: React.FC = () => {
     fetchUnreadCount();
   }, [backendUrl, user?.role]);
 
-  const handleReply = (messageId: string) => {
+  const handleReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
+    onReply(messageId, replyMessage, replyFile);
+  };
+
+  const onReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
     setSelectedMessageId(messageId);
-    setIsModalOpen(true);
+    setIsReplyModalOpen(true);
   };
 
   const handleSendReply = async (replyMessage: string, replyFile: File | null) => {
     try {
-      const formData = new FormData();
-
-      // Find the original message
-      const originalMessage = messages.find(msg => msg._id === selectedMessageId);
-      if (!originalMessage) {
-        alert('Original message not found.');
+      if (!selectedMessageId) {
+        toast.error('No message selected for reply.');
         return;
       }
 
+      const originalMessage = messages.find(msg => msg._id === selectedMessageId);
+      if (!originalMessage) {
+        toast.error('Original message not found.');
+        return;
+      }
+
+      const formData = new FormData();
       formData.append('receiverId', originalMessage.sender._id);
       formData.append('message', replyMessage);
-      if (originalMessage.project) {
-        formData.append('projectId', originalMessage.project._id);
-      }
+      if (originalMessage.project?._id) formData.append('projectId', originalMessage.project._id);
       if (replyFile) formData.append('file', replyFile);
 
       const response = await axios.post(`${backendUrl}/api/messages`, formData, {
@@ -103,16 +113,27 @@ const AllMessages: React.FC = () => {
         withCredentials: true,
       });
 
-      // Update messages state
+      // Update messages state with the new reply
       setMessages([response.data, ...messages]);
       setUnreadCount(unreadCount + 1);
-      alert('Reply sent successfully.');
-      setIsModalOpen(false);
+      toast.success('Reply sent successfully.');
+      setIsReplyModalOpen(false);
       setSelectedMessageId(null);
     } catch (error: any) {
-      console.error('Error sending reply:', error.response?.data?.message || error.message);
-      alert(error.response?.data?.message || 'Failed to send reply.');
+      const errorMsg = error.response?.data?.message || 'Failed to send reply.';
+      console.error('Error sending reply:', errorMsg);
+      toast.error(errorMsg);
     }
+  };
+
+  const handleMessageTitleClick = (message: Message) => {
+    setSelectedMessage(message);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedMessage(null);
   };
 
   if (loading) return <div className="text-center text-gray-500">Loading messages...</div>;
@@ -121,11 +142,26 @@ const AllMessages: React.FC = () => {
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4">All Messages ({unreadCount} Unread)</h2>
-      <MessageTable messages={messages} onReply={handleReply} />
-      {isModalOpen && selectedMessageId && (
+      <MessageTable
+        messages={messages}
+        onReply={handleReply}
+        backendUrl={backendUrl}
+      />
+      
+      {/* Reply Modal */}
+      {isReplyModalOpen && selectedMessageId && (
         <WriteMessageModal
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsReplyModalOpen(false)}
           onSend={handleSendReply}
+        />
+      )}
+
+      {/* View Message Modal */}
+      {isViewModalOpen && selectedMessage && (
+        <ViewMessageModal
+          message={selectedMessage}
+          onClose={handleCloseViewModal}
+          backendUrl={backendUrl}
         />
       )}
     </div>

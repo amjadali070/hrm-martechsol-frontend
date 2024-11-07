@@ -7,8 +7,8 @@ import StatCard from '../atoms/StatCard';
 import { IoIosFolderOpen } from 'react-icons/io';
 import { VscEyeClosed } from 'react-icons/vsc';
 import { SiVirustotal } from 'react-icons/si';
+import { MdMail } from 'react-icons/md'; // Imported Mail Icon
 import Footer from '../atoms/Footer';
-import AllMessages from '../molecules/Messages/Allmessages';
 import WriteMessage from '../molecules/Messages/CustomMessage';
 import ChangePassword from '../molecules/ProfileSettings/ChangePassword';
 import UpdateUsers from '../molecules/ProfileSettings/UpdateUsers';
@@ -22,7 +22,6 @@ import { AuthContext } from './AuthContext';
 import SuperAdminProjects from './superAdmin/SuperAdminProjects';
 import SuperAdminUsers from './superAdmin/SuperAdminUsers';
 import UserProjects from '../molecules/UserProjects/AllUserProjects';
-import Preferences from '../molecules/ProfileSettings/Prefrences';
 import SuperAdminMessages from './superAdmin/SuperAdminMessages';
 import DashboardSettings from './superAdmin/DashboardSettings';
 import axios from 'axios';
@@ -30,6 +29,8 @@ import defaultLogo from '../../assets/logo.png';
 import AllCloseProjects from '../molecules/UserProjects/ClosedUserProjects';
 import AllOpenProjects from '../molecules/UserProjects/OpenUserProjects';
 import AllProjectFiles from '../molecules/AllProjectFiles';
+import AllMessages from '../molecules/Messages/Allmessages';
+import Preferences from '../molecules/ProfileSettings/Prefrences';
 
 interface DashboardProps {
   children?: React.ReactNode;
@@ -59,7 +60,12 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const [openProjectsCount, setOpenProjectsCount] = useState<number>(0);
   const [closedProjectsCount, setClosedProjectsCount] = useState<number>(0);
 
-  // **Loading and Error States for Counts**
+  // **State Variables for Unread Messages**
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [unreadLoading, setUnreadLoading] = useState<boolean>(true);
+  const [unreadError, setUnreadError] = useState<string | null>(null);
+
+  // **Loading and Error States for Project Counts**
   const [countsLoading, setCountsLoading] = useState<boolean>(true);
   const [countsError, setCountsError] = useState<string | null>(null);
 
@@ -124,6 +130,28 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     }
   }, [backendUrl, user]);
 
+  // **New useEffect for Fetching Unread Messages Count**
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      try {
+        setUnreadLoading(true);
+        setUnreadError(null);
+        const response = await axios.get(`${backendUrl}/api/messages/unread-count`, { withCredentials: true });
+        setUnreadCount(response.data.unreadCount);
+      } catch (error: any) {
+        console.error('Error fetching unread messages count:', error);
+        setUnreadError('Failed to fetch unread messages count.');
+        setUnreadCount(0);
+      } finally {
+        setUnreadLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchUnreadCount();
+    }
+  }, [backendUrl, user]);
+
   const logoSrc = dashboardSettings.logo === 'default-logo.png' ? defaultLogo : `${backendUrl}/uploads/${dashboardSettings.logo}`;
 
   const handleSubmenuClick = (submenuKey: string) => {
@@ -139,10 +167,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const handleAddSubscription = () => {
     setSelectedContent('add-project');
   };
-
-  // **Download All Files Function (if needed)**
-  // If you need to download all files from the Dashboard, you can implement similar logic
-  // However, based on current requirements, it's handled within UserProjects
 
   const renderContent = () => {
     if (selectedProjectId) {
@@ -196,30 +220,40 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
           <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
             <div className="flex flex-col mt-4 w-full text-lg text-gray-500">
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 max-md:max-w-full">
-              <StatCard
-                title="Total Projects"
-                count={countsError ? null : totalProjectsCount}
-                icon={<SiVirustotal className="text-white" />}
-                onClick={() => handleSubmenuClick('all-projects')}
-                loading={countsLoading}
-                error={countsError}
-              />
-              <StatCard
-                title="Open Projects"
-                count={countsError ? null : openProjectsCount}
-                icon={<IoIosFolderOpen className="text-white" />}
-                onClick={() => handleSubmenuClick('open-projects')}
-                loading={countsLoading}
-                error={countsError}
-              />
-              <StatCard
-                title="Closed Projects"
-                count={countsError ? null : closedProjectsCount}
-                icon={<VscEyeClosed className="text-white" />}
-                onClick={() => handleSubmenuClick('closed-projects')}
-                loading={countsLoading}
-                error={countsError}
-              />
+                {/* **StatCards with Dynamic Counts** */}
+                <StatCard
+                  title="Total Projects"
+                  count={countsError ? null : totalProjectsCount}
+                  icon={<SiVirustotal className="text-white" />}
+                  onClick={() => handleSubmenuClick('all-projects')}
+                  loading={countsLoading}
+                  error={countsError}
+                />
+                <StatCard
+                  title="Open Projects"
+                  count={countsError ? null : openProjectsCount}
+                  icon={<IoIosFolderOpen className="text-white" />}
+                  onClick={() => handleSubmenuClick('open-projects')}
+                  loading={countsLoading}
+                  error={countsError}
+                />
+                <StatCard
+                  title="Closed Projects"
+                  count={countsError ? null : closedProjectsCount}
+                  icon={<VscEyeClosed className="text-white" />}
+                  onClick={() => handleSubmenuClick('closed-projects')}
+                  loading={countsLoading}
+                  error={countsError}
+                />
+                {/* **New Unread Messages StatCard** */}
+                <StatCard
+                  title="Unread Messages"
+                  count={unreadError ? null : unreadCount}
+                  icon={<MdMail className="text-white" />}
+                  onClick={() => handleSubmenuClick('all-messages')}
+                  loading={unreadLoading}
+                  error={unreadError}
+                />
               </div>
             </div>
 
@@ -233,6 +267,11 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
             <section className='mt-6'>
               <AllProjectFiles />
+            </section>
+
+            {/* **New All Messages Section** */}
+            <section className='mt-6'>
+              <AllMessages />
             </section>
           </div>
         );

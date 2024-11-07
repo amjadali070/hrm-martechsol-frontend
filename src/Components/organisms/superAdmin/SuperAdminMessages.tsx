@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import MessageTable from '../../atoms/MessageTable';
 import WriteMessageModal from '../../atoms/MessageModal';
-
+import ViewMessageModal from '../../atoms/ViewMessageModal';
 
 interface Message {
   _id: string;
@@ -35,10 +35,13 @@ const SuperAdminMessages: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [unreadCount, setUnreadCount] = useState<number>(0);
 
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [isReplyModalOpen, setIsReplyModalOpen] = useState<boolean>(false);
   const [selectedMessageId, setSelectedMessageId] = useState<string | null>(null);
+
+  const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
+  const [selectedMessage, setSelectedMessage] = useState<Message | null>(null);
 
   useEffect(() => {
     const fetchAllMessages = async () => {
@@ -67,9 +70,13 @@ const SuperAdminMessages: React.FC = () => {
     fetchUnreadCount();
   }, [backendUrl]);
 
-  const handleReply = (messageId: string) => {
+  const handleReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
+    onReply(messageId, replyMessage, replyFile);
+  };
+
+  const onReply = (messageId: string, replyMessage: string, replyFile: File | null) => {
     setSelectedMessageId(messageId);
-    setIsModalOpen(true);
+    setIsReplyModalOpen(true);
   };
 
   const handleSendReply = async (replyMessage: string, replyFile: File | null) => {
@@ -102,7 +109,7 @@ const SuperAdminMessages: React.FC = () => {
       setMessages([response.data, ...messages]);
       setUnreadCount(unreadCount + 1);
       toast.success('Reply sent successfully.');
-      setIsModalOpen(false);
+      setIsReplyModalOpen(false);
       setSelectedMessageId(null);
     } catch (error: any) {
       const errorMsg = error.response?.data?.message || 'Failed to send reply.';
@@ -111,17 +118,42 @@ const SuperAdminMessages: React.FC = () => {
     }
   };
 
+  const handleMessageTitleClick = (message: Message) => {
+    setSelectedMessage(message);
+    setIsViewModalOpen(true);
+  };
+
+  const handleCloseViewModal = () => {
+    setIsViewModalOpen(false);
+    setSelectedMessage(null);
+  };
+
   if (loading) return <div className="text-center text-gray-500">Loading messages...</div>;
   if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
     <div className="bg-white p-6 rounded-lg shadow-md">
       <h2 className="text-2xl font-semibold mb-4">All Messages ({unreadCount} Unread)</h2>
-      <MessageTable messages={messages} onReply={handleReply} />
-      {isModalOpen && selectedMessageId && (
+      <MessageTable
+        messages={messages}
+        onReply={handleReply}
+        backendUrl={backendUrl}
+      />
+
+      {/* Reply Modal */}
+      {isReplyModalOpen && selectedMessageId && (
         <WriteMessageModal
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsReplyModalOpen(false)}
           onSend={handleSendReply}
+        />
+      )}
+
+      {/* View Message Modal */}
+      {isViewModalOpen && selectedMessage && (
+        <ViewMessageModal
+          message={selectedMessage}
+          onClose={handleCloseViewModal}
+          backendUrl={backendUrl}
         />
       )}
     </div>
