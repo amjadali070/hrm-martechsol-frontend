@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-
-import { toast } from 'react-toastify'; // If using react-toastify for notifications
+import { toast } from 'react-toastify'; // Ensure react-toastify is installed and configured
 import { AuthContext } from '../organisms/AuthContext';
 
 interface Receiver {
@@ -15,19 +14,26 @@ interface Receiver {
 interface Project {
   _id: string;
   projectName: string;
+  projectDetails: string;
+  category: string;
+  completion: string;
+  projectStatus: string;
+  deadline: string;
+  // Include other fields as necessary
 }
 
 const InputMessage: React.FC = () => {
-  const [selectedProject, setSelectedProject] = useState('');
-  const [message, setMessage] = useState('');
+  const [selectedProject, setSelectedProject] = useState<string>('');
+  const [message, setMessage] = useState<string>('');
   const [file, setFile] = useState<File | null>(null);
-  const [receiverId, setReceiverId] = useState('');
+  const [receiverId, setReceiverId] = useState<string>('');
   const [receivers, setReceivers] = useState<Receiver[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
   const [loadingReceivers, setLoadingReceivers] = useState<boolean>(true);
   const [loadingProjects, setLoadingProjects] = useState<boolean>(true);
   const [errorReceivers, setErrorReceivers] = useState<string | null>(null);
   const [errorProjects, setErrorProjects] = useState<string | null>(null);
+  const [sending, setSending] = useState<boolean>(false); // New state for sending
 
   const { user } = useContext(AuthContext);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -53,11 +59,38 @@ const InputMessage: React.FC = () => {
       }
     };
 
-
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
-        setProjects(response.data);
+        setLoadingProjects(true);
+        let response;
+
+        if (user?.role === 'superAdmin') {
+          // Fetch projects using superAdmin API
+          response = await axios.get(`${backendUrl}/api/superadmin/projects`, { withCredentials: true });
+          console.log('SuperAdmin Projects Response:', response.data);
+          // Since the response is an array, setProjects directly
+          if (Array.isArray(response.data)) {
+            setProjects(response.data);
+          } else {
+            // Handle unexpected response structure
+            setErrorProjects('Invalid projects data format received.');
+            setProjects([]);
+            toast.error('Invalid projects data format received.');
+          }
+        } else {
+          // Fetch projects using standard API
+          response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
+          console.log('Standard Projects Response:', response.data);
+          // Assuming standard API returns { projects: [...], page: ..., pages: ..., total: ... }
+          if (response.data && Array.isArray(response.data.projects)) {
+            setProjects(response.data.projects);
+          } else {
+            // Handle unexpected response structure
+            setErrorProjects('Invalid projects data format received.');
+            setProjects([]);
+            toast.error('Invalid projects data format received.');
+          }
+        }
       } catch (error: any) {
         const errorMsg = error.response?.data?.message || 'Failed to fetch projects.';
         setErrorProjects(errorMsg);
@@ -69,7 +102,7 @@ const InputMessage: React.FC = () => {
 
     fetchReceivers();
     fetchProjects();
-  }, [user?.role]);
+  }, [user?.role, backendUrl]);
 
   const handleProjectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setSelectedProject(event.target.value);
@@ -108,6 +141,7 @@ const InputMessage: React.FC = () => {
     if (file) formData.append('file', file);
 
     try {
+      setSending(true); // Start sending
       const response = await axios.post(`${backendUrl}/api/messages`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -127,6 +161,8 @@ const InputMessage: React.FC = () => {
       const errorMsg = error.response?.data?.message || 'Failed to send message.';
       console.error('Error sending message:', errorMsg);
       toast.error(errorMsg);
+    } finally {
+      setSending(false); // End sending
     }
   };
 
@@ -192,7 +228,7 @@ const InputMessage: React.FC = () => {
         </div>
 
         {/* Message Input */}
-        <div className="flex items-center">
+        <div className="flex items-start">
           <label className="w-1/4 text-gray-700" htmlFor="message">
             Message
           </label>
@@ -222,13 +258,13 @@ const InputMessage: React.FC = () => {
           </span>
         </div>
 
-        {/* Submit Button */}
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 text-white bg-purple-700 rounded hover:bg-purple-800"
+            className="px-6 py-2 text-white bg-purple-700 rounded hover:bg-purple-800 disabled:bg-purple-400"
+            disabled={sending}
           >
-            Send Message
+            {sending ? 'Sending...' : 'Send Message'}
           </button>
         </div>
       </form>
