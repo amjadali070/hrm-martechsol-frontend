@@ -6,38 +6,38 @@ import Header from '../atoms/Header';
 import StatCard from '../atoms/StatCard';
 import { IoIosFolderOpen } from 'react-icons/io';
 import { VscEyeClosed } from 'react-icons/vsc';
-import { FiMessageSquare } from 'react-icons/fi';
 import { SiVirustotal } from 'react-icons/si';
 import Footer from '../atoms/Footer';
-import ClosedProjects from '../molecules/Projects/ClosedProjects';
-import OpenProjects from '../molecules/Projects/OpenProjects';
 import AllMessages from '../molecules/Messages/Allmessages';
 import WriteMessage from '../molecules/Messages/CustomMessage';
 import ChangePassword from '../molecules/ProfileSettings/ChangePassword';
 import UpdateUsers from '../molecules/ProfileSettings/UpdateUsers';
-import ManageSubscription from '../molecules/Projects/ManageSubscription';
+import ManageSubscription from '../molecules/UserProjects/ManageSubscription';
 import SearchFiles from '../molecules/Search/SearchFiles';
 import ProjectDetails from './ProjectDetails';
-import UpdatedProjectTable, {
-  Project as ProjectType,
-} from '../atoms/UpdateProjectsTable';
 import ReturnToHomeButton from '../atoms/ReturnHomeButton';
 import SendProposal from '../molecules/New Order/SendProposal';
 import ProjectForm from './ProjectForm';
-import ProjectList from './RecentFilesList';
 import { AuthContext } from './AuthContext';
 import SuperAdminProjects from './superAdmin/SuperAdminProjects';
 import SuperAdminUsers from './superAdmin/SuperAdminUsers';
 import UserProjects from '../molecules/UserProjects/AllUserProjects';
 import Preferences from '../molecules/ProfileSettings/Prefrences';
 import SuperAdminMessages from './superAdmin/SuperAdminMessages';
-import DashboardSettings from './superAdmin/DashboardSettings'; // Import the DashboardSettings component
+import DashboardSettings from './superAdmin/DashboardSettings';
 import axios from 'axios';
-import defaultLogo from '../../assets/logo.png'; // Import default logo
+import defaultLogo from '../../assets/logo.png';
+import AllCloseProjects from '../molecules/UserProjects/ClosedUserProjects';
+import AllOpenProjects from '../molecules/UserProjects/OpenUserProjects';
+import AllProjectFiles from '../molecules/AllProjectFiles';
 
 interface DashboardProps {
   children?: React.ReactNode;
 }
+
+const sanitizeFilename = (filename: string) => {
+  return filename.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+};
 
 const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const { user } = useContext(AuthContext);
@@ -54,6 +54,15 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   
+  // **State Variables for Counts**
+  const [totalProjectsCount, setTotalProjectsCount] = useState<number>(0);
+  const [openProjectsCount, setOpenProjectsCount] = useState<number>(0);
+  const [closedProjectsCount, setClosedProjectsCount] = useState<number>(0);
+
+  // **Loading and Error States for Counts**
+  const [countsLoading, setCountsLoading] = useState<boolean>(true);
+  const [countsError, setCountsError] = useState<string | null>(null);
+
   useEffect(() => {
     const fetchDashboardSettings = async () => {
       try {
@@ -64,7 +73,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         });
       } catch (error: any) {
         console.error('Error fetching dashboard settings:', error.response?.data?.message || error.message);
-        // Fallback to default settings if there's an error (e.g., user not allowed)
         setDashboardSettings({
           logo: 'default-logo.png',
           title: 'Dashboard',
@@ -77,7 +85,45 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     }
   }, [backendUrl, user]);
 
-  // Determine the logo to pass to Header
+  // **New useEffect for Fetching Counts**
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        setCountsLoading(true);
+        setCountsError(null);
+
+        // Define the API endpoints
+        const allProjectsEndpoint = `${backendUrl}/api/projects?page=1&limit=1`;
+        const openProjectsEndpoint = `${backendUrl}/api/projects?status=Open&page=1&limit=1`;
+        const closedProjectsEndpoint = `${backendUrl}/api/projects?status=Approved&page=1&limit=1`;
+
+        // Execute all API calls in parallel
+        const [allResponse, openResponse, closedResponse] = await Promise.all([
+          axios.get(allProjectsEndpoint, { withCredentials: true }),
+          axios.get(openProjectsEndpoint, { withCredentials: true }),
+          axios.get(closedProjectsEndpoint, { withCredentials: true }),
+        ]);
+
+        // Update the state variables with the fetched counts
+        setTotalProjectsCount(allResponse.data.total);
+        setOpenProjectsCount(openResponse.data.total);
+        setClosedProjectsCount(closedResponse.data.total);
+      } catch (error: any) {
+        console.error('Error fetching project counts:', error);
+        setCountsError('Failed to fetch project counts.');
+        setTotalProjectsCount(0);
+        setOpenProjectsCount(0);
+        setClosedProjectsCount(0);
+      } finally {
+        setCountsLoading(false);
+      }
+    };
+
+    if (user) {
+      fetchCounts();
+    }
+  }, [backendUrl, user]);
+
   const logoSrc = dashboardSettings.logo === 'default-logo.png' ? defaultLogo : `${backendUrl}/uploads/${dashboardSettings.logo}`;
 
   const handleSubmenuClick = (submenuKey: string) => {
@@ -90,43 +136,14 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     setSelectedProjectId(null);
   };
   
-  // Handler for adding new subscription
   const handleAddSubscription = () => {
     setSelectedContent('add-project');
   };
 
-  interface Column {
-    key: keyof ProjectType;
-    label: string;
-  }
+  // **Download All Files Function (if needed)**
+  // If you need to download all files from the Dashboard, you can implement similar logic
+  // However, based on current requirements, it's handled within UserProjects
 
-  const columns: Column[] = [
-    { key: 'projectName', label: 'Project Title' },
-    { key: 'category', label: 'Category' },
-    { key: 'completion', label: 'Completion' },
-    { key: 'projectStatus', label: 'Project Status' },
-    { key: 'deadline', label: 'Deadline' },
-    { key: 'invoice', label: 'Invoice' },
-    { key: 'riForm', label: 'RI Form' },
-  ];
-
-  // Sample project data (replace with actual data)
-  const OpenProject: ProjectType[] = [
-    {
-      _id: '1',
-      projectName: '1 Video 60-90 seconds',
-      category: 'Video',
-      completion: '1/1',
-      projectStatus: 'Working',
-      deadline: '2024-10-21T00:00:00Z',
-      invoice: true,
-      riForm: '-',
-    },
-  ];
-
-  const ClosedProject: ProjectType[] = [];
-
-  // Function to render the appropriate content based on user role and selected menu
   const renderContent = () => {
     if (selectedProjectId) {
       return <ProjectDetails />;
@@ -147,14 +164,13 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
       }
     }
 
-    // Render content for normal users
     switch (selectedContent) {
       case 'all-projects':
         return <UserProjects />;
       case 'open-projects':
-        return <OpenProjects />;
+        return <AllOpenProjects />;
       case 'closed-projects':
-        return <ClosedProjects />;
+        return <AllCloseProjects />;
       case 'subscription-management':
         return <ManageSubscription onAddSubscription={handleAddSubscription} />;
       case 'all-messages':
@@ -180,53 +196,43 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
           <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
             <div className="flex flex-col mt-4 w-full text-lg text-gray-500">
               <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 max-md:max-w-full">
-                <StatCard
-                  title="Total Projects"
-                  count={4}
-                  icon={<SiVirustotal className="text-white" />}
-                  onClick={() => handleSubmenuClick('all-projects')}
-                />
-                <StatCard
-                  title="Open Projects"
-                  count={1}
-                  icon={<IoIosFolderOpen className="text-white" />}
-                  onClick={() => handleSubmenuClick('open-projects')}
-                />
-                <StatCard
-                  title="Closed Projects"
-                  count={0}
-                  icon={<VscEyeClosed className="text-white" />}
-                  onClick={() => handleSubmenuClick('closed-projects')}
-                />
-                <StatCard
-                  title="Messages"
-                  count={4}
-                  icon={<FiMessageSquare className="text-white" />}
-                  onClick={() => handleSubmenuClick('all-messages')}
-                />
+              <StatCard
+                title="Total Projects"
+                count={countsError ? null : totalProjectsCount}
+                icon={<SiVirustotal className="text-white" />}
+                onClick={() => handleSubmenuClick('all-projects')}
+                loading={countsLoading}
+                error={countsError}
+              />
+              <StatCard
+                title="Open Projects"
+                count={countsError ? null : openProjectsCount}
+                icon={<IoIosFolderOpen className="text-white" />}
+                onClick={() => handleSubmenuClick('open-projects')}
+                loading={countsLoading}
+                error={countsError}
+              />
+              <StatCard
+                title="Closed Projects"
+                count={countsError ? null : closedProjectsCount}
+                icon={<VscEyeClosed className="text-white" />}
+                onClick={() => handleSubmenuClick('closed-projects')}
+                loading={countsLoading}
+                error={countsError}
+              />
               </div>
             </div>
 
-            <section>
-              <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">
-                Open Project(s)
-              </h2>
-              <UpdatedProjectTable projects={OpenProject} columns={columns} />
+            <section className='mt-6'>
+              <AllOpenProjects />
             </section>
 
-            <section>
-              <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">
-                Closed Project(s)
-              </h2>
-              <UpdatedProjectTable projects={ClosedProject} columns={columns} />
+            <section className='mt-6'>
+              <AllCloseProjects />
             </section>
 
-            <section>
-              <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">
-                Recent File(s)
-              </h2>
-              <ProjectList />
-              {/* <UpdatedProjectTable projects={RecentFiles} columns={columns} /> */}
+            <section className='mt-6'>
+              <AllProjectFiles />
             </section>
           </div>
         );

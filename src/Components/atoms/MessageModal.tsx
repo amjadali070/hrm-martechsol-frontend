@@ -1,6 +1,7 @@
 // frontend/src/atoms/WriteMessageModal.tsx
 
 import React, { useState } from 'react';
+import { MdClose } from 'react-icons/md';
 
 interface WriteMessageModalProps {
   onClose: () => void;
@@ -10,6 +11,7 @@ interface WriteMessageModalProps {
 const WriteMessageModal: React.FC<WriteMessageModalProps> = ({ onClose, onSend }) => {
   const [message, setMessage] = useState('');
   const [file, setFile] = useState<File | null>(null);
+  const [sending, setSending] = useState<boolean>(false);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -19,47 +21,72 @@ const WriteMessageModal: React.FC<WriteMessageModalProps> = ({ onClose, onSend }
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!message.trim()) {
       alert('Please enter a message.');
       return;
     }
 
-    onSend(message, file);
+    try {
+      setSending(true);
+      await onSend(message, file);
+      setMessage('');
+      setFile(null);
+    } catch (error) {
+      console.error('Error sending message:', error);
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4 z-50">
-      <div className="bg-white rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl p-6 md:p-8 lg:p-10">
-        <h2 className="text-xl md:text-2xl font-semibold mb-4">Reply to Message</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+      <div className="bg-white rounded-lg w-full max-w-lg p-6 relative">
+        <button
+          onClick={onClose}
+          className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
+          aria-label="Close Modal"
+        >
+          <MdClose size={24} />
+        </button>
+        <h2 className="text-xl font-semibold mb-4">Reply to Message</h2>
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Enter your reply here..."
-          className="w-full h-24 md:h-32 p-2 border border-gray-300 rounded mb-4 text-sm md:text-base"
+          className="w-full h-32 p-3 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <div className="flex items-center mb-4">
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="mr-2 text-sm md:text-base"
-          />
-          <span className="text-sm md:text-base text-gray-600">
+          <label className="flex items-center cursor-pointer">
+            <span className="mr-2 text-sm text-gray-700">Attach File:</span>
+            <input
+              type="file"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <span className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+              Choose File
+            </span>
+          </label>
+          <span className="ml-3 text-sm text-gray-600">
             {file ? file.name : 'No File Selected'}
           </span>
         </div>
         <div className="flex justify-end">
           <button
-            className="bg-gray-300 text-black py-2 px-4 rounded mr-2 text-sm md:text-base"
             onClick={onClose}
+            className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md mr-2 hover:bg-gray-400"
           >
-            Close
+            Cancel
           </button>
           <button
-            className="bg-purple-700 text-white py-2 px-4 rounded text-sm md:text-base"
             onClick={handleSubmit}
+            className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center ${
+              sending ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
+            disabled={sending}
           >
-            Send Reply
+            {sending ? 'Sending...' : 'Send Reply'}
           </button>
         </div>
       </div>

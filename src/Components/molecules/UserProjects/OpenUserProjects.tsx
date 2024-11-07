@@ -1,4 +1,4 @@
-// frontend/src/molecules/User/UserProjects.tsx
+// frontend/src/components/AllClosedProjects.tsx
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
@@ -15,53 +15,69 @@ interface Project {
   deadline: string;
 }
 
-Modal.setAppElement('#root'); // For accessibility
+interface PaginatedResponse {
+  projects: Project[];
+  page: number;
+  pages: number;
+  total: number;
+}
 
-const OpenUserProjects: React.FC = () => {
+Modal.setAppElement('#root');
+
+const AllOpenProjects: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [approvingProjectId, setApprovingProjectId] = useState<string | null>(null);
   const [reviseProjectId, setReviseProjectId] = useState<string | null>(null);
   const [revisionNotes, setRevisionNotes] = useState<{ [key: string]: string }>({});
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [currentProjectId, setCurrentProjectId] = useState<string | null>(null);
 
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [entriesPerPage, setEntriesPerPage] = useState<number>(5);
+  const [totalPages, setTotalPages] = useState<number>(1);
+  const [totalProjects, setTotalProjects] = useState<number>(0);
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await axios.get(`${backendUrl}/api/projects`, { withCredentials: true });
-        setProjects(response.data);
+        setLoading(true);
+        const response = await axios.get<PaginatedResponse>(
+          `${backendUrl}/api/projects`,
+          {
+            params: {
+              page: currentPage,
+              limit: entriesPerPage,
+              status: 'Open',
+            },
+            withCredentials: true,
+          }
+        );
+
+        if (Array.isArray(response.data.projects)) {
+          setProjects(response.data.projects);
+        } else {
+          console.error('projects is not an array:', response.data.projects);
+          setProjects([]);
+          setError('Invalid data format received from server.');
+        }
+
+        setTotalPages(response.data.pages);
+        setTotalProjects(response.data.total);
+        setError(null);
       } catch (err: any) {
+        console.error('Error fetching projects:', err);
         setError(err.response?.data?.message || 'Failed to fetch projects');
+        setProjects([]);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProjects();
-  }, []);
-
-  const approveProject = async (projectId: string) => {
-    const confirmApprove = window.confirm('Are you sure you want to approve this project?');
-    if (!confirmApprove) return;
-
-    try {
-      setApprovingProjectId(projectId);
-      const response = await axios.put(`/api/projects/${projectId}/approve`, {}, { withCredentials: true });
-      setProjects(prevProjects =>
-        prevProjects.map(project =>
-          project._id === projectId ? response.data : project
-        )
-      );
-      alert('Project approved successfully.');
-    } catch (err: any) {
-      alert(err.response?.data?.message || 'Failed to approve project.');
-    } finally {
-      setApprovingProjectId(null);
-    }
-  };
+  }, [backendUrl, currentPage, entriesPerPage]);
 
   const openRevisionModal = (projectId: string) => {
     setCurrentProjectId(projectId);
@@ -90,7 +106,11 @@ const OpenUserProjects: React.FC = () => {
 
     try {
       setReviseProjectId(currentProjectId);
-      const response = await axios.put(`/api/projects/${currentProjectId}/revise`, { revisionNotes: notes }, { withCredentials: true });
+      const response = await axios.put(
+        `${backendUrl}/api/projects/${currentProjectId}/revise`,
+        { revisionNotes: notes },
+        { withCredentials: true }
+      );
       setProjects(prevProjects =>
         prevProjects.map(project =>
           project._id === currentProjectId ? response.data : project
@@ -99,47 +119,65 @@ const OpenUserProjects: React.FC = () => {
       alert('Project sent to revision successfully.');
       closeRevisionModal();
     } catch (err: any) {
+      console.error('Error sending project to revision:', err);
       alert(err.response?.data?.message || 'Failed to send project to revision.');
     } finally {
       setReviseProjectId(null);
     }
   };
 
+  const handleEntriesChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setEntriesPerPage(Number(e.target.value));
+    setCurrentPage(1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage(prev => Math.max(prev - 1, 1));
+  };
+
+  const handleNextPage = () => {
+    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+  };
+
   if (loading) return <div>Loading projects...</div>;
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">Open Project(s)</h2>
       <table className="min-w-full mt-4 table-auto">
         <thead>
           <tr>
-            <th className="px-4 py-2">Project Title</th>
-            <th className="px-4 py-2">Category</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Completion</th>
-            <th className="px-4 py-2">Deadline</th>
-            <th className="px-4 py-2">Actions</th>
+            <th className="px-4 py-2 text-left uppercase">S No.</th>
+            <th className="px-4 py-2 text-left uppercase">Project Title</th>
+            <th className="px-4 py-2 uppercase">Category</th>
+            <th className="px-4 py-2 uppercase">Status</th>
+            <th className="px-4 py-2 uppercase">Completion</th>
+            <th className="px-4 py-2 uppercase">Deadline</th>
+            <th className="px-4 py-2 uppercase">Actions</th>
           </tr>
         </thead>
-        <tbody>
-          {projects.map(project => (
+        <tbody className="bg-white divide-y divide-gray-200">
+          {projects.length === 0 && (
+            <tr>
+              <td colSpan={7} className="px-4 py-2 text-center">
+                No closed projects found.
+              </td>
+            </tr>
+          )}
+          {projects.map((project, index) => (
             <tr key={project._id} className="text-center border-t">
-              <td className="px-4 py-2">{project.projectName}</td>
+              <td className="px-4 py-2 text-left">
+                {(currentPage - 1) * entriesPerPage + index + 1}
+              </td>
+              <td className="px-4 py-2 text-left">{project.projectName}</td>
               <td className="px-4 py-2">{project.category}</td>
               <td className="px-4 py-2">{project.projectStatus}</td>
               <td className="px-4 py-2">{project.completion}</td>
-              <td className="px-4 py-2">{new Date(project.deadline).toLocaleDateString()}</td>
               <td className="px-4 py-2">
-                {project.projectStatus !== 'Approved' && (
-                  <button
-                    onClick={() => approveProject(project._id)}
-                    className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 mr-2"
-                    disabled={approvingProjectId === project._id}
-                  >
-                    {approvingProjectId === project._id ? 'Approving...' : 'Approve'}
-                  </button>
-                )}
+                {new Date(project.deadline).toLocaleDateString()}
+              </td>
+              <td className="px-4 py-2">
                 {project.projectStatus !== 'Pending' && (
                   <button
                     onClick={() => openRevisionModal(project._id)}
@@ -161,6 +199,57 @@ const OpenUserProjects: React.FC = () => {
         </tbody>
       </table>
 
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0">
+        <div className="flex items-center">
+          <span className="text-sm md:text-base">Show</span>
+          <select
+            value={entriesPerPage}
+            onChange={handleEntriesChange}
+            className="ml-2 border rounded-md p-1 text-sm md:text-base focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={20}>20</option>
+          </select>
+          <span className="ml-2 text-sm md:text-base">entries</span>
+        </div>
+
+        {/* Showing X of Y entries */}
+        <div className="text-sm md:text-base">
+          Showing {projects.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1}-
+          {Math.min(currentPage * entriesPerPage, totalProjects)} of {totalProjects} entries
+        </div>
+
+        {/* Pagination Buttons */}
+        <div className="flex items-center space-x-2">
+          <button
+            onClick={handlePreviousPage}
+            disabled={currentPage === 1}
+            className={`border rounded-md p-2 text-sm md:text-base ${
+              currentPage === 1
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-blue-600 hover:bg-blue-100'
+            }`}
+          >
+            Previous
+          </button>
+          <span className="border rounded-md px-3 py-1 bg-blue-600 text-white text-sm md:text-base">
+            {currentPage}
+          </span>
+          <button
+            onClick={handleNextPage}
+            disabled={currentPage === totalPages || totalPages === 0}
+            className={`border rounded-md p-2 text-sm md:text-base ${
+              currentPage === totalPages || totalPages === 0
+                ? 'text-gray-400 cursor-not-allowed'
+                : 'text-blue-600 hover:bg-blue-100'
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+
       <Modal
         isOpen={isModalOpen}
         onRequestClose={closeRevisionModal}
@@ -171,7 +260,9 @@ const OpenUserProjects: React.FC = () => {
         <h2 className="text-xl font-semibold mb-4">Send to Revision</h2>
         <textarea
           value={currentProjectId ? revisionNotes[currentProjectId] : ''}
-          onChange={(e) => handleRevisionNotesChange(currentProjectId!, e.target.value)}
+          onChange={(e) =>
+            handleRevisionNotesChange(currentProjectId!, e.target.value)
+          }
           placeholder="Enter revision notes here..."
           className="w-full h-32 border rounded p-2"
         />
@@ -195,4 +286,4 @@ const OpenUserProjects: React.FC = () => {
   );
 };
 
-export default OpenUserProjects;
+export default AllOpenProjects;

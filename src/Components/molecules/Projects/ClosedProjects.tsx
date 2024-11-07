@@ -4,7 +4,7 @@ import UpdatedProjectTable, { Project } from '../../atoms/UpdateProjectsTable';
 import axiosInstance from '../../../utils/axiosConfig';
 import { toast } from 'react-toastify';
 
-const ClosedProjects: React.FC = () => {
+const ClosedProjectsOld: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -54,4 +54,4 @@ const ClosedProjects: React.FC = () => {
   );
 };
 
-export default ClosedProjects;
+export default ClosedProjectsOld;

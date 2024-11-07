@@ -1,5 +1,3 @@
-// frontend/src/molecules/User/UserProjects.tsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -56,12 +54,22 @@ const UserProjects: React.FC = () => {
             withCredentials: true,
           }
         );
-        setProjects(response.data.projects);
+
+        if (Array.isArray(response.data.projects)) {
+          setProjects(response.data.projects);
+        } else {
+          console.error('projects is not an array:', response.data.projects);
+          setProjects([]);
+          setError('Invalid data format received from server.');
+        }
+
         setTotalPages(response.data.pages);
         setTotalProjects(response.data.total);
         setError(null);
       } catch (err: any) {
+        console.error('Error fetching projects:', err);
         setError(err.response?.data?.message || 'Failed to fetch projects');
+        setProjects([]);
       } finally {
         setLoading(false);
       }
@@ -84,6 +92,7 @@ const UserProjects: React.FC = () => {
       );
       alert('Project approved successfully.');
     } catch (err: any) {
+      console.error('Error approving project:', err);
       alert(err.response?.data?.message || 'Failed to approve project.');
     } finally {
       setApprovingProjectId(null);
@@ -126,6 +135,7 @@ const UserProjects: React.FC = () => {
       alert('Project sent to revision successfully.');
       closeRevisionModal();
     } catch (err: any) {
+      console.error('Error sending project to revision:', err);
       alert(err.response?.data?.message || 'Failed to send project to revision.');
     } finally {
       setReviseProjectId(null);
@@ -149,30 +159,32 @@ const UserProjects: React.FC = () => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">All Project(s)</h2>
       <table className="min-w-full mt-4 table-auto">
         <thead>
           <tr>
-            <th className="px-4 py-2">Project Title</th>
-            <th className="px-4 py-2">Category</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2">Completion</th>
-            <th className="px-4 py-2">Deadline</th>
-            <th className="px-4 py-2">Actions</th>
+            <th className="px-4 py-2 text-left uppercase">S No.</th>
+            <th className="px-4 py-2 text-left uppercase">Project Title</th>
+            <th className="px-4 py-2 uppercase">Category</th>
+            <th className="px-4 py-2 uppercase">Status</th>
+            <th className="px-4 py-2 uppercase">Completion</th>
+            <th className="px-4 py-2 uppercase">Deadline</th>
+            <th className="px-4 py-2 uppercase">Actions</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="bg-white divide-y divide-gray-200">
           {projects.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-4 py-2 text-center">
+              <td colSpan={7} className="px-4 py-2 text-center">
                 No projects found.
               </td>
             </tr>
           )}
-          {projects.map(project => (
+          {projects.map((project, index) => (
             <tr key={project._id} className="text-center border-t">
-              <td className="px-4 py-2">{project.projectName}</td>
+              <td className="px-4 py-2 text-left">{(currentPage - 1) * entriesPerPage + index + 1}</td>
+              <td className="px-4 py-2 text-left">{project.projectName}</td>
               <td className="px-4 py-2">{project.category}</td>
               <td className="px-4 py-2">{project.projectStatus}</td>
               <td className="px-4 py-2">{project.completion}</td>

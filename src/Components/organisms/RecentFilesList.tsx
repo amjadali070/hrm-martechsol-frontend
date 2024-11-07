@@ -63,17 +63,17 @@ const ProjectList: React.FC = () => {
     fetchProjects();
   }, []);
 
-  useEffect(() => {
-    // Filter projects that have at least one uploaded file
-    const projectsWithFiles = projects.filter(
-      (project) =>
-        (project.uploadedArticles && project.uploadedArticles.length > 0) ||
-        project.uploadedBusinessPlan ||
-        project.uploadedProposal
-    );
-    setFilteredProjects(projectsWithFiles);
-    setCurrentPage(1); // Reset to first page on filter
-  }, [projects]);
+  // useEffect(() => {
+  //   // Filter projects that have at least one uploaded file
+  //   const projectsWithFiles = projects.filter(
+  //     (project) =>
+  //       (project.uploadedArticles && project.uploadedArticles.length > 0) ||
+  //       project.uploadedBusinessPlan ||
+  //       project.uploadedProposal
+  //   );
+  //   setFilteredProjects(projectsWithFiles);
+  //   setCurrentPage(1); // Reset to first page on filter
+  // }, [projects]);
 
   // Pagination calculations
   const indexOfLastProject = currentPage * entriesPerPage;
