@@ -1,18 +1,17 @@
-// frontend/src/molecules/ProjectOverView/ProjectInformation.tsx
-
 import React, { useState } from 'react';
+import axios from 'axios';
 import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
 import { MdEdit, MdAddCircleOutline } from 'react-icons/md';
 import { ProjectInfo, ProjectOverviewProps } from '../../types/projectInfo';
 
-const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
+const ProjectInformation: React.FC<{ project: ProjectInfo }> = ({ project }) => {
   const [isBriefOpen, setIsBriefOpen] = useState<boolean>(true);
   const [isFilesOpen, setIsFilesOpen] = useState<boolean>(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
   const toggleBrief = () => setIsBriefOpen(!isBriefOpen);
   const toggleFiles = () => setIsFilesOpen(!isFilesOpen);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL || '';
 
   const getProgressValue = () => {
     switch (project.completion) {
@@ -28,18 +27,56 @@ const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
   };
 
 
+
+  // Utility function to sanitize filenames
+  const sanitizeFilename = (filename: string) => {
+    return filename.replace(/[^a-z0-9]/gi, '_').toLowerCase();
+  };
+  
+  const handleDownloadAll = async (project: ProjectInfo) => {
+    try {
+      const response = await axios.get(`${backendUrl}/api/projects/${project._id}/download-all`, {
+        withCredentials: true,
+        responseType: 'blob',
+      });
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${sanitizeFilename(project.projectName)}-files.zip`);
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+    } catch (err: any) {
+      console.error('Error downloading files:', err);
+      alert(err.response?.data?.message || 'Failed to download files.');
+    }
+  };
+
+
   return (
     <div className="bg-white p-4 rounded-lg shadow-md space-y-2 w-full">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-xl font-semibold"><strong>Project Name:</strong> {project.projectName}</h2>
+          <h2 className="text-xl font-semibold">
+            <strong>Project Name:</strong> {project.projectName}
+          </h2>
           <ul className="mt-2 space-y-1">
-            <li><strong>Status:</strong> {project.projectStatus}</li>
-            <li><strong>Start Date:</strong> {new Date(project.createdAt).toLocaleDateString()}</li>
-            {/* <li><strong>Completion Date:</strong> {new Date(project.deadline).toLocaleDateString()}</li> */}
-            <li><strong>Completion:</strong> {project.completion}</li>
-            <li><strong>File(s):</strong> {project.uploadedArticles.length}</li> {/* Updated Field */}
-            <li><strong>No of Words:</strong> {project.numberOfWords}</li> {/* Updated Field */}
+            <li>
+              <strong>Status:</strong> {project.projectStatus}
+            </li>
+            <li>
+              <strong>Start Date:</strong> {new Date(project.createdAt).toLocaleDateString()}
+            </li>
+            <li>
+              <strong>Completion:</strong> {project.completion}
+            </li>
+            <li>
+              <strong>File(s):</strong> {project.uploadedArticles.length}
+            </li>
+            <li>
+              <strong>No of Words:</strong> {project.numberOfWords}
+            </li>
           </ul>
         </div>
 
@@ -61,11 +98,7 @@ const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
           <h3 className="font-semibold">Project Brief</h3>
           <MdEdit className="text-xl text-gray-600" />
         </div>
-        {isBriefOpen && (
-          <div className="mt-3 text-gray-700">
-            <p>{project.projectDetails}</p> {/* Updated Field */}
-          </div>
-        )}
+        {isBriefOpen && <div className="mt-3 text-gray-700">{project.projectDetails}</div>}
       </div>
 
       <div className="bg-gray-50 border border-gray-300 rounded-md p-4">
@@ -75,18 +108,16 @@ const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
         </div>
         {isFilesOpen && (
           <div className="mt-3 text-gray-700">
-            {project.uploadedArticles.length > 0 ? ( // Updated Field
+            {project.uploadedArticles.length > 0 ? (
               <ul className="list-disc list-inside">
                 {project.uploadedArticles.map((file) => (
                   <li key={file._id}>
-                    <a
-                      href={`${backendUrl}${file.filepath}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <button
+                      onClick={() => handleDownloadAll(project)}
                       className="text-blue-500 underline"
                     >
                       {file.filename}
-                    </a>
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -100,13 +131,9 @@ const ProjectInformation: React.FC<{ project: ProjectInfo}> = ({ project }) => {
   );
 };
 
-const ProjectOverview: React.FC<ProjectOverviewProps> = ({ projectId, projectData }) => {
+const ProjectOverview: React.FC<ProjectOverviewProps> = ({ projectData }) => {
   if (!projectData) {
-    return (
-     <div>
-        No project data available
-      </div>
-    );
+    return <div>No project data available</div>;
   }
 
   return (

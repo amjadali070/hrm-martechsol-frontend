@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
-import { MdReply, MdEdit, MdFileDownload } from 'react-icons/md';
+// frontend/src/molecules/ProjectFilesAndCorrespondence/ProjectFilesAndCorrespondence.tsx
+
+import React, { useEffect, useState } from 'react';
+import {ProjectMessage, ProjectFilesAndCorrespondenceProps, ProjectFile } from '../../types/projectInfo';
+import axios from 'axios';
+import { toast } from 'react-toastify';
+import CorrespondenceTable from './CorrespondenceTable';
 import { AiOutlineFileSearch } from 'react-icons/ai';
-import { ProjectFile, ProjectFilesAndCorrespondenceProps, ProjectMessage } from '../../types/projectInfo';
+import { MdEdit, MdFileDownload } from 'react-icons/md';
+
 
 const ProjectFilesTable = ({ files = [] }: { files: ProjectFile[] }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -81,94 +87,44 @@ const ProjectFilesTable = ({ files = [] }: { files: ProjectFile[] }) => {
   );
 };
 
-const CorrespondenceTable = ({ messages = [] }: { messages: ProjectMessage[] }) => {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [entriesPerPage] = useState(3);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
-
-  const indexOfLastMessage = currentPage * entriesPerPage;
-  const indexOfFirstMessage = indexOfLastMessage - entriesPerPage;
-  const currentMessages = messages.slice(indexOfFirstMessage, indexOfLastMessage);
-  const totalPages = Math.ceil(messages.length / entriesPerPage);
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
-  };
-
-  const handlePreviousPage = () => {
-    if (currentPage > 1) setCurrentPage(currentPage - 1);
-  };
-
-  const handleReplyClick = (message: string) => {
-    setSelectedMessage(message);
-    setIsModalOpen(true);
-  };
-
-  return (
-    <div className="border rounded-md p-4 bg-white mt-6">
-      <h3 className="font-semibold mb-4">Correspondence</h3>
-      <p className="text-sm text-gray-600 mb-3">
-        All of the revisions you've requested are recorded below.
-      </p>
-      <table className="w-full bg-white border">
-        <thead>
-          <tr className="border-b bg-gray-100">
-            <th className="p-2 text-left">S.No</th>
-            <th className="p-2 text-left">Message</th>
-            <th className="p-2 text-left">Date</th>
-            <th className="p-2 text-left">Message By</th>
-            <th className="p-2 text-left">Reply</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentMessages.map((message, index) => (
-            <tr key={index} className="border-b">
-              <td className="p-2">{indexOfFirstMessage + index + 1}</td>
-              <td className="p-2 text-blue-500 underline cursor-pointer">
-                <button className="text-blue-500 underline cursor-pointer">{message.message}</button>
-              </td>
-              <td className="p-2">{new Date(message.date).toLocaleDateString()}</td>
-              <td className="p-2">{message.messageBy}</td>
-              <td className="p-2 text-center">
-                <MdReply
-                  className="text-xl cursor-pointer"
-                  onClick={() => handleReplyClick(message.message)}
-                />
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="flex justify-between items-center mt-4">
-        <div>
-          <span>Showing {indexOfFirstMessage + 1} to {Math.min(indexOfLastMessage, messages.length)} of {messages.length} entries</span>
-        </div>
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handlePreviousPage}
-            className={`border rounded-md p-1 ${currentPage === 1 ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600'}`}
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span className="border px-3 py-1 bg-blue-600 text-white">{currentPage}</span>
-          <button
-            onClick={handleNextPage}
-            className={`border rounded-md p-1 ${currentPage === totalPages ? 'text-gray-400 cursor-not-allowed' : 'text-blue-600'}`}
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-};
 
 const ProjectFilesAndCorrespondence: React.FC<ProjectFilesAndCorrespondenceProps> = ({ projectId, projectData }) => {
-  if (!projectData || !projectData.files || !projectData.messages) {
+  const [messages, setMessages] = useState<ProjectMessage[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState<boolean>(true);
+  const [errorMessages, setErrorMessages] = useState<string | null>(null);
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  useEffect(() => {
+    const fetchMessagesByProjectId = async () => {
+      if (!projectId) {
+        setMessages([]);
+        setLoadingMessages(false);
+        return;
+      }
+
+      try {
+        setLoadingMessages(true);
+        setErrorMessages(null);
+
+        const response = await axios.get<ProjectMessage[]>(`${backendUrl}/api/messages/project/${projectId}`, {
+          withCredentials: true, // Include cookies if necessary
+        });
+
+        setMessages(response.data);
+      } catch (error: any) {
+        console.error('Error fetching messages:', error);
+        setErrorMessages(error.response?.data?.message || 'Failed to fetch messages.');
+        toast.error(error.response?.data?.message || 'Failed to fetch messages.');
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    fetchMessagesByProjectId();
+  }, [backendUrl, projectId]);
+
+  if (!projectData) {
     return (
       <div className="container mx-auto p-4 w-auto">
         No project data available
@@ -179,7 +135,15 @@ const ProjectFilesAndCorrespondence: React.FC<ProjectFilesAndCorrespondenceProps
   return (
     <div className="container mx-auto p-4 w-auto">
       <ProjectFilesTable files={projectData.files} />
-      <CorrespondenceTable messages={projectData.messages} />
+      {loadingMessages ? (
+        <div className="flex items-center justify-center h-32">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        </div>
+      ) : errorMessages ? (
+        <div className="text-center text-red-500">{errorMessages}</div>
+      ) : (
+        <CorrespondenceTable messages={messages} />
+      )}
     </div>
   );
 };

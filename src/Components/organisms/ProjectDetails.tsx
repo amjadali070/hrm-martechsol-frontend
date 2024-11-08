@@ -8,7 +8,7 @@ import { toast } from 'react-toastify';
 
 interface ProjectDetailsProps {
   projectId: string;
-  onBack: () => void; 
+  onBack: () => void;
 }
 
 const ProjectDetails: React.FC<ProjectDetailsProps> = ({ projectId, onBack }) => {

@@ -7,14 +7,14 @@ import StatCard from '../atoms/StatCard';
 import { IoIosFolderOpen } from 'react-icons/io';
 import { VscEyeClosed } from 'react-icons/vsc';
 import { SiVirustotal } from 'react-icons/si';
-import { MdMail } from 'react-icons/md'; // Imported Mail Icon
+import { MdMail } from 'react-icons/md';
 import Footer from '../atoms/Footer';
 import WriteMessage from '../molecules/Messages/CustomMessage';
 import ChangePassword from '../molecules/ProfileSettings/ChangePassword';
 import UpdateUsers from '../molecules/ProfileSettings/UpdateUsers';
 import ManageSubscription from '../molecules/UserProjects/ManageSubscription';
 import SearchFiles from '../molecules/Search/SearchFiles';
-import ProjectDetails from './ProjectDetails'; // Updated Import
+import ProjectDetails from './ProjectDetails';
 import ReturnToHomeButton from '../atoms/ReturnHomeButton';
 import SendProposal from '../molecules/New Order/SendProposal';
 import ProjectForm from './ProjectForm';
@@ -38,39 +38,6 @@ interface DashboardProps {
   children?: React.ReactNode;
 }
 
-interface Project {
-  _id: string;
-  projectName: string;
-  projectDetails: string;
-  category: string;
-  completion: string;
-  projectStatus: string;
-  deadline: string;
-  // Include other fields as necessary
-  uploadedArticles: UploadedArticle[];
-  uploadedBusinessPlan: string | null;
-  uploadedProposal: string | null;
-  user: User;
-  revisionNotes?: string;
-  revisionStatus?: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-interface UploadedArticle {
-  filename: string;
-  filepath: string;
-  filetype: string;
-  filesize: number;
-  _id: string;
-}
-
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-}
-
 const sanitizeFilename = (filename: string) => {
   return filename.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
 };
@@ -90,18 +57,15 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   });
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  
-  // **State Variables for Counts**
+
   const [totalProjectsCount, setTotalProjectsCount] = useState<number>(0);
   const [openProjectsCount, setOpenProjectsCount] = useState<number>(0);
   const [closedProjectsCount, setClosedProjectsCount] = useState<number>(0);
 
-  // **State Variables for Unread Messages**
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [unreadLoading, setUnreadLoading] = useState<boolean>(true);
   const [unreadError, setUnreadError] = useState<string | null>(null);
 
-  // **Loading and Error States for Project Counts**
   const [countsLoading, setCountsLoading] = useState<boolean>(true);
   const [countsError, setCountsError] = useState<string | null>(null);
 
@@ -127,26 +91,22 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     }
   }, [backendUrl, user]);
 
-  // **New useEffect for Fetching Counts**
   useEffect(() => {
     const fetchCounts = async () => {
       try {
         setCountsLoading(true);
         setCountsError(null);
 
-        // Define the API endpoints
         const allProjectsEndpoint = `${backendUrl}/api/projects?page=1&limit=1`;
         const openProjectsEndpoint = `${backendUrl}/api/projects?status=Open&page=1&limit=1`;
         const closedProjectsEndpoint = `${backendUrl}/api/projects?status=Approved&page=1&limit=1`;
 
-        // Execute all API calls in parallel
         const [allResponse, openResponse, closedResponse] = await Promise.all([
           axios.get(allProjectsEndpoint, { withCredentials: true }),
           axios.get(openProjectsEndpoint, { withCredentials: true }),
           axios.get(closedProjectsEndpoint, { withCredentials: true }),
         ]);
 
-        // Update the state variables with the fetched counts
         setTotalProjectsCount(allResponse.data.total);
         setOpenProjectsCount(openResponse.data.total);
         setClosedProjectsCount(closedResponse.data.total);
@@ -166,7 +126,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
     }
   }, [backendUrl, user]);
 
-  // **New useEffect for Fetching Unread Messages Count**
   useEffect(() => {
     const fetchUnreadCount = async () => {
       try {
@@ -193,23 +152,21 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
   const handleSubmenuClick = (submenuKey: string) => {
     setSelectedContent(submenuKey);
     setSelectedProjectId(null);
-    setProjectData(null); // Reset project data when navigating to other sections
+    setProjectData(null);
   };
 
   const handleReturnHome = () => {
     setSelectedContent('dashboard');
     setSelectedProjectId(null);
-    setProjectData(null); // Reset project data when returning home
+    setProjectData(null);
   };
   
   const handleAddSubscription = () => {
     setSelectedContent('add-project');
   };
 
-  // **New onProjectClick Handler with Data Fetching**
   const handleProjectClick = async (projectId: string) => {
     try {
-      // Fetch the detailed project data
       const response = await axios.get<ProjectInfo>(`${backendUrl}/api/projects/${projectId}`, { withCredentials: true });
       setProjectData(response.data);
       setSelectedProjectId(projectId);
@@ -307,7 +264,6 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
               </div>
             </div>
 
-            {/* Conditionally render sections based on selectedContent or other logic */}
             <section className='mt-6'>
               <AllOpenProjects onProjectClick={handleProjectClick} />
             </section>
