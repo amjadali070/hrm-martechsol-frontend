@@ -79,9 +79,10 @@ const App: React.FC = () => {
           <Route path="/dashboard/search-projects" element={<SearchFiles />} />
           {/* <Route path="/dashboard/project-details/:projectId" element={<ProjectDetails />} /> */}
         </Routes>
+        <ToastContainer position='top-center' />
       </Router>
       </div>
-      <ToastContainer />
+     
     </AuthProvider>
   );
 };

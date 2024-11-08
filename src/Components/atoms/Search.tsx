@@ -1,5 +1,3 @@
-// frontend/src/components/Search.tsx
-
 import React, { useState } from 'react';
 import axios from 'axios';
 import { toast } from 'react-toastify';
@@ -16,7 +14,6 @@ interface Project {
   invoice: boolean;
   riForm: string;
   filePath: string;
-
 }
 
 interface File {
@@ -36,6 +33,7 @@ const Search: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [files, setFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [searchCompleted, setSearchCompleted] = useState<boolean>(false); // New state to track search completion
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const handleSearchOptionChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -44,6 +42,7 @@ const Search: React.FC = () => {
     setProjects([]);
     setFiles([]);
     setError(null);
+    setSearchCompleted(false); // Reset the search completed flag when changing the option
   };
 
   const handleSearchInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,6 +59,7 @@ const Search: React.FC = () => {
     setError(null);
     setProjects([]);
     setFiles([]);
+    setSearchCompleted(false); // Reset search completion status when starting a new search
 
     try {
       let response;
@@ -78,13 +78,17 @@ const Search: React.FC = () => {
         setFiles(response.data);
       }
 
+      setSearchCompleted(true); // Mark search as completed
+
       // Provide feedback based on results
       if (
         (searchOption === 'projectTitle' && response?.data?.length === 0) ||
         (searchOption === 'fileTitle' && response?.data?.length === 0)
       ) {
+        // Optionally show a toast here for no results
         // toast.info('No results found.');
       } else {
+        // Optionally show a success message after successful search
         // toast.success('Search completed successfully.');
       }
     } catch (err: any) {
@@ -141,10 +145,9 @@ const Search: React.FC = () => {
         </button>
       </div>
 
-      {error && <div className="text-red-500 mb-4">{error}</div>}
+      {error && <div className="text-gray-500">No files found based on your search.</div>}
 
-      {/* Display Search Results */}
-      {searchOption === 'projectTitle' && projects.length > 0 && (
+      {searchOption === 'projectTitle' && searchCompleted && projects.length > 0 ? (
         <div>
           <h3 className="text-md font-semibold mb-2">Project Results:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -153,9 +156,12 @@ const Search: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      ) : searchOption === 'projectTitle' && searchCompleted && projects.length === 0 ? (
+        <div className="text-gray-500">No projects found based on your search.</div>
+      ) : null}
 
-      {searchOption === 'fileTitle' && files.length > 0 && (
+      {/* File Results */}
+      {searchOption === 'fileTitle' && searchCompleted && files.length > 0 ? (
         <div>
           <h3 className="text-md font-semibold mb-2">File Results:</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -164,7 +170,9 @@ const Search: React.FC = () => {
             ))}
           </div>
         </div>
-      )}
+      ) : searchOption === 'fileTitle' && searchCompleted && files.length === 0 ? (
+        <div className="text-gray-500">No files found based on your search.</div>
+      ) : null}
     </div>
   );
 };

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
-import { toast } from 'react-toastify'; // Ensure react-toastify is installed and configured
+import { toast } from 'react-toastify';
 import { AuthContext } from '../organisms/AuthContext';
 
 interface Receiver {
