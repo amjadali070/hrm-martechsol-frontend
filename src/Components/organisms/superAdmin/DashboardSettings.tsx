@@ -1,5 +1,3 @@
-// frontend/src/pages/superAdmin/DashboardSettings.tsx
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import defaultLogo from '../../../assets/logo.png';
@@ -27,6 +25,7 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
     // Fetch all users to allow Super Admin to select one
     const fetchUsers = async () => {
