@@ -1,5 +1,3 @@
-// frontend/src/molecules/Sidebar.tsx
-
 import React, { useState, useContext } from 'react';
 import {
   IoIosArrowForward,
@@ -17,7 +15,6 @@ import { TiMessages } from 'react-icons/ti';
 import { HiMenuAlt3 } from 'react-icons/hi';
 import { useNavigate } from 'react-router-dom';
 import { FaCartPlus, FaPlus } from 'react-icons/fa';
-// import logo from '../../assets/logo.png';
 import { AuthContext } from '../organisms/AuthContext';
 
 interface SidebarProps {
@@ -25,100 +22,180 @@ interface SidebarProps {
   logo: string;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo}) => {
+interface SubmenuItem {
+  label: string;
+  key: string;
+}
+
+interface MenuItem {
+  label: string;
+  icon: React.ReactNode;
+  key: string;
+  submenu?: SubmenuItem[];
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
   const { user } = useContext(AuthContext); // Get user from context
-  const [selectedMenuItem, setSelectedMenuItem] = useState<string>('Dashboard');
+  const [selectedMenuItem, setSelectedMenuItem] = useState<string>('');
   const [selectedSubmenuItem, setSelectedSubmenuItem] = useState<string>('');
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false);
-  const [submenuState, setSubmenuState] = useState<{
-    [key: string]: boolean;
-  }>({
-    Projects: false,
-    Messages: false,
-    Settings: false,
-    NewOrder: false,
-    SuperAdmin: false,
-    DashboardSettings: false,
-  });
-
+  const [activeSubmenus, setActiveSubmenus] = useState<{ [key: string]: boolean }>({});
+  
   const navigate = useNavigate();
 
-  const handleMenuItemClick = (label: string) => {
-    setSelectedMenuItem(label);
-    if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+  const superAdminMenu: MenuItem[] = [
+    {
+      label: 'All Users',
+      icon: <MdPeople />,
+      key: 'all-users',
+    },
+    {
+      label: 'All Projects',
+      icon: <GoProjectSymlink />,
+      key: 'superadmin-all-projects',
+    },
+    {
+      label: 'Messages',
+      icon: <TiMessages />,
+      key: 'superadmin-all-messages',
+    },
+    {
+      label: 'Dashboard Settings',
+      icon: <MdSettings />,
+      key: 'dashboard-settings',
+    },
+    {
+      label: 'Log Out',
+      icon: <MdLogout />,
+      key: 'Log Out',
+    },
+  ];
 
-    setSubmenuState(prevState => ({
-      ...prevState,
-      [label]: !prevState[label],
-      ...Object.keys(prevState).reduce((acc, key) => {
-        if (key !== label) acc[key] = false;
-        return acc;
-      }, {} as { [key: string]: boolean }),
-    }));
+  const userMenu: MenuItem[] = [
+    {
+      label: 'Dashboard',
+      icon: <MdDashboard />,
+      key: 'Dashboard',
+    },
+    {
+      label: 'Projects',
+      icon: <GoProjectSymlink />,
+      key: 'Projects',
+      submenu: [
+        { label: 'All Projects', key: 'all-projects' },
+        { label: 'Open Projects', key: 'open-projects' },
+        { label: 'Closed Projects', key: 'closed-projects' },
+        { label: 'Subscription Management', key: 'subscription-management' },
+      ],
+    },
+    {
+      label: 'Messages',
+      icon: <TiMessages />,
+      key: 'Messages',
+      submenu: [
+        { label: 'View All Messages', key: 'all-messages' },
+        { label: 'Write Message', key: 'write-message' },
+      ],
+    },
+    {
+      label: 'New Order',
+      icon: <FaCartPlus />,
+      key: 'New Order',
+      submenu: [
+        { label: 'All Services', key: 'all-services' },
+        { label: 'Request a Proposal', key: 'request-proposal' },
+      ],
+    },
+    {
+      label: 'Settings',
+      icon: <MdSettings />,
+      key: 'Settings',
+      submenu: [
+        { label: 'Preferences', key: 'preferences' },
+        { label: 'Change Password', key: 'change-password' },
+        { label: 'Manage Users', key: 'addedit-users' },
+      ],
+    },
+    {
+      label: 'Search',
+      icon: <MdSearch />,
+      key: 'Search',
+    },
+    {
+      label: 'Add Project',
+      icon: <FaPlus />,
+      key: 'Add Project',
+    },
+    {
+      label: 'Log Out',
+      icon: <MdLogout />,
+      key: 'Log Out',
+    },
+  ];
 
-    switch (label) {
-      case 'Dashboard':
-        onSubmenuClick('dashboard');
-        navigate('/dashboard');
-        break;
-      case 'Search':
-        onSubmenuClick('search-projects');
-        navigate('/dashboard');
-        break;
-      case 'Add Project':
-        onSubmenuClick('add-project');
-        navigate('/dashboard');
-        break;
-      case 'Log Out':
-        navigate('/');
-        break;
-      case 'SuperAdmin':
-        navigate('/superadmin');
-        break;
-      case 'DashboardSettings':
-        onSubmenuClick('dashboard-settings');
-        navigate('/dashboard/dashboard-settings');
-        break;
-      default:
-        break;
+  const menuItems: MenuItem[] = user?.role === 'superAdmin' ? superAdminMenu : userMenu;
+
+  const handleMenuItemClick = (menuItem: MenuItem) => {
+    setSelectedMenuItem(menuItem.key);
+    setSelectedSubmenuItem('');
+
+    if (menuItem.submenu) {
+      setActiveSubmenus(prevState => ({
+        ...prevState,
+        [menuItem.key]: !prevState[menuItem.key],
+        ...Object.keys(prevState).reduce((acc, key) => {
+          if (key !== menuItem.key) acc[key] = false;
+          return acc;
+        }, {} as { [key: string]: boolean }),
+      }));
+    } else {
+      switch (menuItem.key) {
+        case 'Dashboard':
+          onSubmenuClick('dashboard');
+          navigate('/dashboard');
+          break;
+        case 'Search':
+          onSubmenuClick('search-projects');
+          navigate('/dashboard');
+          break;
+        case 'Add Project':
+          onSubmenuClick('add-project');
+          navigate('/dashboard');
+          break;
+        case 'Log Out':
+          handleLogout();
+          break;
+        default:
+          onSubmenuClick(menuItem.key);
+          navigate(`/dashboard`);
+          break;
+      }
     }
   };
 
+  /**
+   * Handles click events on submenu items.
+   */
   const handleSubmenuClick = (submenuKey: string) => {
     setSelectedSubmenuItem(submenuKey);
     onSubmenuClick(submenuKey);
+    navigate('/dashboard'); // Adjust navigation as needed
   };
 
-  const projectSubmenuItems = [
-    { label: 'All Projects', key: 'all-projects' },
-    { label: 'Open Projects', key: 'open-projects' },
-    { label: 'Closed Projects', key: 'closed-projects' },
-    { label: 'Subscription Management', key: 'subscription-management' },
-  ];
-
-  const messagesSubmenuItems = [
-    { label: 'View All Messages', key: 'all-messages' },
-    { label: 'Write Message', key: 'write-message' },
-  ];
-
-  const newOrderSubmenuItems = [
-    { label: 'All Services', key: 'all-services' },
-    { label: 'Request a Proposal', key: 'request-proposal' },
-  ];
-
-  const settingsSubmenuItems = [
-    { label: 'Preferences', key: 'preferences' },
-    { label: 'Change Password', key: 'change-password' },
-    { label: 'Manage Users', key: 'addedit-users' },
-  ];
-
-  const superAdminSubmenuItems = [
-    { label: 'All Users', key: 'all-users' },
-    { label: 'All Projects', key: 'superadmin-all-projects' },
-    { label: 'Messages', key: 'superadmin-all-messages' },
-    { label: 'Dashboard Settings', key: 'dashboard-settings' },
-  ];
+  /**
+   * Handles user logout.
+   * Implement the actual logout logic, such as clearing tokens, updating context, etc.
+   */
+  const handleLogout = () => {
+    // Example logout implementation:
+    // Clear authentication tokens, update context, redirect to login
+    // You should replace this with your actual logout logic
+    // For instance:
+    // authContext.logout();
+    navigate('/');
+    // Optionally, you can display a logout confirmation toast
+  };
 
   return (
     <>
@@ -161,291 +238,51 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo}) => {
               Menu
             </div>
             <ul className="mt-4 space-y-2">
-              {/* Dashboard Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Dashboard')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Dashboard'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <MdDashboard />
-                  </span>
-                  {!isCollapsed && <span>Dashboard</span>}
-                </div>
-              </li>
-
-              {/* Projects Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Projects')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Projects'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <GoProjectSymlink />
-                  </span>
-                  {!isCollapsed && <span>Projects</span>}
-                </div>
-                {!isCollapsed && (
-                  <MdKeyboardArrowRight
-                    className={`shrink-0 w-6 h-6 ${
-                      submenuState['Projects'] ? 'rotate-90' : ''
-                    }`}
-                  />
-                )}
-              </li>
-
-              {/* Projects Submenu */}
-              {submenuState['Projects'] && !isCollapsed && (
-                <ul className="ml-8 mt-2 space-y-2">
-                  {projectSubmenuItems.map(item => (
-                    <li
-                      key={item.key}
-                      onClick={() => handleSubmenuClick(item.key)}
-                      className={`p-2 text-gray-700 cursor-pointer ${
-                        selectedSubmenuItem === item.key
-                          ? 'text-black bg-gray-200'
-                          : ''
-                      } rounded-xl`}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {/* Messages Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Messages')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Messages'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <TiMessages />
-                  </span>
-                  {!isCollapsed && <span>Messages</span>}
-                </div>
-                {!isCollapsed && (
-                  <MdKeyboardArrowRight
-                    className={`shrink-0 w-6 h-6 ${
-                      submenuState['Messages'] ? 'rotate-90' : ''
-                    }`}
-                  />
-                )}
-              </li>
-
-              {/* Messages Submenu */}
-              {submenuState['Messages'] && !isCollapsed && (
-                <ul className="ml-8 mt-2 space-y-2">
-                  {messagesSubmenuItems.map(item => (
-                    <li
-                      key={item.key}
-                      onClick={() => handleSubmenuClick(item.key)}
-                      className={`p-2 text-gray-700 cursor-pointer ${
-                        selectedSubmenuItem === item.key
-                          ? 'text-black bg-gray-200'
-                          : ''
-                      } rounded-xl`}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              <li
-                onClick={() => handleMenuItemClick('New Order')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'New Order'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <FaCartPlus />
-                  </span>
-                  {!isCollapsed && <span>New Order</span>}
-                </div>
-                {!isCollapsed && (
-                  <MdKeyboardArrowRight
-                    className={`shrink-0 w-6 h-6 ${
-                      submenuState['NewOrder'] ? 'rotate-90' : ''
-                    }`}
-                  />
-                )}
-              </li>
-
-              {/* New Order Submenu */}
-              {submenuState['New Order'] && !isCollapsed && (
-                <ul className="ml-8 mt-2 space-y-2">
-                  {newOrderSubmenuItems.map(item => (
-                    <li
-                      key={item.key}
-                      onClick={() => handleSubmenuClick(item.key)}
-                      className={`p-2 text-gray-700 cursor-pointer ${
-                        selectedSubmenuItem === item.key
-                          ? 'text-black bg-gray-200'
-                          : ''
-                      } rounded-xl`}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {/* Settings Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Settings')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Settings'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <MdSettings />
-                  </span>
-                  {!isCollapsed && <span>Settings</span>}
-                </div>
-                {!isCollapsed && (
-                  <MdKeyboardArrowRight
-                    className={`shrink-0 w-6 h-6 ${
-                      submenuState['Settings'] ? 'rotate-90' : ''
-                    }`}
-                  />
-                )}
-              </li>
-
-              {/* Settings Submenu */}
-              {submenuState['Settings'] && !isCollapsed && (
-                <ul className="ml-8 mt-2 space-y-2">
-                  {settingsSubmenuItems.map(item => (
-                    <li
-                      key={item.key}
-                      onClick={() => handleSubmenuClick(item.key)}
-                      className={`p-2 text-gray-700 cursor-pointer ${
-                        selectedSubmenuItem === item.key
-                          ? 'text-black bg-gray-200'
-                          : ''
-                      } rounded-xl`}
-                    >
-                      {item.label}
-                    </li>
-                  ))}
-                </ul>
-              )}
-
-              {/* Super Admin Menu Item */}
-              {user?.role === 'superAdmin' && (
-                <>
+              {menuItems.map(menuItem => (
+                <React.Fragment key={menuItem.key}>
                   <li
-                    onClick={() => handleMenuItemClick('SuperAdmin')}
+                    onClick={() => handleMenuItemClick(menuItem)}
                     className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                      selectedMenuItem === 'SuperAdmin'
+                      selectedMenuItem === menuItem.key
                         ? 'text-white bg-purple-700'
                         : ''
                     } rounded-xl`}
                   >
                     <div className="flex gap-2.5 items-center">
                       <span className="object-contain w-6 h-6 mt-1">
-                        <MdPeople />
+                        {menuItem.icon}
                       </span>
-                      {!isCollapsed && <span>Super Admin</span>}
+                      {!isCollapsed && <span>{menuItem.label}</span>}
                     </div>
-                    {!isCollapsed && (
+                    {!isCollapsed && menuItem.submenu && (
                       <MdKeyboardArrowRight
                         className={`shrink-0 w-6 h-6 ${
-                          submenuState['SuperAdmin'] ? 'rotate-90' : ''
+                          activeSubmenus[menuItem.key] ? 'rotate-90' : ''
                         }`}
                       />
                     )}
                   </li>
 
-                  {/* Super Admin Submenu */}
-                  {submenuState['SuperAdmin'] && !isCollapsed && (
+                  {/* Render Submenu if active and user is not Super Admin */}
+                  {menuItem.submenu && activeSubmenus[menuItem.key] && !isCollapsed && user?.role !== 'superAdmin' && (
                     <ul className="ml-8 mt-2 space-y-2">
-                      {superAdminSubmenuItems.map(item => (
+                      {menuItem.submenu.map(submenuItem => (
                         <li
-                          key={item.key}
-                          onClick={() => handleSubmenuClick(item.key)}
+                          key={submenuItem.key}
+                          onClick={() => handleSubmenuClick(submenuItem.key)}
                           className={`p-2 text-gray-700 cursor-pointer ${
-                            selectedSubmenuItem === item.key
+                            selectedSubmenuItem === submenuItem.key
                               ? 'text-black bg-gray-200'
                               : ''
                           } rounded-xl`}
                         >
-                          {item.label}
+                          {submenuItem.label}
                         </li>
                       ))}
                     </ul>
                   )}
-                </>
-              )}
-
-              {/* Search Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Search')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Search'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <MdSearch />
-                  </span>
-                  {!isCollapsed && <span>Search</span>}
-                </div>
-              </li>
-
-              {/* Add Project Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Add Project')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Add Project'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <FaPlus />
-                  </span>
-                  {!isCollapsed && <span>Add Project</span>}
-                </div>
-              </li>
-
-              {/* Log Out Menu Item */}
-              <li
-                onClick={() => handleMenuItemClick('Log Out')}
-                className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
-                  selectedMenuItem === 'Log Out'
-                    ? 'text-white bg-purple-700'
-                    : ''
-                } rounded-xl`}
-              >
-                <div className="flex gap-2.5 items-center">
-                  <span className="object-contain w-6 h-6 mt-1">
-                    <MdLogout />
-                  </span>
-                  {!isCollapsed && <span>Log Out</span>}
-                </div>
-              </li>
+                </React.Fragment>
+              ))}
             </ul>
           </div>
         </nav>
