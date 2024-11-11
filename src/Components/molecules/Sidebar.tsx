@@ -46,6 +46,11 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
 
   const superAdminMenu: MenuItem[] = [
     {
+      label: 'Dashboard',
+      icon: <MdDashboard />,
+      key: 'superadmin-dashboard',
+    },
+    {
       label: 'All Users',
       icon: <MdPeople />,
       key: 'all-users',

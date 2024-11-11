@@ -33,6 +33,7 @@ import AllMessages from '../molecules/Messages/Allmessages';
 import Preferences from '../molecules/ProfileSettings/Prefrences';
 import { toast } from 'react-toastify';
 import { ProjectInfo } from '../../types/projectInfo';
+import SuperAdminDashboard from './superAdmin/SuperAdminPage';
 
 interface DashboardProps {
   children?: React.ReactNode;
@@ -183,6 +184,8 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
     if (user?.role === 'superAdmin') {
       switch (selectedContent) {
+        case 'superadmin-dashboard':
+          return <SuperAdminDashboard />;
         case 'all-users':
           return <SuperAdminUsers />;
         case 'superadmin-all-projects':
@@ -192,7 +195,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
         case 'dashboard-settings':
           return <DashboardSettings setDashboardSettings={setDashboardSettings} />;
         default:
-          return <SuperAdminUsers />;
+          return <SuperAdminDashboard />;
       }
     }
 
