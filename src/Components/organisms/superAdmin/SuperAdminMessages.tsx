@@ -6,8 +6,9 @@ import { toast } from 'react-toastify';
 import MessageTable from '../../atoms/MessageTable';
 import ViewMessageModal from '../../atoms/ViewMessageModal';
 import { AuthContext } from '../../organisms/AuthContext';
-import WriteMessageModal from '../../atoms/MessageModal';
+
 import InputMessage from '../../atoms/InputMessage';
+import WriteMessageModal from '../../atoms/MessageModal';
 
 interface Message {
   _id: string;
@@ -97,7 +98,7 @@ const SuperAdminMessages: React.FC = () => {
       }
 
       const formData = new FormData();
-      formData.append('receiverId', originalMessage.sender._id);
+      formData.append('receiverId', originalMessage.sender._id); // Sending to the original sender
       formData.append('message', replyMessage);
       if (originalMessage.project?._id) formData.append('projectId', originalMessage.project._id);
       if (replyFile) formData.append('file', replyFile);

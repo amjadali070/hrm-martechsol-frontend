@@ -83,6 +83,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
       <table className="min-w-full bg-white border border-gray-200 rounded-lg">
         <thead className="bg-gray-100">
           <tr>
+            {/* S.No Column */}
             <th className="py-3 px-4 border-b text-left">S.No</th>
             <th className="py-3 px-4 border-b text-left">Sender</th>
             <th className="py-3 px-4 border-b text-left">Project</th>
@@ -90,13 +91,17 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
             <th className="py-3 px-4 border-b text-left">File</th>
             <th className="py-3 px-4 border-b text-left">Date</th>
             <th className="py-3 px-4 border-b text-left">Status</th>
-            <th className="py-3 px-4 border-b text-center">Action</th>
+            {/* Conditionally Render the Action Column Header */}
+            {messageType === 'received' && (
+              <th className="py-3 px-4 border-b text-center">Action</th>
+            )}
           </tr>
         </thead>
         <tbody>
           {currentMessages.length > 0 ? (
             currentMessages.map((msg, index) => (
               <tr key={msg._id} className="hover:bg-gray-50">
+                {/* Display S.No */}
                 <td className="py-3 px-4 border-b">{indexOfFirstMessage + index + 1}</td>
                 <td className="py-3 px-4 border-b">{msg.sender.name}</td>
                 <td className="py-3 px-4 border-b">
@@ -104,6 +109,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                     <button
                       onClick={() => handleMessageTitleClick(msg)}
                       className="text-blue-600 underline hover:text-blue-800"
+                      aria-label={`View project ${msg.project.projectName}`}
                     >
                       {msg.project.projectName}
                     </button>
@@ -115,6 +121,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                   <button
                     onClick={() => handleMessageTitleClick(msg)}
                     className="text-blue-600 underline hover:text-blue-800"
+                    aria-label={`View message from ${msg.sender.name}`}
                   >
                     {msg.message.length > 50 ? `${msg.message.substring(0, 50)}...` : msg.message}
                   </button>
@@ -126,6 +133,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 underline hover:text-blue-800 flex items-center"
+                      aria-label="Download attached file"
                     >
                       <FaDownload className="mr-1" /> View File
                     </a>
@@ -141,23 +149,24 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                     <span className="text-red-600 font-semibold">Unread</span>
                   )}
                 </td>
-                <td className="py-3 px-4 border-b text-center">
-                  {/* Show Reply button only for Received Messages */}
-                  {messageType === 'received' && (
+                {/* Conditionally Render the Action Column Data */}
+                {messageType === 'received' && (
+                  <td className="py-3 px-4 border-b text-center">
                     <button
                       onClick={() => onReply(msg._id)}
                       className="text-indigo-600 hover:text-indigo-800"
                       title="Reply"
+                      aria-label={`Reply to message from ${msg.sender.name}`}
                     >
                       <MdReply size={24} />
                     </button>
-                  )}
-                </td>
+                  </td>
+                )}
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={8} className="py-4 px-4 text-center text-gray-500">
+              <td colSpan={messageType === 'received' ? 8 : 7} className="py-4 px-4 text-center text-gray-500">
                 No messages found.
               </td>
             </tr>
@@ -174,6 +183,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
             value={entriesPerPage}
             onChange={handleEntriesChange}
             className="ml-2 border rounded-md p-1 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            aria-label="Select number of entries per page"
           >
             <option value={5}>5</option>
             <option value={10}>10</option>
@@ -198,6 +208,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-indigo-600 hover:bg-indigo-100'
             }`}
+            aria-label="Previous Page"
           >
             Previous
           </button>
@@ -212,6 +223,7 @@ const MessageTable: React.FC<MessageTableProps> = ({ messages, onReply, backendU
                 ? 'text-gray-400 cursor-not-allowed'
                 : 'text-indigo-600 hover:bg-indigo-100'
             }`}
+            aria-label="Next Page"
           >
             Next
           </button>

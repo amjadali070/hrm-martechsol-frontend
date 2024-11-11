@@ -9,16 +9,16 @@ import SuperAdminUsers from './SuperAdminUsers';
 const SuperAdminPage: React.FC = () => {
   const [selectedSuperAdminContent, setSelectedSuperAdminContent] = useState<string>('all-users');
 
-  const renderSuperAdminContent = () => {
-    switch (selectedSuperAdminContent) {
-      case 'all-users':
-        return <SuperAdminUsers />;
-      case 'superadmin-all-projects':
-        return <SuperAdminProjects />;
-      default:
-        return <SuperAdminUsers />;
-    }
-  };
+  // const renderSuperAdminContent = () => {
+  //   switch (selectedSuperAdminContent) {
+  //     case 'all-users':
+  //       return <SuperAdminUsers />;
+  //     case 'superadmin-all-projects':
+  //       return <SuperAdminProjects />;
+  //     default:
+  //       return <SuperAdminUsers />;
+  //   }
+  // };
 
   return (
     <Dashboard>
@@ -37,7 +37,7 @@ const SuperAdminPage: React.FC = () => {
             All Projects
           </button>
         </div>
-        {renderSuperAdminContent()}
+        {/* {renderSuperAdminContent()} */}
       </div>
     </Dashboard>
   );

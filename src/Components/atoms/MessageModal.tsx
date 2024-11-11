@@ -63,6 +63,7 @@ const WriteMessageModal: React.FC<WriteMessageModalProps> = ({ onClose, onSend }
               type="file"
               onChange={handleFileChange}
               className="hidden"
+              aria-label="Attach File"
             />
             <span className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
               Choose File

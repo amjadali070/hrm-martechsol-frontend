@@ -16,7 +16,9 @@
     "country-list": "^2.3.0",
     "date-fns": "^4.1.0",
     "express": "^4.21.1",
+    "file-saver": "^2.0.5",
     "jsonwebtoken": "^9.0.2",
+    "jszip": "^3.10.1",
     "mongodb": "^6.10.0",
     "mongoose": "^8.7.2",
     "path": "^0.12.7",
@@ -59,6 +61,7 @@
   },
   "devDependencies": {
     "@types/country-list": "^2.1.4",
+    "@types/file-saver": "^2.0.7",
     "@types/react-modal": "^3.16.3",
     "@types/react-select": "^5.0.0",
     "@types/react-toastify": "^4.0.2",
