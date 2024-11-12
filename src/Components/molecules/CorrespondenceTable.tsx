@@ -91,7 +91,7 @@ const CorrespondenceTable: React.FC<CorrespondenceTableProps> = ({ messages }) =
             <th className="p-2 text-left">Date</th>
             <th className="p-2 text-left">Sender</th>
             <th className="p-2 text-left">Receiver</th>
-            <th className="p-2 text-left">Actions</th>
+            {/* <th className="p-2 text-left">Actions</th> */}
           </tr>
         </thead>
         <tbody>
@@ -123,13 +123,13 @@ const CorrespondenceTable: React.FC<CorrespondenceTableProps> = ({ messages }) =
                 <td className="p-2">{new Date(message.createdAt).toLocaleDateString()}</td>
                 <td className="p-2">{message.sender?.name || 'Unknown'}</td>
                 <td className="p-2">{message.receiver?.name || 'Unknown'}</td>
-                <td className="p-2 text-center">
+                {/* <td className="p-2 text-center">
                   <MdReply
                     className="text-xl cursor-pointer"
                     onClick={() => handleReplyClick(message.message)}
                     title="Reply"
                   />
-                </td>
+                </td> */}
               </tr>
             ))
           ) : (
