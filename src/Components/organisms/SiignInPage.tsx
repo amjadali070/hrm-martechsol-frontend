@@ -4,8 +4,8 @@ import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-import logo from '../../assets/logo.png';
-import logIN from '../../assets/log-in.jpg';
+import logo from '../../assets/pbw-logo.png';
+import logIN from '../../assets/pbw-log-in.jpg';
 import { AuthContext } from './AuthContext';
 import { ToastContainer } from 'react-toastify';
 
@@ -54,11 +54,11 @@ const SignInPage: React.FC = () => {
 
   return (
     <>
-      <main className="flex h-screen bg-gray-50">
+      <main className="flex h-screen bg-gray-50 overflow-hidden">
         {/* Sign-In Form Section */}
         <section className="flex flex-col justify-center w-full lg:w-1/2 px-6 md:px-12 bg-white">
           <div className="mb-10 text-center">
-            <h1 className="text-3xl font-semibold">Welcome to</h1>
+            {/* <h1 className="text-3xl font-semibold">Welcome to</h1> */}
             <img
               loading="lazy"
               src={logo}
@@ -112,7 +112,7 @@ const SignInPage: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full px-3 py-3 mt-6 text-lg font-medium text-white bg-purple-700 rounded-lg"
+              className="w-full px-3 py-3 mt-6 text-lg font-medium text-white bg-[#ff6600] rounded-lg"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -155,7 +155,7 @@ const SignInPage: React.FC = () => {
           </form>
         </section>
 
-        <section className="hidden lg:flex items-center justify-center w-1/2 bg-[#D6AFEE]">
+        <section className="hidden lg:flex items-center justify-center w-1/2">
           <img
             loading="lazy"
             src={logIN}

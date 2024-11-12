@@ -144,7 +144,7 @@ const AllMessages: React.FC = () => {
       <div className="flex mb-4">
         <button
           className={`flex-1 py-2 px-4 text-center rounded-t-lg ${
-            currentTab === 'received' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            currentTab === 'received' ? 'bg-[#686868] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
           onClick={() => setCurrentTab('received')}
         >
@@ -152,7 +152,7 @@ const AllMessages: React.FC = () => {
         </button>
         <button
           className={`flex-1 py-2 px-4 text-center rounded-t-lg ${
-            currentTab === 'sent' ? 'bg-indigo-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+            currentTab === 'sent' ? 'bg-[#686868] text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
           }`}
           onClick={() => setCurrentTab('sent')}
         >

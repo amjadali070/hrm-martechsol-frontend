@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
       <div className="flex flex-col md:flex-row justify-between items-start mt-5 space-y-4 md:space-y-0">
         {/* TOLL FREE Section */}
         <div className="flex items-center gap-2">
-          <div className="bg-blue-500 text-white rounded-full p-2">
+          <div className="bg-[#686868] text-white rounded-full p-2">
             <IoCallSharp className="w-6 h-6 md:w-8 md:h-8" />
           </div>
           <div className="text-lg md:text-xl">
@@ -53,7 +53,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
         {/* REQUEST A CALL Section */}
         <div className="flex items-center gap-2">
-          <div className="bg-blue-500 text-white rounded-full p-2">
+          <div className="bg-[#686868] text-white rounded-full p-2">
             <IoCallSharp className="w-6 h-6 md:w-8 md:h-8" />
           </div>
           <div className="text-lg md:text-xl">
@@ -66,7 +66,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
 
         {/* AVAILABLE Section */}
         <div className="flex items-center gap-2">
-          <div className="bg-blue-500 text-white rounded-full p-2">
+          <div className="bg-[#686868] text-white rounded-full p-2">
             <FaClock className="w-6 h-6 md:w-8 md:h-8" />
           </div>
           <div className="text-lg md:text-xl">

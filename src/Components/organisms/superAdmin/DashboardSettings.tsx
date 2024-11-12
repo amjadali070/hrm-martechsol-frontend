@@ -206,10 +206,10 @@ const DashboardSettings: React.FC<DashboardSettingsProps> = ({ setDashboardSetti
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full px-4 py-2 font-semibold text-white rounded-md shadow-sm ${
+            className={`w-[30%] px-4 py-2 font-semibold text-white rounded-md shadow-sm ${
               isSubmitting
-                ? 'bg-purple-400 cursor-not-allowed'
-                : 'bg-purple-600 hover:bg-purple-700'
+                ? 'bg-[#ff6600] cursor-not-allowed'
+                : 'bg-[#ff6600] hover:bg-[#ff6600]'
             }`}
           >
             {isSubmitting ? 'Updating...' : 'Update Settings'}

@@ -261,7 +261,7 @@ const InputMessage: React.FC = () => {
         <div className="flex justify-end">
           <button
             type="submit"
-            className="px-6 py-2 text-white bg-purple-700 rounded hover:bg-purple-800 disabled:bg-purple-400"
+            className="px-6 py-2 text-white bg-[#ff6600] rounded hover:bg-[#ff6600]' disabled:bg-[#ff6600]'"
             disabled={sending}
           >
             {sending ? 'Sending...' : 'Send Message'}

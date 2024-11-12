@@ -137,7 +137,7 @@ const Search: React.FC = () => {
         <button
           onClick={handleSearchClick}
           className={`px-4 py-2 font-semibold text-white rounded ${
-            searchOption === 'projectTitle' ? 'bg-purple-700 hover:bg-purple-900' : 'bg-purple-700 hover:bg-purple-900'
+            searchOption === 'projectTitle' ? 'bg-[#ff6600] hover:bg-[#ff6600]' : 'bg-[#ff6600] hover:bg-[#ff6600]'
           }`}
           disabled={loading}
         >

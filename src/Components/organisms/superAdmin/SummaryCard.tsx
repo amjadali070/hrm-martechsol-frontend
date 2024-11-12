@@ -24,8 +24,7 @@ const SummaryCard: React.FC<SummaryCardProps> = ({ title, count, icon: Icon, bgC
     <div className="flex items-center p-4 bg-white rounded-lg shadow-md">
       <div
         className={clsx(
-          'p-3 rounded-full text-white',
-          bgColorClasses[bgColor] ? `bg-${bgColorClasses[bgColor]}-700` : 'bg-gray-500'
+          'p-3 rounded-full text-white bg-[#ff6600]',
         )}
       >
         <Icon size={24} />

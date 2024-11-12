@@ -179,32 +179,20 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
     }
   };
 
-  /**
-   * Handles click events on submenu items.
-   */
+
   const handleSubmenuClick = (submenuKey: string) => {
     setSelectedSubmenuItem(submenuKey);
     onSubmenuClick(submenuKey);
-    navigate('/dashboard'); // Adjust navigation as needed
+    navigate('/dashboard');
   };
 
-  /**
-   * Handles user logout.
-   * Implement the actual logout logic, such as clearing tokens, updating context, etc.
-   */
+
   const handleLogout = () => {
-    // Example logout implementation:
-    // Clear authentication tokens, update context, redirect to login
-    // You should replace this with your actual logout logic
-    // For instance:
-    // authContext.logout();
     navigate('/');
-    // Optionally, you can display a logout confirmation toast
   };
 
   return (
     <>
-      {/* Mobile Menu Header */}
       <div className="lg:hidden flex justify-between items-center p-4 bg-blue-50">
         <HiMenuAlt3
           className="text-3xl cursor-pointer"
@@ -213,7 +201,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
         <h1 className="text-xl font-medium">Dashboard</h1>
       </div>
 
-      {/* Sidebar */}
       <aside
         className={`${
           isMobileMenuOpen ? 'block' : 'hidden'
@@ -224,7 +211,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
         <nav className="flex flex-col px-4 pt-5 pb-3 w-full">
           <div className="flex justify-between items-center w-full mb-4">
             {!isCollapsed && (
-              <img src={logo} alt="Logo" className="h-10 w-auto" />
+              <img src={logo} alt="Logo" className="mt-1 mr-1 h-7 w-auto" />
             )}
             <div
               className="flex justify-center items-center w-10 h-10 bg-white border border-solid border-slate-300 rounded-full cursor-pointer"
@@ -249,7 +236,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
                     onClick={() => handleMenuItemClick(menuItem)}
                     className={`flex gap-2.5 items-center p-3 w-full cursor-pointer justify-between ${
                       selectedMenuItem === menuItem.key
-                        ? 'text-white bg-purple-700'
+                        ? 'text-white bg-[#ff6600]'
                         : ''
                     } rounded-xl`}
                   >
@@ -268,7 +255,6 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
                     )}
                   </li>
 
-                  {/* Render Submenu if active and user is not Super Admin */}
                   {menuItem.submenu && activeSubmenus[menuItem.key] && !isCollapsed && user?.role !== 'superAdmin' && (
                     <ul className="ml-8 mt-2 space-y-2">
                       {menuItem.submenu.map(submenuItem => (
@@ -277,7 +263,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
                           onClick={() => handleSubmenuClick(submenuItem.key)}
                           className={`p-2 text-gray-700 cursor-pointer ${
                             selectedSubmenuItem === submenuItem.key
-                              ? 'text-black bg-gray-200'
+                              ? 'text-black bg-[#ff6600] bg-opacity-10'
                               : ''
                           } rounded-xl`}
                         >

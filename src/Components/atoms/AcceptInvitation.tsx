@@ -88,7 +88,7 @@ const AcceptInvitation: React.FC = () => {
           </div>
           <button
             type="submit"
-            className="w-full bg-purple-700 text-white p-2 rounded hover:bg-purple-800 transition"
+            className="w-full bg-[#ff6600] text-white p-2 rounded hover:bg-[#ff6600]' transition"
           >
             Accept Invitation
           </button>

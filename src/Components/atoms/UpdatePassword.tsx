@@ -122,10 +122,10 @@ const UpdatePassword: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`bg-purple-700 text-white font-semibold px-5 py-2 rounded focus:outline-none ${
+            className={`bg-[#ff6600] text-white font-semibold px-5 py-2 rounded focus:outline-none ${
               isSubmitting
                 ? 'opacity-50 cursor-not-allowed'
-                : 'hover:bg-purple-800 transition-colors'
+                : 'hover:bg-[#ff6600] transition-colors'
             }`}
           >
             {isSubmitting ? 'Updating...' : 'Change Password'}

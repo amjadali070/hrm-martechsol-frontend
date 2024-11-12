@@ -20,7 +20,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({ id, checked, onChange }) =>
         <div className="w-10 h-4 bg-gray-400 rounded-full shadow-inner"></div>
         <div
           className={`dot absolute w-6 h-6 bg-white rounded-full shadow -left-1 -top-1 transition ${
-            checked ? 'transform translate-x-full bg-purple-600' : ''
+            checked ? 'transform translate-x-full bg-[#ff6600]' : ''
           }`}
         ></div>
       </div>

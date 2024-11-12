@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL:'https://stormwave-backend-dashboard.onrender.com/api',
+  baseURL:'http://localhost:5000/api',
   withCredentials: true, // Send cookies with requests
 });
 

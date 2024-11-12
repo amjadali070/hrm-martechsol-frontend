@@ -19,7 +19,7 @@ const StatCard: React.FC<StatCardProps> = ({ title, count, icon, onClick, loadin
       className="flex flex-col items-start self-stretch py-3 pr-5 pl-5 my-auto bg-blue-50 rounded-md border border-solid border-slate-300 min-w-[240px] w-[270px] max-md:pr-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
       onClick={onClick}
     >
-      <div className="flex gap-10 justify-center items-center px-2.5 text-white bg-[#771EBB] h-[42px] min-h-[42px] rounded-[999px] w-[42px]">
+      <div className="flex gap-10 justify-center items-center px-2.5 text-white bg-[#ff6600] h-[42px] min-h-[42px] rounded-[999px] w-[42px]">
         {typeof icon === 'string' ? (
           <img loading="lazy" src={icon} alt="" className="object-contain self-stretch my-auto w-6 aspect-square" />
         ) : (

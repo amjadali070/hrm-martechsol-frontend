@@ -74,7 +74,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscripti
 
               <button
                 onClick={openModal}
-                className="bg-purple-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-800 transition duration-200"
+                className="bg-[#ff6600] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#ff6600] transition duration-200"
                 aria-label="Update Payment Details"
               >
                 Update Payment Details
@@ -226,7 +226,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscripti
                 </button>
                 <button
                   type="submit"
-                  className="bg-purple-700 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-800 transition duration-200"
+                  className="bg-[#ff6600] text-white font-semibold py-2 px-4 rounded-md hover:bg-[#ff6600] transition duration-200"
                 >
                   Save
                 </button>

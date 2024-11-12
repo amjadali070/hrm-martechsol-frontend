@@ -1138,8 +1138,8 @@ const ProjectForm: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className={`w-[30%] md:w-3/2 py-2 px-4 bg-purple-700 text-white font-semibold rounded-md transition-colors ${
-                    isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-purple-800'
+                  className={`w-[30%] md:w-3/2 py-2 px-4 bg-[#ff6600] text-white font-semibold rounded-md transition-colors ${
+                    isSubmitting ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#ff6600]'
                   }`}
                 >
                   {isSubmitting ? 'Submitting...' : 'Submit Project'}
