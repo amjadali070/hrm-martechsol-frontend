@@ -20,8 +20,8 @@ interface ProjectCardProps {
 
 const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
   return (
-    <div className="border border-gray-300 p-4 rounded shadow hover:shadow-lg transition duration-200">
-      <h4 className="text-lg font-semibold mb-2">Project Name: {project.projectName}</h4>
+    <div className="border border-gray-300 bg-[#ff66001b] p-4 rounded shadow hover:shadow-lg transition duration-200">
+      <h4 className="text-lg font-semibold mb-2 text-[#ff6600]">Project Name: {project.projectName}</h4>
       <p className="text-sm text-gray-600">Category: {project.category}</p>
       <p className="text-sm text-gray-600">Status: {project.projectStatus}</p>
       <p className="text-sm text-gray-600">

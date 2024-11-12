@@ -44,7 +44,7 @@ const FileCard: React.FC<FileCardProps> = ({ file }) => {
     }
   };
   return (
-    <div>
+    <div className='bg-[#ff66001b]'>
       <h4 className="text-lg font-semibold mb-2">File Name: {file.fileName}</h4>
       <p className="text-md text-gray-600">Project: {file.project.projectName}</p>
       <button

@@ -140,7 +140,7 @@ const ProjectFilesAndCorrespondence: React.FC<ProjectFilesAndCorrespondenceProps
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
         </div>
       ) : errorMessages ? (
-        <div className="text-center text-red-500">{errorMessages}</div>
+        <div className="text-center mt-5"> No project messages available</div>
       ) : (
         <CorrespondenceTable messages={messages} />
       )}

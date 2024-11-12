@@ -111,7 +111,7 @@ const ViewMessageModal: React.FC<ViewMessageModalProps> = ({ message, onClose, b
         <div className="flex justify-end mt-6">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            className="px-4 py-2 bg-[#ff6600] text-white rounded-md "
           >
             Close
           </button>

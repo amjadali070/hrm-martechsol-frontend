@@ -65,7 +65,7 @@ const WriteMessageModal: React.FC<WriteMessageModalProps> = ({ onClose, onSend }
               className="hidden"
               aria-label="Attach File"
             />
-            <span className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">
+            <span className="px-4 py-2 bg-[#ff6600] text-white rounded-md">
               Choose File
             </span>
           </label>
@@ -82,7 +82,7 @@ const WriteMessageModal: React.FC<WriteMessageModalProps> = ({ onClose, onSend }
           </button>
           <button
             onClick={handleSubmit}
-            className={`px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 flex items-center ${
+            className={`px-4 py-2 bg-[#ff6600] text-white rounded-md flex items-center ${
               sending ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             disabled={sending}

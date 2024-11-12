@@ -1,3 +1,5 @@
+// frontend/src/components/ProjectForm.jsx
+
 import React, { useState, useContext } from 'react';
 import axiosInstance from '../../utils/axiosConfig';
 import { toast, ToastContainer } from 'react-toastify';
@@ -5,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { useNavigate } from 'react-router-dom';
 import Select, { StylesConfig, SingleValue } from 'react-select';
 import { AuthContext } from './AuthContext';
+
 interface ProjectFormData {
   category: string;
   // Standard Fields
@@ -17,6 +20,7 @@ interface ProjectFormData {
   // Category-Specific Fields
   numberOfArticles?: number;
   numberOfWords?: number;
+  numberOfChapters?: number;
   deadline?: string;
   urgent?: boolean;
   recurring?: boolean;
@@ -27,12 +31,16 @@ interface ProjectFormData {
   videoType?: string;
   numberOfVideos?: number;
   duration?: string;
+  // Ebook Writing
+  numberOfChaptersEbook?: number;
   // Logo Design
   logoType?: string;
   numberOfLogos?: number;
   // Social Media Ads and similar
   numberOfSocialMediaPosts?: number;
   manageSocialMedia?: boolean;
+  // Children's Book Illustrations
+  numberOfIllustrations?: number;
   // Web Design & Development
   websiteType?: string;
   numberOfPages?: number;
@@ -43,7 +51,15 @@ interface ProjectFormData {
   uploadedArticles?: FileList | null;
   uploadedBusinessPlan?: FileList | null;
   uploadedProposal?: FileList | null;
+  uploadedBookCover?: FileList | null;
+  uploadedBookTrailer?: FileList | null;
+  uploadedChildrenBook?: FileList | null;
+  uploadedAudioBook?: FileList | null;
+  uploadedFormattingServices?: FileList | null;
+  uploadedDocuments?: FileList | null;
+  numberOfDocuments?: number;
 }
+
 interface CategoryOption {
   value: string;
   label: string;
@@ -67,26 +83,285 @@ interface PackageModalProps {
   packageDetails: { name: string; link: string; description: string } | null;
 }
 
-
+// Package Data
 const packagesData: { [key: string]: Array<{ name: string; link: string; description: string }> } = {
-  'business-plan': [
-    { name: 'Basic Plan', link: '#', description: 'Basic Business Plan Package' },
-    { name: 'Premium Plan', link: '#', description: 'Premium Business Plan Package' },
+  'business-plan-writing': [
+    { name: 'Basic Plan', link: '#', description: 'Basic Business Plan Writing Package' },
+    { name: 'Premium Plan', link: '#', description: 'Premium Business Plan Writing Package' },
   ],
-  'business-proposal': [
-    { name: 'Standard Proposal', link: '#', description: 'Standard Business Proposal Package' },
-    { name: 'Comprehensive Proposal', link: '#', description: 'Comprehensive Business Proposal Package' },
+  'business-proposal-writing': [
+    { name: 'Standard Proposal', link: '#', description: 'Standard Business Proposal Writing Package' },
+    { name: 'Comprehensive Proposal', link: '#', description: 'Comprehensive Business Proposal Writing Package' },
   ],
-  'social-media-ads': [
-    { name: 'Starter Pack', link: '#', description: 'Starter Social Media Ads Package' },
-    { name: 'Growth Pack', link: '#', description: 'Growth Social Media Ads Package' },
+  'book-marketing': [
+    { name: 'Starter Pack', link: '#', description: 'Starter Book Marketing Package' },
+    { name: 'Growth Pack', link: '#', description: 'Growth Book Marketing Package' },
   ],
+  'author-marketing': [
+    { name: 'Author Starter', link: '#', description: 'Starter Author Marketing Package' },
+    { name: 'Author Growth', link: '#', description: 'Growth Author Marketing Package' },
+  ],
+  'digital-marketing': [
+    { name: 'Digital Basic', link: '#', description: 'Basic Digital Marketing Package' },
+    { name: 'Digital Advanced', link: '#', description: 'Advanced Digital Marketing Package' },
+  ],
+  'web-content-writing': [
+    { name: 'Web Content Basic', link: '#', description: 'Basic Web Content Writing Package' },
+    { name: 'Web Content Pro', link: '#', description: 'Professional Web Content Writing Package' },
+  ],
+  'book-publishing': [
+    { name: 'Self-Publish', link: '#', description: 'Self-Publishing Package' },
+    { name: 'Full-Service Publish', link: '#', description: 'Full-Service Book Publishing Package' },
+  ],
+  'book-promotion': [
+    { name: 'Local Promotion', link: '#', description: 'Local Book Promotion Package' },
+    { name: 'Global Promotion', link: '#', description: 'Global Book Promotion Package' },
+  ],
+  'book-cover-design': [
+    { name: 'Basic Cover', link: '#', description: 'Basic Book Cover Design Package' },
+    { name: 'Premium Cover', link: '#', description: 'Premium Book Cover Design Package' },
+  ],
+  'book-trailer': [
+    { name: 'Standard Trailer', link: '#', description: 'Standard Book Trailer Package' },
+    { name: 'Enhanced Trailer', link: '#', description: 'Enhanced Book Trailer Package' },
+  ],
+  'children-book-publication': [
+    { name: 'Illustrated Edition', link: '#', description: 'Illustrated Children\'s Book Publication Package' },
+    { name: 'Standard Edition', link: '#', description: 'Standard Children\'s Book Publication Package' },
+  ],
+  'childrens-book-illustrations': [
+    { name: 'Basic Illustrations', link: '#', description: 'Basic Illustrations for Children\'s Books' },
+    { name: 'Advanced Illustrations', link: '#', description: 'Advanced Illustrations for Children\'s Books' },
+  ],
+  'formatting-services': [
+    { name: 'Basic Formatting', link: '#', description: 'Basic Formatting Services' },
+    { name: 'Advanced Formatting', link: '#', description: 'Advanced Formatting Services' },
+  ],
+  'audio-book-recording': [
+    { name: 'Standard Recording', link: '#', description: 'Standard Audio Book Recording Package' },
+    { name: 'Professional Recording', link: '#', description: 'Professional Audio Book Recording Package' },
+  ],
+  // Add more packages for other new categories as needed
 };
 
+// Category Options
 const categoryOptions: CategoryOption[] = [
   {
+    value: 'book-publishing',
+    label: 'Book Publishing',
+    fields: [
+      {
+        name: 'packageOption',
+        label: 'Choose Option for Packages',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'original', label: 'Original' },
+          { value: 'templated', label: 'Templated' },
+        ],
+      },
+      {
+        name: 'packageType',
+        label: 'Select Package',
+        type: 'select',
+        required: true,
+        options: [], 
+        showWhen: (formData) => formData.packageOption !== undefined,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'uploadedBusinessPlan',
+        label: 'Upload Business Plan',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'book-promotion',
+    label: 'Book Promotion',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Promotion Package',
+        type: 'select',
+        required: true,
+        options: [],
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'uploadedProposal',
+        label: 'Upload Promotion Proposal',
+        type: 'file',
+        required: true,
+      },
+    ],
+    requiresRedirect: false,
+  },
+  {
+    value: 'book-writing',
+    label: 'Book Writing',
+    fields: [
+      {
+        name: 'numberOfChapters',
+        label: 'Number Of Chapters',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'numberOfWords',
+        label: 'Number Of Words Per Chapter',
+        type: 'number',
+        required: true,
+        min: 1000,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'recurring',
+        label: 'Recurring',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'uploadedArticles',
+        label: 'Upload Chapters',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'book-editing',
+    label: 'Book Editing',
+    fields: [
+      {
+        name: 'numberOfChapters',
+        label: 'Number Of Chapters to Edit',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'numberOfWords',
+        label: 'Number Of Words Per Chapter',
+        type: 'number',
+        required: true,
+        min: 1000,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'uploadedArticles',
+        label: 'Upload Chapters for Editing',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'book-marketing',
+    label: 'Book Marketing',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Marketing Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+    ],
+  },
+  {
+    value: 'proofreading-services',
+    label: 'Proofreading Services',
+    fields: [
+      {
+        name: 'numberOfDocuments',
+        label: 'Number Of Documents',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'numberOfWords',
+        label: 'Number Of Words Per Document',
+        type: 'number',
+        required: true,
+        min: 100,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedDocuments',
+        label: 'Upload Documents for Proofreading',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
     value: 'article-writing',
-    label: 'Article Writing Services',
+    label: 'Article Writing',
     fields: [
       {
         name: 'numberOfArticles',
@@ -130,21 +405,21 @@ const categoryOptions: CategoryOption[] = [
   },
   {
     value: 'blog-writing',
-    label: 'Blog Writing Services',
+    label: 'Blog Writing',
     fields: [
       {
         name: 'numberOfArticles',
-        label: 'Number Of Articles / files',
+        label: 'Number Of Blog Posts',
         type: 'number',
         required: true,
         min: 1,
       },
       {
         name: 'numberOfWords',
-        label: 'Number Of Words For each Article',
+        label: 'Number Of Words Per Post',
         type: 'number',
         required: true,
-        min: 100,
+        min: 300,
       },
       {
         name: 'deadline',
@@ -167,22 +442,15 @@ const categoryOptions: CategoryOption[] = [
     ],
   },
   {
-    value: 'website-content-writing',
-    label: 'Website Content Writing',
+    value: 'book-cover-design',
+    label: 'Book Cover Design',
     fields: [
       {
-        name: 'numberOfArticles',
-        label: 'Number Of Articles / files',
-        type: 'number',
+        name: 'packageType',
+        label: 'Select Cover Design Package',
+        type: 'select',
         required: true,
-        min: 1,
-      },
-      {
-        name: 'numberOfWords',
-        label: 'Number Of Words For each Article',
-        type: 'number',
-        required: true,
-        min: 100,
+        options: [], // Populated based on selected category
       },
       {
         name: 'deadline',
@@ -190,11 +458,42 @@ const categoryOptions: CategoryOption[] = [
         type: 'date',
         required: true,
       },
+      {
+        name: 'uploadedBookCover',
+        label: 'Upload Existing Cover (if any)',
+        type: 'file',
+        required: false,
+      },
     ],
   },
   {
-    value: 'business-plan',
-    label: 'Business Plan',
+    value: 'book-trailer',
+    label: 'Book Trailer',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Trailer Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedBookTrailer',
+        label: 'Upload Script or Assets',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'business-plan-writing',
+    label: 'Business Plan Writing',
     fields: [
       {
         name: 'packageOption',
@@ -211,7 +510,7 @@ const categoryOptions: CategoryOption[] = [
         label: 'Select Package',
         type: 'select',
         required: true,
-        options: [],
+        options: [], // Will be populated based on selected category
         showWhen: (formData) => formData.packageOption !== undefined,
       },
       {
@@ -235,15 +534,134 @@ const categoryOptions: CategoryOption[] = [
     ],
   },
   {
-    value: 'business-proposal',
-    label: 'Business Proposal',
+    value: 'children-book-publication',
+    label: 'Children Book Publication',
     fields: [
       {
         name: 'packageType',
-        label: 'Select Package',
+        label: 'Select Publication Package',
         type: 'select',
         required: true,
-        options: [],
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedChildrenBook',
+        label: 'Upload Book Files',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'author-marketing',
+    label: 'Author Marketing',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Marketing Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+    ],
+  },
+  {
+    value: 'childrens-book-illustrations',
+    label: 'Children\'s Book Illustrations',
+    fields: [
+      {
+        name: 'numberOfIllustrations',
+        label: 'Number Of Illustrations',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedChildrenBook',
+        label: 'Upload Book for Illustration',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'digital-marketing',
+    label: 'Digital Marketing',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Marketing Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'manageSocialMedia',
+        label: 'Do you want us to manage your Social Media Handles?',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'recurring',
+        label: 'Recurring',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+    ],
+  },
+  {
+    value: 'ebook-writing',
+    label: 'Ebook Writing',
+    fields: [
+      {
+        name: 'numberOfChaptersEbook',
+        label: 'Number Of Chapters',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'numberOfWords',
+        label: 'Number Of Words Per Chapter',
+        type: 'number',
+        required: true,
+        min: 1000,
       },
       {
         name: 'deadline',
@@ -258,385 +676,143 @@ const categoryOptions: CategoryOption[] = [
         required: false,
       },
       {
-        name: 'uploadedProposal',
-        label: 'Upload Proposal',
+        name: 'uploadedArticles',
+        label: 'Upload Chapters',
         type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'formatting-services',
+    label: 'Formatting Services',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Formatting Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedFormattingServices',
+        label: 'Upload Document for Formatting',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'audio-book-recording',
+    label: 'Audio Book Recording',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Recording Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'uploadedAudioBook',
+        label: 'Upload Script or Assets',
+        type: 'file',
+        required: true,
+      },
+    ],
+  },
+  {
+    value: 'web-content-writing',
+    label: 'Web Content Writing',
+    fields: [
+      {
+        name: 'packageType',
+        label: 'Select Content Writing Package',
+        type: 'select',
+        required: true,
+        options: [], // Populated based on selected category
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
+        required: true,
+      },
+      {
+        name: 'urgent',
+        label: 'Urgent',
+        type: 'checkbox',
+        required: false,
+      },
+    ],
+  },
+  {
+    value: 'author-website-design',
+    label: 'Author Website Design',
+    fields: [
+      {
+        name: 'websiteType',
+        label: 'Website Type',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'portfolio', label: 'Portfolio' },
+          { value: 'blog', label: 'Blog' },
+          { value: 'ecommerce', label: 'E-commerce' },
+          { value: 'custom', label: 'Custom' },
+        ],
+      },
+      {
+        name: 'numberOfPages',
+        label: 'Number Of Pages',
+        type: 'number',
+        required: true,
+        min: 1,
+      },
+      {
+        name: 'hosting',
+        label: 'Require Hosting',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'themeBased',
+        label: 'Theme Based Design',
+        type: 'select',
+        required: true,
+        options: [
+          { value: 'theme', label: 'Theme' },
+          { value: 'custom', label: 'Custom' },
+        ],
+      },
+      {
+        name: 'needContent',
+        label: 'Need Content Writing',
+        type: 'checkbox',
+        required: false,
+      },
+      {
+        name: 'deadline',
+        label: 'Deadline',
+        type: 'date',
         required: true,
       },
     ],
     requiresRedirect: false,
   },
-  {
-    value: 'animated-videos',
-    label: 'Animated Videos',
-    fields: [
-      {
-        name: 'videoType',
-        label: 'Video Type',
-        type: 'select',
-        required: true,
-        options: [
-          { value: '2d', label: '2D Animation' },
-          { value: '3d', label: '3D Animation' },
-          { value: 'whiteboard', label: 'Whiteboard Animation' },
-        ],
-      },
-      {
-        name: 'numberOfVideos',
-        label: 'How many Videos Or package appear',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'duration',
-        label: 'Duration',
-        type: 'select',
-        required: true,
-        options: [
-          { value: '30', label: '30 sec' },
-          { value: '60', label: '60 sec' },
-          { value: '90', label: '90 sec' },
-        ],
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'logo-design',
-    label: 'Logo Design',
-    fields: [
-      {
-        name: 'logoType',
-        label: 'Logo Type',
-        type: 'select',
-        required: true,
-        options: [
-          { value: 'iconic', label: 'Iconic' },
-          { value: 'wordmark', label: 'Wordmark' },
-          { value: 'combination', label: 'Combination' },
-        ],
-      },
-      {
-        name: 'numberOfLogos',
-        label: 'How many logos Or packages appear',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'mobile-application',
-    label: 'Mobile Application',
-    fields: [],
-    requiresRedirect: true,
-  },
-  {
-    value: 'software-development',
-    label: 'Software Development',
-    fields: [],
-    requiresRedirect: true,
-  },
-  {
-    value: 'social-media-ads',
-    label: 'Social Media Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'facebook-ads',
-    label: 'Facebook Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'google-ads',
-    label: 'Google Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'google-my-business',
-    label: 'Google My Business',
-    fields: [],
-    requiresRedirect: true,
-  },
-  {
-    value: 'instagram-ads',
-    label: 'Instagram Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'linkedin-ads',
-    label: 'Linkedin Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
-  {
-    value: 'seo',
-    label: 'SEO',
-    fields: [],
-    requiresRedirect: true,
-  },
-  {
-    value: 'tiktok-ads',
-    label: 'Tiktok Ads',
-    fields: [
-      {
-        name: 'numberOfSocialMediaPosts',
-        label: 'Number Of Social Media Posts',
-        type: 'number',
-        required: true,
-        min: 1,
-      },
-      {
-        name: 'packageType',
-        label: 'Select Package',
-        type: 'select',
-        required: true,
-        options: [],
-      },
-      {
-        name: 'manageSocialMedia',
-        label: 'Do you want us to manage them on your Social Media Handles?',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'deadline',
-        label: 'Deadline',
-        type: 'date',
-        required: true,
-      },
-      {
-        name: 'recurring',
-        label: 'Recurring',
-        type: 'checkbox',
-        required: false,
-      },
-      {
-        name: 'urgent',
-        label: 'Urgent',
-        type: 'checkbox',
-        required: false,
-      },
-    ],
-  },
+  // Add more new categories with their fields as needed
 ];
 
 const customSelectStyles: StylesConfig<{ value: string; label: string }, false> = {
@@ -672,6 +848,7 @@ const customSelectStyles: StylesConfig<{ value: string; label: string }, false> 
   }),
 };
 
+// Package Modal Component
 const PackageModal: React.FC<PackageModalProps> = ({ isOpen, onClose, packageDetails }) => {
   if (!isOpen || !packageDetails) return null;
 
@@ -703,12 +880,10 @@ const ProjectForm: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [selectedCategory, setSelectedCategory] = useState<CategoryOption | null>(null);
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedPackage, setSelectedPackage] = useState<{ value: string; label: string } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [modalPackageDetails, setModalPackageDetails] = useState<{ name: string; link: string; description: string } | null>(null);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -1072,7 +1247,7 @@ const ProjectForm: React.FC = () => {
                       <Select
                         id={field.name}
                         name={field.name}
-                        options={field.options || getPackageOptions(selectedCategory.value)}
+                        options={field.options && field.options.length > 0 ? field.options : getPackageOptions(selectedCategory.value)}
                         value={
                           field.type === 'select' && typeof formData[field.name] === 'string'
                             ? { value: formData[field.name] as string, label: formData[field.name] as string }
@@ -1116,7 +1291,7 @@ const ProjectForm: React.FC = () => {
                         className={`w-[30%] px-3 py-2 border rounded-md focus:outline-none focus:ring focus:border-blue-300 ${
                           error.toLowerCase().includes(field.label.toLowerCase()) ? 'border-red-500' : ''
                         }`}
-                        multiple={field.name === 'uploadedArticles'}
+                        multiple={field.name === 'uploadedArticles' || field.name === 'uploadedFormattingServices'}
                       />
                     </div>
                   );
@@ -1148,6 +1323,7 @@ const ProjectForm: React.FC = () => {
             )}
           </>
         )}
+
       </form>
 
       <PackageModal
