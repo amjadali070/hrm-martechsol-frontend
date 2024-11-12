@@ -82,7 +82,7 @@ const ManageSubscription: React.FC<ManageSubscriptionProps> = ({ onAddSubscripti
 
               <button
                 onClick={onAddSubscription}
-                className="bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600 transition duration-200"
+                className="bg-[#686868] text-white font-semibold py-2 px-4 rounded-md transition duration-200"
                 aria-label="Add New Subscription"
               >
                 Add New Subscription

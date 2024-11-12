@@ -75,7 +75,7 @@ const ProjectInformation: React.FC<{ project: ProjectInfo }> = ({ project }) => 
               <strong>File(s):</strong> {project.uploadedArticles.length}
             </li>
             <li>
-              <strong>No of Words:</strong> {project.numberOfWords}
+              <strong>No of Words:</strong> {project.numberOfWords || 'N/A'}
             </li>
           </ul>
         </div>

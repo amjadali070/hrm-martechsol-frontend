@@ -1,5 +1,3 @@
-// frontend/src/components/AllClosedProjects.tsx
-
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Modal from 'react-modal';
@@ -48,26 +46,16 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
     const fetchProjects = async () => {
       try {
         setLoading(true);
-        const response = await axios.get<PaginatedResponse>(
-          `${backendUrl}/api/projects`,
-          {
-            params: {
-              page: currentPage,
-              limit: entriesPerPage,
-              status: 'Approved',
-            },
-            withCredentials: true,
-          }
-        );
+        const response = await axios.get<PaginatedResponse>(`${backendUrl}/api/projects`, {
+          params: {
+            page: currentPage,
+            limit: entriesPerPage,
+            status: 'Approved',
+          },
+          withCredentials: true,
+        });
 
-        if (Array.isArray(response.data.projects)) {
-          setProjects(response.data.projects);
-        } else {
-          console.error('projects is not an array:', response.data.projects);
-          setProjects([]);
-          setError('Invalid data format received from server.');
-        }
-
+        setProjects(response.data.projects);
         setTotalPages(response.data.pages);
         setTotalProjects(response.data.total);
         setError(null);
@@ -91,11 +79,11 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   const closeRevisionModal = () => {
     setIsModalOpen(false);
     setCurrentProjectId(null);
-    setRevisionNotes(prev => ({ ...prev, [currentProjectId!]: '' }));
+    setRevisionNotes((prev) => ({ ...prev, [currentProjectId!]: '' }));
   };
 
   const handleRevisionNotesChange = (projectId: string, notes: string) => {
-    setRevisionNotes(prev => ({ ...prev, [projectId]: notes }));
+    setRevisionNotes((prev) => ({ ...prev, [projectId]: notes }));
   };
 
   const sendToRevision = async () => {
@@ -115,10 +103,8 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
         { revisionNotes: notes },
         { withCredentials: true }
       );
-      setProjects(prevProjects =>
-        prevProjects.map(project =>
-          project._id === currentProjectId ? response.data : project
-        )
+      setProjects((prevProjects) =>
+        prevProjects.map((project) => (project._id === currentProjectId ? response.data : project))
       );
       alert('Project sent to revision successfully.');
       closeRevisionModal();
@@ -136,11 +122,11 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   };
 
   const handlePreviousPage = () => {
-    setCurrentPage(prev => Math.max(prev - 1, 1));
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
 
   const handleNextPage = () => {
-    setCurrentPage(prev => Math.min(prev + 1, totalPages));
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
   if (loading) return <div>Loading projects...</div>;
@@ -149,62 +135,62 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   return (
     <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">Closed Project(s)</h2>
-      <table className="min-w-full mt-4 table-auto">
-        <thead>
-          <tr>
-            <th className="px-4 py-2 text-left uppercase">S No.</th>
-            <th className="px-4 py-2 text-left uppercase">Project Title</th>
-            <th className="px-4 py-2 uppercase">Category</th>
-            <th className="px-4 py-2 uppercase">Status</th>
-            <th className="px-4 py-2 uppercase">Completion</th>
-            <th className="px-4 py-2 uppercase">Deadline</th>
-            <th className="px-4 py-2 uppercase">Actions</th>
-          </tr>
-        </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
-          {projects.length === 0 && (
-            <tr>
-              <td colSpan={7} className="px-4 py-2 text-center">
-                No closed projects found.
-              </td>
-            </tr>
-          )}
-          {projects.map((project, index) => (
-            <tr key={project._id} className="text-center border-t">
-              <td className="px-4 py-2 text-left">
-                {(currentPage - 1) * entriesPerPage + index + 1}
-              </td>
-              <td className="px-4 py-2 text-left text-blue-500 underline cursor-pointer">
-                <button onClick={() => onProjectClick(project._id)}>{project.projectName}</button>
-              </td>
-              <td className="px-4 py-2">{project.category}</td>
-              <td className="px-4 py-2">{project.projectStatus}</td>
-              <td className="px-4 py-2">{project.completion}</td>
-              <td className="px-4 py-2">
-                {new Date(project.deadline).toLocaleDateString()}
-              </td>
-              <td className="px-4 py-2">
-                {project.projectStatus !== 'Pending' && (
-                  <button
-                    onClick={() => openRevisionModal(project._id)}
-                    className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-                    disabled={reviseProjectId === project._id}
-                  >
-                    {reviseProjectId === project._id ? 'Sending...' : 'Send to Revision'}
-                  </button>
-                )}
-                {project.projectStatus === 'Pending' && project.revisionNotes && (
-                  <div className="mt-2 text-left px-4">
-                    <strong>Revision Notes:</strong>
-                    <p>{project.revisionNotes}</p>
-                  </div>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
 
+      <div className="overflow-x-auto">
+        <table className="min-w-full mt-4 table-auto">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="px-4 py-2 text-left uppercase">S No.</th>
+              <th className="px-4 py-2 text-left uppercase">Project Title</th>
+              <th className="px-4 py-2 uppercase">Category</th>
+              <th className="px-4 py-2 uppercase">Status</th>
+              <th className="px-4 py-2 uppercase">Completion</th>
+              <th className="px-4 py-2 uppercase">Deadline</th>
+              <th className="px-4 py-2 uppercase">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {projects.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-2 text-center">
+                  No closed projects found.
+                </td>
+              </tr>
+            )}
+            {projects.map((project, index) => (
+              <tr key={project._id} className="text-center border-t">
+                <td className="px-4 py-2 text-left">
+                  {(currentPage - 1) * entriesPerPage + index + 1}
+                </td>
+                <td className="px-4 py-2 text-left text-blue-500 underline cursor-pointer">
+                  <button onClick={() => onProjectClick(project._id)}>
+                    {project.projectName}
+                  </button>
+                </td>
+                <td className="px-4 py-2">{project.category}</td>
+                <td className="px-4 py-2">{project.projectStatus}</td>
+                <td className="px-4 py-2">{project.completion}</td>
+                <td className="px-4 py-2">
+                  {new Date(project.deadline).toLocaleDateString()}
+                </td>
+                <td className="px-4 py-2">
+                  {project.projectStatus !== 'Pending' && (
+                    <button
+                      onClick={() => openRevisionModal(project._id)}
+                      className="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+                      disabled={reviseProjectId === project._id}
+                    >
+                      {reviseProjectId === project._id ? 'Sending...' : 'Send to Revision'}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination Controls */}
       <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0">
         <div className="flex items-center">
           <span className="text-sm md:text-base">Show</span>
@@ -219,75 +205,7 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
           </select>
           <span className="ml-2 text-sm md:text-base">entries</span>
         </div>
-
-        {/* Showing X of Y entries */}
-        <div className="text-sm md:text-base">
-          Showing {projects.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1}-
-          {Math.min(currentPage * entriesPerPage, totalProjects)} of {totalProjects} entries
-        </div>
-
-        {/* Pagination Buttons */}
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={handlePreviousPage}
-            disabled={currentPage === 1}
-            className={`border rounded-md p-2 text-sm md:text-base ${
-              currentPage === 1
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-blue-600 hover:bg-blue-100'
-            }`}
-          >
-            Previous
-          </button>
-          <span className="border rounded-md px-3 py-1 bg-blue-600 text-white text-sm md:text-base">
-            {currentPage}
-          </span>
-          <button
-            onClick={handleNextPage}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className={`border rounded-md p-2 text-sm md:text-base ${
-              currentPage === totalPages || totalPages === 0
-                ? 'text-gray-400 cursor-not-allowed'
-                : 'text-blue-600 hover:bg-blue-100'
-            }`}
-          >
-            Next
-          </button>
-        </div>
       </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onRequestClose={closeRevisionModal}
-        contentLabel="Send to Revision"
-        className="max-w-md mx-auto mt-20 bg-white p-6 rounded shadow-lg outline-none"
-        overlayClassName="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center"
-      >
-        <h2 className="text-xl font-semibold mb-4">Send to Revision</h2>
-        <textarea
-          value={currentProjectId ? revisionNotes[currentProjectId] : ''}
-          onChange={(e) =>
-            handleRevisionNotesChange(currentProjectId!, e.target.value)
-          }
-          placeholder="Enter revision notes here..."
-          className="w-full h-32 border rounded p-2"
-        />
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={closeRevisionModal}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 mr-2"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={sendToRevision}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            disabled={reviseProjectId === currentProjectId}
-          >
-            {reviseProjectId === currentProjectId ? 'Sending...' : 'Submit'}
-          </button>
-        </div>
-      </Modal>
     </div>
   );
 };

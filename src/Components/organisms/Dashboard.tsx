@@ -289,17 +289,20 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl flex-grow">
+       <div className="bg-orange-500 text-white text-center py-2.5">
+       <p className='animate-flash'> Welcome to the Dashboard! Have a great day 🚀</p>
+    </div>
+      <div className="overflow-hidden px-4 pt-2.5 bg-white rounded-3xl flex-grow ">
         <div className="flex flex-col gap-5 md:flex-row max-md:flex-col mb-5">
           <Sidebar 
               onSubmenuClick={handleSubmenuClick}
               logo={logoSrc}
            />
-          <div className="flex flex-col w-full max-md:ml-0 max-md:w-full">
+          <div className="flex flex-col w-full max-md:ml-0 max-md:w-full overflow-hidden">
             <Header
               title={dashboardSettings.title}
             />
-            <div className="flex flex-col mt-4 w-full text-lg text-gray-500">
+            <div className="flex flex-col mt-4 w-full text-lg text-gray-500 overflow-hidden">
               {renderContent()}
               <div className="mt-5 ml-4">
                 <ReturnToHomeButton onReturnHome={handleReturnHome} />

@@ -170,7 +170,7 @@ const UserProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">All Project(s)</h2>
       <table className="min-w-full mt-4 table-auto">
         <thead>
-          <tr>
+          <tr className='bg-gray-200'>
             <th className="px-4 py-2 text-left uppercase">S No.</th>
             <th className="px-4 py-2 text-left uppercase">Project Title</th>
             <th className="px-4 py-2 uppercase">Category</th>

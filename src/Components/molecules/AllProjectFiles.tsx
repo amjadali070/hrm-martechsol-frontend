@@ -202,7 +202,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto">
           <thead>
-            <tr>
+            <tr className='bg-gray-200'>
               <th className="px-4 py-2 text-left uppercase">S No.</th>
               <th className="px-4 py-2 text-left uppercase">Project Title</th>
               <th className="px-4 py-2 uppercase">Category</th>
