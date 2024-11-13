@@ -138,7 +138,7 @@ const AllOpenProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-6 mt-4 bg-blue-50 rounded-md border border-gray-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-6 mt-4 bg-[#f6f6f6] rounded-md border border-gray-300 max-w-full">
       <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-4">Open Projects</h2>
 
       {/* Responsive Table */}

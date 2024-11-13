@@ -863,7 +863,7 @@ const PackageModal: React.FC<PackageModalProps> = ({ isOpen, onClose, packageDet
         <button
           type="button"
           onClick={onClose}
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+          className="mt-4 px-4 py-2 bg-[#f6f6f6]0 text-white rounded-md hover:bg-blue-600"
         >
           Close
         </button>

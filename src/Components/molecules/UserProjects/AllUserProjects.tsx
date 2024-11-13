@@ -166,7 +166,7 @@ const UserProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   if (error) return <div className="text-center text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">All Project(s)</h2>
       <table className="min-w-full mt-4 table-auto">
         <thead>
@@ -306,7 +306,7 @@ const UserProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
           </button>
           <button
             onClick={sendToRevision}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-[#f6f6f6]0 text-white px-4 py-2 rounded hover:bg-blue-600"
             disabled={reviseProjectId === currentProjectId}
           >
             {reviseProjectId === currentProjectId ? 'Sending...' : 'Submit'}

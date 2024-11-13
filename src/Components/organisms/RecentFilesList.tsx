@@ -135,7 +135,7 @@ const ProjectList: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-w-full">
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">

@@ -174,7 +174,7 @@ const SuperAdminProjects: React.FC = () => {
   if (error) return <div className="text-red-500 text-center mt-4">{error}</div>;
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">All Project(s)</h2>
 
       <div className="overflow-x-auto">
@@ -249,7 +249,7 @@ const SuperAdminProjects: React.FC = () => {
                 <td className="px-4 py-2">
                   <button
                     onClick={() => saveProjectUpdate(project._id)}
-                    className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2"
+                    className="bg-[#f6f6f6]0 text-white px-3 py-1 rounded hover:bg-blue-600 mr-2"
                     disabled={updatingProjectId === project._id}
                   >
                     {updatingProjectId === project._id ? 'Saving...' : 'Save'}
@@ -340,7 +340,7 @@ const SuperAdminProjects: React.FC = () => {
         <p className="whitespace-pre-wrap">{selectedProjectNotes}</p>
         <button
           onClick={closeModal}
-          className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          className="mt-4 bg-[#f6f6f6]0 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
           Close
         </button>

@@ -30,13 +30,24 @@ interface PaginatedResponse {
 
 Modal.setAppElement('#root'); // For accessibility
 
-const sanitizeFilename = (filename: string) => {
-  return filename.replace(/[^a-z0-9.-]/gi, '_').toLowerCase();
+// Utility function to truncate file names
+const truncateFileName = (filename: string, maxLength: number = 15): string => {
+  const lastDot = filename.lastIndexOf('.');
+  if (lastDot === -1) return filename; // No extension
+
+  const name = filename.substring(0, lastDot);
+  const ext = filename.substring(lastDot);
+
+  if (name.length > maxLength) {
+    return `${name.substring(0, maxLength)}...${ext}`;
+  }
+
+  return filename;
 };
 
 interface UserProjectsProps {
-    onProjectClick: (projectId: string) => void;
-  }
+  onProjectClick: (projectId: string) => void;
+}
 
 const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -183,7 +194,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
       const url = window.URL.createObjectURL(new Blob([response.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `${sanitizeFilename(project.projectName)}-files.zip`);
+      link.setAttribute('download', `${truncateFileName(project.projectName)}-files.zip`);
       document.body.appendChild(link);
       link.click();
       link.parentNode?.removeChild(link);
@@ -197,7 +208,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">All File(s)</h2>
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto">
@@ -208,7 +219,6 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
               <th className="px-4 py-2 uppercase">Category</th>
               <th className="px-4 py-2 uppercase">Status</th>
               <th className="px-4 py-2 uppercase">Completion</th>
-
               <th className="px-4 py-2 uppercase">Files</th>
               <th className="px-4 py-2 uppercase">Download</th>
             </tr>
@@ -216,7 +226,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
           <tbody className="bg-white divide-y divide-gray-200">
             {projects.length === 0 && (
               <tr>
-                <td colSpan={9} className="px-4 py-2 text-center">
+                <td colSpan={7} className="px-4 py-2 text-center">
                   No projects found.
                 </td>
               </tr>
@@ -225,7 +235,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
               <tr key={project._id} className="text-center border-t">
                 <td className="px-4 py-2 text-left">{(currentPage - 1) * entriesPerPage + index + 1}</td>
                 <td className="px-4 py-2 text-left text-blue-500 underline cursor-pointer">
-                    <button onClick={() => onProjectClick(project._id)}>{project.projectName}</button>
+                  <button onClick={() => onProjectClick(project._id)}>{project.projectName}</button>
                 </td>
                 <td className="px-4 py-2">{project.category}</td>
                 <td className="px-4 py-2">{project.projectStatus}</td>
@@ -238,19 +248,27 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
                         <strong>Articles:</strong>
                         <ul className="list-disc list-inside">
                           {project.uploadedArticles.map((article, idx) => (
-                            <li key={idx}>{article.filename}</li>
+                            <li key={idx} title={article.filename}>
+                              {truncateFileName(article.filename)}
+                            </li>
                           ))}
                         </ul>
                       </div>
                     )}
                     {project.uploadedBusinessPlan && (
                       <div>
-                        <strong>Business Plan:</strong> {project.uploadedBusinessPlan.filename}
+                        {' '}
+                        <span title={project.uploadedBusinessPlan.filename}>
+                          {truncateFileName(project.uploadedBusinessPlan.filename)}
+                        </span>
                       </div>
                     )}
                     {project.uploadedProposal && (
                       <div>
-                        <strong>Proposal:</strong> {project.uploadedProposal.filename}
+                        <strong>Proposal:</strong>{' '}
+                        <span title={project.uploadedProposal.filename}>
+                          {truncateFileName(project.uploadedProposal.filename)}
+                        </span>
                       </div>
                     )}
                   </div>
@@ -271,6 +289,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
         </table>
       </div>
 
+      {/* Pagination Controls */}
       <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-2 md:space-y-0">
 
         <div className="flex items-center">
@@ -344,7 +363,7 @@ const AllProjectFiles: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
           </button>
           <button
             onClick={sendToRevision}
-            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+            className="bg-[#f6f6f6]0 text-white px-4 py-2 rounded hover:bg-blue-600"
             disabled={reviseProjectId === currentProjectId}
           >
             {reviseProjectId === currentProjectId ? 'Sending...' : 'Submit'}

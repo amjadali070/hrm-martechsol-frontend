@@ -16,7 +16,7 @@ interface StatCardProps {
 const StatCard: React.FC<StatCardProps> = ({ title, count, icon, onClick, loading = false, error = null }) => {
   return (
     <div 
-      className="flex flex-col items-start self-stretch py-3 pr-5 pl-5 my-auto bg-blue-50 rounded-md border border-solid border-slate-300 min-w-[240px] w-[270px] max-md:pr-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
+      className="flex flex-col items-start self-stretch py-3 pr-5 pl-5 my-auto bg-[#f6f6f6] rounded-md border border-solid border-slate-300 min-w-[240px] w-[270px] max-md:pr-5 cursor-pointer hover:shadow-md transition-shadow duration-200"
       onClick={onClick}
     >
       <div className="flex gap-10 justify-center items-center px-2.5 text-white bg-[#ff6600] h-[42px] min-h-[42px] rounded-[999px] w-[42px]">

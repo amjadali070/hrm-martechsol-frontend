@@ -38,7 +38,7 @@ const ProjectTable: React.FC<ProjectTableProps> = ({ projects }) => {
   };
 
   return (
-    <div className="flex flex-col px-1.5 pt-1.5 pb-4 mt-2 w-full text-lg bg-blue-50 rounded-md border border-solid border-slate-300 max-md:max-w-full">
+    <div className="flex flex-col px-1.5 pt-1.5 pb-4 mt-2 w-full text-lg bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-md:max-w-full">
       <div className="flex flex-wrap gap-5 justify-between px-4 py-5 w-full font-medium bg-white rounded-md border border-solid border-slate-300 text-stone-900 max-md:max-w-full">
         <div>Project Title</div>
         <div className="flex flex-wrap gap-10 max-md:max-w-full">

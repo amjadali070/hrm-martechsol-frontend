@@ -133,7 +133,7 @@ const AllClosedProjects: React.FC<UserProjectsProps> = ({ onProjectClick }) => {
   if (error) return <div className="text-red-500">{error}</div>;
 
   return (
-    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-blue-50 rounded-md border border-solid border-slate-300 max-w-full">
+    <div className="flex flex-col px-4 pt-4 pb-4 mt-2 w-full bg-[#f6f6f6] rounded-md border border-solid border-slate-300 max-w-full">
       <h2 className="text-start mt-3 text-xl font-medium text-zinc-800">Closed Project(s)</h2>
 
       <div className="overflow-x-auto">

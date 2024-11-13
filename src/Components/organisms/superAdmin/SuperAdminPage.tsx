@@ -124,7 +124,7 @@ const SuperAdminDashboard: React.FC = () => {
 
       <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         <div
-          className="flex flex-col items-center p-4 bg-blue-50 rounded-lg shadow-inner cursor-pointer hover:bg-blue-100 transition-colors duration-200"
+          className="flex flex-col items-center p-4 bg-[#f6f6f6] rounded-lg shadow-inner cursor-pointer hover:bg-blue-100 transition-colors duration-200"
           onClick={() => setSelectedSection('users')}
         >
           <MdPeople size={40} className="text-indigo-500 mb-4" />

@@ -193,7 +193,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
 
   return (
     <>
-      <div className="lg:hidden flex justify-between items-center p-4 bg-blue-50">
+      <div className="lg:hidden flex justify-between items-center p-4 bg-[#f6f6f6]">
         <HiMenuAlt3
           className="text-3xl cursor-pointer"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -206,7 +206,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onSubmenuClick, logo }) => {
           isMobileMenuOpen ? 'block' : 'hidden'
         } lg:flex flex-col ${
           isCollapsed ? 'w-20' : 'w-64'
-        } transition-all duration-300 bg-blue-50 rounded-xl border border-solid border-slate-300`}
+        } transition-all duration-300 bg-[#f6f6f6] rounded-xl border border-solid border-slate-300`}
       >
         <nav className="flex flex-col px-4 pt-5 pb-3 w-full">
           <div className="flex justify-between items-center w-full mb-4">

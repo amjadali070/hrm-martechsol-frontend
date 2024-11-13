@@ -16,7 +16,7 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   return (
     <header className="flex flex-col gap-2 py-2 px-2 w-full">
       {/* Top Bar: Logo, Dashboard Title and User Info */}
-      <div className="flex flex-col md:flex-row justify-between py-4 px-6 items-center bg-blue-50 rounded-xl border border-solid border-slate-300">
+      <div className="flex flex-col md:flex-row justify-between py-4 px-6 items-center bg-[#f6f6f6] rounded-xl border border-solid border-slate-300">
         <div className="flex items-center gap-4">
           {/* {logo && (
             <img
