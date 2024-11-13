@@ -302,7 +302,7 @@ const Dashboard: React.FC<DashboardProps> = ({ children }) => {
             <Header
               title={dashboardSettings.title}
             />
-            <div className="flex flex-col mt-4 w-full text-lg text-gray-500 overflow-hidden">
+            <div className="flex flex-col mt-4 w-full text-lg text-gray-500">
               {renderContent()}
               <div className="mt-5 ml-4">
                 <ReturnToHomeButton onReturnHome={handleReturnHome} />
