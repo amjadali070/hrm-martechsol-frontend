@@ -1,5 +1,3 @@
-// frontend/src/types/projectInfo.ts
-
 export interface ProjectFile {
   fileName: string;
   fileLink: string;

@@ -1,7 +1,5 @@
-// frontend/src/Components/organisms/SignInPage.tsx
-
-import React, { useState, useContext } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
 import LogIN from '../../assets/login-img.png';
@@ -34,7 +32,7 @@ const  LoginPage: React.FC = () => {
 
       if (response.status === 200) {
         // Fetch user profile after successful login
-        const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
+        // const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
         // setUser(profileResponse.data); // Update Auth Context
         navigate('/dashboard');
       }

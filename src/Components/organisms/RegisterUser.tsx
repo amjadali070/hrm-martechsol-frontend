@@ -1,9 +1,9 @@
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
-// import { AuthContext } from './AuthContext';
+import { AuthContext } from './AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
-import logo from '../../assets/pbw-logo.png';
+// import logo from '../../assets/pbw-logo.png';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -18,7 +18,7 @@ const Register: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // const { setUser } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,7 +59,14 @@ const Register: React.FC = () => {
         withCredentials: true,
       };
 
-      const { data } = await axiosInstance.post(
+      interface UserResponse {
+        _id: string;
+        name: string;
+        email: string;
+        role: string;
+      }
+
+      const { data } = await axiosInstance.post<UserResponse>(
         '/users',
         { name, email, password },
         config
@@ -67,12 +74,12 @@ const Register: React.FC = () => {
 
       toast.success('Registration successful!');
 
-      // setUser({
-      //   _id: data._id,
-      //   name: data.name,
-      //   email: data.email,
-      //   role: data.role, // Add role here
-      // });
+      setUser({
+        _id: data._id,
+        name: data.name,
+        email: data.email,
+        role: data.role, // Add role here
+      });
 
       navigate('/login');
     } catch (error: any) {
@@ -90,11 +97,11 @@ const Register: React.FC = () => {
     <div className="max-w-md mx-auto my-10 p-6 border border-gray-300 shadow rounded bg-white">
       <div className="mb-10 text-center">
         {/* <h1 className="text-2xl font-semibold">Welcome to</h1> */}
-        <img
+        {/* <img
           loading="lazy"
           src={logo}
           alt="Stormwave Marketing Logo"
-          className="mx-auto mt-1 w-[70%] md:w-50 h-auto" />
+          className="mx-auto mt-1 w-[70%] md:w-50 h-auto" /> */}
       </div>
       <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
 

@@ -1,5 +1,3 @@
-// frontend/src/types/Project.ts
-
 export interface Project {
     _id: string;
     projectName: string;

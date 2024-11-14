@@ -1,5 +1,3 @@
-// frontend/src/context/AuthContext.tsx
-
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -7,7 +5,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
-  role: string; // 'user' or 'superAdmin'
+  role: string;
 }
 
 interface AuthContextProps {
@@ -28,7 +26,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const backendUrl = process.env.REACT_APP_BACKEND_URL;
         const response = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
-        setUser(response.data);
+        setUser(response.data as User);
       } catch (error) {
         setUser(null);
       }
