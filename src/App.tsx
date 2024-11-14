@@ -2,6 +2,10 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './components/organisms/AuthContext';
 import LoginPage from './components/organisms/LoginPage';
+import Register from './components/organisms/RegisterUser';
+import { ToastContainer } from 'react-toastify';
+import PrivateRoute from './components/organisms/PrivateRoute';
+import DashboardLayout from './components/organisms/DashboardLayout';
 
 const App: React.FC = () => {
 
@@ -13,18 +17,17 @@ const App: React.FC = () => {
         <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
-        {/* <Route path="/register" element={<Register />} /> */}
+        <Route path="/register" element={<Register />} />
           
-          {/* // <Route
-          //   path="/dashboard"
-          //   element={
-          //     <PrivateRoute>
-          //       <Dashboard />
-          //     </PrivateRoute>
-          //   }
-          // /> */}
+        <Route
+          path="/dashboard"
+          element={
+          <PrivateRoute>
+            <DashboardLayout />
+          </PrivateRoute>
+        }/>
         </Routes>
-        {/* <ToastContainer position='top-center' /> */}
+        <ToastContainer position='top-center' />
       </Router>
       </div>
      

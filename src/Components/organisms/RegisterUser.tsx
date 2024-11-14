@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
 import { AuthContext } from './AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
-// import logo from '../../assets/pbw-logo.png';
+import logo from '../../assets/logo.png';
 
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -78,7 +78,7 @@ const Register: React.FC = () => {
         _id: data._id,
         name: data.name,
         email: data.email,
-        role: data.role, // Add role here
+        role: data.role,
       });
 
       navigate('/login');
@@ -95,16 +95,14 @@ const Register: React.FC = () => {
 
   return (
     <div className="max-w-md mx-auto my-10 p-6 border border-gray-300 shadow rounded bg-white">
-      <div className="mb-10 text-center">
-        {/* <h1 className="text-2xl font-semibold">Welcome to</h1> */}
-        {/* <img
+      <div className="mb-5 text-center">
+        <img
           loading="lazy"
           src={logo}
           alt="Stormwave Marketing Logo"
-          className="mx-auto mt-1 w-[70%] md:w-50 h-auto" /> */}
+          className="mx-auto mt-1 w-[70%] md:w-50 h-auto" />
       </div>
-      <h2 className="text-2xl font-semibold mb-6 text-center">Register</h2>
-
+      <h2 className="text-2xl font-semibold mb-2 text-center">Register</h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="name" className="block text-gray-700 font-medium mb-2">
@@ -176,10 +174,10 @@ const Register: React.FC = () => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full py-2 px-4 bg-[#ff6600] text-white font-semibold rounded-md focus:outline-none ${
+            className={`w-full py-2 px-4 bg-[#662D91] text-white font-semibold rounded-md focus:outline-none ${
               isSubmitting
                 ? 'opacity-50 cursor-not-allowed'
-                : 'hover:bg-[#ff6600] transition-colors'
+                : 'hover:bg-[#a644f0] transition-colors'
             }`}
           >
             {isSubmitting ? 'Registering...' : 'Register'}

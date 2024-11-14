@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useContext } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { AuthContext, User } from './AuthContext';
 import { ToastContainer } from 'react-toastify';
-import LogIN from '../../assets/login-img.png';
+import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
+import logIN from '../../assets/login-img.png';
+import logo from '../../assets/logo.png';
 
-const  LoginPage: React.FC = () => {
+const LogINpage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-//   const { setUser } = useContext(AuthContext);
+  const { setUser } = useContext(AuthContext);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,9 +35,8 @@ const  LoginPage: React.FC = () => {
       );
 
       if (response.status === 200) {
-        // Fetch user profile after successful login
-        // const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
-        // setUser(profileResponse.data); // Update Auth Context
+        const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
+        setUser(profileResponse.data as User);
         navigate('/dashboard');
       }
     } catch (error: any) {
@@ -43,22 +46,21 @@ const  LoginPage: React.FC = () => {
         setErrorMessage('An unexpected error occurred');
       }
     } finally {
-      setIsLoading(false); // Set loading to false after processing
+      setIsLoading(false);
     }
   };
 
   return (
     <>
       <main className="flex h-screen bg-gray-50 overflow-hidden">
-        {/* Sign-In Form Section */}
         <section className="flex flex-col justify-center w-full lg:w-1/2 px-6 md:px-12 bg-white">
           <div className="mb-10 text-center">
-            {/* <h1 className="text-3xl font-semibold">Welcome to</h1> */}
-            {/* <img
+            <img
               loading="lazy"
               src={logo}
               alt="Stormwave Marketing Logo"
-              className="mx-auto mt-4 w-64 md:w-80 h-auto" /> */}
+              className="mx-auto mt-4 w-64 md:w-80 h-auto"
+            />
           </div>
 
           <form
@@ -76,26 +78,32 @@ const  LoginPage: React.FC = () => {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 className="w-full px-3 py-3 text-base font-medium text-zinc-600 border border-gray-300 rounded-lg focus:outline-none"
-                aria-label="Email" />
+                aria-label="Email"
+              />
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col relative">
               <label htmlFor="passwordInput" className="text-start text-base font-medium text-black">
                 Password
               </label>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 id="passwordInput"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 className="w-full px-3 py-3 text-base font-medium text-zinc-600 border border-gray-300 rounded-lg focus:outline-none"
-                aria-label="Password" />
+                aria-label="Password"
+              />
+              <div
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-zinc-600"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? <AiFillEyeInvisible size={24} className='mt-6' /> : <AiFillEye size={24} className='mt-6' />}
+              </div>
             </div>
 
-            {errorMessage && (
-              <p className="text-red-500 text-sm">{errorMessage}</p>
-            )}
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
 
             <button
               type="button"
@@ -135,27 +143,11 @@ const  LoginPage: React.FC = () => {
                 'Sign In'
               )}
             </button>
-{/* 
-            <div className="text-center mt-4">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{' '}
-                <Link
-                  to="/register"
-                  className="text-blue-600 hover:underline font-medium"
-                >
-                  Register here
-                </Link>
-              </p>
-            </div> */}
           </form>
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
-          <img
-            loading="lazy"
-            src={LogIN}
-            alt="Sign In Page Illustration"
-            className="object-contain w-full h-auto" />
+          <img loading="lazy" src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
         </section>
       </main>
       <ToastContainer position="top-center" />
@@ -163,4 +155,4 @@ const  LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage;
+export default LogINpage;

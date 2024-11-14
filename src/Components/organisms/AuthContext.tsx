@@ -1,11 +1,13 @@
+// frontend/src/context/AuthContext.tsx
+
 import React, { createContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
-interface User {
+export interface User {
   _id: string;
   name: string;
   email: string;
-  role: string;
+  role: string; // 'user' or 'superAdmin'
 }
 
 interface AuthContextProps {
