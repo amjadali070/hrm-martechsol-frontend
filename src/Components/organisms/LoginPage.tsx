@@ -3,19 +3,16 @@
 import React, { useState, useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-
-import logo from '../../assets/pbw-logo.png';
-import logIN from '../../assets/pbw-log-in.jpg';
-import { AuthContext } from './AuthContext';
 import { ToastContainer } from 'react-toastify';
+import LogIN from '../../assets/login-img.png';
 
-const SignInPage: React.FC = () => {
+const  LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+//   const { setUser } = useContext(AuthContext);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +35,7 @@ const SignInPage: React.FC = () => {
       if (response.status === 200) {
         // Fetch user profile after successful login
         const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
-        setUser(profileResponse.data); // Update Auth Context
+        // setUser(profileResponse.data); // Update Auth Context
         navigate('/dashboard');
       }
     } catch (error: any) {
@@ -59,11 +56,11 @@ const SignInPage: React.FC = () => {
         <section className="flex flex-col justify-center w-full lg:w-1/2 px-6 md:px-12 bg-white">
           <div className="mb-10 text-center">
             {/* <h1 className="text-3xl font-semibold">Welcome to</h1> */}
-            <img
+            {/* <img
               loading="lazy"
               src={logo}
               alt="Stormwave Marketing Logo"
-              className="mx-auto mt-4 w-64 md:w-80 h-auto" />
+              className="mx-auto mt-4 w-64 md:w-80 h-auto" /> */}
           </div>
 
           <form
@@ -112,7 +109,7 @@ const SignInPage: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full px-3 py-3 mt-6 text-lg font-medium text-white bg-[#ff6600] rounded-lg"
+              className="w-full px-3 py-3 mt-6 text-lg font-medium text-white bg-[#662D91] rounded-lg"
               disabled={isLoading}
             >
               {isLoading ? (
@@ -140,7 +137,7 @@ const SignInPage: React.FC = () => {
                 'Sign In'
               )}
             </button>
-
+{/* 
             <div className="text-center mt-4">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
@@ -151,14 +148,14 @@ const SignInPage: React.FC = () => {
                   Register here
                 </Link>
               </p>
-            </div>
+            </div> */}
           </form>
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
           <img
             loading="lazy"
-            src={logIN}
+            src={LogIN}
             alt="Sign In Page Illustration"
             className="object-contain w-full h-auto" />
         </section>
@@ -168,4 +165,4 @@ const SignInPage: React.FC = () => {
   );
 };
 
-export default SignInPage;
+export default LoginPage;

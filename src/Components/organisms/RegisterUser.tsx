@@ -1,7 +1,7 @@
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
-import { AuthContext } from './AuthContext';
+// import { AuthContext } from './AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/pbw-logo.png';
 
@@ -18,7 +18,7 @@ const Register: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { setUser } = useContext(AuthContext);
+  // const { setUser } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -67,12 +67,12 @@ const Register: React.FC = () => {
 
       toast.success('Registration successful!');
 
-      setUser({
-        _id: data._id,
-        name: data.name,
-        email: data.email,
-        role: data.role, // Add role here
-      });
+      // setUser({
+      //   _id: data._id,
+      //   name: data.name,
+      //   email: data.email,
+      //   role: data.role, // Add role here
+      // });
 
       navigate('/login');
     } catch (error: any) {

@@ -1,79 +1,34 @@
-// frontend/src/atoms/Header.tsx
+import React from 'react';
 
-import React, { useContext } from 'react';
-import { IoCallSharp } from "react-icons/io5";
-import { FaClock } from "react-icons/fa";
-import { AuthContext } from '../organisms/AuthContext';
-import { FaUserCircle } from "react-icons/fa";
-
-interface HeaderProps {
-  title: string;
-}
-
-const Header: React.FC<HeaderProps> = ({ title }) => {
-  const { user } = useContext(AuthContext);
-
+const Header: React.FC = () => {
   return (
-    <header className="flex flex-col gap-2 py-2 px-2 w-full">
-      {/* Top Bar: Logo, Dashboard Title and User Info */}
-      <div className="flex flex-col md:flex-row justify-between py-4 px-6 items-center bg-[#f6f6f6] rounded-xl border border-solid border-slate-300">
-        <div className="flex items-center gap-4">
-          {/* {logo && (
-            <img
-              src={logo}
-              alt="Logo"
-              className="h-10 w-auto"
-            />
-          )} */}
-          <h1 className="text-xl font-medium text-zinc-800">{title || 'Dashboard'}</h1>
-        </div>
-        <div className="flex items-center gap-2 mt-2 md:mt-0">
-          <span className="text-lg font-medium text-zinc-800">
-            {user ? user.name : 'Loading...'}
-          </span>
-          <FaUserCircle className="w-7 h-7 md:w-8 md:h-8" />
-        </div>
-      </div>
-
-      {/* Bottom Bar: Contact and Availability Information */}
-      <div className="flex flex-col md:flex-row justify-between items-start mt-5 space-y-4 md:space-y-0">
-        {/* TOLL FREE Section */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#686868] text-white rounded-full p-2">
-            <IoCallSharp className="w-6 h-6 md:w-8 md:h-8" />
-          </div>
-          <div className="text-lg md:text-xl">
-            <div className="text-zinc-600">TOLL FREE</div>
-            <div className="font-medium text-zinc-800">727-761-4082</div>
-          </div>
-        </div>
-
-        {/* Divider: Visible on medium and larger screens */}
-        <div className="hidden md:block border-l h-12 border-slate-300 mx-6"></div>
-
-        {/* REQUEST A CALL Section */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#686868] text-white rounded-full p-2">
-            <IoCallSharp className="w-6 h-6 md:w-8 md:h-8" />
-          </div>
-          <div className="text-lg md:text-xl">
-            <div className="text-zinc-600">REQUEST A CALL</div>
-          </div>
-        </div>
-
-        {/* Divider: Visible on medium and larger screens */}
-        <div className="hidden md:block border-l h-12 border-slate-300 mx-6"></div>
-
-        {/* AVAILABLE Section */}
-        <div className="flex items-center gap-2">
-          <div className="bg-[#686868] text-white rounded-full p-2">
-            <FaClock className="w-6 h-6 md:w-8 md:h-8" />
-          </div>
-          <div className="text-lg md:text-xl">
-            <div className="text-zinc-600">AVAILABLE</div>
-            <div className="font-medium text-zinc-800">Mon-Fri (12:00AM–11:59PM EST)</div>
-          </div>
-        </div>
+    <header className="flex flex-wrap gap-5 justify-between w-full text-lg font-bold text-white max-md:max-w-full">
+      <img
+        loading="lazy"
+        src="https://cdn.builder.io/api/v1/image/assets/02167e3214b44bfe959b524b41556861/1501fb49f118e220ceb1c5ff308655345adebdbc0fce1cb5a72d5893b0b780e9?apiKey=02167e3214b44bfe959b524b41556861&"
+        alt="Company logo"
+        className="object-contain my-auto aspect-[6.06] w-[369px]"
+      />
+      <div className="flex gap-6">
+        <div className="flex shrink-0 my-auto bg-purple-900 rounded-full shadow-sm h-[53px] w-[59px]" aria-hidden="true" />
+        <button className="flex gap-2.5 px-5 py-5 bg-red-600 rounded-[100px]">
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/02167e3214b44bfe959b524b41556861/e9627bed1f9db0152f7bf8d5498f3f7243c9badfd3b8890c23197cd675262fb1?apiKey=02167e3214b44bfe959b524b41556861&"
+            alt=""
+            className="object-contain shrink-0 my-auto w-6 aspect-square"
+          />
+          <span>Time Out</span>
+        </button>
+        <button className="flex gap-2.5 px-8 py-5 bg-neutral-700 rounded-[100px] max-md:px-5">
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/02167e3214b44bfe959b524b41556861/fcef878f8e5d8417b8bb2b3955fd9c96f9197ac99baad6910e3ac1f9e506d388?apiKey=02167e3214b44bfe959b524b41556861&"
+            alt=""
+            className="object-contain shrink-0 aspect-[0.96] w-[23px]"
+          />
+          <span>Log Out</span>
+        </button>
       </div>
     </header>
   );
