@@ -6,12 +6,12 @@ interface ProfileImageProps {
 
 const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
   return (
-    <div className="flex flex-col w-[21%] max-md:ml-0 max-md:w-full">
+    <div className="flex justify-center w-1/5 max-md:w-full">
       <img 
         loading="lazy" 
         src={src} 
         alt="Profile" 
-        className="object-contain shrink-0 max-w-full rounded-none aspect-square w-[139px] max-md:mt-9" 
+        className="object-cover rounded-full w-36 h-36 max-md:w-24 max-md:h-24"
       />
     </div>
   );
