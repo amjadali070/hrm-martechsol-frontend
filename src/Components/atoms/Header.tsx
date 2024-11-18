@@ -1,13 +1,18 @@
+// src/components/Header.tsx
+
 import React, { useState } from 'react';
 import MarTechLogo from '../../assets/LogoMartechSol.png';
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineMoreTime, MdOutlineTimerOff } from "react-icons/md";
 import { FaSignOutAlt } from "react-icons/fa";
 import { FiMenu, FiX } from "react-icons/fi";
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../utils/axiosConfig';
 
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleTimeToggle = () => {
     setIsTimedIn((prevState) => !prevState);
@@ -15,6 +20,15 @@ const Header: React.FC = () => {
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen((prev) => !prev);
+  };
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post('/users/logout');
+      navigate('/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   return (
@@ -49,7 +63,10 @@ const Header: React.FC = () => {
               <span className="hidden sm:inline">{isTimedIn ? 'Time Out' : 'Time In'}</span>
             </button>
 
-            <button className="flex items-center gap-2.5 px-4 p-3.5 bg-neutral-700 hover:bg-neutral-600 rounded-full transition-colors duration-200">
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2.5 px-4 p-3.5 bg-neutral-700 hover:bg-neutral-600 rounded-full transition-colors duration-200"
+            >
               <FaSignOutAlt size={24} />
               <span className="hidden sm:inline">Log Out</span>
             </button>
@@ -94,6 +111,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={() => {
+                handleLogout();
                 setIsMobileMenuOpen(false);
               }}
               className="flex items-center gap-2.5 px-4 py-2 bg-neutral-700 hover:bg-neutral-600 rounded-full transition-colors duration-200"

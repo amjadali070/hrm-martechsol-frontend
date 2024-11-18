@@ -16,10 +16,10 @@ const leaveTypes: LeaveType[] = [
 const LeaveOverview: React.FC = () => {
   return (
     <section className="flex flex-col w-6/12 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col p-8 mx-auto w-full bg-white rounded-xl max-md:px-5 max-md:mt-10 max-md:max-w-full">
-        <h2 className="text-3xl font-bold text-black">Available Leave Days</h2>
+      <div className="flex flex-col p-8 mx-auto w-full bg-white rounded-xl shadow-md">
+        <h2 className="text-2xl font-bold text-black">Available Leave Days</h2>
         {leaveTypes.map((leave, index) => (
-          <div key={index} className="mt-5">
+          <div key={index} className="mt-7">
             <div className="flex flex-wrap gap-5 justify-between max-md:max-w-full">
               <div className="text-xl text-zinc-500">{leave.name}</div>
               <div className="text-lg text-right text-zinc-600">

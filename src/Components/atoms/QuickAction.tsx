@@ -3,7 +3,7 @@ import { IconType } from 'react-icons';
 
 interface QuickAction {
   label: string;
-  icon: IconType;
+  // icon: IconType;
   onClick: () => void;
   active?: boolean;
 }
@@ -27,7 +27,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ actions }) => {
                 : 'bg-purple-900 hover:bg-purple-800'
             }`}
           >
-            <action.icon size={20} />
+            {/* <action.icon size={20} /> */}
             <span className="hidden sm:inline">{action.label}</span>
           </button>
         ))}

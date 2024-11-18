@@ -15,7 +15,7 @@ interface AnnouncementsProps {
 const Announcements: React.FC<AnnouncementsProps> = ({ announcements, onViewAll }) => {
   return (
     <section className="flex flex-col px-8 py-8 mt-8 w-full bg-white rounded-xl shadow-lg max-md:px-4 max-md:mt-6">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 ">
         <h2 className="text-2xl sm:text-2xl font-bold text-black">Announcements</h2>
         <button
           onClick={onViewAll}
