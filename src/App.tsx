@@ -6,6 +6,7 @@ import Register from './components/organisms/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
 import DashboardLayout from './components/organisms/DashboardLayout';
+import FeedbackForm from './components/atoms/FeedbackForm';
 
 const App: React.FC = () => {
 
@@ -18,6 +19,7 @@ const App: React.FC = () => {
         <Route path="/" element={<LoginPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forms/feedback" element={<FeedbackForm/>} />
           
         <Route
           path="/dashboard"

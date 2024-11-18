@@ -1,9 +1,7 @@
 import React from 'react';
-import { IconType } from 'react-icons';
 
 interface QuickAction {
   label: string;
-  // icon: IconType;
   onClick: () => void;
   active?: boolean;
 }
@@ -16,7 +14,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({ actions }) => {
   return (
     <section className="mt-5 px-4">
       <h2 className="text-3xl font-bold text-black mb-6">Quick Actions</h2>
-      <div className="flex flex-wrap justify-around gap-8 overflow-x-auto py-1 text-white">
+      <div className="flex flex-wrap justify-around gap-0 overflow-x-auto py-1 text-white">
         {actions.map((action, index) => (
           <button
             key={index}
@@ -27,7 +25,6 @@ const QuickActions: React.FC<QuickActionsProps> = ({ actions }) => {
                 : 'bg-purple-900 hover:bg-purple-800'
             }`}
           >
-            {/* <action.icon size={20} /> */}
             <span className="hidden sm:inline">{action.label}</span>
           </button>
         ))}

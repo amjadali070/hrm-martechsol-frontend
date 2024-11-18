@@ -15,8 +15,8 @@ interface AttendanceOverviewProps {
 
 const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecords, onViewAll }) => {
   return (
-    <section className="flex flex-col w-6/12">
-      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl shadow-md">
+    <section className="flex flex-col w-full md:w-6/12">
+      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h2 className="text-2xl sm:text-2xl font-bold text-black">Attendance Overview</h2>
           <button
@@ -28,36 +28,36 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
         </div>
 
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
+          <table className="min-w-full divide-y divide-gray-200 table-fixed">
             <thead className="bg-purple-900">
               <tr>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider rounded-l-md"
                 >
                   Date
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
                 >
                   Time In
                 </th>
                 <th
-                  scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  scope="col" 
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate"
                 >
                   Time Out
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate"
                 >
                   Total Time
                 </th>
                 <th
                   scope="col"
-                  className="px-6 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider rounded-r-md"
                 >
                   Status
                 </th>
@@ -67,13 +67,13 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
               {attendanceRecords.map((record, index) => (
                 <tr
                   key={index}
-                  className={`hover:bg-gray-100 ${index % 2 === 1 ? 'bg-gray-50' : 'bg-white'}`}
+                  className="hover:bg-gray-100"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.date}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.timeIn}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.timeOut}</td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{record.totalTime}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.date}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.timeIn}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.timeOut}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.totalTime}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         record.status === 'COMPLETED'

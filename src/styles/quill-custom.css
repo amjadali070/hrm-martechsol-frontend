@@ -1,0 +1,65 @@
+/* src/styles/quill-custom.css */
+
+/* Customize the toolbar */
+.ql-snow .ql-toolbar {
+    background-color: #f3f4f6; /* Tailwind's gray-100 */
+    border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+    border-bottom: none;
+  }
+  
+  /* Customize the editor container */
+  .ql-snow .ql-container {
+    border: 1px solid #d1d5db; /* Tailwind's gray-300 */
+    border-radius: 0 0 8px 8px;
+    min-height: 150px;
+  }
+  
+  /* Customize the editor text */
+  .ql-snow .ql-editor {
+    font-size: 1rem; /* Tailwind's text-base */
+    color: #1f2937; /* Tailwind's gray-800 */
+  }
+  
+  /* Toolbar button colors */
+  .ql-snow .ql-stroke {
+    stroke: #6b7280; /* Tailwind's gray-500 */
+  }
+  
+  .ql-snow .ql-fill {
+    fill: #6b7280; /* Tailwind's gray-500 */
+  }
+  
+  .ql-snow .ql-picker-label {
+    color: #6b7280; /* Tailwind's gray-500 */
+  }
+  
+  /* Active toolbar button colors */
+  .ql-snow .ql-active .ql-stroke,
+  .ql-snow .ql-active .ql-fill {
+    stroke: #7c3aed; /* Tailwind's indigo-500 */
+    fill: #7c3aed; /* Tailwind's indigo-500 */
+  }
+  
+  /* Hover and focus states for toolbar buttons */
+  .ql-snow .ql-toolbar button:hover,
+  .ql-snow .ql-toolbar button:focus {
+    color: #7c3aed; /* Tailwind's indigo-500 */
+  }
+  
+  /* Customize scrollbar within the editor */
+  .ql-editor::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .ql-editor::-webkit-scrollbar-track {
+    background: #f3f4f6;
+  }
+  
+  .ql-editor::-webkit-scrollbar-thumb {
+    background: #7c3aed;
+    border-radius: 4px;
+  }
+  
+  .ql-editor::-webkit-scrollbar-thumb:hover {
+    background: #6d28d9; /* Tailwind's indigo-600 */
+  }  
