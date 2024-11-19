@@ -455,34 +455,34 @@ const TrackApplication: React.FC = () => {
               <table className="min-w-full bg-white table-fixed border-collapse">
                 <thead>
                   <tr>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Leave Type
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       From
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       To
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Last Day at Work
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Return to Work
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Total Days
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Reason
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wide border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wide border border-gray-200 truncate">
                       Relief Officer
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Comments
                     </th>
-                    <th className="py-2 px-2 bg-gray-100 text-left text-xs font-medium text-gray-700 uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Status
                     </th>
                   </tr>

@@ -1,10 +1,8 @@
-// frontend/src/components/atoms/LeaveApplication.tsx
-
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import Like from '../../assets/like.png';
 
 const LeaveApplication: React.FC = () => {
-  // State Variables
   const [leaveType, setLeaveType] = useState<string>('Annual Leave');
   const [startDate, setStartDate] = useState<string>(getTodayDate());
   const [endDate, setEndDate] = useState<string>(getTodayDate());
@@ -13,7 +11,6 @@ const LeaveApplication: React.FC = () => {
   const [reason, setReason] = useState<string>('');
   const [handoverFile, setHandoverFile] = useState<File | null>(null);
   const [reliefOfficer, setReliefOfficer] = useState<string>('');
-
   const [errors, setErrors] = useState<{
     leaveType?: string;
     startDate?: string;
@@ -23,10 +20,9 @@ const LeaveApplication: React.FC = () => {
     reason?: string;
     reliefOfficer?: string;
   }>({});
-
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [showSuccess, setShowSuccess] = useState<boolean>(false);
 
-  // Utility Functions
   function getTodayDate(): string {
     const today = new Date();
     return today.toISOString().split('T')[0];
@@ -44,7 +40,6 @@ const LeaveApplication: React.FC = () => {
     return tomorrow.toISOString().split('T')[0];
   }
 
-  // Effect to set Return to Work based on End Date
   useEffect(() => {
     if (endDate) {
       const end = new Date(endDate);
@@ -53,7 +48,6 @@ const LeaveApplication: React.FC = () => {
     }
   }, [endDate]);
 
-  // Effect to auto-set Last Day to Work based on Start Date
   useEffect(() => {
     if (startDate) {
       const lastDay = new Date(startDate);
@@ -62,7 +56,6 @@ const LeaveApplication: React.FC = () => {
     }
   }, [startDate]);
 
-  // Handle File Change with Validation
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
@@ -96,7 +89,6 @@ const LeaveApplication: React.FC = () => {
     }
   };
 
-  // Form Validation
   const validateForm = () => {
     const newErrors: {
       leaveType?: string;
@@ -127,7 +119,6 @@ const LeaveApplication: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle Reset
   const handleReset = () => {
     setLeaveType('Annual Leave');
     setStartDate(getTodayDate());
@@ -140,7 +131,6 @@ const LeaveApplication: React.FC = () => {
     setErrors({});
   };
 
-  // Handle Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -155,10 +145,8 @@ const LeaveApplication: React.FC = () => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
-      // Log form data (Replace with actual API call)
       console.log({
         leaveType,
         startDate,
@@ -175,6 +163,7 @@ const LeaveApplication: React.FC = () => {
         autoClose: 3000,
       });
 
+      setShowSuccess(true);
       handleReset();
     } catch (error) {
       console.error('Error submitting leave application:', error);
@@ -185,6 +174,10 @@ const LeaveApplication: React.FC = () => {
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const closeSuccessModal = () => {
+    setShowSuccess(false);
   };
 
   return (
@@ -441,6 +434,27 @@ const LeaveApplication: React.FC = () => {
           </button>
         </div>
       </form>
+
+      {showSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-6 rounded-lg text-center w-96">
+            <img
+              src={Like}
+              alt="Success Icon"
+              className="mx-auto mb-4 w-40 h-40 object-contain"
+            />
+            <h3 className="text-xl font-semibold mb-2 text-purple-900">Great Job!</h3>
+            <p className="text-gray-700 mb-4">Your leave application would be reviewed by the admin.</p>
+            <button
+              onClick={closeSuccessModal}
+              className="bg-purple-900 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-full transition-colors duration-300"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
