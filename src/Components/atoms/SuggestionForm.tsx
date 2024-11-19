@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-const FeedbackForm: React.FC = () => {
+const SuggestionForm: React.FC = () => {
   const [subject, setSubject] = useState('');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<{ subject?: string; message?: string }>({});
@@ -20,6 +20,7 @@ const FeedbackForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
+      // Replace the following line with actual API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log('Subject:', subject);
       console.log('Message:', message);
@@ -27,7 +28,7 @@ const FeedbackForm: React.FC = () => {
       setSubject('');
       setMessage('');
     } catch (error) {
-      console.error('Error submitting feedback:', error);
+      console.error('Error submitting suggestion:', error);
       setSubmitSuccess(false);
     } finally {
       setIsSubmitting(false);
@@ -54,7 +55,7 @@ const FeedbackForm: React.FC = () => {
   return (
     <section className="flex flex-col w-full p-4">
       <div className="flex flex-col p-8 w-full bg-white rounded-2xl shadow-md">
-        <h2 className="text-2xl font-bold text-black mb-6 text-left">Feedback Form</h2>
+        <h2 className="text-2xl font-bold text-black mb-6 text-left">Suggestion Form</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col">
             <label htmlFor="subject" className="text-sm font-medium text-gray-700 mb-2">
@@ -90,7 +91,7 @@ const FeedbackForm: React.FC = () => {
               onChange={setMessage}
               modules={modules}
               formats={formats}
-              placeholder="Enter your feedback"
+              placeholder="Enter your suggestion"
               className={`rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               style={{
                 height: '200px',
@@ -111,7 +112,7 @@ const FeedbackForm: React.FC = () => {
               className={`px-8 py-3 font-semibold text-white bg-purple-900 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
               }`}
-              aria-label="Submit Feedback"
+              aria-label="Submit Suggestion"
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit'}
@@ -119,10 +120,10 @@ const FeedbackForm: React.FC = () => {
           </div>
 
           {submitSuccess === true && (
-            <p className="mt-4 text-sm text-green-600 text-center">Feedback submitted successfully!</p>
+            <p className="mt-4 text-sm text-green-600 text-center">Suggestion submitted successfully!</p>
           )}
           {submitSuccess === false && (
-            <p className="mt-4 text-sm text-red-600 text-center">Failed to submit feedback. Please try again.</p>
+            <p className="mt-4 text-sm text-red-600 text-center">Failed to submit suggestion. Please try again.</p>
           )}
         </form>
       </div>
@@ -130,4 +131,4 @@ const FeedbackForm: React.FC = () => {
   );
 };
 
-export default FeedbackForm;
+export default SuggestionForm;
