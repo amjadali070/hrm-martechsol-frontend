@@ -39,25 +39,25 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
                 </th>
                 <th
                   scope="col"
-                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
+                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider"
                 >
                   Time In
                 </th>
                 <th
                   scope="col" 
-                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate"
+                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider truncate"
                 >
                   Time Out
                 </th>
                 <th
                   scope="col"
-                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider truncate"
+                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider truncate"
                 >
                   Total Time
                 </th>
                 <th
                   scope="col"
-                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider rounded-r-md"
+                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md"
                 >
                   Status
                 </th>
@@ -69,11 +69,11 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
                   key={index}
                   className="hover:bg-gray-100"
                 >
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.date}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.timeIn}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.timeOut}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700">{record.totalTime}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap">
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">{record.date}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeIn}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeOut}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.totalTime}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                         record.status === 'COMPLETED'

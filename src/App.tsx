@@ -14,6 +14,9 @@ import TrackApplication from './components/atoms/TrackApplication';
 import ViewAttendance from './components/atoms/ViewAttendance';
 import PayrollView from './components/atoms/PayrollView';
 import AavailableLeaves from './components/atoms/AavailableLeaves';
+import ProvidentFund from './components/atoms/ProvidentFund';
+import NotFound from './components/atoms/NotFound';
+import AttendanceTicket from './components/atoms/AttendanceTicket';
 
 const App: React.FC = () => {
   return (
@@ -35,7 +38,9 @@ const App: React.FC = () => {
                 <Route path="/attendance/view" element={<ViewAttendance/>} />
                 <Route path="/payroll/view" element={<PayrollView />} />
                 <Route path="/payroll/available-leaves" element={<AavailableLeaves/>} />
-                <Route path="*" element={<h1>Not Found</h1>} />
+                <Route path="/payroll/provident-fund" element={<ProvidentFund/>} />
+                <Route path="/tickets/attendance" element={<AttendanceTicket/>} />
+                <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>
           </Routes>

@@ -37,9 +37,6 @@ const Announcements: React.FC<AnnouncementsProps> = ({ announcements, onViewAll 
           >
             <div className="flex flex-col">
               <h3 className="ml-3 text-md sm:text-md font-semibold">{announcement.title}</h3>
-              {/* {announcement.date && (
-                <span className="text-sm sm:text-base mt-1">{announcement.date}</span>
-              )} */}
             </div>
 
             <div className="mt-2 sm:mt-0 mr-4">

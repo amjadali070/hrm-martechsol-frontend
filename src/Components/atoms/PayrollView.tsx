@@ -114,7 +114,7 @@ const PayrollView: React.FC = () => {
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow-md">
+    <div className="w-full p-6 bg-white rounded-lg ">
      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-black">Salary Slip</h1>
         <div className="flex items-center space-x-4">

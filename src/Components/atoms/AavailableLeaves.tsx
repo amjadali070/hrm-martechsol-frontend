@@ -81,11 +81,10 @@ const AavailableLeaves: React.FC = () => {
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow-lg mb-8">
+    <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
         Available Leaves
       </h2>
-
       
       <div className="overflow-x-auto">
         <table className={tableClass}>
@@ -200,7 +199,7 @@ const AavailableLeaves: React.FC = () => {
             className={`px-3 py-1 text-sm rounded-md ${
               currentPage === totalPages
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-purple-600 text-white hover:bg-purple-700'
+                : 'bg-blue-600 text-white hover:bg-blue-600'
             }`}
             disabled={currentPage === totalPages}
             onClick={handleNext}

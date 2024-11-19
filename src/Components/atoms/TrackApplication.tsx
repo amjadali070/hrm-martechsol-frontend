@@ -311,7 +311,7 @@ const TrackApplication: React.FC = () => {
   }, [totalPages, currentPage]);
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow-lg mt-1 mb-1">
+    <div className="w-full p-6 bg-white rounded-lg mt-1 mb-1">
       <h2 className="text-3xl font-bold text-center mb-6 text-black">Track Leave Applications</h2>
 
       <div className="flex flex-col md:flex-row justify-between mb-6 space-y-4 md:space-y-0">
@@ -455,31 +455,31 @@ const TrackApplication: React.FC = () => {
                     <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Leave Type
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       From
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       To
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Last Day at Work
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Return to Work
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
                       Total Days
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Reason
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wide border border-gray-200 truncate">
+                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wide border border-gray-200 truncate">
                       Relief Officer
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Comments
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Status
                     </th>
                   </tr>
@@ -490,33 +490,33 @@ const TrackApplication: React.FC = () => {
                       <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
                         {app.leaveType}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
                         {app.from}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
                         {app.to}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
                         {app.lastDayAtWork}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
                         {app.returnToWork}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {app.totalDays}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {app.reason}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
                         {app.reliefOfficer}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {app.comments ? app.comments : 'N/A'}
                       </td>
-                      <td className="py-2 px-2 text-sm border border-gray-200">
+                      <td className="py-2 px-2 text-sm border border-gray-200 text-center">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-center ${
                             app.status === 'Approved'
                               ? 'bg-green-100 text-green-800'
                               : app.status === 'Pending'
@@ -575,8 +575,8 @@ const TrackApplication: React.FC = () => {
                       onClick={() => setCurrentPage(number)}
                       className={`px-3 py-1 rounded-md ${
                         currentPage === number
-                          ? 'bg-purple-700 text-white'
-                          : 'bg-purple-600 text-white hover:bg-purple-700'
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-blue-600 text-white hover:bg-blue-600'
                       }`}
                       aria-label={`Go to page ${number}`}
                     >
@@ -591,7 +591,7 @@ const TrackApplication: React.FC = () => {
                   className={`px-3 py-1 rounded-md ${
                     currentPage === totalPages
                       ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-blue-600 text-white hover:bg-blue-600'
                   }`}
                   aria-label="Next Page"
                 >

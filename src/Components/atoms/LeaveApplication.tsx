@@ -181,7 +181,7 @@ const LeaveApplication: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-4 md:p-8 bg-white rounded-lg shadow-lg mt-1 mb-8">
+    <div className="w-full p-4 md:p-8 bg-white rounded-lg mt-1 mb-8">
       <h2 className="text-3xl font-bold text-center mb-4 text-purple-900">Leave Application</h2>
       <p className="text-center mb-6 text-gray-600">Fill in the required fields below to apply for leave.</p>
       <form onSubmit={handleSubmit} className="space-y-6">
