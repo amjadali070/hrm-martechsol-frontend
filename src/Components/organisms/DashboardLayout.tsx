@@ -35,6 +35,10 @@ const DashboardLayout: React.FC = () => {
     navigate('/announcements');
   };
 
+  const handleViewAllLAttendence = () => {
+    navigate('/attendance/view');
+  };
+
   return (
     <>
       <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
@@ -43,7 +47,7 @@ const DashboardLayout: React.FC = () => {
       <div className="mt-5 max-md:mr-2 max-md:max-w-full">
         <div className="flex gap-5 max-md:flex-col">
           <LeaveOverview />
-          <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAll} />
+          <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAllLAttendence} />
         </div>
       </div>
     </>

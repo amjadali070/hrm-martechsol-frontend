@@ -130,7 +130,7 @@ const ViewAttendance: React.FC = () => {
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   return (
-    <div className="w-full p-4 sm:p-6 bg-white rounded-lg mt-2 mb-8">
+    <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
       {/* Status Legend */}
       <div className="mt-6 flex justify-center mb-8">
         <div className="w-full sm:w-2/3">

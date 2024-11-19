@@ -311,7 +311,7 @@ const TrackApplication: React.FC = () => {
   }, [totalPages, currentPage]);
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg mt-1 mb-1">
+    <div className="w-full p-6 bg-white rounded-lg mb-1">
       <h2 className="text-3xl font-bold text-center mb-6 text-black">Track Leave Applications</h2>
 
       <div className="flex flex-col md:flex-row justify-between mb-6 space-y-4 md:space-y-0">
@@ -561,7 +561,7 @@ const TrackApplication: React.FC = () => {
                   className={`px-3 py-1 rounded-md ${
                     currentPage === 1
                       ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                      : 'bg-blue-600 text-white hover:bg-'
                   }`}
                   aria-label="Previous Page"
                 >

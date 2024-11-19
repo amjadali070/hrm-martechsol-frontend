@@ -65,7 +65,7 @@ const ProvidentFund: React.FC = () => {
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg mt-1   ">
+    <div className="w-full p-6 bg-white rounded-lg">
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-4 text-black">
         Provident Fund Details
       </h2>
