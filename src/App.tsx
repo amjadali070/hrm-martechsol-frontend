@@ -11,6 +11,9 @@ import { AuthProvider } from './components/organisms/AuthContext';
 import SuggestionForm from './components/atoms/SuggestionForm';
 import LeaveApplication from './components/atoms/LeaveApplication';
 import TrackApplication from './components/atoms/TrackApplication';
+import ViewAttendance from './components/atoms/ViewAttendance';
+import PayrollView from './components/atoms/PayrollView';
+import AavailableLeaves from './components/atoms/AavailableLeaves';
 
 const App: React.FC = () => {
   return (
@@ -29,6 +32,10 @@ const App: React.FC = () => {
                 <Route path="/forms/suggestion" element={<SuggestionForm />} />
                 <Route path="/forms/leave-application" element={<LeaveApplication/>} />
                 <Route path="/forms/track-application" element={<TrackApplication />} />
+                <Route path="/attendance/view" element={<ViewAttendance/>} />
+                <Route path="/payroll/view" element={<PayrollView />} />
+                <Route path="/payroll/available-leaves" element={<AavailableLeaves/>} />
+                <Route path="*" element={<h1>Not Found</h1>} />
               </Route>
             </Route>
           </Routes>

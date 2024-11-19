@@ -54,7 +54,7 @@ const FeedbackForm: React.FC = () => {
   return (
     <section className="flex flex-col w-full p-4">
       <div className="flex flex-col p-8 w-full bg-white rounded-2xl shadow-md">
-        <h2 className="text-2xl font-bold text-black mb-6 text-left">Feedback Form</h2>
+        <h2 className="text-2xl font-bold text-purple-900 mb-6 text-left">Feedback Form</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col">
             <label htmlFor="subject" className="text-sm font-medium text-gray-700 mb-2">

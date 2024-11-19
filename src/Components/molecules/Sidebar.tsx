@@ -12,7 +12,7 @@ import {
 } from 'react-icons/fa';
 import { SiGoogleforms } from "react-icons/si";
 import { RiCashFill } from "react-icons/ri";
-import { MdSpaceDashboard, MdRuleFolder } from "react-icons/md";
+import { MdSpaceDashboard } from "react-icons/md";
 import { IoDocumentText } from "react-icons/io5";
 import { Link, useLocation } from 'react-router-dom';
 
@@ -58,7 +58,7 @@ const menuItems: MenuItem[] = [
     path: "/payroll",
     subItems: [
       { label: "View Payroll", path: "/payroll/view" },
-      { label: "Available Leaves", path: "/payroll/available-leaves" },
+      { label: "Leaves Available", path: "/payroll/available-leaves" },
       { label: "Provident Fund", path: "/payroll/provident-fund" },
     ]
   },
@@ -111,7 +111,7 @@ const Sidebar: React.FC = () => {
                   <button
                     onClick={() => toggleMenu(item.label)}
                     className={`flex items-center justify-between w-full px-4 py-3 ${
-                      isActive ? 'bg-sky-500' : 'border border-solid border-white border-opacity-10 mt-2'
+                      isActive ? 'bg-sky-500' : 'border border-solid border-white border-opacity-10 mt-2 mb-2'
                     } rounded-md hover:bg-sky-600 transition-colors duration-200 max-md:px-5`}
                   >
                     <div className="flex items-center gap-6">

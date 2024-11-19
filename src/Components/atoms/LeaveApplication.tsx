@@ -208,6 +208,9 @@ const LeaveApplication: React.FC = () => {
             <option value="Maternity Leave">Maternity Leave</option>
             <option value="Paternity Leave">Paternity Leave</option>
             <option value="Bereavement Leave">Bereavement Leave</option>
+            <option value="Hajj Leave">Hajj Leave</option>
+            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+            <option value="Unapproved Absence Without Pay">Unapproved Absence Without Pay</option>
 
           </select>
           {errors.leaveType && (

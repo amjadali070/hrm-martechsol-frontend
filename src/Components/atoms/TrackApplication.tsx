@@ -31,7 +31,6 @@ const TrackApplication: React.FC = () => {
   const [dateTo, setDateTo] = useState<string>('');
 
   const dummyData: LeaveApplication[] = [
-    // Data for 2023
     {
       id: '1',
       leaveType: 'Annual Leave',
@@ -188,8 +187,6 @@ const TrackApplication: React.FC = () => {
       comments: null,
       status: 'Approved',
     },
-  
-    // Data for 2024 (Retaining initial entries and adding more)
     {
       id: '13',
       leaveType: 'Annual Leave',
@@ -315,7 +312,7 @@ const TrackApplication: React.FC = () => {
 
   return (
     <div className="w-full p-6 bg-white rounded-lg shadow-lg mt-1 mb-1">
-      <h2 className="text-3xl font-bold text-center mb-6 text-purple-900">Track Leave Applications</h2>
+      <h2 className="text-3xl font-bold text-center mb-6 text-black">Track Leave Applications</h2>
 
       <div className="flex flex-col md:flex-row justify-between mb-6 space-y-4 md:space-y-0">
 
