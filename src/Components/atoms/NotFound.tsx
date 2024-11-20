@@ -17,7 +17,7 @@ const NotFound: React.FC = () => {
       <div className="mt-8">
         <Link
           to="/dashboard"
-          className="px-6 py-3 bg-purple-700 text-white font-semibold rounded-lg shadow-lg hover:bg-purple-800 transition-all duration-200"
+          className="px-6 py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-all duration-200"
         >
           Go to Homepage
         </Link>

@@ -18,11 +18,28 @@ const DashboardLayout: React.FC = () => {
     { label: 'View Policies', onClick: () => navigate('/view-policies'), tooltip: 'Review company policies' },
   ];
 
-  const announcements = [
-    { title: 'Eid Holidays', isHighlighted: true, date: '2024-04-10' },
-    { title: 'Final Payroll for October 2024', isHighlighted: false, date: '2024-10-31' },
-    { title: 'Office Renovation', isHighlighted: false, date: '2024-12-01' },
-    { title: 'New Health Benefits', isHighlighted: false, date: '2024-11-15' },
+  const announcementsData = [
+    {
+      id: 1,
+      date: '2024-11-15',
+      subject: 'Annual Holiday Announcement',
+      status: "Read" as "Read",
+      paragraph: 'The office will remain closed on the 25th of December for the annual holiday.',
+    },
+    {
+      id: 2,
+      date: '2024-11-10',
+      subject: 'Policy Update Notification',
+      status: "Read" as "Read",
+      paragraph: 'The company policy has been updated. Please review it on the HR portal.',
+    },
+    {
+      id: 3,
+      date: '2024-11-05',
+      subject: 'Team Meeting Schedule',
+      status: "Read" as "Read",
+      paragraph: 'The team meeting is scheduled for 10 AM on November 7th in the main conference room.',
+    },
   ];
 
   const attendanceRecords = [
@@ -43,7 +60,7 @@ const DashboardLayout: React.FC = () => {
     <>
       <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
       <QuickActions actions={actions} />
-      <Announcements announcements={announcements} onViewAll={handleViewAll} />
+      <Announcements announcements={announcementsData} onViewAll={handleViewAll} />
       <div className="mt-5 max-md:mr-2 max-md:max-w-full">
         <div className="flex gap-5 max-md:flex-col">
           <LeaveOverview />

@@ -24,11 +24,11 @@ const TrackApplication: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
   const [selectedMonth, setSelectedMonth] = useState<string>('All');
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
   const dummyData: LeaveApplication[] = [
     {
@@ -299,16 +299,25 @@ const TrackApplication: React.FC = () => {
     return matchesStatus && matchesSearch && matchesMonth && matchesDateFrom && matchesDateTo;
   });
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const indexOfLastItem = currentPage * rowsPerPage;
+  const indexOfFirstItem = indexOfLastItem - rowsPerPage;
   const currentApplications = filteredApplications.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredApplications.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredApplications.length /rowsPerPage);
 
   useEffect(() => {
     if (currentPage > totalPages) {
       setCurrentPage(totalPages > 0 ? totalPages : 1);
     }
   }, [totalPages, currentPage]);
+
+
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
 
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-1">
@@ -533,71 +542,49 @@ const TrackApplication: React.FC = () => {
                 </tbody>
               </table>
 
-              <div className="flex justify-end items-center mt-4 space-x-4">
-                
-              <div className="flex items-center space-x-2 mb-2 mt-2">
-                <label htmlFor="itemsPerPage" className="text-gray-700 font-medium">
-                    Show:
-                </label>
-                <select
-                    id="itemsPerPage"
-                    value={itemsPerPage}
-                    onChange={(e) => {
-                    setItemsPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                    }}
-                    className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value={5}>5</option>
-                    <option value={10}>10</option>
-                    <option value={20}>20</option>
-                    <option value={30}>30</option>
-                    <option value={50}>50</option>
-                </select>
-                </div>
-
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === 1
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-'
-                  }`}
-                  aria-label="Previous Page"
-                >
-                  Previous
-                </button>
-
-                <div className="flex space-x-2">
-                  {Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => (
-                    <button
-                      key={number}
-                      onClick={() => setCurrentPage(number)}
-                      className={`px-3 py-1 rounded-md ${
-                        currentPage === number
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-blue-600 text-white hover:bg-blue-600'
-                      }`}
-                      aria-label={`Go to page ${number}`}
-                    >
-                      {number}
-                    </button>
-                  ))}
-                </div>
-
-                <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className={`px-3 py-1 rounded-md ${
-                    currentPage === totalPages
-                      ? 'bg-gray-300 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-600'
-                  }`}
-                  aria-label="Next Page"
-                >
-                  Next
-                </button>
-              </div>
+              <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <select
+            className="text-sm border border-gray-300 rounded-md p-0.5"
+            value={rowsPerPage}
+            onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+          >
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center space-x-4">
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
+            }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-600'
+            }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
+          >
+            Next
+          </button>
+        </div>
+      </div>
             </>
           ) : (
             <div className="text-center text-gray-500">No leave applications found.</div>

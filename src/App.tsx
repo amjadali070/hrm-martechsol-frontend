@@ -21,6 +21,9 @@ import Policies from './components/atoms/Policies';
 import NetworkTicket from './components/atoms/NetworkTicket';
 import HRTicket from './components/atoms/HRTicket';
 import AdminTicket from './components/atoms/AdminTicket';
+import TicketStatus from './components/atoms/TicketStatus';
+import Notices from './components/atoms/Notices';
+import EditProfilePage from './components/molecules/EditProfilePage';
 
 const App: React.FC = () => {
   return (
@@ -47,7 +50,10 @@ const App: React.FC = () => {
                 <Route path="/tickets/network" element={<NetworkTicket/>} />
                 <Route path="/tickets/hr" element={<HRTicket/>} />
                 <Route path="/tickets/admin" element={<AdminTicket/>} />
+                <Route path="/tickets/status" element={<TicketStatus/>} />
                 <Route path="/policies" element={<Policies />} />
+                <Route path="/announcements" element={<Notices/>} />
+                <Route path="/edit-profile" element={<EditProfilePage/>} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>

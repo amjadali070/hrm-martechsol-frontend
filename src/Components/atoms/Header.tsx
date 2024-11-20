@@ -50,7 +50,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={handleTimeToggle}
-              className={`flex items-center gap-2.5 px-6 py-3 rounded-full text-white transition-colors duration-300 ${
+              className={`flex items-center gap-2.5 px-6 py-3 rounded-full text-white transition-colors duration-300 uppercase font-medium ${
                 isTimedIn ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'
               }`}
               aria-pressed={isTimedIn}
@@ -65,7 +65,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2.5 px-6 py-3 bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors duration-300"
+              className="flex items-center gap-2.5 px-6 py-3 bg-black text-white uppercase font-medium rounded-full hover:bg-neutral-8  00 transition-colors duration-300"
             >
               <RiLogoutCircleRLine size={22} />
               <span className='text-lg'>Log Out</span>

@@ -129,6 +129,14 @@ const ViewAttendance: React.FC = () => {
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
       {/* Status Legend */}
@@ -176,36 +184,36 @@ const ViewAttendance: React.FC = () => {
             className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
         />
         </div>
-   </div>
+      </div>
 
-  <div className="flex items-center space-x-2">
-  <div className="flex items-center space-x-2">
-      <label htmlFor="search" className="text-gray-700 font-medium">
-        Search:
+    <div className="flex items-center space-x-2">
+    <div className="flex items-center space-x-2">
+        <label htmlFor="search" className="text-gray-700 font-medium">
+          Search:
+        </label>
+        <input
+          type="text"
+          id="search"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search Status"
+          className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+      </div>
+      <label htmlFor="filter" className="text-gray-700 font-medium">
+        Filter:
       </label>
-      <input
-        type="text"
-        id="search"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Search Status"
+      <select
+        id="filter"
+        value={filter}
+        onChange={(e) => setFilter(e.target.value as 'This Week' | 'All')}
         className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-      />
+      >
+        <option value="All">All</option>
+        <option value="This Week">This Week</option>
+      </select>
     </div>
-    <label htmlFor="filter" className="text-gray-700 font-medium">
-      Filter:
-    </label>
-    <select
-      id="filter"
-      value={filter}
-      onChange={(e) => setFilter(e.target.value as 'This Week' | 'All')}
-      className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-    >
-      <option value="All">All</option>
-      <option value="This Week">This Week</option>
-    </select>
   </div>
-</div>
 
 
       {/* Table */}
@@ -260,52 +268,44 @@ const ViewAttendance: React.FC = () => {
         </table>
       </div>
 
-      {/* Pagination */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 space-y-4 sm:space-y-0">
-        <div className="flex items-center space-x-2">
-          <label htmlFor="itemsPerPage" className="text-gray-700 font-medium">
-            Show:
-          </label>
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
-            id="itemsPerPage"
+            className="text-sm border border-gray-300 rounded-md p-0.5"
             value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
-
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 text-sm rounded-full ${
               currentPage === 1
-                ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-purple-600 text-white hover:bg-purple-700'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
             }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
           >
             Previous
           </button>
-
-          <span className="text-gray-700 text-sm font-medium">
+          <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
-
           <button
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-            disabled={currentPage === totalPages}
-            className={`px-3 py-1 rounded-md ${
+            className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
-                ? 'bg-gray-300 cursor-not-allowed'
-                : 'bg-purple-600 text-white hover:bg-purple-700'
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-600'
             }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
           >
             Next
           </button>

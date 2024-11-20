@@ -107,7 +107,7 @@ const PayrollView: React.FC = () => {
     payrollData.grossSalary + payrollData.additions - totalDeductions;
 
   const tableClass =
-    'w-full border-collapse bg-white border border-gray-300 rounded-md shadow-sm mb-6';
+    'w-full border-collapse bg-white border border-gray-300 rounded-md mb-6';
   const thClass =
     'bg-purple-900 text-white text-sm font-semibold text-left px-4 py-2 border border-gray-300';
   const tdClass =
@@ -132,7 +132,7 @@ const PayrollView: React.FC = () => {
             </select>
             <button
             onClick={() => console.log("Export to PDF")}
-            className="px-4 py-2 bg-blue-700 text-white font-medium rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
             >
             Export to PDF
             </button>

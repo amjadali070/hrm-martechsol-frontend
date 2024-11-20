@@ -38,7 +38,7 @@ const ProvidentFund: React.FC = () => {
 
   const [filteredYear, setFilteredYear] = useState<string>('All');
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(3);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
   const filteredFundDetails =
     filteredYear === 'All'
@@ -46,19 +46,28 @@ const ProvidentFund: React.FC = () => {
       : allFundDetails.filter((detail) => detail.month.includes(filteredYear));
 
   const paginatedData = filteredFundDetails.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
   );
 
   const totalBalance = allFundDetails.reduce(
-    (sum, detail) => sum + detail.employeeContribution + detail.employerContribution,
+    (sum, detail) =>
+      sum + detail.employeeContribution + detail.employerContribution,
     0
   );
 
-  const totalPages = Math.ceil(filteredFundDetails.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredFundDetails.length / rowsPerPage);
+
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
 
   const tableClass =
-    'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md shadow-sm mb-6';
+    'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6';
   const thClass =
     'bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center';
   const tdClass =
@@ -169,43 +178,46 @@ const ProvidentFund: React.FC = () => {
       </div>
 
       <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">Show:</span>
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
-            value={itemsPerPage}
+            className="text-sm border border-gray-300 rounded-md p-0.5"
+            value={rowsPerPage}
             onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
+              setRowsPerPage(parseInt(e.target.value));
               setCurrentPage(1);
             }}
-            className="p-1 border border-gray-300 rounded-md"
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={20}>20</option>
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
-
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === 1 ? 'bg-gray-300' : 'bg-gray-500 text-white'
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
             }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
           >
             Previous
           </button>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-600 text-white'
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-600'
             }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
           >
             Next
           </button>

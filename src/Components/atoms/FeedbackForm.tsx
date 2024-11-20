@@ -53,7 +53,7 @@ const FeedbackForm: React.FC = () => {
 
   return (
     <section className="flex flex-col w-full p-4">
-      <div className="flex flex-col p-8 w-full bg-white rounded-2xl shadow-md">
+      <div className="flex flex-col p-8 w-full bg-white rounded-2xl">
         <h2 className="text-2xl font-bold text-purple-900 mb-6 text-left">Feedback Form</h2>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col">
@@ -68,7 +68,7 @@ const FeedbackForm: React.FC = () => {
               onChange={(e) => setSubject(e.target.value)}
               className={`p-3 bg-white border ${
                 errors.subject ? 'border-red-500' : 'border-gray-300'
-              } rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              } rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               placeholder="Enter subject"
               required
               aria-required="true"

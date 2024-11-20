@@ -72,7 +72,7 @@ const AavailableLeaves: React.FC = () => {
   };
 
   const tableClass =
-  'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md shadow-sm mb-6';
+  'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6';
   const thClass =
     'bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center';
   const tdClass =
@@ -121,7 +121,7 @@ const AavailableLeaves: React.FC = () => {
 
       <h4 className="text-lg font-bold text-black mb-4">Leave Details</h4>
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md shadow-sm mb-6">
+        <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
           <colgroup>
             <col style={{ width: '25%' }} />
             <col style={{ width: '25%' }} />
@@ -165,11 +165,11 @@ const AavailableLeaves: React.FC = () => {
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex justify-between items-center">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md p-1"
+            className="text-sm border border-gray-300 rounded-md p-0.5"
             value={rowsPerPage}
             onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
           >
@@ -182,7 +182,7 @@ const AavailableLeaves: React.FC = () => {
         </div>
         <div className="flex items-center space-x-4">
           <button
-            className={`px-3 py-1 text-sm rounded-md ${
+            className={`px-3 py-1 text-sm rounded-full ${
               currentPage === 1
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-gray-200 text-black hover:bg-gray-300'
@@ -196,7 +196,7 @@ const AavailableLeaves: React.FC = () => {
             Page {currentPage} of {totalPages}
           </span>
           <button
-            className={`px-3 py-1 text-sm rounded-md ${
+            className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
                 ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-600'

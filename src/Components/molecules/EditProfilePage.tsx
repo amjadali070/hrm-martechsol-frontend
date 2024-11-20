@@ -1,37 +1,185 @@
-// src/components/EmployeeProfile.tsx
+import React, { useState } from 'react';
+import profile from '../../assets/waqas.png';
+import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
+import ContactDetails from '../atoms/EditProfile/ContactDetails';
+import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
+import Education from '../atoms/EditProfile/Education';
+import Resume from '../atoms/EditProfile/Resume';
+import Documents from '../atoms/EditProfile/Documents';
+import BankAccountDetails from '../atoms/EditProfile/BankAccountDetails';
+import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
 
-import React from 'react';
-import { FaUserEdit } from 'react-icons/fa';
+const EditProfilePage: React.FC = () => {
+  const [selectedMenu, setSelectedMenu] = useState('Personal Details');
 
-interface EmployeeProfileProps {
-  employee: {
-    name: string;
-    department: string;
-    jobTitle: string;
-    jobCategory: string;
-    profilePicture: string;
+  const handleProfilePictureChange = (file: File) => {
+    console.log('New profile picture:', file);
   };
-}
 
-const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employee }) => {
+  const employee = {
+    name: 'Mirza Waqas Baig',
+    department: 'Head of Company',
+    jobTitle: 'Chief Executive Officer',
+    jobCategory: 'Full-time',
+    profilePicture: profile,
+  };
+
+  const handleUpdateContactDetails = (details: {
+    phoneNumber1: string;
+    phoneNumber2?: string;
+    email: string;
+    currentCity: string;
+    currentAddress: string;
+    permanentCity: string;
+    permanentAddress: string;
+  }) => {
+    console.log('Updated Contact Details:', details);
+  };
+
+  const handleUpdateEducation = (details: {
+    institute: string;
+    degree: string;
+    fieldOfStudy: string;
+    gpa: string;
+    yearOfCompletion: string;
+  }) => {
+    console.log('Updated Education Details:', details);
+  };
+
+  const handleUpdateEmergencyContacts = (contacts: {
+    name: string;
+    contactNumber: string;
+    relation: string;
+  }[]) => {
+    console.log('Updated Emergency Contacts:', contacts);
+  };
+
+  const handleResumeUpdate = (file: File) => {
+    console.log('Updated Resume:', file);
+    // Handle file upload logic here (e.g., upload to the server)
+  };
+
+  const documents: { name: string; type: 'image' | 'pdf'; fileUrl: string | null }[] = [
+    { name: 'NIC', type: 'image', fileUrl: null },
+    { name: 'Experience Letter', type: 'pdf', fileUrl: 'https://example.com/experience.pdf' },
+    { name: 'Salary Slip', type: 'pdf', fileUrl: null },
+    { name: 'Academic Document', type: 'image', fileUrl: null },
+    { name: 'Non Disclosure Agreement (NDA)', type: 'pdf', fileUrl: 'https://example.com/nda.pdf' },
+  ];
+
+  const handleDocumentUpdate = (name: string, file: File) => {
+    console.log(`Updated Document: ${name}`, file);
+    // Handle file upload logic here (e.g., save to the server)
+  };
+
+  const handleUpdate = (details: {
+    bankName: string;
+    branchName: string;
+    accountTitle: string;
+    accountNumber: string;
+    ibanNumber: string;
+  }) => {
+    console.log('Updated Bank Account Details:', details);
+  };
+
+  const renderContent = () => {
+    switch (selectedMenu) {
+      case 'Personal Details':
+        return (
+          <PersonalDetails
+            employee={employee}
+            onProfilePictureChange={handleProfilePictureChange}
+          />
+        );
+      case 'Contact Details':
+        return (
+          <ContactDetails
+            phoneNumber1="099344434"
+            phoneNumber2=""
+            email="waqas@gmail.com"
+            currentCity="Karachi"
+            currentAddress="Defence View Phase 2"
+            permanentCity="Lahore"
+            permanentAddress="Gulberg"
+            onUpdate={handleUpdateContactDetails}
+          />
+        );
+        case 'Education':
+          return (
+            <Education
+              institute="Harvard University"
+              degree="Bachelor of Science"
+              fieldOfStudy="Computer Science"
+              gpa="3.8"
+              yearOfCompletion="2020"
+              onUpdate={handleUpdateEducation}
+            />
+          );
+      case 'Emergency Contact':
+        return (
+          <EmergencyContact
+            contacts={[
+              { name: 'Alice', contactNumber: '1234567890', relation: 'Spouse' },
+              { name: 'Bob', contactNumber: '0987654321', relation: 'Sibling' },
+            ]}
+            onUpdate={handleUpdateEmergencyContacts}
+          />
+        );
+
+      case 'Resume':
+        return (
+          <Resume
+              resumeUrl="https://resources.workable.com/wp-content/uploads/2017/09/Employee-Handbook.pdf"
+              onUpdate={handleResumeUpdate}
+           />
+        );
+
+      case 'Document':
+        return  (<Documents documents={documents} onUpdate={handleDocumentUpdate} />);
+
+      case 'Bank Account Details':
+        return (
+          <BankAccountDetails
+            bankName="HBL Bank"
+            branchName="Main Branch"
+            accountTitle="John Doe"
+            accountNumber="1234567890"
+            ibanNumber="PK12HBL1234567890"
+            onUpdate={handleUpdate}
+        />
+        );
+      case 'Update Password':
+        return (<UpdatePassword
+          onUpdate={(details) => {
+            console.log('Updated Password Details:', details);
+          }}
+        />);
+      default:
+        return <div className="p-6">Select a menu item to view details.</div>;
+    }
+  };
+
   return (
-    <div className="flex flex-col md:flex-row gap-5 p-8 bg-[#f0f4fc] min-h-screen ">
-      <div className="bg-white w-full md:w-1/4 p-6 rounded-xl shadow-md">
+    <div className="flex flex-col lg:flex-row gap-4">
+      <div className="bg-white w-full lg:w-1/4 p-6 rounded-xl">
         <ul className="space-y-4">
           {[
             'Personal Details',
             'Contact Details',
-            'Next of Kin Details',
-            'Education Qualifications',
-            'Guarantor Details',
-            'Family Details',
-            'Job Details',
-            'Financial Details',
+            'Education',
+            'Emergency Contact',
+            'Resume',
+            'Document',
+            'Bank Account Details',
+            'Update Password',
           ].map((item, index) => (
             <li
               key={index}
+              onClick={() => setSelectedMenu(item)}
               className={`py-3 px-4 rounded-lg text-left cursor-pointer ${
-                index === 0 ? 'bg-purple-900 font-bold text-white' : 'bg-gray-100'
+                selectedMenu === item
+                  ? 'bg-purple-900 font-bold text-white'
+                  : 'bg-gray-100'
               } hover:bg-purple-900 hover:text-white transition-all duration-200`}
             >
               {item}
@@ -40,50 +188,9 @@ const EmployeeProfile: React.FC<EmployeeProfileProps> = ({ employee }) => {
         </ul>
       </div>
 
-      <div className="bg-white flex-grow p-10 rounded-xl shadow-md relative">
-        <div className="flex justify-center">
-          <div className="relative">
-            <img
-              src={employee.profilePicture}
-              alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-gray-300"
-            />
-            <button className="absolute top-0 right-0 bg-gray-200 rounded-full p-2 shadow-md hover:bg-gray-300">
-              <FaUserEdit size={16} />
-            </button>
-          </div>
-        </div>
-        <div className="text-center mt-6">
-          <h2 className="text-2xl font-bold">{employee.name}</h2>
-          <p className="text-lg mt-3">{employee.department}</p>
-          <div className="flex justify-center mt-5 space-x-10">
-            <div>
-              <h3 className="font-semibold">Job Title</h3>
-              <p className="mt-1">{employee.jobTitle}</p>
-            </div>
-            <div>
-              <h3 className="font-semibold">Job Category</h3>
-              <p className="mt-1">{employee.jobCategory}</p>
-            </div>
-          </div>
-        </div>
-      </div>
+      <div className="w-full">{renderContent()}</div>
     </div>
   );
-};
-
-
-const EditProfilePage: React.FC = () => {
-  const employee = {
-    name: 'selemon alemayehu',
-    department: 'Design & Marketing',
-    jobTitle: 'UI / UX Designer',
-    jobCategory: 'Full time',
-    profilePicture:
-      'https://via.placeholder.com/150/000000/FFFFFF/?text=Profile+Picture',
-  };
-
-  return <EmployeeProfile employee={employee} />;
 };
 
 export default EditProfilePage;

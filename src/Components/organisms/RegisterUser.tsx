@@ -94,7 +94,7 @@ const Register: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto my-10 p-6 border border-gray-300 shadow rounded bg-white">
+    <div className="max-w-md mx-auto my-10 p-6 border border-gray-300 rounded bg-white">
       <div className="mb-5 text-center">
         <img
           loading="lazy"

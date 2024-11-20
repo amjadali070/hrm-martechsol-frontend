@@ -71,7 +71,7 @@ const menuItems: MenuItem[] = [
       { label: "Network Ticket", path: "/tickets/network" },
       { label: "HR Ticket", path: "/tickets/hr" },
       { label: "Admin Ticket", path: "/tickets/admin" },
-      { label: "Ticket Status", path: "/tickets/status" },
+      // { label: "Ticket Status", path: "/tickets/status" },
     ]
   },
   { icon: IoDocumentText, label: "Policies", path: "/policies" },

@@ -50,14 +50,14 @@ const AttendanceTicket: React.FC = () => {
   );
 
   const tableClass =
-    'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md shadow-sm mb-6';
+    'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6';
   const thClass =
     'bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center';
   const tdClass =
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg shadow-lg mb-8">
+    <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mt-2 mb-3 text-black">
         Submit New Attendance Ticket
       </h2>
@@ -112,12 +112,12 @@ const AttendanceTicket: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700">Select File</label>
         <input type="file" className="w-full p-2 border border-gray-300 rounded-md" />
       </div>
-      <button className="px-6 py-2 bg-purple-900 text-white rounded-full shadow-md hover:bg-purple-800 transition-all">
+      <button className="px-6 py-2 bg-purple-900 text-white rounded-full hover:bg-purple-800 transition-all">
         Submit
       </button>
 
       <div className="flex justify-between items-center mb-4 mt-6">
-        <h2 className="text-lg md:text-xl font-bold text-black">List</h2>
+        <h2 className="text-lg md:text-xl font-bold text-black">Ticket Status</h2>
         <div className="flex items-center space-x-2">
           <label htmlFor="status" className="text-sm font-medium text-gray-700">
             Filter by Status:
