@@ -17,6 +17,10 @@ import AavailableLeaves from './components/atoms/AavailableLeaves';
 import ProvidentFund from './components/atoms/ProvidentFund';
 import NotFound from './components/atoms/NotFound';
 import AttendanceTicket from './components/atoms/AttendanceTicket';
+import Policies from './components/atoms/Policies';
+import NetworkTicket from './components/atoms/NetworkTicket';
+import HRTicket from './components/atoms/HRTicket';
+import AdminTicket from './components/atoms/AdminTicket';
 
 const App: React.FC = () => {
   return (
@@ -40,6 +44,10 @@ const App: React.FC = () => {
                 <Route path="/payroll/available-leaves" element={<AavailableLeaves/>} />
                 <Route path="/payroll/provident-fund" element={<ProvidentFund/>} />
                 <Route path="/tickets/attendance" element={<AttendanceTicket/>} />
+                <Route path="/tickets/network" element={<NetworkTicket/>} />
+                <Route path="/tickets/hr" element={<HRTicket/>} />
+                <Route path="/tickets/admin" element={<AdminTicket/>} />
+                <Route path="/policies" element={<Policies />} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>

@@ -112,7 +112,7 @@ const AttendanceTicket: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700">Select File</label>
         <input type="file" className="w-full p-2 border border-gray-300 rounded-md" />
       </div>
-      <button className="px-6 py-2 bg-purple-700 text-white rounded-md shadow-md hover:bg-purple-800 transition-all">
+      <button className="px-6 py-2 bg-purple-900 text-white rounded-full shadow-md hover:bg-purple-800 transition-all">
         Submit
       </button>
 
