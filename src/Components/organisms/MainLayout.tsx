@@ -1,4 +1,3 @@
-// frontend/src/components/layouts/MainLayout.tsx
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Sidebar from '../molecules/Sidebar';

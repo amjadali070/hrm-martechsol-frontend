@@ -1,7 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
-import MainLayout from './components/templates/MainLayout';
 import FeedbackForm from './components/atoms/FeedbackForm';
 import SuggestionForm from './components/atoms/SuggestionForm';
 import LeaveApplication from './components/atoms/LeaveApplication';
@@ -28,6 +27,7 @@ import SiginPage from './components/molecules/SignPage';
 import RegisterUser from './components/organisms/RegisterUser';
 import PrivateRoute from './components/organisms/PrivateRoute';
 import DashboardLayout from './components/organisms/DashboardLayout';
+import MainLayout from './components/organisms/MainLayout';
 
 const App: React.FC = () => {
   return (
