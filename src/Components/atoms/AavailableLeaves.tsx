@@ -13,8 +13,8 @@ interface LeaveRecord {
   details: LeaveDetail[];
 }
 
-const AavailableLeaves: React.FC = () => {
-  const [leaveData, setLeaveData] = useState<LeaveRecord[]>([
+const AvailableLeaves: React.FC = () => {
+  const [leaveData] = useState<LeaveRecord[]>([
     {
       type: 'Sick Leave',
       used: 4,
@@ -42,21 +42,11 @@ const AavailableLeaves: React.FC = () => {
         { date: '2024-01-18', status: 'Approved', days: 7 },
       ],
     },
-    {
-      type: 'Other Leave',
-      used: 2,
-      total: 5,
-      details: [
-        { date: '2024-02-01', status: 'Pending', days: 1 },
-        { date: '2024-02-05', status: 'Approved', days: 1 },
-      ],
-    },
   ]);
 
   const [currentPage, setCurrentPage] = useState(1);
-  const [rowsPerPage, setRowsPerPage] = useState(2);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
 
-  // Pagination logic
   const totalPages = Math.ceil(leaveData.length / rowsPerPage);
   const paginatedData = leaveData.slice(
     (currentPage - 1) * rowsPerPage,
@@ -71,6 +61,11 @@ const AavailableLeaves: React.FC = () => {
     if (currentPage > 1) setCurrentPage(currentPage - 1);
   };
 
+  const handleRowsPerPageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setRowsPerPage(parseInt(e.target.value));
+    setCurrentPage(1);
+  };
+
   const tableClass =
   'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6';
   const thClass =
@@ -80,12 +75,13 @@ const AavailableLeaves: React.FC = () => {
   const firstRow =
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap';
 
+
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
         Available Leaves
       </h2>
-      
+       
       <div className="overflow-x-auto">
         <table className={tableClass}>
           <colgroup>
@@ -119,15 +115,10 @@ const AavailableLeaves: React.FC = () => {
         </table>
       </div>
 
+
       <h4 className="text-lg font-bold text-black mb-4">Leave Details</h4>
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
-          <colgroup>
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-          </colgroup>
           <thead>
             <tr>
               <th className="bg-purple-900 text-white text-sm font-semibold text-left px-4 py-2 border border-gray-300">
@@ -171,9 +162,9 @@ const AavailableLeaves: React.FC = () => {
           <select
             className="text-sm border border-gray-300 rounded-md p-0.5"
             value={rowsPerPage}
-            onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+            onChange={handleRowsPerPageChange}
           >
-            {[5, 10, 20].map((option) => (
+            {[2, 5, 10].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -212,4 +203,4 @@ const AavailableLeaves: React.FC = () => {
   );
 };
 
-export default AavailableLeaves;
+export default AvailableLeaves;

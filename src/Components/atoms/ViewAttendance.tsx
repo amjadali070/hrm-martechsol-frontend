@@ -52,6 +52,14 @@ const ViewAttendance: React.FC = () => {
       status: 'Late IN',
     },
     {
+      id: '4',
+      date: '2024-11-16',
+      timeIn: '-',
+      timeOut: '-',
+      totalTime: '-',
+      status: 'Absent',
+    },
+    {
       id: '2',
       date: '2024-11-18',
       timeIn: '08:30 AM',
@@ -68,21 +76,13 @@ const ViewAttendance: React.FC = () => {
       status: 'Late In and Early Out',
     },
     {
-      id: '4',
-      date: '2024-11-16',
-      timeIn: '-',
-      timeOut: '-',
-      totalTime: '-',
-      status: 'Absent',
-    },
-    {
       id: '5',
       date: '2024-11-15',
       timeIn: '-',
       timeOut: '-',
       totalTime: '-',
       status: 'Casual leave',
-    },
+    },  
     {
       id: '6',
       date: '2024-11-14',
@@ -139,7 +139,6 @@ const ViewAttendance: React.FC = () => {
 
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
-      {/* Status Legend */}
       <div className="mt-6 flex justify-center mb-8">
         <div className="w-full sm:w-2/3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
@@ -216,22 +215,23 @@ const ViewAttendance: React.FC = () => {
     </div>
 
     <div className="overflow-x-auto">
-      <table className="min-w-full bg-white table-fixed border-collapse">
+      <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+            
         <thead>
           <tr>
-            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
               Date
             </th>
-            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
               Time In
             </th>
-            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
               Time Out
             </th>
-            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
               Total Time
             </th>
-            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
               Status
             </th>
           </tr>
@@ -239,19 +239,19 @@ const ViewAttendance: React.FC = () => {
         <tbody>
           {currentData.map((record) => (
             <tr key={record.id} className="hover:bg-gray-50">
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                 {record.date}
               </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                 {record.timeIn}
               </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                 {record.timeOut}
               </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                 {record.totalTime}
               </td>
-              <td className="py-2 px-1 border border-gray-200">
+              <td className="py-2 px-1 border border-gray-200 text-center">
                 <span
                   className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
                     statusColors[record.status] || 'bg-gray-400 text-gray-800'

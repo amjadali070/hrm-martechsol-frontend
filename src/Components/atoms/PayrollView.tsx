@@ -36,7 +36,7 @@ const PayrollView: React.FC = () => {
   const dummyData: { [key: string]: PayrollDetails } = {
     'October 2024': {
       name: 'Urwah Iftikhar',
-      designation: 'Assistant Manager - Graphic Design',
+      designation: 'Assistant Vice President - Graphic Design',
       jobType: 'Full Time',
       from: 'October 01, 2024',
       to: 'October 31, 2024',

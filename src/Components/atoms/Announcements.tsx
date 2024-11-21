@@ -20,12 +20,12 @@ const Announcements: React.FC<AnnouncementsProps> = ({ announcements, onViewAll 
 
   const openModal = (announcement: Announcement) => {
     setSelectedAnnouncement(announcement);
-    setHighlightedId(announcement.id); // Set the clicked announcement's ID as highlighted
+    setHighlightedId(announcement.id);
   };
 
   const closeModal = () => {
     setSelectedAnnouncement(null);
-    setHighlightedId(null); // Reset the highlighted announcement
+    setHighlightedId(null);
   };
 
   return (
