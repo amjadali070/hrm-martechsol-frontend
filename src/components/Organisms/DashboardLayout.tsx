@@ -1,9 +1,9 @@
 import React from 'react';
-import Announcements from '../Atoms/Announcements';
-import AttendanceOverview from '../Atoms/AttendanceOverview';
-import ProfileCard from '../Molecules/ProfileCard';
-import QuickActions from '../Atoms/QuickAction';
-import LeaveOverview from '../Atoms/LeaveOverview';
+import Announcements from '../atoms/Announcements';
+import AttendanceOverview from '../atoms/AttendanceOverview';
+import ProfileCard from '../molecules/ProfileCard';
+import QuickActions from '../atoms/QuickAction';
+import LeaveOverview from '../atoms/LeaveOverview';
 import { useNavigate } from 'react-router';
 import profileImage from '../../assets/waqas.png';
 

@@ -52,6 +52,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "@types/aria-query": "^5.0.4",
     "@types/axios": "^0.14.4",
     "@types/estree": "^1.0.6",
