@@ -5,8 +5,6 @@ import { AuthContext } from '../../context/AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/logo.png';
 
-import 'react-toastify/dist/ReactToastify.css';
-
 const Register: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
@@ -191,7 +189,6 @@ const Register: React.FC = () => {
           Login here
         </Link>
       </p>
-      <ToastContainer position="top-center" />
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import SiginPage from './components/organisms/SiginPage';
-import Register from './components/organisms/RegisterUser';
+import SiginPage from './components/molecules/SiginPage';
+import Register from './components/molecules/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
 import MainLayout from './components/layouts/MainLayout';
