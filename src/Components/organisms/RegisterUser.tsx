@@ -4,7 +4,7 @@ import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/logo.png';
 
-const Register: React.FC = () => {
+const RegisterUser: React.FC = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -192,4 +192,4 @@ const Register: React.FC = () => {
   );
 };
 
-export default Register;
+export default RegisterUser;

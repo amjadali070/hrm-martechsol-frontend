@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Register from './components/organisms/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
 import MainLayout from './components/templates/MainLayout';
@@ -28,6 +27,7 @@ import BlogDetails from './components/atoms/BlogDetails';
 import { BlogProvider } from './components/context/BlogContext';
 import { AuthProvider } from './components/context/AuthContext';
 import SiginPage from './components/molecules/SignPage';
+import RegisterUser from './components/organisms/RegisterUser';
 
 const App: React.FC = () => {
   return (
@@ -37,7 +37,7 @@ const App: React.FC = () => {
           <Routes>
             <Route path="/" element={<SiginPage />} />
             <Route path="/login" element={<SiginPage />} />
-            <Route path="/register" element={<Register />} />
+            <Route path="/register" element={<RegisterUser />} />
 
             <Route element={<PrivateRoute />}>
               <Route element={<MainLayout />}>
