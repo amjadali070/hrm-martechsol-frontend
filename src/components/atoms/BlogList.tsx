@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import Blog from './Blog';
 import { useBlogContext } from '../context/BlogContext';
+import Blog from './Blog';
 
 const BlogList: React.FC = () => {
   const { blogs } = useBlogContext();
