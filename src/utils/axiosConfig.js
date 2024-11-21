@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Create an Axios instance with default configurations
 const axiosInstance = axios.create({
-  baseURL:'http://localhost:5000/api',
+  baseURL:'https://hrm-martechsol-backend.onrender.com/api',
   withCredentials: true, // Send cookies with requests
 });
 

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import {useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { AuthContext, User } from './AuthContext';
+import { AuthContext, User } from '../../context/AuthContext';
 import { ToastContainer } from 'react-toastify';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';

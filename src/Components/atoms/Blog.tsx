@@ -1,13 +1,7 @@
 import React from 'react';
 import { MdDateRange } from 'react-icons/md';
+import { BlogProps } from '../../types/Blog';
 
-interface BlogProps {
-  image: string;
-  title: string;
-  paragraph: string;
-  publishedDate: string;
-  link: string;
-}
 
 const Blog: React.FC<BlogProps> = ({ image, title, paragraph, publishedDate, link }) => {
   return (

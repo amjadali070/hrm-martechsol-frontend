@@ -7,7 +7,7 @@ import PrivateRoute from './components/organisms/PrivateRoute';
 import MainLayout from './components/layouts/MainLayout';
 import DashboardLayout from './components/organisms/DashboardLayout';
 import FeedbackForm from './components/atoms/FeedbackForm';
-import { AuthProvider } from './components/organisms/AuthContext';
+import { AuthProvider } from './context/AuthContext';
 import SuggestionForm from './components/atoms/SuggestionForm';
 import LeaveApplication from './components/atoms/LeaveApplication';
 import TrackApplication from './components/atoms/TrackApplication';
@@ -27,6 +27,7 @@ import EditProfilePage from './components/molecules/EditProfilePage';
 import SubmitATicket from './components/atoms/SubmitATicket';
 import BlogList from './components/atoms/BlogList';
 import BlogDetails from './components/atoms/BlogDetails';
+import { BlogProvider } from './context/BlogContext';
 
 const App: React.FC = () => {
   return (
@@ -43,24 +44,38 @@ const App: React.FC = () => {
                 <Route path="/dashboard" element={<DashboardLayout />} />
                 <Route path="/forms/feedback" element={<FeedbackForm />} />
                 <Route path="/forms/suggestion" element={<SuggestionForm />} />
-                <Route path="/forms/leave-application" element={<LeaveApplication/>} />
+                <Route path="/forms/leave-application" element={<LeaveApplication />} />
                 <Route path="/forms/track-application" element={<TrackApplication />} />
-                <Route path="/attendance/view" element={<ViewAttendance/>} />
+                <Route path="/attendance/view" element={<ViewAttendance />} />
                 <Route path="/payroll/view" element={<PayrollView />} />
-                <Route path="/payroll/available-leaves" element={<AavailableLeaves/>} />
-                <Route path="/payroll/provident-fund" element={<ProvidentFund/>} />
-                <Route path="/tickets/attendance" element={<AttendanceTicket/>} />
-                <Route path="/tickets/network" element={<NetworkTicket/>} />
-                <Route path="/tickets/hr" element={<HRTicket/>} />
-                <Route path="/tickets/admin" element={<AdminTicket/>} />
-                <Route path="/tickets/status" element={<TicketStatus/>} />
+                <Route path="/payroll/available-leaves" element={<AavailableLeaves />} />
+                <Route path="/payroll/provident-fund" element={<ProvidentFund />} />
+                <Route path="/tickets/attendance" element={<AttendanceTicket />} />
+                <Route path="/tickets/network" element={<NetworkTicket />} />
+                <Route path="/tickets/hr" element={<HRTicket />} />
+                <Route path="/tickets/admin" element={<AdminTicket />} />
+                <Route path="/tickets/status" element={<TicketStatus />} />
                 <Route path="/policies" element={<Policies />} />
-                <Route path="/announcements" element={<Notices/>} />
-                <Route path="/edit-profile" element={<EditProfilePage/>} />
+                <Route path="/announcements" element={<Notices />} />
+                <Route path="/edit-profile" element={<EditProfilePage />} />
                 <Route path="/create-ticket" element={<SubmitATicket />} />
-                <Route path="/blog" element={<BlogList />} />
-                <Route path="/blog/:blogId" element={<BlogDetails />} />
-                <Route path="*" element={<NotFound/>} />
+                <Route
+                  path="/blog"
+                  element={
+                    <BlogProvider>
+                      <BlogList />
+                    </BlogProvider>
+                  }
+                />
+                <Route
+                  path="/blog/:blogId"
+                  element={
+                    <BlogProvider>
+                      <BlogDetails />
+                    </BlogProvider>
+                  }
+                />
+                <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
           </Routes>

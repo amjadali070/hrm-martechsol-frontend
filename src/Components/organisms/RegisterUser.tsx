@@ -1,7 +1,7 @@
 import { toast, ToastContainer } from 'react-toastify';
 import { useNavigate, Link } from 'react-router-dom';
 import { useContext, useState } from 'react';
-import { AuthContext } from './AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/logo.png';
 
