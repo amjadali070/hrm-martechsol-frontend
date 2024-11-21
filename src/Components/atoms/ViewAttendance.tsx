@@ -186,132 +186,130 @@ const ViewAttendance: React.FC = () => {
         </div>
       </div>
 
-    <div className="flex items-center space-x-2">
-    <div className="flex items-center space-x-2">
-        <label htmlFor="search" className="text-gray-700 font-medium">
-          Search:
+      <div className="flex items-center space-x-2">
+      <div className="flex items-center space-x-2">
+          <label htmlFor="search" className="text-gray-700 font-medium">
+            Search:
+          </label>
+          <input
+            type="text"
+            id="search"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search Status"
+            className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+        <label htmlFor="filter" className="text-gray-700 font-medium">
+          Filter:
         </label>
-        <input
-          type="text"
-          id="search"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          placeholder="Search Status"
+        <select
+          id="filter"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value as 'This Week' | 'All')}
           className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
+        >
+          <option value="All">All</option>
+          <option value="This Week">This Week</option>
+        </select>
       </div>
-      <label htmlFor="filter" className="text-gray-700 font-medium">
-        Filter:
-      </label>
-      <select
-        id="filter"
-        value={filter}
-        onChange={(e) => setFilter(e.target.value as 'This Week' | 'All')}
-        className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-      >
-        <option value="All">All</option>
-        <option value="This Week">This Week</option>
-      </select>
+    </div>
+
+    <div className="overflow-x-auto">
+      <table className="min-w-full bg-white table-fixed border-collapse">
+        <thead>
+          <tr>
+            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+              Date
+            </th>
+            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+              Time In
+            </th>
+            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+              Time Out
+            </th>
+            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+              Total Time
+            </th>
+            <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
+              Status
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {currentData.map((record) => (
+            <tr key={record.id} className="hover:bg-gray-50">
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                {record.date}
+              </td>
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                {record.timeIn}
+              </td>
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                {record.timeOut}
+              </td>
+              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
+                {record.totalTime}
+              </td>
+              <td className="py-2 px-1 border border-gray-200">
+                <span
+                  className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                    statusColors[record.status] || 'bg-gray-400 text-gray-800'
+                  }`}
+                >
+                  {record.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="flex justify-between items-center mt-4">
+      <div className="flex items-center">
+        <span className="text-sm text-gray-700 mr-2">Show:</span>
+        <select
+          className="text-sm border border-gray-300 rounded-md p-0.5"
+          value={itemsPerPage}
+          onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+        >
+          {[5, 10, 20].map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className="flex items-center space-x-4">
+        <button
+          className={`px-3 py-1 text-sm rounded-full ${
+            currentPage === 1
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-gray-200 text-black hover:bg-gray-300'
+          }`}
+          disabled={currentPage === 1}
+          onClick={handlePrevious}
+        >
+          Previous
+        </button>
+        <span className="text-sm text-gray-700">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          className={`px-3 py-1 text-sm rounded-full ${
+            currentPage === totalPages
+              ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-600'
+          }`}
+          disabled={currentPage === totalPages}
+          onClick={handleNext}
+        >
+          Next
+        </button>
+      </div>
     </div>
   </div>
-
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white table-fixed border-collapse">
-          <thead>
-            <tr>
-              <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
-                Date
-              </th>
-              <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
-                Time In
-              </th>
-              <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
-                Time Out
-              </th>
-              <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
-                Total Time
-              </th>
-              <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase border border-gray-200">
-                Status
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentData.map((record) => (
-              <tr key={record.id} className="hover:bg-gray-50">
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
-                  {record.date}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
-                  {record.timeIn}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
-                  {record.timeOut}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200">
-                  {record.totalTime}
-                </td>
-                <td className="py-2 px-1 border border-gray-200">
-                  <span
-                    className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                      statusColors[record.status] || 'bg-gray-400 text-gray-800'
-                    }`}
-                  >
-                    {record.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md p-0.5"
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
-            disabled={currentPage === 1}
-            onClick={handlePrevious}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-600'
-            }`}
-            disabled={currentPage === totalPages}
-            onClick={handleNext}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-    </div>
   );
 };
 

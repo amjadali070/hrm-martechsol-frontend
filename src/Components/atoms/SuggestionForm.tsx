@@ -109,7 +109,7 @@ const SuggestionForm: React.FC = () => {
           <div className="flex justify-end mt-10">
             <button
               type="submit"
-              className={`px-8 py-3 font-semibold text-white bg-purple-900 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
+              className={`px-8 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
                 isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
               }`}
               aria-label="Submit Suggestion"

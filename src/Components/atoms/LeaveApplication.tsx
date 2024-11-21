@@ -395,7 +395,7 @@ const LeaveApplication: React.FC = () => {
         <div className="flex justify-start space-x-4">
           <button
             type="submit"
-            className={`bg-purple-900 hover:bg-purple-800 text-white font-semibold py-3 px-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+            className={`bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
               isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
             }`}
             disabled={isSubmitting}

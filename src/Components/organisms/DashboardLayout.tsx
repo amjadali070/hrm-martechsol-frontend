@@ -11,11 +11,11 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
 
   const actions = [
-    { label: 'Apply for Leave', onClick: () => navigate('/apply-leave'), tooltip: 'Apply for a new leave request' },
-    { label: 'Attendance Ticket', onClick: () => navigate('/view-payslip'), tooltip: 'View your latest payslip' },
-    { label: 'View Payroll', onClick: () => navigate('/view-attendance'), tooltip: 'Check your attendance records' },
+    { label: 'Apply for Leave', onClick: () => navigate('/forms/leave-application'), tooltip: 'Apply for a new leave request' },
+    { label: 'Attendance Ticket', onClick: () => navigate('/tickets/attendance'), tooltip: 'View your latest payslip' },
+    { label: 'View Payroll', onClick: () => navigate('/payroll/view'), tooltip: 'Check your attendance records' },
     { label: 'Submit a Ticket', onClick: () => navigate('/create-ticket'), tooltip: 'Report an issue or request support' },
-    { label: 'View Policies', onClick: () => navigate('/view-policies'), tooltip: 'Review company policies' },
+    { label: 'View Policies', onClick: () => navigate('/policies'), tooltip: 'Review company policies' },
   ];
 
   const announcementsData = [

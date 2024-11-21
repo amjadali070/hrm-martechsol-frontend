@@ -49,8 +49,14 @@ const AttendanceTicket: React.FC = () => {
     currentPage * itemsPerPage
   );
 
-  const tableClass =
-    'w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6';
+  const handlePrevious = () => {
+    setCurrentPage((prev) => Math.max(prev - 1, 1));
+  };
+
+  const handleNext = () => {
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  };
+
   const thClass =
     'bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center';
   const tdClass =
@@ -112,11 +118,11 @@ const AttendanceTicket: React.FC = () => {
         <label className="block text-sm font-medium text-gray-700">Select File</label>
         <input type="file" className="w-full p-2 border border-gray-300 rounded-md" />
       </div>
-      <button className="px-6 py-2 bg-purple-900 text-white rounded-full hover:bg-purple-800 transition-all">
+      <button className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-600 transition-all">
         Submit
       </button>
 
-      <div className="flex justify-between items-center mb-4 mt-6">
+      <div className="flex justify-between items-center mb-3 mt-6">
         <h2 className="text-lg md:text-xl font-bold text-black">Ticket Status</h2>
         <div className="flex items-center space-x-2">
           <label htmlFor="status" className="text-sm font-medium text-gray-700">
@@ -140,7 +146,17 @@ const AttendanceTicket: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className={tableClass}>
+        <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+          <colgroup>
+                <col style={{ width: '5%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '30%' }} />
+                <col style={{ width: '10%' }} />
+                <col style={{ width: '12%' }} />
+            </colgroup>
           <thead>
             <tr>
               <th className={thClass}>S.No</th>
@@ -182,43 +198,44 @@ const AttendanceTicket: React.FC = () => {
         </table>
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="flex items-center space-x-2">
-          <span className="text-sm font-medium text-gray-700">Show:</span>
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
+            className="text-sm border border-gray-300 rounded-md"
             value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(Number(e.target.value));
-              setCurrentPage(1);
-            }}
-            className="p-2 border border-gray-300 rounded-md"
+            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
           >
-            <option value={5}>5</option>
-            <option value={10}>10</option>
-            <option value={15}>15</option>
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
           </select>
         </div>
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
           <button
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            disabled={currentPage === 1}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === 1 ? 'bg-gray-300' : 'bg-gray-500 text-white'
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-gray-200 text-black hover:bg-gray-300'
             }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
           >
             Previous
           </button>
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
-            disabled={currentPage === totalPages}
-            className={`px-4 py-2 rounded-md ${
-              currentPage === totalPages ? 'bg-gray-300' : 'bg-blue-500 text-white'
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
           >
             Next
           </button>
