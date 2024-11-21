@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import LoginPage from './components/organisms/LoginPage';
+import SiginPage from './components/organisms/SiginPage';
 import Register from './components/organisms/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
@@ -35,8 +35,8 @@ const App: React.FC = () => {
       <div className="font-sans">
         <Router>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<SiginPage />} />
+            <Route path="/login" element={<SiginPage />} />
             <Route path="/register" element={<Register />} />
 
             <Route element={<PrivateRoute />}>
