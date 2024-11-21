@@ -1,8 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
-import ProfileImage from '../atoms/ProfileCard/ProfileImage';
 import ProfileInfo from '../atoms/ProfileCard/ProfileInfo';
-
+import ProfileImage from '../atoms/ProfileCard/ProfileImage';
 interface ProfileCardProps {
   name: string;
   title: string;

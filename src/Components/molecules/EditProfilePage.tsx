@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import profile from '../../assets/waqas.png';
-import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
-import ContactDetails from '../atoms/EditProfile/ContactDetails';
-import Education from '../atoms/EditProfile/Education';
-import Resume from '../atoms/EditProfile/Resume';
-import Documents from '../atoms/EditProfile/Documents';
 import BankAccountDetails from '../atoms/EditProfile/BankAccountDetails';
-import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
+import ContactDetails from '../atoms/EditProfile/ContactDetails';
+import Documents from '../atoms/EditProfile/Documents';
+import Education from '../atoms/EditProfile/Education';
 import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
+import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
+import Resume from '../atoms/EditProfile/Resume';
+import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState('Personal Details');
