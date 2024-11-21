@@ -1,5 +1,5 @@
 import React, { createContext, useContext, ReactNode } from 'react';
-import { BlogProps } from '../types/Blog';
+import { BlogProps } from '../../types/Blog';
 import blogThumbnail from '../assets/blog/blogThumbnail.png';
 import blogContent from '../assets/blog/blogContent.png';
 

@@ -1,10 +1,10 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import SiginPage from './components/molecules/SiginPage';
-import Register from './components/molecules/RegisterUser';
+import Register from './components/organisms/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
-import MainLayout from './components/layouts/MainLayout';
+import MainLayout from './components/templates/MainLayout';
 import DashboardLayout from './components/organisms/DashboardLayout';
 import FeedbackForm from './components/atoms/FeedbackForm';
 import SuggestionForm from './components/atoms/SuggestionForm';
@@ -26,8 +26,8 @@ import EditProfilePage from './components/molecules/EditProfilePage';
 import SubmitATicket from './components/atoms/SubmitATicket';
 import BlogList from './components/atoms/BlogList';
 import BlogDetails from './components/atoms/BlogDetails';
-import { BlogProvider } from './context/BlogContext';
-import { AuthProvider } from './context/AuthContext';
+import { BlogProvider } from './components/context/BlogContext';
+import { AuthProvider } from './components/context/AuthContext';
 
 const App: React.FC = () => {
   return (
