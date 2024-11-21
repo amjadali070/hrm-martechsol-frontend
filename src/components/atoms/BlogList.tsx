@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useBlogContext } from '../context/BlogContext';
+import { useBlogContext } from '../organisms/BlogContext';
 import Blog from './Blog';
 
 const BlogList: React.FC = () => {

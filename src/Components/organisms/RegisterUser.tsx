@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { useContext, useState } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import { AuthContext } from './AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/logo.png';
 

@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import {useNavigate } from 'react-router';
 import axios from 'axios';
-import { AuthContext, User } from '../context/AuthContext';
+import { AuthContext, User } from '../organisms/AuthContext';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
