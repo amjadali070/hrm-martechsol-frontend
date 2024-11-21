@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useBlogContext } from '../organisms/BlogContext';
 import { FaThumbsUp, FaRegComment } from 'react-icons/fa';
+import { useBlogContext } from '../organisms/BlogContext';
 
 interface CommentProps {
   id: number;

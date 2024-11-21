@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useBlogContext } from '../organisms/BlogContext';
 import Blog from './Blog';
 
+
 const BlogList: React.FC = () => {
   const { blogs } = useBlogContext();
 

@@ -28,7 +28,7 @@ import DashboardLayout from './components/organisms/DashboardLayout';
 import MainLayout from './components/organisms/MainLayout';
 import PrivateRoute from './components/organisms/PrivateRoute';
 import RegisterUser from './components/organisms/RegisterUser';
-import { BlogProvider } from './Components/organisms/BlogContext';
+import { BlogProvider } from './components/organisms/BlogContext';
 
 const App: React.FC = () => {
   return (
