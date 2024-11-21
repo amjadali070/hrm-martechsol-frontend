@@ -6,7 +6,7 @@ import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
 
-const LogINpage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
@@ -149,9 +149,8 @@ const LogINpage: React.FC = () => {
           <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
         </section>
       </main>
-      {/* <ToastContainer position="top-center" /> */}
     </>
   );
 };
 
-export default LogINpage;
+export default LoginPage;
