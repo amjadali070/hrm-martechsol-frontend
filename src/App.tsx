@@ -21,14 +21,14 @@ import SuggestionForm from './components/Atoms/SuggestionForm';
 import TicketStatus from './components/Atoms/TicketStatus';
 import TrackApplication from './components/Atoms/TrackApplication';
 import ViewAttendance from './components/Atoms/ViewAttendance';
-import { AuthProvider } from './components/Organisms/AuthContext';
+import { AuthProvider } from './components/organisms/AuthContext';
 import EditProfilePage from './components/Molecules/EditProfilePage';
 import SiginPage from './components/Molecules/SignPage';
-import DashboardLayout from './components/Organisms/DashboardLayout';
-import MainLayout from './components/Organisms/MainLayout';
-import PrivateRoute from './components/Organisms/PrivateRoute';
-import RegisterUser from './components/Organisms/RegisterUser';
-import { BlogProvider } from './components/Organisms/BlogContext';
+import DashboardLayout from './components/organisms/DashboardLayout';
+import MainLayout from './components/organisms/MainLayout';
+import PrivateRoute from './components/organisms/PrivateRoute';
+import RegisterUser from './components/organisms/RegisterUser';
+import { BlogProvider } from './components/organisms/BlogContext';
 
 const App: React.FC = () => {
   return (
