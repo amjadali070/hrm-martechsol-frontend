@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import profile from '../../assets/waqas.png';
+import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import BankAccountDetails from '../atoms/EditProfile/BankAccountDetails';
 import ContactDetails from '../atoms/EditProfile/ContactDetails';
 import Documents from '../atoms/EditProfile/Documents';
 import Education from '../atoms/EditProfile/Education';
 import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
-import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import Resume from '../atoms/EditProfile/Resume';
 import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
 

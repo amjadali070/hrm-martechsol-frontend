@@ -1,9 +1,9 @@
 import { Link } from 'react-router-dom';
 import { useNavigate } from 'react-router';
 import { useContext, useState } from 'react';
-import { AuthContext } from './AuthContext';
 import axiosInstance from '../../utils/axiosConfig';
 import logo from '../../assets/logo.png';
+import { AuthContext } from './AuthContext';
 
 const RegisterUser: React.FC = () => {
   const [formData, setFormData] = useState({

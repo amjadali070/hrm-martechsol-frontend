@@ -1,10 +1,10 @@
 import React, { useState, useContext } from 'react';
 import {useNavigate } from 'react-router';
 import axios from 'axios';
-import { AuthContext, User } from '../organisms/AuthContext';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
+import { AuthContext, User } from '../organisms/AuthContext';
 
 const SiginPage: React.FC = () => {
   const [email, setEmail] = useState('');

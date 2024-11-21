@@ -1,11 +1,11 @@
 import React from 'react';
-import Announcements from '../atoms/Announcements';
-import AttendanceOverview from '../atoms/AttendanceOverview';
-import ProfileCard from '../molecules/ProfileCard';
-import QuickActions from '../atoms/QuickAction';
-import LeaveOverview from '../atoms/LeaveOverview';
 import { useNavigate } from 'react-router';
 import profileImage from '../../assets/waqas.png';
+import Announcements from '../atoms/Announcements';
+import AttendanceOverview from '../atoms/AttendanceOverview';
+import LeaveOverview from '../atoms/LeaveOverview';
+import QuickActions from '../atoms/QuickAction';
+import ProfileCard from '../molecules/ProfileCard';
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();

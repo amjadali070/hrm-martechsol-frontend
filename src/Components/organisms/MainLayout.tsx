@@ -3,6 +3,7 @@ import { Outlet } from 'react-router';
 import Sidebar from '../molecules/Sidebar';
 import Header from '../atoms/Header';
 
+
 const MainLayout: React.FC = () => {
   return (
     <div className="flex h-screen overflow-hidden bg-[#efefef] max-md:flex-col">
