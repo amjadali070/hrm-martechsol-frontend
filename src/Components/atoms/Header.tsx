@@ -1,12 +1,10 @@
-// src/components/Header.tsx
-
 import React, { useState } from 'react';
 import MarTechLogo from '../../assets/LogoMartechSol.png';
 import { IoNotificationsSharp } from 'react-icons/io5';
 import { MdOutlineMoreTime, MdOutlineTimerOff } from 'react-icons/md';
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { FiMenu, FiX } from 'react-icons/fi';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import axiosInstance from '../../utils/axiosConfig';
 
 const Header: React.FC = () => {

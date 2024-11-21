@@ -1,5 +1,3 @@
-// src/components/LeaveOverview.tsx
-
 import React from 'react';
 
 interface LeaveType {

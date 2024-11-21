@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { FaNetworkWired, FaUserTie, FaTools } from 'react-icons/fa';
 
 const SubmitATicket: React.FC = () => {

@@ -1,5 +1,6 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Routes } from 'react-router';
 import { ToastContainer } from 'react-toastify';
 import FeedbackForm from './components/Atoms/FeedbackForm';
 import SuggestionForm from './components/Atoms/SuggestionForm';

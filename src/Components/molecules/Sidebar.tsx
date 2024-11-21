@@ -1,7 +1,4 @@
-// src/components/Sidebar.tsx
-
 import React, { useState } from 'react';
-import { IconType } from 'react-icons';
 import { 
   FaUserCheck, 
   FaTicketAlt, 
@@ -15,6 +12,7 @@ import { RiCashFill } from "react-icons/ri";
 import { MdSpaceDashboard } from "react-icons/md";
 import { IoDocumentText } from "react-icons/io5";
 import { Link, useLocation } from 'react-router-dom';
+import { IconType } from 'react-icons/lib';
 
 interface SubMenuItem {
   label: string;

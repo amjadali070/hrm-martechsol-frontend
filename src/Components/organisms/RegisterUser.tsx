@@ -1,4 +1,5 @@
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import axiosInstance from '../../utils/axiosConfig';

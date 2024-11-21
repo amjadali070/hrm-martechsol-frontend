@@ -4,7 +4,7 @@ import AttendanceOverview from '../Atoms/AttendanceOverview';
 import ProfileCard from '../Molecules/ProfileCard';
 import QuickActions from '../Atoms/QuickAction';
 import LeaveOverview from '../Atoms/LeaveOverview';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import profileImage from '../../assets/waqas.png';
 
 const DashboardLayout: React.FC = () => {
