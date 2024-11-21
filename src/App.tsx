@@ -1,40 +1,40 @@
 import React from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
-import { Routes } from 'react-router';
+import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter} from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import AavailableLeaves from './Components/atoms/AavailableLeaves';
+import AdminTicket from './Components/atoms/AdminTicket';
+import AttendanceTicket from './Components/atoms/AttendanceTicket';
+import BlogDetails from './Components/atoms/BlogDetails';
+import BlogList from './Components/atoms/BlogList';
 import FeedbackForm from './Components/atoms/FeedbackForm';
-import SuggestionForm from './Components/atoms/SuggestionForm';
+import HRTicket from './Components/atoms/HRTicket';
 import LeaveApplication from './Components/atoms/LeaveApplication';
+import NetworkTicket from './Components/atoms/NetworkTicket';
+import NotFound from './Components/atoms/NotFound';
+import Notices from './Components/atoms/Notices';
+import PayrollView from './Components/atoms/PayrollView';
+import Policies from './Components/atoms/Policies';
+import ProvidentFund from './Components/atoms/ProvidentFund';
+import SubmitATicket from './Components/atoms/SubmitATicket';
+import SuggestionForm from './Components/atoms/SuggestionForm';
+import TicketStatus from './Components/atoms/TicketStatus';
 import TrackApplication from './Components/atoms/TrackApplication';
 import ViewAttendance from './Components/atoms/ViewAttendance';
-import PayrollView from './Components/atoms/PayrollView';
-import AavailableLeaves from './Components/atoms/AavailableLeaves';
-import ProvidentFund from './Components/atoms/ProvidentFund';
-import NotFound from './Components/atoms/NotFound';
-import AttendanceTicket from './Components/atoms/AttendanceTicket';
-import Policies from './Components/atoms/Policies';
-import NetworkTicket from './Components/atoms/NetworkTicket';
-import HRTicket from './Components/atoms/HRTicket';
-import AdminTicket from './Components/atoms/AdminTicket';
-import TicketStatus from './Components/atoms/TicketStatus';
-import Notices from './Components/atoms/Notices';
-import EditProfilePage from './Components/molecules/EditProfilePage';
-import SubmitATicket from './Components/atoms/SubmitATicket';
-import BlogList from './Components/atoms/BlogList';
-import BlogDetails from './Components/atoms/BlogDetails';
 import { AuthProvider } from './Components/context/AuthContext';
+import { BlogProvider } from './Components/context/BlogContext';
+import EditProfilePage from './Components/molecules/EditProfilePage';
 import SiginPage from './Components/molecules/SignPage';
-import RegisterUser from './Components/organisms/RegisterUser';
-import PrivateRoute from './Components/organisms/PrivateRoute';
 import DashboardLayout from './Components/organisms/DashboardLayout';
 import MainLayout from './Components/organisms/MainLayout';
-import { BlogProvider } from './Components/context/BlogContext';
+import PrivateRoute from './Components/organisms/PrivateRoute';
+import RegisterUser from './Components/organisms/RegisterUser';
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <div className="font-sans">
-        <Router>
+        <BrowserRouter>
           <Routes>
             <Route path="/" element={<SiginPage />} />
             <Route path="/login" element={<SiginPage />} />
@@ -81,7 +81,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
           <ToastContainer position="top-center" />
-        </Router>
+        </BrowserRouter>
       </div>
     </AuthProvider>
   );
