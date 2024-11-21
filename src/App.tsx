@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import SiginPage from './components/molecules/SiginPage';
 import Register from './components/organisms/RegisterUser';
 import { ToastContainer } from 'react-toastify';
 import PrivateRoute from './components/organisms/PrivateRoute';
@@ -28,6 +27,7 @@ import BlogList from './components/atoms/BlogList';
 import BlogDetails from './components/atoms/BlogDetails';
 import { BlogProvider } from './components/context/BlogContext';
 import { AuthProvider } from './components/context/AuthContext';
+import SiginPage from './components/molecules/SignPage';
 
 const App: React.FC = () => {
   return (
