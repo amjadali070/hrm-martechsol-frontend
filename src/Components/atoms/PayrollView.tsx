@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 interface PayrollDetails {
   name: string;
@@ -96,6 +98,21 @@ const PayrollView: React.FC = () => {
     setPayrollData(dummyData[selectedMonthYear] || null);
   }, [selectedMonthYear]);
 
+  const handleExportToPDF = () => {
+    const element = document.getElementById('payroll-view');
+    if (element) {
+      html2canvas(element, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${selectedMonthYear}_Payroll.pdf`);
+      });
+    }
+  };
+
   if (!payrollData) return <div>Loading payroll data...</div>;
 
   const totalDeductions =
@@ -114,28 +131,29 @@ const PayrollView: React.FC = () => {
     'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg">
-     <div className="flex items-center justify-between mb-6">
+    <div className="w-full p-6 bg-white rounded-lg" id="payroll-view">
+      {/* Existing layout */}
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl sm:text-3xl font-bold text-black">Salary Slip</h1>
         <div className="flex items-center space-x-4">
-            <select
+          <select
             id="monthYear"
             value={selectedMonthYear}
             onChange={(e) => setSelectedMonthYear(e.target.value)}
             className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
+          >
             {Object.keys(dummyData).map((key) => (
-                <option key={key} value={key}>
+              <option key={key} value={key}>
                 {key}
-                </option>
+              </option>
             ))}
-            </select>
-            <button
-            onClick={() => console.log("Export to PDF")}
+          </select>
+          <button
+            onClick={handleExportToPDF}
             className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            >
+          >
             Export to PDF
-            </button>
+          </button>
         </div>
       </div>
 

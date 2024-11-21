@@ -25,6 +25,8 @@ import TicketStatus from './components/atoms/TicketStatus';
 import Notices from './components/atoms/Notices';
 import EditProfilePage from './components/molecules/EditProfilePage';
 import SubmitATicket from './components/atoms/SubmitATicket';
+import BlogList from './components/atoms/BlogList';
+import BlogDetails from './components/atoms/BlogDetails';
 
 const App: React.FC = () => {
   return (
@@ -56,6 +58,8 @@ const App: React.FC = () => {
                 <Route path="/announcements" element={<Notices/>} />
                 <Route path="/edit-profile" element={<EditProfilePage/>} />
                 <Route path="/create-ticket" element={<SubmitATicket />} />
+                <Route path="/blog" element={<BlogList />} />
+                <Route path="/blog/:blogId" element={<BlogDetails />} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>
