@@ -2,7 +2,6 @@ import React, { useState, useContext } from 'react';
 import {useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { AuthContext, User } from '../../context/AuthContext';
-import { ToastContainer } from 'react-toastify';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
@@ -147,10 +146,10 @@ const LogINpage: React.FC = () => {
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
-          <img loading="lazy" src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
+          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
         </section>
       </main>
-      <ToastContainer position="top-center" />
+      {/* <ToastContainer position="top-center" /> */}
     </>
   );
 };
