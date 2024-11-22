@@ -14,9 +14,7 @@ interface Attendance {
     | 'Absent'
     | 'Casual leave'
     | 'Sick leave'
-    | 'Annual Leave'
-    | 'Work from Home (Full Day)'
-    | 'Work From Home (Half Day)';
+    | 'Annual Leave';
 }
 
 const ViewAttendance: React.FC = () => {
@@ -24,10 +22,9 @@ const ViewAttendance: React.FC = () => {
   const [filteredData, setFilteredData] = useState<Attendance[]>([]);
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [filter, setFilter] = useState<'This Week' | 'All'>('All');
 
-  // Pagination states
+  const [statusFilter, setStatusFilter] = useState<string>('All');
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
@@ -36,7 +33,7 @@ const ViewAttendance: React.FC = () => {
     'Half Day': 'bg-orange-400',
     'Early Out': 'bg-pink-400',
     'Late In and Early Out': 'bg-red-400',
-    Absent: 'bg-gray-400',
+    'Absent': 'bg-gray-400',
     'Casual leave': 'bg-blue-400',
     'Sick leave': 'bg-green-400',
     'Annual Leave': 'bg-purple-400',
@@ -82,7 +79,7 @@ const ViewAttendance: React.FC = () => {
       timeOut: '-',
       totalTime: '-',
       status: 'Casual leave',
-    },  
+    },
     {
       id: '6',
       date: '2024-11-14',
@@ -109,20 +106,12 @@ const ViewAttendance: React.FC = () => {
       );
     }
 
-    if (searchTerm) {
-      data = data.filter((record) =>
-        record.status.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-
-    if (filter === 'This Week') {
-      const today = new Date();
-      const weekStart = new Date(today.setDate(today.getDate() - today.getDay()));
-      data = data.filter((record) => new Date(record.date) >= weekStart);
+    if (statusFilter !== 'All') {
+      data = data.filter((record) => record.status === statusFilter);
     }
 
     setFilteredData(data);
-  }, [fromDate, toDate, searchTerm, filter, attendanceData]);
+  }, [fromDate, toDate, statusFilter, attendanceData]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -154,119 +143,108 @@ const ViewAttendance: React.FC = () => {
           </div>
         </div>
       </div>
-
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-black">View Attendance</h2>
 
       <div className="flex flex-wrap justify-between items-center mb-6 space-y-4 sm:space-y-0">
-      <div className="flex flex-wrap gap-4 items-center">
-        <div className="flex items-center space-x-2">
-        <label htmlFor="fromDate" className="text-gray-700 font-medium">
-            From:
-        </label>
-        <input
-            type="date"
-            id="fromDate"
-            value={fromDate}
-            onChange={(e) => setFromDate(e.target.value)}
-            className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
+        <div className="flex flex-wrap gap-4 items-center">
+          <div className="flex items-center space-x-2">
+            <label htmlFor="fromDate" className="text-gray-700 font-medium">
+              From:
+            </label>
+            <input
+              type="date"
+              id="fromDate"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <label htmlFor="toDate" className="text-gray-700 font-medium">
+              To:
+            </label>
+            <input
+              type="date"
+              id="toDate"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            />
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-        <label htmlFor="toDate" className="text-gray-700 font-medium">
-            To:
-        </label>
-        <input
-            type="date"
-            id="toDate"
-            value={toDate}
-            onChange={(e) => setToDate(e.target.value)}
-            className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        />
-        </div>
-      </div>
 
-      <div className="flex items-center space-x-2">
-      <div className="flex items-center space-x-2">
-          <label htmlFor="search" className="text-gray-700 font-medium">
-            Search:
+        <div className="flex items-center space-x-4">
+          <label htmlFor="statusFilter" className="text-gray-700 font-medium">
+            Status:
           </label>
-          <input
-            type="text"
-            id="search"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search Status"
+          <select
+            id="statusFilter"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-          />
+          >
+            <option value="All">All</option>
+            {Object.keys(statusColors).map((status) => (
+              <option key={status} value={status}>
+                {status}
+              </option>
+            ))}
+          </select>
         </div>
-        <label htmlFor="filter" className="text-gray-700 font-medium">
-          Filter:
-        </label>
-        <select
-          id="filter"
-          value={filter}
-          onChange={(e) => setFilter(e.target.value as 'This Week' | 'All')}
-          className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-        >
-          <option value="All">All</option>
-          <option value="This Week">This Week</option>
-        </select>
       </div>
-    </div>
 
-    <div className="overflow-x-auto">
-      <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-            
-        <thead>
-          <tr>
-            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
-              Date
-            </th>
-            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
-              Time In
-            </th>
-            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
-              Time Out
-            </th>
-            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
-              Total Time
-            </th>
-            <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
-              Status
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentData.map((record) => (
-            <tr key={record.id} className="hover:bg-gray-50">
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                {record.date}
-              </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                {record.timeIn}
-              </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                {record.timeOut}
-              </td>
-              <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                {record.totalTime}
-              </td>
-              <td className="py-2 px-1 border border-gray-200 text-center">
-                <span
-                  className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                    statusColors[record.status] || 'bg-gray-400 text-gray-800'
-                  }`}
-                >
-                  {record.status}
-                </span>
-              </td>
+      {/* Attendance Table */}
+      <div className="overflow-x-auto">
+        <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+          <thead>
+            <tr>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Date
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Time In
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Time Out
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Total Time
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Status
+              </th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-
-    <div className="flex justify-between items-center mt-4">
+          </thead>
+          <tbody>
+            {currentData.map((record) => (
+              <tr key={record.id} className="hover:bg-gray-50">
+                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  {record.date}
+                </td>
+                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  {record.timeIn}
+                </td>
+                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  {record.timeOut}
+                </td>
+                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  {record.totalTime}
+                </td>
+                <td className="py-2 px-1 border border-gray-200 text-center">
+                  <span
+                    className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                      statusColors[record.status] || 'bg-gray-400 text-gray-800'
+                    }`}
+                  >
+                    {record.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="flex justify-between items-center mt-4">
       <div className="flex items-center">
         <span className="text-sm text-gray-700 mr-2">Show:</span>
         <select
@@ -309,7 +287,7 @@ const ViewAttendance: React.FC = () => {
         </button>
       </div>
     </div>
-  </div>
+    </div>
   );
 };
 

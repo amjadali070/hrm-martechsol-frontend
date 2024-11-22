@@ -15,7 +15,7 @@ interface AttendanceOverviewProps {
 
 const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecords, onViewAll }) => {
   return (
-    <section className="flex flex-col w-full md:w-6/12">
+    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
       <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h2 className="text-2xl sm:text-2xl font-bold text-black">Attendance Overview</h2>
@@ -33,7 +33,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
               <tr>
                 <th
                   scope="col"
-                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider rounded-l-md"
+                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md"
                 >
                   Date
                 </th>
@@ -69,7 +69,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
                   key={index}
                   className="hover:bg-gray-100"
                 >
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">{record.date}</td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.date}</td>
                   <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeIn}</td>
                   <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeOut}</td>
                   <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.totalTime}</td>

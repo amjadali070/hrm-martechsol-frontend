@@ -6,6 +6,7 @@ import AttendanceOverview from '../atoms/AttendanceOverview';
 import LeaveOverview from '../atoms/LeaveOverview';
 import QuickActions from '../atoms/QuickAction';
 import ProfileCard from '../molecules/ProfileCard';
+import AttendanceTicketOverview from '../atoms/AttendanceTicketOverview';
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -48,6 +49,31 @@ const DashboardLayout: React.FC = () => {
     { date: '13 Nov 2024', timeIn: '9:15AM', timeOut: '5:15PM', totalTime: '8:00', status: 'NOT COMPLETED' },
   ];
 
+  const attendanceTickets = [
+    {
+      id: 1,
+      date: '2024-11-20',
+      comments: 'Worked from home.',
+      status: 'Approved' as 'Approved',
+    },
+    {
+      id: 2,
+      date: '2024-11-19',
+      comments: 'Arrived late due to traffic.',
+      status: 'Pending' as 'Pending',
+    },
+    {
+      id: 3,
+      date: '2024-11-18',
+      comments: 'Left early for a doctor’s appointment.',
+      status: 'Rejected' as 'Rejected',
+    },
+  ];
+
+  const handleViewAllLAttendenceTicket = () => {
+    navigate('/tickets/attendance');
+  };
+
   const handleViewAll = () => {
     navigate('/announcements');
   };
@@ -60,11 +86,18 @@ const DashboardLayout: React.FC = () => {
     <>
       <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
       <QuickActions actions={actions} />
-      <Announcements announcements={announcementsData} onViewAll={handleViewAll} />
+      
       <div className="mt-5 max-md:mr-2 max-md:max-w-full">
         <div className="flex gap-5 max-md:flex-col">
+          <Announcements announcements={announcementsData} onViewAll={handleViewAll} />
           <LeaveOverview />
+        </div>
+      </div>
+
+      <div className="mt-5 max-md:mr-2 max-md:max-w-full">
+        <div className="flex gap-5 max-md:flex-col">
           <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAllLAttendence} />
+          <AttendanceTicketOverview attendanceTickets={attendanceTickets} onViewAll={handleViewAllLAttendenceTicket} />
         </div>
       </div>
     </>

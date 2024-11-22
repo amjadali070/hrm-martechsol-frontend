@@ -5,6 +5,7 @@ import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
 import { AuthContext, User } from '../organisms/AuthContext';
+import RegisterUser from '../organisms/RegisterUser';
 
 const SiginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -146,7 +147,7 @@ const SiginPage: React.FC = () => {
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
-          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
+          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-full" />
         </section>
       </main>
     </>

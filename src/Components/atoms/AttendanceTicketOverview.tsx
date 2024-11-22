@@ -1,24 +1,23 @@
 import React from 'react';
 
-interface AttendanceRecord {
+interface AttendanceTicket {
+  id: number;
   date: string;
-  timeIn: string;
-  timeOut: string;
-  totalTime: string;
-  status: string;
+  comments: string;
+  status: 'Approved' | 'Pending' | 'Rejected';
 }
 
-interface AttendanceOverviewProps {
-  attendanceRecords: AttendanceRecord[];
+interface AttendanceTicketOverviewProps {
+  attendanceTickets: AttendanceTicket[];
   onViewAll: () => void;
 }
 
-const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecords, onViewAll }) => {
+const AttendanceTicketOverview: React.FC<AttendanceTicketOverviewProps> = ({ attendanceTickets, onViewAll }) => {
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
       <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-          <h2 className="text-2xl sm:text-2xl font-bold text-black">Attendance Overview</h2>
+          <h2 className="text-2xl sm:text-2xl font-bold text-black">Attendance Ticket Status</h2>
           <button
             onClick={onViewAll}
             className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
@@ -35,25 +34,19 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
                   scope="col"
                   className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md"
                 >
-                  Date
+                  S.No
                 </th>
                 <th
                   scope="col"
                   className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider"
                 >
-                  Time In
-                </th>
-                <th
-                  scope="col" 
-                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider truncate"
-                >
-                  Time Out
+                  Date
                 </th>
                 <th
                   scope="col"
-                  className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider truncate"
+                  className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
                 >
-                  Total Time
+                  Comments
                 </th>
                 <th
                   scope="col"
@@ -64,24 +57,28 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
-              {attendanceRecords.map((record, index) => (
-                <tr
-                  key={index}
-                  className="hover:bg-gray-100"
-                >
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.date}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeIn}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.timeOut}</td>
-                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">{record.totalTime}</td>
+              {attendanceTickets.map((ticket, index) => (
+                <tr key={ticket.id} className="hover:bg-gray-100">
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                    {ticket.date}
+                  </td>
+                  <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
+                    {ticket.comments}
+                  </td>
                   <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        record.status === 'COMPLETED'
+                        ticket.status === 'Approved'
                           ? 'bg-green-100 text-green-800'
-                          : 'bg-yellow-100 text-yellow-800'
+                          : ticket.status === 'Pending'
+                          ? 'bg-yellow-100 text-yellow-800'
+                          : 'bg-red-100 text-red-800'
                       }`}
                     >
-                      {record.status}
+                      {ticket.status}
                     </span>
                   </td>
                 </tr>
@@ -94,4 +91,4 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({ attendanceRecor
   );
 };
 
-export default AttendanceOverview;
+export default AttendanceTicketOverview;
