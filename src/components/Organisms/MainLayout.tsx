@@ -1,8 +1,8 @@
-import React from 'react';
-import { Outlet } from 'react-router';
-import Sidebar from '../molecules/Sidebar';
-import Header from '../atoms/Header';
-import { useUser } from './UserContext';
+import React from "react";
+import { Outlet } from "react-router";
+import Sidebar from "../molecules/Sidebar";
+import Header from "../atoms/Header";
+import { useUser } from "./UserContext";
 
 const MainLayout: React.FC = () => {
   const { userRole, loading } = useUser();
@@ -38,11 +38,14 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#efefef] max-md:flex-col">
+    <div className="flex h-screen overflow-hidden bg-[#efefef]">
+      {/* Sidebar */}
       {userRole && <Sidebar role={userRole} />}
-      <main className="flex flex-col flex-1 ml-5 overflow-auto max-md:ml-0 mt-3">
+
+      {/* Main Content */}
+      <main className="flex flex-col flex-1 ml-0 md:ml-5 overflow-auto">
         <Header />
-        <div className="flex flex-col mt-8 w-full max-md:mt-10 max-md:max-w-full pl-3 pr-8 pb-10">
+        <div className="flex flex-col mt-4 md:mt-8 w-full px-3 md:px-8 pb-10">
           <Outlet />
         </div>
       </main>
