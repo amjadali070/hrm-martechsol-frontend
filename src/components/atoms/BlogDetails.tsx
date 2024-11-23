@@ -47,7 +47,7 @@ const BlogDetails: React.FC = () => {
 
     const comment: CommentProps = {
       id: comments.length + 1,
-      author: 'User', // Replace with actual user data
+      author: 'User',
       content: newComment,
       likes: 0,
     };
@@ -149,7 +149,7 @@ const BlogDetails: React.FC = () => {
         </div>
 
         <div className="w-full md:w-1/3">
-          <div className="bg-white rounded-lg p-6 shadow-md">
+          <div className="bg-white rounded-lg p-6">
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Blogs</h2>
             <div className="space-y-4">
               {recentBlogs.map((recentBlog) => (

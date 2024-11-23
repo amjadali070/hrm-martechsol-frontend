@@ -1,51 +1,47 @@
-// context/UserContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import axios from 'axios';
 
-interface User {
-  _id: string;
-  name: string;
-  email: string;
-  role: string;
-}
-
-interface UserContextProps {
-  user: User | null;
+interface UserContextType {
+  userRole: string | null;
   loading: boolean;
 }
 
-const UserContext = createContext<UserContextProps | undefined>(undefined);
+const UserContext = createContext<UserContextType | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
-    const fetchUser = async () => {
+    const fetchUserRole = async () => {
       try {
-        const { data } = await axios.get('/api/users/profile'); // Adjust your API route as needed
-        setUser(data);
+        const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
+        setUserRole(profileResponse.data.role);
       } catch (error) {
-        console.error('Failed to fetch user:', error);
-        setUser(null);
+        console.error('Error fetching user profile:', error);
       } finally {
         setLoading(false);
       }
     };
-    fetchUser();
-  }, []);
+
+    fetchUserRole();
+  }, [backendUrl]);
 
   return (
-    <UserContext.Provider value={{ user, loading }}>
+    <UserContext.Provider value={{ userRole, loading }}>
       {children}
     </UserContext.Provider>
   );
 };
 
-export const useUserContext = () => {
+const useUser = (): UserContextType => {
   const context = useContext(UserContext);
   if (!context) {
-    throw new Error('useUserContext must be used within a UserProvider');
+    throw new Error('useUser must be used within a UserProvider');
   }
   return context;
 };
+
+export { UserProvider, useUser };

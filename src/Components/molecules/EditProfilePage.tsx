@@ -57,7 +57,6 @@ const EditProfilePage: React.FC = () => {
 
   const handleResumeUpdate = (file: File) => {
     console.log('Updated Resume:', file);
-    // Handle file upload logic here (e.g., upload to the server)
   };
 
   const documents: { name: string; type: 'image' | 'pdf'; fileUrl: string | null }[] = [
@@ -70,7 +69,6 @@ const EditProfilePage: React.FC = () => {
 
   const handleDocumentUpdate = (name: string, file: File) => {
     console.log(`Updated Document: ${name}`, file);
-    // Handle file upload logic here (e.g., save to the server)
   };
 
   const handleUpdate = (details: {

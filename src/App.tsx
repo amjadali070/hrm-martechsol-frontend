@@ -29,6 +29,13 @@ import PrivateRoute from './Components/organisms/PrivateRoute';
 import RegisterUser from './Components/organisms/RegisterUser';
 import { AuthProvider } from './Components/organisms/AuthContext';
 import { BlogProvider } from './Components/organisms/BlogContext';
+import EmployeeManagement from './Components/molecules/EmployeeManagement';
+import AddNewEmployee from './Components/molecules/AddNewEmployee';
+import PayrollManagement from './Components/molecules/PayrollManagement';
+import EditablePayrollPage from './Components/molecules/EditablePayrollPage';
+import LeaveManagement from './Components/molecules/LeaveManagement';
+import TicketManagement from './Components/molecules/TicketManagement';
+import HolidayManagement from './Components/molecules/HolidayManagement';
 
 const App: React.FC = () => {
   return (
@@ -76,6 +83,16 @@ const App: React.FC = () => {
                     </BlogProvider>
                   }
                 />
+                <Route path="/organization/employee-management" element={<EmployeeManagement/>} />
+                <Route path="/organization/employee-management/add-new-employee" element={<AddNewEmployee/>} />
+                <Route path="/organization/payroll-management" element={<PayrollManagement/>} />
+                <Route
+                  path="/organization/payroll-management/edit/:employeeName"
+                  element={<EditablePayrollPage />}
+                />
+                <Route path="/organization/leave-management" element={<LeaveManagement/>} />
+                <Route path="/organization/ticket-management" element={<TicketManagement/>} />
+                <Route path="/organization/holiday-management" element={<HolidayManagement/>} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>
