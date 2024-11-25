@@ -26,52 +26,44 @@ const HRTicketManagement: React.FC = () => {
       status: "Rejected",
     },
     {
-    id: 3,
-    date: "2024-11-19",
-    category: "Benefits",
-    subject: "Request for Insurance Policy Details",
-    status: "Rejected",
+      id: 3,
+      date: "2024-11-18",
+      category: "Benefits",
+      subject: "Request for Pension Plan Details",
+      status: "Approved",
     },
     {
-    id: 4,
-    date: "2024-11-19",
-    category: "Benefits",
-    subject: "Request for Insurance Policy Details",
-    status: "Rejected",
-    },
-    {
-    id: 5,
-    date: "2024-11-19",
-    category: "Benefits",
-    subject: "Request for Insurance Policy Details",
-    status: "Rejected",
-    },
-    {
-    id: 6,
-    date: "2024-11-19",
-    category: "Benefits",
-    subject: "Request for Insurance Policy Details",
-    status: "Rejected",
-    },
-    {
-    id: 7,
-    date: "2024-11-19",
-    category: "Benefits",
-    subject: "Request for Insurance Policy Details",
-    status: "Rejected",
+      id: 4,
+      date: "2024-11-17",
+      category: "Leave",
+      subject: "Request for Annual Leave",
+      status: "Pending",
     },
   ]);
 
-  const [filters, setFilters] = useState({ date: "", status: "All", category: "All" });
+  const [filters, setFilters] = useState({
+    fromDate: "",
+    toDate: "",
+    status: "All",
+    category: "All",
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
-  const filteredTickets = hrTickets.filter(
-    (ticket) =>
-      (filters.date === "" || ticket.date.includes(filters.date)) &&
-      (filters.status === "All" || ticket.status === filters.status) &&
-      (filters.category === "All" || ticket.category === filters.category)
-  );
+  const filteredTickets = hrTickets.filter((ticket) => {
+    const ticketDate = new Date(ticket.date);
+    const fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
+    const toDate = filters.toDate ? new Date(filters.toDate) : null;
+
+    const withinDateRange =
+      (!fromDate || ticketDate >= fromDate) && (!toDate || ticketDate <= toDate);
+
+    const matchesStatus = filters.status === "All" || ticket.status === filters.status;
+    const matchesCategory = filters.category === "All" || ticket.category === filters.category;
+
+    return withinDateRange && matchesStatus && matchesCategory;
+  });
 
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
   const currentTickets = filteredTickets.slice(
@@ -95,11 +87,27 @@ const HRTicketManagement: React.FC = () => {
   return (
     <div className="w-full p-4 bg-white rounded-lg">
       <h2 className="text-2xl font-bold mb-4 mt-4 text-center">HR Tickets Management</h2>
+
+      {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
+        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
+          From:
+        </label>
         <input
           type="date"
-          value={filters.date}
-          onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+          value={filters.fromDate}
+          onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
+          placeholder="From"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
+        />
+        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
+          To:
+        </label>
+        <input
+          type="date"
+          value={filters.toDate}
+          onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
+          placeholder="To"
           className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
         />
         <select
@@ -122,6 +130,8 @@ const HRTicketManagement: React.FC = () => {
           <option value="Rejected">Rejected</option>
         </select>
       </div>
+
+      {/* Tickets Table */}
       <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
         <thead className="bg-purple-900">
           <tr>
@@ -177,65 +187,64 @@ const HRTicketManagement: React.FC = () => {
             ))
           ) : (
             <tr>
-              <td
-                  colSpan={6}
-                   className="text-center py-8 text-gray-500"
-                >
+              <td colSpan={6} className="text-center py-8 text-gray-500">
                 <div className="flex flex-col items-center justify-center">
                   <FaInbox size={40} className="text-gray-400 mb-2" />
-                  <span className="text-md font-medium"> No HR Tickets Found.</span>
+                  <span className="text-md font-medium">No HR Tickets Found.</span>
                 </div>
-               </td>
+              </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(parseInt(e.target.value));
-                setCurrentPage(1); // Reset to the first page when items per page changes
-              }}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={currentPage === 1}
-              onClick={handlePrevious}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === totalPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={currentPage === totalPages}
-              onClick={handleNext}
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <select
+            className="text-sm border border-gray-300 rounded-md"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1); // Reset to the first page when items per page changes
+            }}
+          >
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
+        <div className="flex items-center space-x-4">
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

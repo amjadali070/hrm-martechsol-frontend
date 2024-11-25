@@ -7,6 +7,40 @@ import { useUser } from "./UserContext";
 const MainLayout: React.FC = () => {
   const { userRole, loading } = useUser();
 
+  const mainLayoutStyles: React.CSSProperties = {
+    display: "flex",
+    height: "100vh",
+    overflow: "hidden",
+    backgroundColor: "#efefef",
+  };
+
+  const mainContentStyles: React.CSSProperties = {
+    flex: 1,
+    marginLeft: 0,
+    marginTop: "1rem",
+    overflowY: "auto",
+    padding: "0 1rem",
+    scrollbarWidth: "thin",
+    scrollbarColor: "#581c87 #f0f0f0",
+  };
+
+  const customScrollbar = `
+    ::-webkit-scrollbar {
+      width: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f0f0f0;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #007bff;
+      border-radius: 10px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0056b3;
+    }
+  `;
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-[#efefef]">
@@ -38,14 +72,14 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#efefef]">
-      {/* Sidebar */}
+    <div style={mainLayoutStyles}>
+      <style>{customScrollbar}</style>
+
       {userRole && <Sidebar role={userRole} />}
 
-      {/* Main Content */}
-      <main className="flex flex-col flex-1 ml-0 md:ml-5 overflow-auto">
+      <main style={mainContentStyles}>
         <Header />
-        <div className="flex flex-col mt-1 md:mt-4 w-full px-3 md:px-8 pb-10">
+        <div className="flex flex-col w-full p-2 pb-10">
           <Outlet />
         </div>
       </main>

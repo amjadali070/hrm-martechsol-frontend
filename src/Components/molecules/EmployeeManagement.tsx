@@ -204,7 +204,7 @@ const EmployeeManagement: React.FC = () => {
           <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500" onClick={handleAddNewEmployee}>
             Add New Employee
           </button>
-          <button className="px-4 py-2 text-white bg-green-700 rounded-lg hover:bg-green-600" onClick={handleExportData}>
+          <button className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700" onClick={handleExportData}>
             Export Employee Data
           </button>
         </div>
@@ -306,7 +306,7 @@ const EmployeeManagement: React.FC = () => {
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.jobType}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.gender}</td>
                   <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
-                    <button className="px-3 py-1 text-white bg-green-600 rounded-full hover:bg-green-700">
+                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600">
                       Edit
                     </button>
                   </td>
@@ -324,6 +324,49 @@ const EmployeeManagement: React.FC = () => {
             )}
           </tbody>
         </table>
+      </div>
+      <div className="flex justify-between items-center mt-4">
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <select
+            className="text-sm border border-gray-300 rounded-md"
+            value={itemsPerPage}
+            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+          >
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="flex items-center space-x-4">
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

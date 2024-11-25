@@ -1,8 +1,10 @@
 import React, { useState } from "react";
+import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
+import { FaUser, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
 
 interface PayrollDetails {
   name: string;
-  designation: string;
+  jobTitle: string;
   jobType: string;
   from: string;
   to: string;
@@ -58,233 +60,134 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
   };
 
   return (
-    <div className="p-6 bg-white rounded-lg">
-      <h2 className="text-2xl font-bold mb-4">Edit Payroll</h2>
+    <div className="p-6 bg-white rounded-lg max-w-full mx-auto">
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        Edit Payroll
+      </h2>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <table className="w-full border-collapse bg-white border border-gray-300 rounded-md">
-            <thead>
-              <tr>
-                <th className="bg-purple-900 text-white px-4 py-2 text-left">
-                  Personal Details
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 border border-gray-300">
-                  <label className="block font-medium text-gray-700">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    value={editableData.name}
-                    onChange={(e) => handleInputChange(e, "name")}
-                    className="w-full border border-gray-300 rounded p-2"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-gray-300">
-                  <label className="block font-medium text-gray-700">
-                    Designation
-                  </label>
-                  <input
-                    type="text"
-                    value={editableData.designation}
-                    onChange={(e) => handleInputChange(e, "designation")}
-                    className="w-full border border-gray-300 rounded p-2"
-                  />
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-gray-300">
-                  <label className="block font-medium text-gray-700">
-                    Job Type
-                  </label>
-                  <input
-                    type="text"
-                    value={editableData.jobType}
-                    onChange={(e) => handleInputChange(e, "jobType")}
-                    className="w-full border border-gray-300 rounded p-2"
-                  />
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      {/* Personal Details Section */}
+      <section className="mb-6">
+        <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
+          <FaUser className="mr-2" />
+          <h3 className="text-lg font-semibold">Personal Details</h3>
         </div>
-
-        <div>
-          <table className="w-full border-collapse bg-white border border-gray-300 rounded-md">
-            <thead>
-              <tr>
-                <th className="bg-purple-900 text-white px-4 py-2 text-left">
-                  Salary Period
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className="px-4 py-2 border border-gray-300">
-                  From: {editableData.from}
-                </td>
-              </tr>
-              <tr>
-                <td className="px-4 py-2 border border-gray-300">
-                  To: {editableData.to}
-                </td>
-              </tr>
-            </tbody>
-          </table>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
+          {[
+            { label: "Name", field: "name", value: editableData.name },
+            {
+              label: "Job Title",
+              field: "jobTitle",
+              value: editableData.jobTitle,
+            },
+            {
+              label: "Job Type",
+              field: "jobType",
+              value: editableData.jobType,
+            },
+          ].map(({ label, field, value }) => (
+            <div key={field}>
+              <label className="block font-medium text-gray-700">{label}</label>
+              <input
+                type="text"
+                value={value}
+                onChange={(e) => handleInputChange(e, field)}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      <div className="mt-4">
-        <table className="w-full border-collapse bg-white border border-gray-300 rounded-md">
-          <thead>
-            <tr>
-              <th className="bg-purple-900 text-white px-4 py-2 text-left">
-                Salary Details
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  Basic Salary
-                </label>
-                <input
-                  type="number"
-                  value={editableData.basicSalary}
-                  onChange={(e) => handleInputChange(e, "basicSalary")}
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  Medical Allowance
-                </label>
-                <input
-                  type="number"
-                  value={editableData.medicalAllowance}
-                  onChange={(e) => handleInputChange(e, "medicalAllowance")}
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  Mobile Allowance
-                </label>
-                <input
-                  type="number"
-                  value={editableData.mobileAllowance}
-                  onChange={(e) => handleInputChange(e, "mobileAllowance")}
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  Fuel Allowance
-                </label>
-                <input
-                  type="number"
-                  value={editableData.fuelAllowance}
-                  onChange={(e) => handleInputChange(e, "fuelAllowance")}
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  Gross Salary
-                </label>
-                <input
-                  type="number"
-                  value={editableData.grossSalary}
-                  onChange={(e) => handleInputChange(e, "grossSalary")}
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <section className="mb-6">
+        <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
+          <FaMoneyBillWave className="mr-2" />
+          <h3 className="text-lg font-semibold">Salary Details</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
+          {[
+            {
+              label: "Basic Salary",
+              field: "basicSalary",
+              value: editableData.basicSalary,
+            },
+            {
+              label: "Medical Allowance",
+              field: "medicalAllowance",
+              value: editableData.medicalAllowance,
+            },
+            {
+              label: "Mobile Allowance",
+              field: "mobileAllowance",
+              value: editableData.mobileAllowance,
+            },
+            {
+              label: "Fuel Allowance",
+              field: "fuelAllowance",
+              value: editableData.fuelAllowance,
+            },
+            {
+              label: "Gross Salary",
+              field: "grossSalary",
+              value: editableData.grossSalary,
+            },
+          ].map(({ label, field, value }) => (
+            <div key={field}>
+              <label className="block font-medium text-gray-700">{label}</label>
+              <input
+                type="number"
+                value={value}
+                onChange={(e) => handleInputChange(e, field)}
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="mt-4">
-        <table className="w-full border-collapse bg-white border border-gray-300 rounded-md">
-          <thead>
-            <tr>
-              <th className="bg-purple-900 text-white px-4 py-2 text-left">
-                Deductions
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">Tax</label>
-                <input
-                  type="number"
-                  value={editableData.deductions.tax}
-                  onChange={(e) =>
-                    handleInputChange(e, "deductions", "tax")
-                  }
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">EOBI</label>
-                <input
-                  type="number"
-                  value={editableData.deductions.eobi}
-                  onChange={(e) =>
-                    handleInputChange(e, "deductions", "eobi")
-                  }
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-            <tr>
-              <td className="px-4 py-2 border border-gray-300">
-                <label className="block font-medium text-gray-700">
-                  PF Contribution
-                </label>
-                <input
-                  type="number"
-                  value={editableData.deductions.pfContribution}
-                  onChange={(e) =>
-                    handleInputChange(e, "deductions", "pfContribution")
-                  }
-                  className="w-full border border-gray-300 rounded p-2"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      {/* Deductions Section */}
+      <section className="mb-6">
+        <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
+          <FaBriefcase className="mr-2" />
+          <h3 className="text-lg font-semibold">Deductions</h3>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
+          {[
+            { label: "Tax", nestedField: "tax", value: editableData.deductions.tax },
+            { label: "EOBI", nestedField: "eobi", value: editableData.deductions.eobi },
+            {
+              label: "PF Contribution",
+              nestedField: "pfContribution",
+              value: editableData.deductions.pfContribution,
+            },
+          ].map(({ label, nestedField, value }) => (
+            <div key={nestedField}>
+              <label className="block font-medium text-gray-700">{label}</label>
+              <input
+                type="number"
+                value={value}
+                onChange={(e) =>
+                  handleInputChange(e, "deductions", nestedField!)
+                }
+                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
+              />
+            </div>
+          ))}
+        </div>
+      </section>
 
-      <div className="flex justify-end gap-4 mt-6">
+      <div className="flex justify-end gap-4">
         <button
           onClick={handleSave}
-          className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+          className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
         >
+          <AiOutlineSave />
           Save
         </button>
         <button
           onClick={onCancel}
-          className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700"
+          className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
         >
+          <AiOutlineClose />
           Cancel
         </button>
       </div>

@@ -37,89 +37,39 @@ const AttendanceTicketManagement: React.FC = () => {
       file: "appointment_document.pdf",
       status: "Approved",
     },
-    {
-        id: 3,
-        date: "2024-11-21",
-        timeIn: "09:00 AM",
-        timeOut: "05:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Full Day",
-        comments: "Worked from home due to personal reasons.",
-        file: "wfh_document.pdf",
-        status: "Pending",
-      },
-      {
-        id: 4,
-        date: "2024-11-22",
-        timeIn: "10:00 AM",
-        timeOut: "06:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Half Day",
-        comments: "Personal appointment in the morning.",
-        file: "appointment_document.pdf",
-        status: "Approved",
-      },
-      {
-        id: 5,
-        date: "2024-11-21",
-        timeIn: "09:00 AM",
-        timeOut: "05:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Full Day",
-        comments: "Worked from home due to personal reasons.",
-        file: "wfh_document.pdf",
-        status: "Pending",
-      },
-      {
-        id: 6,
-        date: "2024-11-22",
-        timeIn: "10:00 AM",
-        timeOut: "06:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Half Day",
-        comments: "Personal appointment in the morning.",
-        file: "appointment_document.pdf",
-        status: "Approved",
-      },
-      {
-        id: 7,
-        date: "2024-11-21",
-        timeIn: "09:00 AM",
-        timeOut: "05:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Full Day",
-        comments: "Worked from home due to personal reasons.",
-        file: "wfh_document.pdf",
-        status: "Pending",
-      },
-      {
-        id: 8,
-        date: "2024-11-22",
-        timeIn: "10:00 AM",
-        timeOut: "06:00 PM",
-        totalTime: "8 hours",
-        workFromHome: "Half Day",
-        comments: "Personal appointment in the morning.",
-        file: "appointment_document.pdf",
-        status: "Approved",
-      },
+    // Additional tickets...
   ]);
 
-  const [filters, setFilters] = useState({ date: "", status: "All" });
+  const [filters, setFilters] = useState({
+    fromDate: "",
+    toDate: "",
+    status: "All",
+  });
+
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
-  const filteredTickets = attendanceTickets.filter(
-    (ticket) =>
-      (filters.date === "" || ticket.date.includes(filters.date)) &&
-      (filters.status === "All" || ticket.status === filters.status)
-  );
+  const filteredTickets = attendanceTickets.filter((ticket) => {
+    const ticketDate = new Date(ticket.date);
+    const fromDate = filters.fromDate ? new Date(filters.fromDate) : null;
+    const toDate = filters.toDate ? new Date(filters.toDate) : null;
+
+    const withinDateRange =
+      (!fromDate || ticketDate >= fromDate) && (!toDate || ticketDate <= toDate);
+
+    const matchesStatus = filters.status === "All" || ticket.status === filters.status;
+
+    return withinDateRange && matchesStatus;
+  });
 
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
   const currentTickets = filteredTickets.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   const handleAction = (id: number, action: "approve" | "reject") => {
     setAttendanceTickets((prev) =>
@@ -131,19 +81,32 @@ const AttendanceTicketManagement: React.FC = () => {
     );
   };
 
-  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-  const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-
   return (
     <div className="w-full p-4 bg-white rounded-lg">
       <h2 className="text-2xl font-bold mb-4 mt-4 text-center">
         Attendance Tickets Management
       </h2>
+
+      {/* Filters */}
       <div className="flex flex-wrap gap-4 mb-4">
+        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
+          From:
+        </label>
         <input
           type="date"
-          value={filters.date}
-          onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+          value={filters.fromDate}
+          onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
+          placeholder="From"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
+        />
+         <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
+          To:
+        </label>
+        <input
+          type="date"
+          value={filters.toDate}
+          onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
+          placeholder="To"
           className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
         />
         <select
@@ -157,6 +120,7 @@ const AttendanceTicketManagement: React.FC = () => {
           <option value="Rejected">Rejected</option>
         </select>
       </div>
+
       <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
         <thead className="bg-purple-900">
           <tr>
@@ -229,65 +193,64 @@ const AttendanceTicketManagement: React.FC = () => {
             ))
           ) : (
             <tr>
-                <td
-                  colSpan={9}
-                   className="text-center py-8 text-gray-500"
-                >
+              <td colSpan={9} className="text-center py-8 text-gray-500">
                 <div className="flex flex-col items-center justify-center">
                   <FaInbox size={40} className="text-gray-400 mb-2" />
-                  <span className="text-md font-medium"> No Attendance Tickets Found.</span>
+                  <span className="text-md font-medium">No Attendance Tickets Found.</span>
                 </div>
-               </td>
+              </td>
             </tr>
           )}
         </tbody>
       </table>
+
+      {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(parseInt(e.target.value));
-                setCurrentPage(1); // Reset to the first page when items per page changes
-              }}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={currentPage === 1}
-              onClick={handlePrevious}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === totalPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={currentPage === totalPages}
-              onClick={handleNext}
-            >
-              Next
-            </button>
-          </div>
+        <div className="flex items-center">
+          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <select
+            className="text-sm border border-gray-300 rounded-md"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1); // Reset to the first page when items per page changes
+            }}
+          >
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
+        <div className="flex items-center space-x-4">
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
+            }`}
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
+          >
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className={`px-3 py-1 text-sm rounded-full ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
+            disabled={currentPage === totalPages}
+            onClick={handleNext}
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

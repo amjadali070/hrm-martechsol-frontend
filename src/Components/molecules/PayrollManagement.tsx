@@ -26,7 +26,12 @@ interface PayrollDetails {
 const PayrollManagement: React.FC = () => {
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>("October 2024");
   const [payrollData, setPayrollData] = useState<{ [key: string]: PayrollDetails[] } | null>(null);
-  const [filters, setFilters] = useState({ name: "", jobType: "All", department: "All" });
+  const [filters, setFilters] = useState({
+    name: "",
+    jobType: "All",
+    department: "All",
+    jobTitle: "All",
+  });
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const navigate = useNavigate();
@@ -116,7 +121,8 @@ const PayrollManagement: React.FC = () => {
           (employee) =>
             (filters.name === "" || employee.name.toLowerCase().includes(filters.name.toLowerCase())) &&
             (filters.jobType === "All" || employee.jobType === filters.jobType) &&
-            (filters.department === "All" || employee.department === filters.department)
+            (filters.department === "All" || employee.department === filters.department) &&
+            (filters.jobTitle === "All" || employee.jobTitle === filters.jobTitle)
         )
       : [];
 
@@ -128,6 +134,11 @@ const PayrollManagement: React.FC = () => {
 
   const handleNextPage = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePreviousPage = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
+
+  const uniqueJobTitles =
+    payrollData && selectedMonthYear in payrollData
+      ? Array.from(new Set(payrollData[selectedMonthYear].map((employee) => employee.jobTitle)))
+      : [];
 
   return (
     <div className="w-full p-6 bg-white rounded-lg">
@@ -180,6 +191,18 @@ const PayrollManagement: React.FC = () => {
           <option value="All">All Departments</option>
           <option value="Engineering">Engineering</option>
           <option value="IT">IT</option>
+        </select>
+        <select
+          value={filters.jobTitle}
+          onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
+          className="px-4 py-2 border border-gray-300 rounded-lg"
+        >
+          <option value="All">All Job Titles</option>
+          {uniqueJobTitles.map((title) => (
+            <option key={title} value={title}>
+              {title}
+            </option>
+          ))}
         </select>
       </div>
 

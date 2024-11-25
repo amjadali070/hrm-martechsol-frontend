@@ -150,7 +150,7 @@ const PayrollView: React.FC = () => {
           </select>
           <button
             onClick={handleExportToPDF}
-            className="px-4 py-2 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
           >
             Export to PDF
           </button>
