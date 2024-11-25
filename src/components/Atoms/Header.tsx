@@ -44,7 +44,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={handleTimeToggle}
-              className={`flex items-center gap-2 px-3 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
                 isTimedIn
                   ? "bg-red-600 hover:bg-red-700"
                   : "bg-green-600 hover:bg-green-700"
@@ -60,7 +60,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={handleLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"
             >
               <RiLogoutCircleRLine size={18} />
               <span>Log Out</span>

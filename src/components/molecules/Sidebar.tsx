@@ -119,10 +119,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       >
         <FaBars size={24} />
       </button>
+
       <div
         className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:relative md:flex md:flex-col w-64`}
+        } md:translate-x-0 md:relative md:flex md:flex-col w-64 h-screen p-3`}
       >
         <div className="flex justify-between items-center px-4 py-3 bg-purple-800 md:hidden">
           <span className="text-lg font-semibold text-white">Menu</span>
@@ -130,7 +131,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
             <FaTimes size={24} />
           </button>
         </div>
-        <nav className="flex flex-col pt-8 pb-40 mx-auto w-full text-lg p-2">
+        <nav
+          className="flex flex-col pt-2 pb-10 mx-auto w-full text-lg overflow-y-auto custom-scroll"
+        >
           {menuItems
             .filter((item) => !item.visibleTo || item.visibleTo.includes(role))
             .map((item, index) => {
@@ -203,6 +206,20 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
         ></div>
       )}
+
+      <style>{`
+        .custom-scroll::-webkit-scrollbar {
+          width: 0px;
+          background-color: transparent;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+          background-color: #6d6d6d;
+          border-radius: 5px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+          background-color: transparent;
+        }
+      `}</style>
     </>
   );
 };

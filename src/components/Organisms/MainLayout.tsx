@@ -45,7 +45,7 @@ const MainLayout: React.FC = () => {
       {/* Main Content */}
       <main className="flex flex-col flex-1 ml-0 md:ml-5 overflow-auto">
         <Header />
-        <div className="flex flex-col mt-4 md:mt-8 w-full px-3 md:px-8 pb-10">
+        <div className="flex flex-col mt-1 md:mt-4 w-full px-3 md:px-8 pb-10">
           <Outlet />
         </div>
       </main>
