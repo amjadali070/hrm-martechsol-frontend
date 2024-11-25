@@ -19,7 +19,7 @@ const TicketManagement: React.FC = () => {
             >
               <FaUserClock size={70} className="text-blue-600" />
               <h2 className="mt-4 text-xl font-semibold text-blue-700">
-                Attendance Tickets Management
+                Attendance Tickets Status
               </h2>
               <p className="text-gray-500 mt-2 text-sm text-center">
                 Manage attendance-related tickets, including work-from-home requests.
@@ -30,7 +30,7 @@ const TicketManagement: React.FC = () => {
               className="flex flex-col items-center justify-center bg-green-50 border-2 border-green-200 hover:border-green-400 hover:shadow-lg p-6 rounded-lg cursor-pointer transition duration-200"
             >
               <FaBriefcase size={70} className="text-green-600" />
-              <h2 className="mt-4 text-xl font-semibold text-green-700">HR Tickets Management</h2>
+              <h2 className="mt-4 text-xl font-semibold text-green-700">HR Tickets Status</h2>
               <p className="text-gray-500 mt-2 text-sm text-center">
                 Manage HR-related tickets such as leave requests and benefits inquiries.
               </p>

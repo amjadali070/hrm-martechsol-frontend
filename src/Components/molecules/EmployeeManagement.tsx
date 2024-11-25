@@ -201,10 +201,10 @@ const EmployeeManagement: React.FC = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-gray-800">Employee Management</h2>
         <div className="flex gap-4">
-          <button className="px-4 py-2 text-white bg-purple-900 rounded-lg hover:bg-purple-600" onClick={handleAddNewEmployee}>
+          <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500" onClick={handleAddNewEmployee}>
             Add New Employee
           </button>
-          <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700" onClick={handleExportData}>
+          <button className="px-4 py-2 text-white bg-green-700 rounded-lg hover:bg-green-600" onClick={handleExportData}>
             Export Employee Data
           </button>
         </div>
@@ -272,7 +272,7 @@ const EmployeeManagement: React.FC = () => {
             {monthOptions.map((option) => (
               <option key={option} value={option}>
                 {option === "All"
-                  ? "All"
+                  ? "By Month"
                   : `${months[parseInt(option.split("-")[1], 10) - 1]} ${option.split("-")[0]}`}
               </option>
             ))}

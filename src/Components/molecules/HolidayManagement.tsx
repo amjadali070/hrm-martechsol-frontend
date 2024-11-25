@@ -108,7 +108,7 @@ const HolidayManagement: React.FC = () => {
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Name</label>
+            <label className="block text-sm font-medium text-gray-700">Holiday Name</label>
             <input
               type="text"
               placeholder="Holiday Name"
@@ -139,7 +139,7 @@ const HolidayManagement: React.FC = () => {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
         <input
           type="text"
-          placeholder="Search by name, description, or date"
+          placeholder="Search by holiday name, description"
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           className="w-full px-4 py-2 border border-gray-300 rounded-lg"
@@ -169,7 +169,7 @@ const HolidayManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-purple-900">
             <tr>
-              {["S.No", "From Date", "To Date", "Name", "Description", "Actions"].map((header) => (
+              {["S.No", "From Date", "To Date", "Holiday Name", "Description", "Actions"].map((header) => (
                 <th
                   key={header}
                   className="px-4 py-2 text-left text-sm font-medium text-white"

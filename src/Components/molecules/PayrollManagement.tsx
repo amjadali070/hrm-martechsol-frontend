@@ -212,7 +212,7 @@ const PayrollManagement: React.FC = () => {
                         state: { employee },
                       })
                     }
-                    className="px-3 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
+                    className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
                   >
                     Edit
                   </button>

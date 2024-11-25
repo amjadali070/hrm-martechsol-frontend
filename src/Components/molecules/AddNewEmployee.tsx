@@ -206,7 +206,7 @@ const AddNewEmployee: React.FC = () => {
             type="submit"
             disabled={isSubmitting}
             className={`w-full py-3 text-white font-semibold rounded-lg focus:outline-none ${
-              isSubmitting ? 'bg-purple-300 cursor-not-allowed' : 'bg-purple-600 hover:bg-purple-700'
+              isSubmitting ? 'bg-blue-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'
             }`}
           >
             {isSubmitting ? 'Adding...' : 'Add Employee'}
