@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import SalarySlipPDF from '../../html/SalarySlipPDF';
 
@@ -54,7 +54,6 @@ const PayrollView: React.FC = () => {
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>('October 2024');
   const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
   
-
   const dummyData: { [key: string]: PayrollDetails } = {
     'October 2024': {
       name: 'Urwah Iftikhar',
@@ -129,23 +128,25 @@ const PayrollView: React.FC = () => {
     payrollData.grossSalary + payrollData.additions - totalDeductions;
 
   const tableClass =
-    'w-full border-collapse bg-white border border-gray-300 rounded-md mb-6';
+    'w-full border-collapse bg-white border border-gray-300 rounded-md mb-4 md:mb-6';
   const thClass =
-    'bg-purple-900 text-white text-sm font-semibold text-left px-4 py-2 border border-gray-300';
+    'bg-purple-900 text-white text-xs sm:text-sm font-semibold text-left px-2 py-2 sm:px-4 sm:py-2 border border-gray-300';
   const tdClass =
-    'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap';
+    'text-xs sm:text-sm text-gray-800 px-2 py-2 sm:px-4 sm:py-2 border border-gray-300 whitespace-nowrap';
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg" id="payroll-view">
-      {/* Existing layout */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold text-black">Salary Slip</h1>
-        <div className="flex items-center space-x-4">
+    <div className="w-full p-3 sm:p-6 bg-white rounded-lg" id="payroll-view">
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-black mb-4 sm:mb-0">
+          Salary Slip
+        </h1>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
           <select
             id="monthYear"
             value={selectedMonthYear}
             onChange={(e) => setSelectedMonthYear(e.target.value)}
-            className="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full sm:w-auto p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs sm:text-sm mb-2 sm:mb-0"
           >
             {Object.keys(dummyData).map((key) => (
               <option key={key} value={key}>
@@ -153,7 +154,6 @@ const PayrollView: React.FC = () => {
               </option>
             ))}
           </select>
-          <div>
           <PDFDownloadLink
             document={<SalarySlipPDF data={data} />}
             fileName={`Salary_Slip_${data.name.replace(/\s+/g, '_')}.pdf`}
@@ -161,7 +161,7 @@ const PayrollView: React.FC = () => {
               textDecoration: 'none',
               padding: '10px 20px',
               color: '#fff',
-              backgroundColor: '#581c87',
+              backgroundColor: '#16a34a',
               borderRadius: '5px',
               display: 'inline-block',
             }}
@@ -169,10 +169,9 @@ const PayrollView: React.FC = () => {
             Download PDF
           </PDFDownloadLink>
         </div>
-        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <table className={tableClass}>
             <thead>
@@ -228,38 +227,37 @@ const PayrollView: React.FC = () => {
 
       <table className={tableClass}>
         <thead>
-            <tr>
-              <th className={thClass} colSpan={2}>
-                Salary Details
-              </th>
-            </tr>
+          <tr>
+            <th className={thClass} colSpan={2}>
+              Salary Details
+            </th>
+          </tr>
         </thead>
         <tbody>
-            <tr>
+          <tr>
             <td className={`${tdClass} w-1/2`}>Basic Salary</td>
             <td className={`${tdClass} w-1/2`}>{payrollData.basicSalary} PKR</td>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
             <td className={`${tdClass} w-1/2`}>Medical Allowance</td>
             <td className={`${tdClass} w-1/2`}>{payrollData.medicalAllowance} PKR</td>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
             <td className={`${tdClass} w-1/2`}>Mobile Allowance</td>
             <td className={`${tdClass} w-1/2`}>{payrollData.mobileAllowance} PKR</td>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
             <td className={`${tdClass} w-1/2`}>Fuel Allowance</td>
             <td className={`${tdClass} w-1/2`}>{payrollData.fuelAllowance} PKR</td>
-            </tr>
-            <tr>
+          </tr>
+          <tr>
             <td className={`${tdClass} w-1/2`}>Gross Salary</td>
             <td className={`${tdClass} w-1/2`}>{payrollData.grossSalary} PKR</td>
-            </tr>
+          </tr>
         </tbody>
       </table>
 
-
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
         <table className={tableClass}>
           <thead>
             <tr>
@@ -303,29 +301,26 @@ const PayrollView: React.FC = () => {
         </table>
       </div>
 
-      <div>
-        <table className={tableClass}>
-          <thead>
-            <tr>
-              <th className={`${thClass} w-1/2`}>Amount Payable:</th>
-              <th className={`${tdClass} w-1/2`}>
-                {amountPayable.toFixed(2)} PKR
-              </th>
-            </tr>
-          </thead>
-        </table>
-      </div>
+      <table className={tableClass}>
+        <thead>
+          <tr>
+            <th className={`${thClass} w-1/2`}>Amount Payable</th>
+            <th className={`${tdClass} w-1/2 text-green-600`}>
+              {amountPayable.toFixed(2)} PKR
+            </th>
+          </tr>
+        </thead>
+      </table>
 
-      <div className="grid grid-cols-2 gap-4 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
           <table className={tableClass}>
             <thead>
-            <tr>
-              <th className={thClass} colSpan={2}>
-                Leave Details
-              </th>
-            </tr>
-              
+              <tr>
+                <th className={thClass} colSpan={2}>
+                  Leave Details
+                </th>
+              </tr>
             </thead>
             <tbody>
               <tr>
@@ -352,12 +347,14 @@ const PayrollView: React.FC = () => {
 
         <div>
           <table className={tableClass}>
+            <thead>
+              <tr>
+                <th className={thClass} colSpan={2}>
+                  Provident Fund Details
+                </th>
+              </tr>
+            </thead>
             <tbody>
-            <tr>
-              <th className={thClass} colSpan={2}>
-              Provident Fund Details
-              </th>
-            </tr>
               <tr>
                 <td className={tdClass}>Your Contribution</td>
                 <td className={tdClass}>

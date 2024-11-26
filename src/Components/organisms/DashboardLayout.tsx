@@ -79,10 +79,14 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
-      <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
+      <ProfileCard 
+          name="Mirza Waqas Baig" 
+          title="Chief Executive Officer" 
+          imageSrc={profileImage}
+          userShift="6:00 PM - 2:30 AM" />
 
       <QuickActions actions={actions} />
-      
+
       <div>
         <div className="flex flex-col md:flex-row gap-3">
           <Announcements announcements={announcementsData} onViewAll={handleViewAllAnnouncements} />

@@ -20,9 +20,10 @@ const EditProfilePage: React.FC = () => {
   const employee = {
     name: 'Mirza Waqas Baig',
     department: 'Head of Company',
-    jobTitle: 'Chief Executive Officer',
+    jobTitle: 'Assistant Vice President - Graphic Design & Development',
     jobCategory: 'Full-time',
     profilePicture: profile,
+    shiftTimings: '6:00 PM - 2:30 AM',
   };
 
   const handleUpdateContactDetails = (details: {

@@ -8,12 +8,13 @@ import {
   FaChevronUp,
   FaBars,
   FaTimes,
+  FaClipboardList
 } from "react-icons/fa";
 import { GiLetterBomb } from "react-icons/gi";
 import { PiNetworkFill } from "react-icons/pi";
 import { SiGoogleforms } from "react-icons/si";
 import { RiCashFill } from "react-icons/ri";
-import { MdSpaceDashboard } from "react-icons/md";
+import { MdRuleFolder, MdSpaceDashboard } from "react-icons/md";
 import { IoDocumentText } from "react-icons/io5";
 import { Link, useLocation } from "react-router-dom";
 import { IconType } from "react-icons/lib";
@@ -48,7 +49,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    icon: SiGoogleforms,
+    icon: FaClipboardList,
     label: "Forms",
     path: "/forms",
     subItems: [
@@ -86,7 +87,7 @@ const menuItems: MenuItem[] = [
     ],
   },
   {
-    icon: GiLetterBomb,
+    icon: IoDocumentText,
     label: "Letters",
     path: "/letters",
     subItems: [
@@ -94,7 +95,7 @@ const menuItems: MenuItem[] = [
       {label: "Experience Letter", path: "/letters/experience-letter"},
     ],
   },
-  { icon: IoDocumentText, label: "Policies", path: "/policies" },
+  { icon: MdRuleFolder, label: "Policies", path: "/policies" },
   { icon: FaBlog, label: "Blog", path: "/blog" },
   { icon: FaChalkboardTeacher, label: "Training Room", path: "/training" },
 ];
