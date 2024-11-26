@@ -132,7 +132,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       </button>
 
       <div
-        className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white transition-transform duration-300 ease-in-out ${
+        className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white rounded-none transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:translate-x-0 md:relative md:flex md:flex-col w-64 h-screen p-3`}
       >

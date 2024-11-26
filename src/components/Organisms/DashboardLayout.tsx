@@ -82,16 +82,19 @@ const DashboardLayout: React.FC = () => {
       <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
 
       <QuickActions actions={actions} />
+      
+      <div>
+        <div className="flex flex-col md:flex-row gap-3">
+          <Announcements announcements={announcementsData} onViewAll={handleViewAllAnnouncements} />
+          <LeaveOverview />
+        </div>
 
-      <div className="flex flex-col md:flex-row gap-5">
-        <Announcements announcements={announcementsData} onViewAll={handleViewAllAnnouncements} />
-        <LeaveOverview />
+        <div className="flex flex-col md:flex-row gap-3 mt-3">
+          <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAllAttendance} />
+          <AttendanceTicketOverview attendanceTickets={attendanceTickets} onViewAll={handleViewAllAttendanceTickets} />
+        </div>
       </div>
-
-      <div className="flex flex-col md:flex-row gap-5">
-        <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAllAttendance} />
-        <AttendanceTicketOverview attendanceTickets={attendanceTickets} onViewAll={handleViewAllAttendanceTickets} />
-      </div>
+      
     </div>
   );
 };

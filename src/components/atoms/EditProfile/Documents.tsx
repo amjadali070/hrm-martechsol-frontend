@@ -33,29 +33,26 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
   };
 
   return (
-    <div className="bg-white p-14 rounded-lg w-full mx-auto">
+    <div className="bg-white p-8 sm:p-6 md:p-12 rounded-lg w-full mx-auto">
       {documents.map((doc, index) => (
         <div
           key={index}
-          className="flex justify-between items-center bg-gray-100 p-4 mb-4 mt-4 rounded-full border border-gray-300"
+          className="flex flex-col sm:flex-row justify-between items-center bg-gray-100 p-4 mb-4 rounded-full border border-gray-300"
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 mb-4 sm:mb-0">
             {doc.fileUrl ? (
               <FaCheckCircle className="text-green-500" size={24} />
             ) : (
               <FaTimesCircle className="text-red-500" size={24} />
             )}
-            <p className="text-lg font-medium text-gray-700">{doc.name}</p>
+            <p className="text-lg sm:text-xl font-medium text-gray-700">{doc.name}</p>
           </div>
-          <div className="flex items-center gap-4">
+
+          <div className="flex flex-wrap gap-4 justify-start sm:justify-end items-center">
             {doc.fileUrl && (
-              <a
-                href={doc.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <a href={doc.fileUrl} target="_blank" rel="noopener noreferrer">
                 <button
-                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all uppercase"
+                  className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all uppercase text-sm sm:text-base"
                   aria-label={`View ${doc.name}`}
                 >
                   <FaEye size={16} />
@@ -65,7 +62,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
             )}
             <button
               onClick={() => toggleEdit(doc.name)}
-              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-black transition-all uppercase"
+              className="flex items-center gap-2 px-4 py-2 bg-black text-white rounded-full hover:bg-black transition-all uppercase text-sm sm:text-base"
               aria-label={`Upload ${doc.name}`}
             >
               <FaFileUpload size={16} />
@@ -76,7 +73,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
           {editingDocument === doc.name && (
             <div className="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
               <div className="bg-white p-6 rounded-lg w-full max-w-md">
-                <h3 className="text-lg font-bold text-gray-700 mb-4">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-700 mb-4">
                   Upload New {doc.name}
                 </h3>
                 <input
@@ -88,13 +85,13 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
                 <div className="flex justify-end space-x-4">
                   <button
                     onClick={() => setEditingDocument(null)}
-                    className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400 transition-all"
+                    className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400 transition-all text-sm sm:text-base"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleUpload(doc.name)}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-500 transition-all"
+                    className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-500 transition-all text-sm sm:text-base"
                   >
                     Upload
                   </button>
