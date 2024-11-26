@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
+
 interface ProfileImageProps {
   src: string;
 }
@@ -10,20 +11,18 @@ interface ProfileCardProps {
   imageSrc: string;
 }
 
-
 interface ProfileInfoProps {
   name: string;
   title: string;
 }
 
-
 const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
   return (
-    <div className="flex justify-center object-cover w-1/5 max-md:w-full">
+    <div className="flex justify-center object-cover w-1/5 max-md:w-24 max-sm:w-1/3">
       <img 
         src={src} 
         alt="Profile" 
-        className="rounded-full object-cover border-[6px] border-white  w-36 h-36 max-md:w-24 max-md:h-24"
+        className="rounded-full object-cover border-[6px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
       />
     </div>
   );
@@ -40,7 +39,6 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ name, title }) => {
   );
 };
 
-
 const ProfileCard: React.FC<ProfileCardProps> = ({ name, title, imageSrc }) => {
   const navigate = useNavigate();
 
@@ -56,7 +54,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ name, title, imageSrc }) => {
       </div>
       <button
         onClick={handleEditProfile}
-        className="w-[18%] px-6 py-3 my-auto font-semibold text-black bg-white rounded-[30px] hover:bg-gray-100 transition-colors duration-300 max-md:px-4 max-md:py-2 mr-5"
+        className="w-[18%] px-6 py-3 my-auto font-semibold text-black bg-white rounded-[30px] hover:bg-gray-100 transition-colors duration-300 max-md:w-3/4 max-md:px-4 max-md:py-2 mt-4 md:mt-11"
       >
         Edit Profile
       </button>
