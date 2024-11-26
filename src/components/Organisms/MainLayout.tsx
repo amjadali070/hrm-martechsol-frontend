@@ -5,7 +5,7 @@ import Header from "../atoms/Header";
 import { useUser } from "./UserContext";
 
 const MainLayout: React.FC = () => {
-  const { userRole, loading } = useUser();
+  const { user, loading } = useUser();
 
   const mainLayoutStyles: React.CSSProperties = {
     display: "flex",
@@ -71,11 +71,13 @@ const MainLayout: React.FC = () => {
     );
   }
 
+  console.log("user.role",user.role);
+  console.log("user",user);
   return (
     <div style={mainLayoutStyles}>
       <style>{customScrollbar}</style>
 
-      {userRole && <Sidebar role={userRole || 'HR'} />}
+      {user && <Sidebar role={user.role || 'HR'} />}
 
       <main style={mainContentStyles}>
         <Header />

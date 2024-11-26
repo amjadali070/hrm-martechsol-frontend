@@ -11,7 +11,7 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | undefined>(undefined);
 
 const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<any | null>(null);  // Store the complete user data
+  const [user, setUser] = useState<any | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -33,7 +33,7 @@ const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
 
     fetchUserData();
-  }, [backendUrl]);
+  }, [backendUrl, userRole]);
 
   return (
     <UserContext.Provider value={{ user, userRole, loading, error }}>
