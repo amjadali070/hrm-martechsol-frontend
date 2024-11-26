@@ -137,9 +137,7 @@ const HolidayManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        {/* Search Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
@@ -152,7 +150,6 @@ const HolidayManagement: React.FC = () => {
           />
         </div>
 
-        {/* Date Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaCalendarAlt className="text-gray-400 mr-2" />
           <input
@@ -163,7 +160,6 @@ const HolidayManagement: React.FC = () => {
           />
         </div>
 
-        {/* Month Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
@@ -181,8 +177,6 @@ const HolidayManagement: React.FC = () => {
         </div>
       </div>
 
-
-      {/* Holiday List */}
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-purple-900">

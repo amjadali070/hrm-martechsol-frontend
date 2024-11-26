@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { FaInbox } from "react-icons/fa";
+import { 
+  FaInbox, 
+  FaCalendarAlt, 
+  FaFilter, 
+  FaListAlt, 
+  FaCheckCircle 
+} from "react-icons/fa";
 
 interface HRTicket {
   id: number;
@@ -84,122 +90,176 @@ const HRTicketManagement: React.FC = () => {
   const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
+  const resetFilters = () => {
+    setFilters({
+      fromDate: "",
+      toDate: "",
+      status: "All",
+      category: "All",
+    });
+  };
+
   return (
     <div className="w-full p-4 bg-white rounded-lg">
       <h2 className="text-2xl font-bold mb-4 mt-4 text-center">HR Tickets Management</h2>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
-          From:
-        </label>
-        <input
-          type="date"
-          value={filters.fromDate}
-          onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
-          placeholder="From"
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
-          To:
-        </label>
-        <input
-          type="date"
-          value={filters.toDate}
-          onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
-          placeholder="To"
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <select
-          value={filters.category}
-          onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Categories</option>
-          <option value="Leave">Leave</option>
-          <option value="Benefits">Benefits</option>
-        </select>
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
-        </select>
+
+      <div className="mb-4">
+        <div className="flex flex-wrap items-center gap-2 w-full">
+          <div className="flex-grow min-w-[200px]">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+            <FaCalendarAlt className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              value={filters.fromDate ? new Date(filters.fromDate).toLocaleDateString() : "FROM"}
+              onFocus={(e) => {
+                e.target.type = "date";
+                e.target.showPicker();
+              }}
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.type = "text";
+                  e.target.value = "FROM";
+                }
+              }}
+              onChange={(e) => {
+                setFilters({ ...filters, fromDate: e.target.value });
+                e.target.type = "text";
+                e.target.value = new Date(e.target.value).toLocaleDateString();
+              }}
+              className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            />
+            </div>
+          </div>
+
+          <div className="flex-grow min-w-[200px]">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+            <FaCalendarAlt className="text-gray-400 mr-2" />
+            <input
+              type="text"
+              value={filters.toDate ? new Date(filters.toDate).toLocaleDateString() : "TO"}
+              onFocus={(e) => {
+                e.target.type = "date";
+                e.target.showPicker();
+              }}
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.type = "text";
+                  e.target.value = "TO";
+                }
+              }}
+              onChange={(e) => {
+                setFilters({ ...filters, toDate: e.target.value });
+                e.target.type = "text";
+                e.target.value = new Date(e.target.value).toLocaleDateString();
+              }}
+              className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            />
+            </div>
+          </div>
+
+          <div className="flex-grow min-w-[200px]">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+              <FaFilter className="text-gray-400 mr-2" />
+              <select
+                value={filters.category}
+                onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                className="w-full border-none focus:outline-none text-sm text-gray-600"
+              >
+                <option value="All">All Categories</option>
+                <option value="Leave">Leave</option>
+                <option value="Benefits">Benefits</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="flex-grow min-w-[200px]">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+              <FaFilter className="text-gray-400 mr-2" />
+              <select
+                value={filters.status}
+                onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                className="w-full border-none focus:outline-none text-sm text-gray-600"
+              >
+                <option value="All">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* Tickets Table */}
-      <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-        <thead className="bg-purple-900">
-          <tr>
-            {["S.No", "Date", "Category", "Subject", "Status", "Action"].map((header) => (
-              <th key={header} className="px-3 py-2 text-left text-sm font-medium text-white">
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {currentTickets.length > 0 ? (
-            currentTickets.map((ticket, index) => (
-              <tr key={ticket.id} className="hover:bg-gray-100">
-                <td className="px-3 py-2 text-sm text-gray-800">
-                  {(currentPage - 1) * itemsPerPage + index + 1}
-                </td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.date}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.category}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.subject}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.status}</td>
-                <td className="px-3 py-2 text-sm text-left">
-                  {ticket.status === "Pending" ? (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleAction(ticket.id, "approve")}
-                        className="px-2 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
+          <thead className="bg-purple-900">
+            <tr>
+              {["S.No", "Date", "Category", "Subject", "Status", "Action"].map((header) => (
+                <th key={header} className="px-3 py-2 text-left text-sm font-medium text-white">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {currentTickets.length > 0 ? (
+              currentTickets.map((ticket, index) => (
+                <tr key={ticket.id} className="hover:bg-gray-100">
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.date}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.category}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.subject}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.status}</td>
+                  <td className="px-3 py-2 text-sm text-left">
+                    {ticket.status === "Pending" ? (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleAction(ticket.id, "approve")}
+                          className="px-2 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleAction(ticket.id, "reject")}
+                          className="px-2 py-1 text-white bg-red-600 rounded-full hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <span
+                        className={`text-sm ${
+                          ticket.status === "Rejected"
+                            ? "text-red-600"
+                            : ticket.status === "Approved"
+                            ? "text-green-600"
+                            : "text-gray-700"
+                        }`}
                       >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleAction(ticket.id, "reject")}
-                        className="px-2 py-1 text-white bg-red-600 rounded-full hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <span
-                      className={`text-sm ${
-                        ticket.status === "Rejected"
-                          ? "text-red-600"
-                          : ticket.status === "Approved"
-                          ? "text-green-600"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {ticket.status}
-                    </span>
-                  )}
+                        {ticket.status}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaInbox size={40} className="text-gray-400 mb-2" />
+                    <span className="text-md font-medium">No HR Tickets Found.</span>
+                  </div>
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={6} className="text-center py-8 text-gray-500">
-                <div className="flex flex-col items-center justify-center">
-                  <FaInbox size={40} className="text-gray-400 mb-2" />
-                  <span className="text-md font-medium">No HR Tickets Found.</span>
-                </div>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Pagination */}
-      <div className="flex justify-between items-center mt-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-4 md:space-y-0">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
@@ -207,7 +267,7 @@ const HRTicketManagement: React.FC = () => {
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to the first page when items per page changes
+              setCurrentPage(1);
             }}
           >
             {[5, 10, 20].map((option) => (

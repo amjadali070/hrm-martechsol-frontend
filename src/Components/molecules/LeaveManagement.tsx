@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaInbox } from "react-icons/fa";
+import { FaFilter, FaInbox, FaSearch } from "react-icons/fa";
 
 interface LeaveRequest {
   id: number;
@@ -157,28 +157,33 @@ const LeaveManagement: React.FC = () => {
     <div className="w-full p-4 bg-white rounded-lg">
       <h1 className="text-2xl font-bold mb-4">Leave Management</h1>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={filters.name}
-          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <select
-          value={filters.leaveType}
-          onChange={(e) => setFilters({ ...filters, leaveType: e.target.value })}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Leave Types</option>
-          <option value="Sick Leave">Sick Leave</option>
-          <option value="Casual Leave">Casual Leave</option>
-          <option value="Annual Leave">Annual Leave</option>
-        </select>
-      </div>
+      <div className="flex flex-wrap gap-4 mb-4 w-[50%]">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaSearch className="text-gray-400 mr-2" />
+          <input
+            type="text"
+            placeholder="Search by name"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
+        </div>
 
-      {/* Pending Leave Requests Table */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaFilter className="text-gray-400 mr-2" />
+          <select
+            value={filters.leaveType}
+            onChange={(e) => setFilters({ ...filters, leaveType: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Leave Types</option>
+            <option value="Sick Leave">Sick Leave</option>
+            <option value="Casual Leave">Casual Leave</option>
+            <option value="Annual Leave">Annual Leave</option>
+          </select>
+        </div>
+      </div> 
+
       <div className="overflow-x-auto mb-6">
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
         <thead className="bg-purple-900">

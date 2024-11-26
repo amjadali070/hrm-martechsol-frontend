@@ -75,7 +75,7 @@ const MainLayout: React.FC = () => {
     <div style={mainLayoutStyles}>
       <style>{customScrollbar}</style>
 
-      {userRole && <Sidebar role={userRole} />}
+      {userRole && <Sidebar role={userRole || 'HR'} />}
 
       <main style={mainContentStyles}>
         <Header />

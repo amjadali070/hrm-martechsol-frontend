@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
 import { useNavigate } from "react-router-dom";
-import { FaInbox } from "react-icons/fa";
+import { FaBriefcase, FaBuilding, FaInbox, FaSearch, FaUserTie } from "react-icons/fa";
 
 interface PayrollDetails {
   name: string;
@@ -165,45 +165,60 @@ const PayrollManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex mb-4 gap-4">
-        <input
-          type="text"
-          placeholder="Search by name"
-          value={filters.name}
-          onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <select
-          value={filters.jobType}
-          onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Job Types</option>
-          <option value="Full Time">Full Time</option>
-          <option value="Part Time">Part Time</option>
-          <option value="Contract">Contract</option>
-        </select>
-        <select
-          value={filters.department}
-          onChange={(e) => setFilters({ ...filters, department: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Departments</option>
-          <option value="Engineering">Engineering</option>
-          <option value="IT">IT</option>
-        </select>
-        <select
-          value={filters.jobTitle}
-          onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
-          className="px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Job Titles</option>
-          {uniqueJobTitles.map((title) => (
-            <option key={title} value={title}>
-              {title}
-            </option>
-          ))}
-        </select>
+      <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaSearch className="text-gray-400 mr-2" />
+          <input
+            type="text"
+            placeholder="Search by name"
+            value={filters.name}
+            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaBriefcase className="text-gray-400 mr-2" />
+          <select
+            value={filters.jobType}
+            onChange={(e) => setFilters({ ...filters, jobType: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Job Types</option>
+            <option value="Full Time">Full Time</option>
+            <option value="Part Time">Part Time</option>
+            <option value="Contract">Contract</option>
+          </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaBuilding className="text-gray-400 mr-2" />
+          <select
+            value={filters.department}
+            onChange={(e) => setFilters({ ...filters, department: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Departments</option>
+            <option value="Engineering">Engineering</option>
+            <option value="IT">IT</option>
+          </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+          <FaUserTie className="text-gray-400 mr-2" />
+          <select
+            value={filters.jobTitle}
+            onChange={(e) => setFilters({ ...filters, jobTitle: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Job Titles</option>
+            {uniqueJobTitles.map((title) => (
+              <option key={title} value={title}>
+                {title}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <table className="min-w-full border-collapse bg-white border border-gray-300 rounded-lg">

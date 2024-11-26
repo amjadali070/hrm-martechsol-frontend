@@ -7,9 +7,12 @@ import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
+import { useUser } from "./UserContext";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
+
+  const { user, loading } = useUser();
 
   const actions = [
     { label: "Apply for Leave", onClick: () => navigate("/forms/leave-application"), tooltip: "Apply for a new leave request" },
@@ -76,19 +79,15 @@ const DashboardLayout: React.FC = () => {
 
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
-      {/* Profile Card */}
       <ProfileCard name="Mirza Waqas Baig" title="Chief Executive Officer" imageSrc={profileImage} />
 
-      {/* Quick Actions */}
       <QuickActions actions={actions} />
 
-      {/* Announcements and Leave Overview */}
       <div className="flex flex-col md:flex-row gap-5">
         <Announcements announcements={announcementsData} onViewAll={handleViewAllAnnouncements} />
         <LeaveOverview />
       </div>
 
-      {/* Attendance Overview and Attendance Tickets */}
       <div className="flex flex-col md:flex-row gap-5">
         <AttendanceOverview attendanceRecords={attendanceRecords} onViewAll={handleViewAllAttendance} />
         <AttendanceTicketOverview attendanceTickets={attendanceTickets} onViewAll={handleViewAllAttendanceTickets} />

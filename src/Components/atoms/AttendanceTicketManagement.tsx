@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaInbox } from "react-icons/fa";
+import { FaCalendarAlt, FaFilter, FaInbox } from "react-icons/fa";
 
 interface AttendanceTicket {
   id: number;
@@ -37,7 +37,6 @@ const AttendanceTicketManagement: React.FC = () => {
       file: "appointment_document.pdf",
       status: "Approved",
     },
-    // Additional tickets...
   ]);
 
   const [filters, setFilters] = useState({
@@ -88,123 +87,159 @@ const AttendanceTicketManagement: React.FC = () => {
       </h2>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-4 mb-4">
-        <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
-          From:
-        </label>
-        <input
-          type="date"
-          value={filters.fromDate}
-          onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
-          placeholder="From"
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        />
-         <label htmlFor="fromDate" className="text-gray-700 font-medium mt-3">
-          To:
-        </label>
-        <input
-          type="date"
-          value={filters.toDate}
-          onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
-          placeholder="To"
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <select
-          value={filters.status}
-          onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="All">All Status</option>
-          <option value="Pending">Pending</option>
-          <option value="Approved">Approved</option>
-          <option value="Rejected">Rejected</option>
-        </select>
+      <div className="grid gap-4 mb-4 sm:grid-cols-1 md:grid-cols-3">
+        {/* From Date Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaCalendarAlt className="text-gray-400 mr-2" />
+          <input
+              type="text"
+              value={filters.fromDate ? new Date(filters.fromDate).toLocaleDateString() : "FROM"}
+              onFocus={(e) => {
+                e.target.type = "date";
+                e.target.showPicker();
+              }}
+              onBlur={(e) => {
+                if (!e.target.value) {
+                  e.target.type = "text";
+                  e.target.value = "FROM";
+                }
+              }}
+              onChange={(e) => {
+                setFilters({ ...filters, fromDate: e.target.value });
+                e.target.type = "text";
+                e.target.value = new Date(e.target.value).toLocaleDateString();
+              }}
+              className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            />
+        </div>
+
+        {/* To Date Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaCalendarAlt className="text-gray-400 mr-2" />
+          <input
+            type="text"
+            value={filters.toDate ? new Date(filters.toDate).toLocaleDateString() : "TO"}
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "TO";
+              }
+            }}
+            onChange={(e) => {
+              setFilters({ ...filters, toDate: e.target.value });
+              e.target.type = "text";
+              e.target.value = new Date(e.target.value).toLocaleDateString();
+            }}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
+        </div>
+
+        {/* Status Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaFilter className="text-gray-400 mr-2" />
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
       </div>
 
-      <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-        <thead className="bg-purple-900">
-          <tr>
-            {[
-              "S.No",
-              "Date",
-              "Time In",
-              "Time Out",
-              "Total Time",
-              "Work From Home",
-              "Comments",
-              "File",
-              "Action",
-            ].map((header) => (
-              <th key={header} className="px-3 py-2 text-left text-sm font-medium text-white">
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {currentTickets.length > 0 ? (
-            currentTickets.map((ticket, index) => (
-              <tr key={ticket.id} className="hover:bg-gray-100">
-                <td className="px-3 py-2 text-sm text-gray-800">
-                  {(currentPage - 1) * itemsPerPage + index + 1}
-                </td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.date}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.timeIn}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.timeOut}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.totalTime}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.workFromHome}</td>
-                <td className="px-3 py-2 text-sm text-gray-800">{ticket.comments}</td>
-                <td className="px-3 py-2 text-sm text-blue-600 underline cursor-pointer">
-                  <a href={`/${ticket.file}`} download>
-                    {ticket.file}
-                  </a>
-                </td>
-                <td className="px-3 py-2 text-sm text-center">
-                  {ticket.status === "Pending" ? (
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => handleAction(ticket.id, "approve")}
-                        className="px-2 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
+      {/* Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
+          <thead className="bg-purple-900">
+            <tr>
+              {[
+                "S.No",
+                "Date",
+                "Time In",
+                "Time Out",
+                "Total Time",
+                "Work From Home",
+                "Comments",
+                "File",
+                "Action",
+              ].map((header) => (
+                <th key={header} className="px-3 py-2 text-left text-sm font-medium text-white">
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {currentTickets.length > 0 ? (
+              currentTickets.map((ticket, index) => (
+                <tr key={ticket.id} className="hover:bg-gray-100">
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {(currentPage - 1) * itemsPerPage + index + 1}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.date}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.timeIn}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.timeOut}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.totalTime}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.workFromHome}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{ticket.comments}</td>
+                  <td className="px-3 py-2 text-sm text-blue-600 underline cursor-pointer">
+                    <a href={`/${ticket.file}`} download>
+                      {ticket.file}
+                    </a>
+                  </td>
+                  <td className="px-3 py-2 text-sm text-center">
+                    {ticket.status === "Pending" ? (
+                      <div className="flex space-x-2">
+                        <button
+                          onClick={() => handleAction(ticket.id, "approve")}
+                          className="px-2 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => handleAction(ticket.id, "reject")}
+                          className="px-2 py-1 text-white bg-red-600 rounded-full hover:bg-red-700"
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    ) : (
+                      <span
+                        className={`text-sm ${
+                          ticket.status === "Rejected"
+                            ? "text-red-600"
+                            : ticket.status === "Approved"
+                            ? "text-green-600"
+                            : "text-gray-700"
+                        }`}
                       >
-                        Approve
-                      </button>
-                      <button
-                        onClick={() => handleAction(ticket.id, "reject")}
-                        className="px-2 py-1 text-white bg-red-600 rounded-full hover:bg-red-700"
-                      >
-                        Reject
-                      </button>
-                    </div>
-                  ) : (
-                    <span
-                      className={`text-sm ${
-                        ticket.status === "Rejected"
-                          ? "text-red-600"
-                          : ticket.status === "Approved"
-                          ? "text-green-600"
-                          : "text-gray-700"
-                      }`}
-                    >
-                      {ticket.status}
-                    </span>
-                  )}
+                        {ticket.status}
+                      </span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={9} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaInbox size={40} className="text-gray-400 mb-2" />
+                    <span className="text-md font-medium">No Attendance Tickets Found.</span>
+                  </div>
                 </td>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={9} className="text-center py-8 text-gray-500">
-                <div className="flex flex-col items-center justify-center">
-                  <FaInbox size={40} className="text-gray-400 mb-2" />
-                  <span className="text-md font-medium">No Attendance Tickets Found.</span>
-                </div>
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      {/* Pagination */}
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>

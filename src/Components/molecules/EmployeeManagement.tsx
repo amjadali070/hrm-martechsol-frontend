@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
 import { FaInbox } from "react-icons/fa";
+import { useUser } from "../organisms/UserContext";
 
 interface Employee {
   id: number;
@@ -82,7 +83,7 @@ const EmployeeManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const navigate = useNavigate();
-
+  const { user, loading } = useUser();
   useEffect(() => {
     let updatedEmployees = employeeData;
 
@@ -196,6 +197,10 @@ const EmployeeManagement: React.FC = () => {
 
   const monthOptions = ["All", ...years.flatMap((year) => months.map((month, index) => `${year}-${index + 1}`))];
 
+  const handleEditClick = () => {
+    navigate(`/edit-profile/${user.id}`);
+  };
+
   return (
     <div className="w-full p-6 bg-white rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -306,7 +311,7 @@ const EmployeeManagement: React.FC = () => {
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.jobType}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.gender}</td>
                   <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
-                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600">
+                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"  onClick={handleEditClick}>
                       Edit
                     </button>
                   </td>

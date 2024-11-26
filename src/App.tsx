@@ -99,6 +99,7 @@ const App: React.FC = () => {
                 <Route path="/organization/user-shift-management" element={<UserShiftManagement/>} />
                 <Route path="/letters/employee-letter" element={<EmployeeLetter/>} />
                 <Route path="//letters/experience-letter" element={<ExperienceLetter/>} />
+                <Route path="/edit-profile/:id" element={<EditProfilePage />} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>

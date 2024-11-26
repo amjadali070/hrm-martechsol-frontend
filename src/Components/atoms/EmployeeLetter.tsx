@@ -1,33 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { PDFViewer } from '@react-pdf/renderer';
 import { FaSpinner } from 'react-icons/fa'; // Loading spinner icon
-import EmploymentLetterPDF from '../../html/EmploymentLetterPDF';
+import EmploymentLetterPDF, { EmploymentCertificateProps } from '../../html/EmploymentLetterPDF';
 
 const EmployeeLetter: React.FC = () => {
-  const [formData, setFormData] = useState<{
-    date: string;
-    name: string;
-    position: string;
-    department: string;
-    startDate: string;
-    salary: string;
-  } | null>(null);
-
+  const [formData, setFormData] = useState<EmploymentCertificateProps['data'] | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating a backend call with dummy data
     setTimeout(() => {
       setFormData({
         date: new Date().toLocaleDateString('en-GB'),
-        name: 'John Doe',
-        position: 'Software Engineer',
-        department: 'Engineering',
-        startDate: '2024-12-01',
-        salary: '200,000 PKR',
+        employeeName: 'John Doe',
+        companyName: 'MartechSol',
+        jobTitle: 'Senior Software Engineer',
+        startDate: 'January 2022',
+        signatoryName: 'Jane Smith',
+        signatoryTitle: 'HR Manager'
       });
       setLoading(false);
-    }, 1000); // Simulate network delay
+    }, 1000);
   }, []);
 
   if (loading) {
@@ -41,59 +33,17 @@ const EmployeeLetter: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-100">
-      {/* Page Header */}
-      <header className="bg-gradient-to-r  text-black py-6 ">
-        <div className="container mx-auto px-6 text-center">
-          <h1 className="text-4xl font-bold">Employment Letter</h1>
-          {/* <p className="text-sm mt-2">Generate, preview, and download your employment letter seamlessly</p> */}
+      <header className="bg-gradient-to-r text-black py-6">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h1 className="text-2xl md:text-3xl font-bold text-center mt-2 mb-3 text-black">Employment Letter</h1>
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {/* Employee Details Card
-        <section className="bg-white rounded-lg p-6 mb-8">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Employee Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Date:</strong> {formData?.date}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Name:</strong> {formData?.name}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Position:</strong> {formData?.position}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Department:</strong> {formData?.department}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Start Date:</strong> {formData?.startDate}
-              </p>
-            </div>
-            <div>
-              <p className="text-gray-700 text-sm">
-                <strong className="block text-black">Salary:</strong> {formData?.salary}
-              </p>
-            </div>
-          </div>
-        </section> */}
-
-        {/* PDF Preview Section */}
-        <section className="bg-white rounded-lg p-6">
-          {/* <h2 className="text-2xl font-semibold text-gray-800 text-center mb-6">Employment Letter Preview</h2> */}
+      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <section className="bg-white rounded-lg p-6 shadow-md">
           <div className="rounded-lg overflow-hidden">
             {formData ? (
-              <PDFViewer style={{ width: '100%', height: '600px' }}>
+              <PDFViewer style={{ width: '100%', height: '600px', maxWidth: '100%' }}>
                 <EmploymentLetterPDF data={formData} />
               </PDFViewer>
             ) : (

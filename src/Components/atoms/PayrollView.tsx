@@ -1,8 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
-import SalarySlip from '../../html/SalarySlip';
-import { useReactToPrint } from 'react-to-print';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import SalarySlipPDF from '../../html/SalarySlipPDF';
 
@@ -122,8 +118,6 @@ const PayrollView: React.FC = () => {
     setPayrollData(dummyData[selectedMonthYear] || null);
   }, [selectedMonthYear]);
 
-  const componentRef = useRef<HTMLDivElement>(null);
-
   if (!payrollData) return <div>Loading payroll data...</div>;
 
   const totalDeductions =
@@ -167,7 +161,7 @@ const PayrollView: React.FC = () => {
               textDecoration: 'none',
               padding: '10px 20px',
               color: '#fff',
-              backgroundColor: '#16a34a',
+              backgroundColor: '#581c87',
               borderRadius: '5px',
               display: 'inline-block',
             }}
@@ -385,9 +379,6 @@ const PayrollView: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
-      <div ref={componentRef} className="mb-4">
-        <SalarySlip data={data} />
       </div>
     </div>
   );
