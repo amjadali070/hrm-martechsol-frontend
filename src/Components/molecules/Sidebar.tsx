@@ -9,6 +9,7 @@ import {
   FaBars,
   FaTimes,
 } from "react-icons/fa";
+import { GiLetterBomb } from "react-icons/gi";
 import { PiNetworkFill } from "react-icons/pi";
 import { SiGoogleforms } from "react-icons/si";
 import { RiCashFill } from "react-icons/ri";
@@ -82,6 +83,15 @@ const menuItems: MenuItem[] = [
       { label: "Network Ticket", path: "/tickets/network" },
       { label: "HR Ticket", path: "/tickets/hr" },
       { label: "Admin Ticket", path: "/tickets/admin" },
+    ],
+  },
+  {
+    icon: GiLetterBomb,
+    label: "Letters",
+    path: "/letters",
+    subItems: [
+      {label: "Employee Letter", path: "/letters/employee-letter"},
+      {label: "Experience Letter", path: "/letters/experience-letter"},
     ],
   },
   { icon: IoDocumentText, label: "Policies", path: "/policies" },

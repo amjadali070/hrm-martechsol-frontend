@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaInbox } from "react-icons/fa";
+import { FaCalendarAlt, FaFilter, FaInbox, FaSearch } from "react-icons/fa";
 
 interface Holiday {
   id: number;
@@ -139,32 +139,48 @@ const HolidayManagement: React.FC = () => {
 
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Search by holiday name, description"
-          value={filters.search}
-          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <input
-          type="date"
-          value={filters.date}
-          onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-        />
-        <select
-          value={filters.month}
-          onChange={(e) => setFilters({ ...filters, month: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-        >
-          <option value="">Select Month</option>
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-            <option key={month} value={month}>
-              {new Date(2024, month - 1).toLocaleString("default", { month: "long" })}
-            </option>
-          ))}
-        </select>
+        {/* Search Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaSearch className="text-gray-400 mr-2" />
+          <input
+            type="text"
+            name="search"
+            placeholder="Search by holiday name, description"
+            value={filters.search}
+            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
+        </div>
+
+        {/* Date Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaCalendarAlt className="text-gray-400 mr-2" />
+          <input
+            type="date"
+            value={filters.date}
+            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          />
+        </div>
+
+        {/* Month Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaFilter className="text-gray-400 mr-2" />
+          <select
+            value={filters.month}
+            onChange={(e) => setFilters({ ...filters, month: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="">Select Month</option>
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+              <option key={month} value={month}>
+                {new Date(2024, month - 1).toLocaleString("default", { month: "long" })}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
+
 
       {/* Holiday List */}
       <div className="overflow-x-auto">

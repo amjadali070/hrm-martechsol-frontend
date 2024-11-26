@@ -1,6 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import SalarySlip from '../../html/SalarySlip';
+import { useReactToPrint } from 'react-to-print';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import SalarySlipPDF from '../../html/SalarySlipPDF';
 
 interface PayrollDetails {
   name: string;
@@ -31,9 +35,29 @@ interface PayrollDetails {
   };
 }
 
+const data = {
+  date: "07-Nov-2024",
+  name: "Urwah Iftikhar",
+  designation: "Assistant Vice President - Graphic Design",
+  jobType: "Full Time",
+  month: "October 2024",
+  from: "October 01, 2024",
+  to: "October 31, 2024",
+  basicSalary: "135,000 PKR",
+  medicalAllowance: "13,564 PKR",
+  mobileAllowance: "0 PKR",
+  fuelAllowance: "6,000 PKR",
+  grossSalary: "154,564 PKR",
+  tax: "9,245 PKR",
+  eobi: "370 PKR",
+  pfContribution: "6,239 PKR",
+  amountPayable: "138,710.00 PKR",
+};
+
 const PayrollView: React.FC = () => {
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>('October 2024');
   const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
+  
 
   const dummyData: { [key: string]: PayrollDetails } = {
     'October 2024': {
@@ -98,20 +122,7 @@ const PayrollView: React.FC = () => {
     setPayrollData(dummyData[selectedMonthYear] || null);
   }, [selectedMonthYear]);
 
-  const handleExportToPDF = () => {
-    const element = document.getElementById('payroll-view');
-    if (element) {
-      html2canvas(element, { scale: 2 }).then((canvas) => {
-        const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'mm', 'a4');
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`${selectedMonthYear}_Payroll.pdf`);
-      });
-    }
-  };
+  const componentRef = useRef<HTMLDivElement>(null);
 
   if (!payrollData) return <div>Loading payroll data...</div>;
 
@@ -148,12 +159,22 @@ const PayrollView: React.FC = () => {
               </option>
             ))}
           </select>
-          <button
-            onClick={handleExportToPDF}
-            className="px-4 py-2 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-purple-500"
+          <div>
+          <PDFDownloadLink
+            document={<SalarySlipPDF data={data} />}
+            fileName={`Salary_Slip_${data.name.replace(/\s+/g, '_')}.pdf`}
+            style={{
+              textDecoration: 'none',
+              padding: '10px 20px',
+              color: '#fff',
+              backgroundColor: '#16a34a',
+              borderRadius: '5px',
+              display: 'inline-block',
+            }}
           >
-            Export to PDF
-          </button>
+            Download PDF
+          </PDFDownloadLink>
+        </div>
         </div>
       </div>
 
@@ -365,7 +386,9 @@ const PayrollView: React.FC = () => {
           </table>
         </div>
       </div>
-
+      <div ref={componentRef} className="mb-4">
+        <SalarySlip data={data} />
+      </div>
     </div>
   );
 };

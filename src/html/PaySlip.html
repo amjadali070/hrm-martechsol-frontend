@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salary Slip</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .salary-slip {
+      width: 800px;
+      margin: 0 auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      position: relative;
+    }
+    .header {
+      text-align: center;
+      position: relative;
+      padding-bottom: 10px;
+    }
+    .header img {
+      max-width: 200px;
+    }
+    .header h1 {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 10px 0;
+    }
+    .header .date {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 14px;
+      color: #6c6c6c;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .section h2 {
+      background-color: #4b0082;
+      color: white;
+      padding: 8px 10px;
+      font-size: 16px;
+      margin: 0;
+      border-radius: 4px;
+    }
+    .section table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+    }
+    .section table td,
+    .section table th {
+      border: 1px solid #e0e0e0;
+      padding: 8px 10px;
+      font-size: 14px;
+    }
+    .section table th {
+      background-color: #4b0082;
+      color: white;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: #6c6c6c;
+    }
+    .footer .address {
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="salary-slip">
+    <div class="header">
+      <img src="logo.png" alt="Company Logo" />
+      <h1>Salary Slip</h1>
+      <p class="date">Date: <span id="date"></span></p>
+    </div>
+
+    <div class="section">
+      <h2>Personal Details</h2>
+      <table>
+        <tr>
+          <td>Name</td>
+          <td id="name"></td>
+        </tr>
+        <tr>
+          <td>Designation</td>
+          <td id="designation"></td>
+        </tr>
+        <tr>
+          <td>Job Type</td>
+          <td id="jobType"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Salary Period</h2>
+      <table>
+        <tr>
+          <td>Salary for the month of</td>
+          <td id="month"></td>
+        </tr>
+        <tr>
+          <td>From</td>
+          <td id="from"></td>
+        </tr>
+        <tr>
+          <td>To</td>
+          <td id="to"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Salary Details</h2>
+      <table>
+        <tr>
+          <td>Basic Salary</td>
+          <td id="basicSalary"></td>
+        </tr>
+        <tr>
+          <td>Medical Allowance</td>
+          <td id="medicalAllowance"></td>
+        </tr>
+        <tr>
+          <td>Mobile Allowance</td>
+          <td id="mobileAllowance"></td>
+        </tr>
+        <tr>
+          <td>Fuel Allowance</td>
+          <td id="fuelAllowance"></td>
+        </tr>
+        <tr>
+          <td>Gross Salary</td>
+          <td id="grossSalary"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Deductions</h2>
+      <table>
+        <tr>
+          <td>Tax</td>
+          <td id="tax"></td>
+        </tr>
+        <tr>
+          <td>EOBI</td>
+          <td id="eobi"></td>
+        </tr>
+        <tr>
+          <td>PF Contribution</td>
+          <td id="pfContribution"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="section">
+      <h2>Amount Payable</h2>
+      <table>
+        <tr>
+          <td>Total</td>
+          <td id="amountPayable"></td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p class="address">
+        Plot# 172/P, Najeeb Corner, 3rd Floor, Main Tariq Road, P.E.C.H.S Block 2,
+        Karachi
+      </p>
+      <p>+92 331 2269643 | contact@martechsol.com | www.martechsol.com</p>
+    </div>
+  </div>
+
+  <script>
+    const data = {
+      date: "07-Nov-2024",
+      name: "Urwah Iftikhar",
+      designation: "Assistant Vice President - Graphic Design",
+      jobType: "Full Time",
+      month: "October 2024",
+      from: "October 01, 2024",
+      to: "October 31, 2024",
+      basicSalary: "135000 PKR",
+      medicalAllowance: "13564 PKR",
+      mobileAllowance: "0 PKR",
+      fuelAllowance: "6000 PKR",
+      grossSalary: "154564 PKR",
+      tax: "9245 PKR",
+      eobi: "370 PKR",
+      pfContribution: "6239 PKR",
+      amountPayable: "138710.00 PKR",
+    };
+
+    // Populate the data dynamically
+    document.getElementById("date").textContent = data.date;
+    document.getElementById("name").textContent = data.name;
+    document.getElementById("designation").textContent = data.designation;
+    document.getElementById("jobType").textContent = data.jobType;
+    document.getElementById("month").textContent = data.month;
+    document.getElementById("from").textContent = data.from;
+    document.getElementById("to").textContent = data.to;
+    document.getElementById("basicSalary").textContent = data.basicSalary;
+    document.getElementById("medicalAllowance").textContent = data.medicalAllowance;
+    document.getElementById("mobileAllowance").textContent = data.mobileAllowance;
+    document.getElementById("fuelAllowance").textContent = data.fuelAllowance;
+    document.getElementById("grossSalary").textContent = data.grossSalary;
+    document.getElementById("tax").textContent = data.tax;
+    document.getElementById("eobi").textContent = data.eobi;
+    document.getElementById("pfContribution").textContent = data.pfContribution;
+    document.getElementById("amountPayable").textContent = data.amountPayable;
+  </script>
+</body>
+</html>

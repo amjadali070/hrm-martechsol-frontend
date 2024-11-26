@@ -36,6 +36,9 @@ import EditablePayrollPage from './Components/molecules/EditablePayrollPage';
 import LeaveManagement from './Components/molecules/LeaveManagement';
 import TicketManagement from './Components/molecules/TicketManagement';
 import HolidayManagement from './Components/molecules/HolidayManagement';
+import UserShiftManagement from './Components/molecules/UserShiftManagement';
+import EmployeeLetter from './Components/atoms/EmployeeLetter';
+import ExperienceLetter from './Components/atoms/ExperienceLetter';
 
 const App: React.FC = () => {
   return (
@@ -93,6 +96,9 @@ const App: React.FC = () => {
                 <Route path="/organization/leave-management" element={<LeaveManagement/>} />
                 <Route path="/organization/ticket-management" element={<TicketManagement/>} />
                 <Route path="/organization/holiday-management" element={<HolidayManagement/>} />
+                <Route path="/organization/user-shift-management" element={<UserShiftManagement/>} />
+                <Route path="/letters/employee-letter" element={<EmployeeLetter/>} />
+                <Route path="//letters/experience-letter" element={<ExperienceLetter/>} />
                 <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>
