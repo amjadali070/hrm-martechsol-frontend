@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import profile from '../../assets/waqas.png';
+import React, { useEffect, useState } from 'react';
+import profilePlaceHolder from '../../assets/placeholder.png';
 import BankAccountDetails from '../atoms/EditProfile/BankAccountDetails';
 import ContactDetails from '../atoms/EditProfile/ContactDetails';
 import Documents from '../atoms/EditProfile/Documents';
@@ -8,23 +8,43 @@ import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
 import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import Resume from '../atoms/EditProfile/Resume';
 import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
+import useUser from '../../hooks/useUser';
 
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState('Personal Details');
+  const { user } = useUser(); 
 
+  const [employee, setEmployee] = useState({
+    name: '',
+    department: '',
+    jobTitle: '',
+    jobCategory: '',
+    profilePicture: '',
+    shiftTimings: '',
+  });
+
+  useEffect(() => {
+    if (user) {
+      setEmployee({
+        name: user.name,
+        department: user.personalDetails?.department || 'N/A',
+        jobTitle: user.personalDetails?.jobTitle || 'N/A',
+        jobCategory: user.personalDetails?.jobType || 'N/A',
+        profilePicture: user.personalDetails?.profilePicture || profilePlaceHolder,
+        shiftTimings: user.personalDetails?.shiftTimings || 'N/A',
+      });
+    }
+  }, [user]);
+
+  const handleUpdatePersonalDetails = (updatedEmployee: typeof employee) => {
+    console.log('Updated Personal Details:', updatedEmployee);
+    setEmployee(updatedEmployee);
+  };
+  
   const handleProfilePictureChange = (file: File) => {
     console.log('New profile picture:', file);
   };
-
-  const [employee, setEmployee] = useState({
-    name: 'Mirza Waqas Baig',
-    department: 'Head of Company',
-    jobTitle: 'Assistant Vice President - Graphic Design & Development',
-    jobCategory: 'Full-time',
-    profilePicture: profile,
-    shiftTimings: '6:00 PM - 2:30 AM',
-  });
 
   const handleUpdateContactDetails = (details: {
     phoneNumber1: string;
@@ -82,11 +102,6 @@ const EditProfilePage: React.FC = () => {
     console.log('Updated Bank Account Details:', details);
   };
 
-  const handleUpdatePersonalDetails = (updatedEmployee: typeof employee) => {
-    console.log('Updated Personal Details:', updatedEmployee);
-    setEmployee(updatedEmployee);
-  };
-
   const renderContent = () => {
     switch (selectedMenu) {
       case 'Personal Details':
@@ -94,7 +109,7 @@ const EditProfilePage: React.FC = () => {
           <PersonalDetails
             employee={employee}
             onProfilePictureChange={handleProfilePictureChange}
-            isEditable={true}
+            isEditable={user?.role === 'HR' || user?.role === 'SuperAdmin'}
             onUpdate={handleUpdatePersonalDetails}
           />
         );
@@ -156,11 +171,7 @@ const EditProfilePage: React.FC = () => {
         />
         );
       case 'Update Password':
-        return (<UpdatePassword
-          onUpdate={(details) => {
-            console.log('Updated Password Details:', details);
-          }}
-        />);
+        return (<UpdatePassword/>);
       default:
         return <div className="p-6">Select a menu item to view details.</div>;
     }

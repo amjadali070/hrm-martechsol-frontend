@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import {useNavigate } from 'react-router';
 import axios from 'axios';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-import logIN from '../../assets/login-img.png';
+import logIN from '../../assets/martechsol-sign.jpg';
 import logo from '../../assets/logo.png';
 import { AuthContext } from '../organisms/AuthContext';
 
@@ -53,6 +53,11 @@ const SiginPage: React.FC = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    console.log("Navigating to Forgot Password Page");
+    navigate("/forgot-password");
+  };
+  
   return (
     <>
       <main className="flex h-screen bg-gray-50 overflow-hidden">
@@ -111,7 +116,7 @@ const SiginPage: React.FC = () => {
             <button
               type="button"
               className="self-start mt-2 text-sm font-medium text-blue-600 hover:underline"
-              onClick={() => navigate('/forgot-password')}
+              onClick={handleForgotPassword}
             >
               Forgot password?
             </button>
@@ -150,7 +155,7 @@ const SiginPage: React.FC = () => {
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
-          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-full" />
+          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
         </section>
       </main>
     </>

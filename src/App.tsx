@@ -39,6 +39,7 @@ import HolidayManagement from './Components/molecules/HolidayManagement';
 import UserShiftManagement from './Components/molecules/UserShiftManagement';
 import EmployeeLetter from './Components/atoms/EmployeeLetter';
 import ExperienceLetter from './Components/atoms/ExperienceLetter';
+import ForgotPasswordPage from './Components/molecules/ForgotPasswordPage';
 
 const App: React.FC = () => {
   return (
@@ -46,6 +47,9 @@ const App: React.FC = () => {
       <div className="font-sans">
         <BrowserRouter>
           <Routes>
+
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          
             <Route path="/" element={<SiginPage />} />
             <Route path="/login" element={<SiginPage />} />
             <Route path="/register" element={<RegisterUser />} />

@@ -1,15 +1,17 @@
 import React from "react";
 import { useNavigate } from "react-router";
-import profileImage from "../../assets/waqas.png";
+import profilePlaceHolder from "../../assets/placeholder.png";
 import Announcements from "../atoms/Announcements";
 import AttendanceOverview from "../atoms/AttendanceOverview";
 import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
+import useUser from "../../hooks/useUser";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
+  const { user } = useUser(); 
 
   const actions = [
     { label: "Apply for Leave", onClick: () => navigate("/forms/leave-application"), tooltip: "Apply for a new leave request" },
@@ -77,10 +79,10 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
       <ProfileCard 
-          name="Mirza Waqas Baig" 
-          title="Chief Executive Officer" 
-          imageSrc={profileImage}
-          userShift="6:00 PM - 2:30 AM" />
+          name={user?.name || "N/A"} 
+          jobTitle={user?.personalDetails?.jobTitle || "N/A"} 
+          imageSrc={user?.personalDetails?.profilePicture || profilePlaceHolder}
+          userShift={user?.personalDetails?.shiftTimings || "N/A"}/>
 
       <QuickActions actions={actions} />
 
