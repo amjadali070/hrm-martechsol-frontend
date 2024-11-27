@@ -70,9 +70,6 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
-
-  console.log("user.role",user.role);
-  console.log("user",user);
   return (
     <div style={mainLayoutStyles}>
       <style>{customScrollbar}</style>

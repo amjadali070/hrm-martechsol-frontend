@@ -57,7 +57,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({ name, title, imageSrc, userSh
       </div>
       <button
         onClick={handleEditProfile}
-        className="w-[18%] px-6 py-3 my-auto font-semibold text-black bg-white rounded-[30px] hover:bg-gray-100 transition-colors duration-300 max-md:w-3/4 max-md:px-4 max-md:py-2 mt-4 md:mt-11"
+        className="w-[18%] px-6 py-3 my-auto mr-5 font-semibold text-black bg-white rounded-[30px] hover:bg-gray-100 transition-colors duration-300 max-md:w-3/4 max-md:px-4 max-md:py-2 mt-4 md:mt-11"
       >
         Edit Profile
       </button>

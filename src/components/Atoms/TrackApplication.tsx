@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaFilter, FaSearch, FaCalendar } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 
 interface LeaveApplication {
@@ -323,59 +324,49 @@ const TrackApplication: React.FC = () => {
     <div className="w-full p-6 bg-white rounded-lg mb-1">
       <h2 className="text-3xl font-bold text-center mb-6 text-black">Track Leave Applications</h2>
 
-      <div className="flex flex-col md:flex-row justify-between mb-6 space-y-4 md:space-y-0">
-
-        <div className="flex items-center space-x-2">
-          <label htmlFor="filterStatus" className="text-gray-700 font-medium">
-            Filter by Status:
-          </label>
+      <div className="flex flex-wrap gap-4 mb-2">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaFilter className="text-gray-400 mr-2" />
           <select
-            id="filterStatus"
             value={filterStatus}
             onChange={(e) => {
               setFilterStatus(e.target.value);
               setCurrentPage(1);
             }}
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
-            <option value="All">All</option>
+            <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
             <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>
           </select>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <label htmlFor="searchTerm" className="text-gray-700 font-medium">
-            Search:
-          </label>
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
-            id="searchTerm"
+            placeholder="Search by Leave Type, Reason, or Officer"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
-            placeholder="Search by Leave Type"
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
           />
         </div>
 
-        <div className="flex items-center space-x-2">
-          <label htmlFor="selectedMonth" className="text-gray-700 font-medium">
-            Filter by Month:
-          </label>
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaCalendar className="text-gray-400 mr-2" />
           <select
-            id="selectedMonth"
             value={selectedMonth}
             onChange={(e) => {
               setSelectedMonth(e.target.value);
               setCurrentPage(1);
             }}
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
-            <option value="All">All</option>
+            <option value="All">All Months</option>
             <option value="1">January</option>
             <option value="2">February</option>
             <option value="3">March</option>
@@ -391,39 +382,57 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center space-x-2">
-          <label htmlFor="dateFrom" className="text-gray-700 font-medium">
-            From:
-          </label>
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaCalendar className="text-gray-400 mr-2" />
           <input
-            type="date"
-            id="dateFrom"
-            value={dateFrom}
+            type="text"
+            placeholder="FROM"
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "FROM";
+              }
+            }}
             onChange={(e) => {
               setDateFrom(e.target.value);
-              setCurrentPage(1);
+              e.target.type = "text";
+              e.target.value = new Date(e.target.value).toLocaleDateString();
             }}
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
           />
+        </div>
 
-          <label htmlFor="dateTo" className="text-gray-700 font-medium">
-            To:
-          </label>
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaCalendar className="text-gray-400 mr-2" />
           <input
-            type="date"
-            id="dateTo"
-            value={dateTo}
+            type="text"
+            placeholder="TO"
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "TO";
+              }
+            }}
             onChange={(e) => {
               setDateTo(e.target.value);
-              setCurrentPage(1);
+              e.target.type = "text";
+              e.target.value = new Date(e.target.value).toLocaleDateString();
             }}
-            className="p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
           />
         </div>
       </div>
 
       {loading && (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center mt-10">
           <svg
             className="animate-spin h-8 w-8 text-purple-600"
             xmlns="http://www.w3.org/2000/svg"
@@ -542,49 +551,49 @@ const TrackApplication: React.FC = () => {
                 </tbody>
               </table>
 
-              <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md p-0.5"
-            value={rowsPerPage}
-            onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
-            }`}
-            disabled={currentPage === 1}
-            onClick={handlePrevious}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-600'
-            }`}
-            disabled={currentPage === totalPages}
-            onClick={handleNext}
-          >
-            Next
-          </button>
-        </div>
-      </div>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex items-center">
+                <span className="text-sm text-gray-700 mr-2">Show:</span>
+                <select
+                  className="text-sm border border-gray-300 rounded-md p-0.5"
+                  value={rowsPerPage}
+                  onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+                >
+                  {[5, 10, 20].map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex items-center space-x-4">
+                <button
+                  className={`px-3 py-1 text-sm rounded-full ${
+                    currentPage === 1
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gray-200 text-black hover:bg-gray-300'
+                  }`}
+                  disabled={currentPage === 1}
+                  onClick={handlePrevious}
+                >
+                  Previous
+                </button>
+                <span className="text-sm text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  className={`px-3 py-1 text-sm rounded-full ${
+                    currentPage === totalPages
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-600'
+                  }`}
+                  disabled={currentPage === totalPages}
+                  onClick={handleNext}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
             </>
           ) : (
             <div className="text-center text-gray-500">No leave applications found.</div>

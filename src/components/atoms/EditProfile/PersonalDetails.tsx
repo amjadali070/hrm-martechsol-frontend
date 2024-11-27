@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { FaUserEdit } from 'react-icons/fa';
+import React, { useRef, useState } from 'react';
+import { FaEdit, FaUserEdit } from 'react-icons/fa';
 
 interface PersonalDetailsProps {
   employee: {
@@ -8,16 +8,34 @@ interface PersonalDetailsProps {
     jobTitle: string;
     jobCategory: string;
     profilePicture: string;
-    shiftTimings: string; // Added shift timings
+    shiftTimings: string;
   };
   onProfilePictureChange: (file: File) => void;
+  isEditable: boolean;
+  onUpdate: (updatedEmployee: {
+    name: string;
+    department: string;
+    jobTitle: string;
+    jobCategory: string;
+    profilePicture: string;
+    shiftTimings: string;
+  }) => void;
 }
 
-const PersonalDetails: React.FC<PersonalDetailsProps> = ({ employee, onProfilePictureChange }) => {
+const PersonalDetails: React.FC<PersonalDetailsProps> = ({
+  employee,
+  onProfilePictureChange,
+  isEditable,
+  onUpdate,
+}) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedEmployee, setEditedEmployee] = useState(employee);
 
   const handleEditClick = () => {
-    fileInputRef.current?.click();
+    if (isEditable) {
+      setIsEditing(true);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,21 +44,54 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ employee, onProfilePi
     }
   };
 
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target;
+    setEditedEmployee((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleUpdate = () => {
+    onUpdate(editedEmployee);
+    setIsEditing(false);
+  };
+
+  const handleCancel = () => {
+    setEditedEmployee(employee);
+    setIsEditing(false);
+  };
+
   return (
-    <div className="bg-white p-10 lg:p-12 rounded-xl flex flex-col items-center">
-      <div className="relative">
+    <div className="bg-white p-10 lg:p-12 rounded-xl flex flex-col items-center relative">
+      {isEditable && !isEditing && (
+        <button
+          onClick={handleEditClick}
+          className="absolute top-5 right-8 text-blue-600 hover:text-blue-500 transition-all"
+          aria-label="Edit Personal Details"
+        >
+          <FaEdit size={24} />
+        </button>
+      )}
+
+      <div className="relative border-[7px] border-blue-600 rounded-full">
         <img
           src={employee.profilePicture}
           alt="Profile"
-          className="w-40 h-40 lg:w-40 lg:h-40 rounded-full border-4 border-blue-600"
+          className="w-40 h-40 lg:w-40 lg:h-40 rounded-full border-[4px] border-white"
         />
-        <button
-          onClick={handleEditClick}
-          className="absolute bottom-0 right-0 bg-black text-white border-4 border-white rounded-full p-2 hover:bg-zinc-700 transition-all"
-          aria-label="Edit Profile Picture"
-        >
-          <FaUserEdit size={20} />
-        </button>
+          <button
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+            className="absolute bottom-0 right-0 bg-black text-white border-4 border-white rounded-full p-2 hover:bg-zinc-700 transition-all"
+            aria-label="Edit Profile Picture"
+          >
+            <FaUserEdit size={20} />
+          </button>
+       
         <input
           type="file"
           ref={fileInputRef}
@@ -51,34 +102,112 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({ employee, onProfilePi
       </div>
 
       <div className="mt-10 w-full max-w-3xl">
-  
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Employee Name</p>
-            <h2 className="text-xl lg:text-xl font-semibold text-gray-800">{employee.name}</h2>
+            {isEditing ? (
+              <input
+                type="text"
+                name="name"
+                value={editedEmployee.name}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              />
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.name}
+              </h2>
+            )}
           </div>
+
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
-            <h2 className="text-xl lg:text-xl font-semibold text-gray-800">{employee.department}</h2>
+            {isEditing ? (
+              <input
+                type="text"
+                name="department"
+                value={editedEmployee.department}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              />
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.department}
+              </h2>
+            )}
           </div>
         </div>
 
         <div className="bg-gray-50 p-3 rounded-lg text-center mb-6 mt-6 w-full border border-gray-200">
           <p className="text-sm font-medium text-gray-500">Job Title</p>
-          <h2 className="text-xl lg:text-xl font-semibold text-gray-800">{employee.jobTitle}</h2>
+          {isEditing ? (
+            <input
+              type="text"
+              name="jobTitle"
+              value={editedEmployee.jobTitle}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+            />
+          ) : (
+            <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              {employee.jobTitle}
+            </h2>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Category</p>
-            <h2 className="text-xl lg:text-xl font-semibold text-gray-800">{employee.jobCategory}</h2>
+            {isEditing ? (
+              <input
+                type="text"
+                name="jobCategory"
+                value={editedEmployee.jobCategory}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              />
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.jobCategory}
+              </h2>
+            )}
           </div>
+
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
-            <h2 className="text-xl lg:text-xl font-semibold text-gray-800">{employee.shiftTimings}</h2>
+            {isEditing ? (
+              <input
+                type="text"
+                name="shiftTimings"
+                value={editedEmployee.shiftTimings}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              />
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.shiftTimings}
+              </h2>
+            )}
           </div>
         </div>
       </div>
+
+      {isEditing && (
+        <div className="mt-6 flex space-x-4">
+          <button
+            onClick={handleUpdate}
+            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-500 transition-colors"
+          >
+            Update
+          </button>
+          <button
+            onClick={handleCancel}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-400 transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
     </div>
   );
 };

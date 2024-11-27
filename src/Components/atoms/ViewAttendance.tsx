@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaCalendarAlt, FaFilter } from 'react-icons/fa';
 
 interface Attendance {
   id: string;
@@ -145,45 +146,69 @@ const ViewAttendance: React.FC = () => {
       </div>
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-black">View Attendance</h2>
 
-      <div className="flex flex-wrap justify-between items-center mb-6 space-y-4 sm:space-y-0">
-        <div className="flex flex-wrap gap-4 items-center">
-          <div className="flex items-center space-x-2">
-            <label htmlFor="fromDate" className="text-gray-700 font-medium">
-              From:
-            </label>
-            <input
-              type="date"
-              id="fromDate"
-              value={fromDate}
-              onChange={(e) => setFromDate(e.target.value)}
-              className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
-          <div className="flex items-center space-x-2">
-            <label htmlFor="toDate" className="text-gray-700 font-medium">
-              To:
-            </label>
-            <input
-              type="date"
-              id="toDate"
-              value={toDate}
-              onChange={(e) => setToDate(e.target.value)}
-              className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-            />
-          </div>
+      <div className="grid gap-4 mb-3 sm:grid-cols-1 md:grid-cols-3">
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaCalendarAlt className="text-gray-400 mr-3" />
+          <input
+            type="text"
+            value={fromDate ? new Date(fromDate).toLocaleDateString() : "FROM"}
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "FROM";
+              }
+            }}
+            onChange={(e) => {
+              setFromDate(e.target.value);
+              if (e.target.value) {
+                e.target.type = "text";
+                e.target.value = new Date(e.target.value).toLocaleDateString();
+              }
+            }}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
         </div>
 
-        <div className="flex items-center space-x-4">
-          <label htmlFor="statusFilter" className="text-gray-700 font-medium">
-            Status:
-          </label>
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaCalendarAlt className="text-gray-400 mr-3" />
+          <input
+            type="text"
+            value={toDate ? new Date(toDate).toLocaleDateString() : "TO"}
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "TO";
+              }
+            }}
+            onChange={(e) => {
+              setToDate(e.target.value);
+              if (e.target.value) {
+                e.target.type = "text";
+                e.target.value = new Date(e.target.value).toLocaleDateString();
+              }
+            }}
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+          />
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+          <FaFilter className="text-gray-400 mr-3" />
           <select
             id="statusFilter"
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="w-full sm:w-auto p-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
-            <option value="All">All</option>
+            <option value="All">All Status</option>
             {Object.keys(statusColors).map((status) => (
               <option key={status} value={status}>
                 {status}
@@ -191,13 +216,24 @@ const ViewAttendance: React.FC = () => {
             ))}
           </select>
         </div>
+        
       </div>
 
-      {/* Attendance Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+        <colgroup>
+            <col style={{ width: '3%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '15%' }} />
+          </colgroup>
           <thead>
             <tr>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                S.No
+              </th>
               <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
                 Date
               </th>
@@ -216,32 +252,47 @@ const ViewAttendance: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {currentData.map((record) => (
-              <tr key={record.id} className="hover:bg-gray-50">
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                  {record.date}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                  {record.timeIn}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                  {record.timeOut}
-                </td>
-                <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                  {record.totalTime}
-                </td>
-                <td className="py-2 px-1 border border-gray-200 text-center">
-                  <span
-                    className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                      statusColors[record.status] || 'bg-gray-400 text-gray-800'
-                    }`}
-                  >
-                    {record.status}
-                  </span>
+            {currentData.length > 0 ? (
+              currentData.map((record, index) => (
+                <tr key={record.id} className="hover:bg-gray-50">
+                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    {indexOfFirstItem + index + 1}
+                  </td>
+                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    {record.date}
+                  </td>
+                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    {record.timeIn}
+                  </td>
+                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    {record.timeOut}
+                  </td>
+                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    {record.totalTime}
+                  </td>
+                  <td className="py-2 px-1 border border-gray-200 text-center">
+                    <span
+                      className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
+                        statusColors[record.status] || 'bg-gray-400 text-gray-800'
+                      }`}
+                    >
+                      {record.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
+                  colSpan={6}
+                >
+                  No records found.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
+
         </table>
       </div>
       <div className="flex justify-between items-center mt-4">

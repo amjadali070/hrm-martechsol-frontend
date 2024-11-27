@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
-import { FaInbox } from "react-icons/fa";
+import { FaBriefcase, FaCalendarAlt, FaInbox, FaSearch, FaUsers, FaUserTag } from "react-icons/fa";
 import { useUser } from "../organisms/UserContext";
 
 interface Employee {
@@ -215,19 +215,24 @@ const EmployeeManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-center items-center mb-6 gap-5">
-        <div className="flex gap-5">
+      <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
           />
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaUsers className="text-gray-400 mr-2" />
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Departments</option>
             <option value="HR">HR</option>
@@ -235,10 +240,14 @@ const EmployeeManagement: React.FC = () => {
             <option value="Sales">Sales</option>
             <option value="Marketing">Marketing</option>
           </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaBriefcase className="text-gray-400 mr-2" />
           <select
             value={jobTypeFilter}
             onChange={(e) => setJobTypeFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Job Types</option>
             <option value="Full-Time">Full-Time</option>
@@ -247,10 +256,14 @@ const EmployeeManagement: React.FC = () => {
             <option value="Contract">Contract</option>
             <option value="Internship">Internship</option>
           </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaUserTag className="text-gray-400 mr-2" />
           <select
             value={jobTitleFilter}
             onChange={(e) => setJobTitleFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Job Titles</option>
             {Array.from(new Set(employeeData.map((employee) => employee.jobTitle))).map((title) => (
@@ -259,20 +272,28 @@ const EmployeeManagement: React.FC = () => {
               </option>
             ))}
           </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaUsers className="text-gray-400 mr-2" />
           <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Genders</option>
             <option value="Male">Male</option>
             <option value="Female">Female</option>
             <option value="Other">Other</option>
           </select>
+        </div>
+
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+          <FaCalendarAlt className="text-gray-400 mr-2" />
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             {monthOptions.map((option) => (
               <option key={option} value={option}>

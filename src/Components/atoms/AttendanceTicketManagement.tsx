@@ -154,9 +154,19 @@ const AttendanceTicketManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
+        <colgroup>
+            <col style={{ width: '3%' }} />
+            <col style={{ width: '11%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '10%' }} />
+            <col style={{ width: '25%' }} />
+            <col style={{ width: '15%' }} />
+            <col style={{ width: '10%' }} />
+          </colgroup>
           <thead className="bg-purple-900">
             <tr>
               {[
@@ -180,7 +190,7 @@ const AttendanceTicketManagement: React.FC = () => {
             {currentTickets.length > 0 ? (
               currentTickets.map((ticket, index) => (
                 <tr key={ticket.id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800">{ticket.date}</td>
@@ -248,7 +258,7 @@ const AttendanceTicketManagement: React.FC = () => {
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to the first page when items per page changes
+              setCurrentPage(1);
             }}
           >
             {[5, 10, 20].map((option) => (

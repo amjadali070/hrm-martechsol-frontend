@@ -37,7 +37,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
       {documents.map((doc, index) => (
         <div
           key={index}
-          className="flex flex-col sm:flex-row justify-between items-center bg-gray-100 p-4 mb-4 rounded-full border border-gray-300"
+          className="flex flex-col sm:flex-row justify-between items-center bg-gray-100 p-4 mb-4 rounded border border-gray-300"
         >
           <div className="flex items-center gap-4 mb-4 sm:mb-0">
             {doc.fileUrl ? (

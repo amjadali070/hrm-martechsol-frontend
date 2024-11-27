@@ -13,6 +13,7 @@ const AddNewEmployee: React.FC = () => {
     department: 'Engineering',
     jobTitle: '',
     jobCategory: 'Full-Time',
+    userRole: 'normal',  // New user role field
   });
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -32,9 +33,9 @@ const AddNewEmployee: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword, department, jobTitle, jobCategory } = formData;
+    const { name, email, password, confirmPassword, department, jobTitle, jobCategory, userRole } = formData;
 
-    if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobCategory) {
+    if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobCategory || !userRole) {
       setErrorMessage('Please fill in all required fields.');
       return;
     }
@@ -67,6 +68,7 @@ const AddNewEmployee: React.FC = () => {
         department,
         jobTitle,
         jobCategory,
+        userRole,  // Send userRole to backend
       }, config);
 
       toast.success('Employee added successfully!');
@@ -199,19 +201,32 @@ const AddNewEmployee: React.FC = () => {
           </select>
         </div>
 
-        {errorMessage && <p className="text-red-500">{errorMessage}</p>}
-
         <div>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className={`w-full py-3 text-white font-semibold rounded-lg focus:outline-none ${
-              isSubmitting ? 'bg-blue-600 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-500'
-            }`}
+          <label htmlFor="userRole" className="block text-gray-600 font-medium mb-1">
+            User Role<span className="text-red-500">*</span>
+          </label>
+          <select
+            id="userRole"
+            name="userRole"
+            value={formData.userRole}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
           >
-            {isSubmitting ? 'Adding...' : 'Add Employee'}
-          </button>
+            <option value="normal">Normal</option>
+            <option value="HR">HR</option>
+            <option value="manager">Manager</option>
+          </select>
         </div>
+
+        {errorMessage && <div className="text-red-500 text-center">{errorMessage}</div>}
+
+        <button
+          type="submit"
+          className="w-full bg-blue-600 text-white py-2 rounded-lg disabled:bg-gray-400"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Adding...' : 'Add Employee'}
+        </button>
       </form>
     </div>
   );

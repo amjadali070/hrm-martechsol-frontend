@@ -161,7 +161,7 @@ const PayrollView: React.FC = () => {
               textDecoration: 'none',
               padding: '10px 20px',
               color: '#fff',
-              backgroundColor: '#16a34a',
+              backgroundColor: '#1b45d5',
               borderRadius: '5px',
               display: 'inline-block',
             }}
@@ -305,7 +305,7 @@ const PayrollView: React.FC = () => {
         <thead>
           <tr>
             <th className={`${thClass} w-1/2`}>Amount Payable</th>
-            <th className={`${tdClass} w-1/2 text-green-600`}>
+            <th className={`${tdClass} w-1/2 text-black`}>
               {amountPayable.toFixed(2)} PKR
             </th>
           </tr>

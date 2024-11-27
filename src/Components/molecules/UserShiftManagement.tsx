@@ -84,14 +84,14 @@ const UserShiftManagement: React.FC = () => {
   );
 
   return (
-    <div className="p-6 bg-gray-100">
+    <div className="p-6 bg-white rounded-lg">
       <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
         User Shift Management
       </h1>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -102,7 +102,7 @@ const UserShiftManagement: React.FC = () => {
             className="w-full border-none focus:outline-none"
           />
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="department"
@@ -118,7 +118,7 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="jobTitle"
@@ -134,7 +134,7 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="shift"

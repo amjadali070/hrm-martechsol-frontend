@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { FaFilter } from 'react-icons/fa';
 
 const AttendanceTicket: React.FC = () => {
   const [attendanceList, setAttendanceList] = useState([
@@ -124,22 +125,19 @@ const AttendanceTicket: React.FC = () => {
 
       <div className="flex justify-between items-center mb-3 mt-6">
         <h2 className="text-lg md:text-xl font-bold text-black">Ticket Status</h2>
-        <div className="flex items-center space-x-2">
-          <label htmlFor="status" className="text-sm font-medium text-gray-700">
-            Filter by Status:
-          </label>
+        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 ">
+          <FaFilter className="text-gray-400 mr-2" />
           <select
-            id="status"
-            value={filteredStatus}
-            onChange={(e) => {
-              setFilteredStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="p-1 border border-gray-300 rounded-md"
+           value={filteredStatus}
+           onChange={(e) => {
+             setFilteredStatus(e.target.value);
+             setCurrentPage(1);
+           }}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
-            <option value="All">All</option>
-            <option value="Approved">Approved</option>
+            <option value="All">All Statuses</option>
             <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>
           </select>
         </div>

@@ -8,23 +8,26 @@ import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
 import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import Resume from '../atoms/EditProfile/Resume';
 import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
+import { useUser } from '../organisms/UserContext';
+
 
 
 const EditProfilePage: React.FC = () => {
+  const { user, loading } = useUser();
   const [selectedMenu, setSelectedMenu] = useState('Personal Details');
 
   const handleProfilePictureChange = (file: File) => {
     console.log('New profile picture:', file);
   };
 
-  const employee = {
+  const [employee, setEmployee] = useState({
     name: 'Mirza Waqas Baig',
     department: 'Head of Company',
     jobTitle: 'Assistant Vice President - Graphic Design & Development',
     jobCategory: 'Full-time',
     profilePicture: profile,
     shiftTimings: '6:00 PM - 2:30 AM',
-  };
+  });
 
   const handleUpdateContactDetails = (details: {
     phoneNumber1: string;
@@ -82,6 +85,13 @@ const EditProfilePage: React.FC = () => {
     console.log('Updated Bank Account Details:', details);
   };
 
+  const handleUpdatePersonalDetails = (updatedEmployee: typeof employee) => {
+    console.log('Updated Personal Details:', updatedEmployee);
+    setEmployee(updatedEmployee);
+  };
+
+  console.log('User:', user.role);
+
   const renderContent = () => {
     switch (selectedMenu) {
       case 'Personal Details':
@@ -89,6 +99,8 @@ const EditProfilePage: React.FC = () => {
           <PersonalDetails
             employee={employee}
             onProfilePictureChange={handleProfilePictureChange}
+            isEditable={true}
+            onUpdate={handleUpdatePersonalDetails}
           />
         );
       case 'Contact Details':
