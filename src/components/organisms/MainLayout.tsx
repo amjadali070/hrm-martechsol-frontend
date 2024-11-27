@@ -1,11 +1,40 @@
-import React from "react";
-import { Outlet } from "react-router";
+import React, { useEffect, useState } from "react";
+import { Outlet, useNavigate } from "react-router";
+import axios from "axios";
 import Sidebar from "../molecules/Sidebar";
 import Header from "../atoms/Header";
-import { useUser } from "./UserContext";
+
+interface User {
+  _id: string;
+  name: string;
+  email: string;
+  role: string;
+}
 
 const MainLayout: React.FC = () => {
-  const { user, loading } = useUser();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const backendUrl = process.env.REACT_APP_BACKEND_URL;
+        const response = await axios.get(`${backendUrl}/api/users/profile`, { 
+          withCredentials: true 
+        });
+        setUser(response.data);
+        setLoading(false);
+      } catch (error) {
+        // If profile fetch fails, redirect to login
+        setUser(null);
+        setLoading(false);
+        navigate('/signin');
+      }
+    };
+
+    fetchUserProfile();
+  }, [navigate]);
 
   const mainLayoutStyles: React.CSSProperties = {
     display: "flex",
@@ -70,11 +99,12 @@ const MainLayout: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div style={mainLayoutStyles}>
       <style>{customScrollbar}</style>
 
-      {user && <Sidebar role={user.role || 'HR'} />}
+      {user && <Sidebar role={user.role} />}
 
       <main style={mainContentStyles}>
         <Header />

@@ -4,8 +4,7 @@ import axios from 'axios';
 import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
 import logIN from '../../assets/login-img.png';
 import logo from '../../assets/logo.png';
-import { AuthContext, User } from '../organisms/AuthContext';
-import RegisterUser from '../organisms/RegisterUser';
+import { AuthContext } from '../organisms/AuthContext';
 
 const SiginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -14,7 +13,7 @@ const SiginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+  const { fetchUserProfile, setUser } = useContext(AuthContext);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,9 +34,12 @@ const SiginPage: React.FC = () => {
       );
 
       if (response.status === 200) {
-        const profileResponse = await axios.get(`${backendUrl}/api/users/profile`, { withCredentials: true });
-        setUser(profileResponse.data as User);
-        navigate('/dashboard');
+        const userData = await fetchUserProfile();
+        if (userData) {
+          navigate('/dashboard');
+        } else {
+          setErrorMessage('Unable to fetch user profile');
+        }
       }
     } catch (error: any) {
       if (error.response && error.response.data.message) {
@@ -45,6 +47,7 @@ const SiginPage: React.FC = () => {
       } else {
         setErrorMessage('An unexpected error occurred');
       }
+      setUser(null);
     } finally {
       setIsLoading(false);
     }

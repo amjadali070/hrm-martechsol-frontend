@@ -8,12 +8,9 @@ import EmergencyContact from '../atoms/EditProfile/EmergencyContact';
 import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import Resume from '../atoms/EditProfile/Resume';
 import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
-import { useUser } from '../organisms/UserContext';
-
 
 
 const EditProfilePage: React.FC = () => {
-  const { user, loading } = useUser();
   const [selectedMenu, setSelectedMenu] = useState('Personal Details');
 
   const handleProfilePictureChange = (file: File) => {
@@ -89,8 +86,6 @@ const EditProfilePage: React.FC = () => {
     console.log('Updated Personal Details:', updatedEmployee);
     setEmployee(updatedEmployee);
   };
-
-  console.log('User:', user.role);
 
   const renderContent = () => {
     switch (selectedMenu) {

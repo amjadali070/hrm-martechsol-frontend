@@ -7,12 +7,9 @@ import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
-import { useUser } from "./UserContext";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
-
-  const { user, loading } = useUser();
 
   const actions = [
     { label: "Apply for Leave", onClick: () => navigate("/forms/leave-application"), tooltip: "Apply for a new leave request" },
