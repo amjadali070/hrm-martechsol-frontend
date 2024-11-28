@@ -123,7 +123,7 @@ const Header: React.FC = () => {
                     width: "100%",
                     maxWidth: "200px",
                     height: "7px",
-                    backgroundColor: "#581C87",
+                    backgroundColor: "#22C55E",
                     borderRadius: "9999px",
                     overflow: "hidden",
                   }}
@@ -135,7 +135,7 @@ const Header: React.FC = () => {
                       top: 0,
                       height: "100%",
                       width: `${((timer % 3600) / 3600) * 100}%`,
-                      background: "#581C87",
+                      background: "#22C55E",
                       transition: "width 0.5s ease-in-out",
                     }}
                   ></div>
@@ -143,7 +143,7 @@ const Header: React.FC = () => {
 
                 <div
                   style={{
-                    background: "#581C87",
+                    background: "#22C55E",
                     color: "white",
                     borderRadius: "9999px",
                     padding: "5px 16px",

@@ -9,11 +9,14 @@ import PersonalDetails from '../atoms/EditProfile/PersonalDetails';
 import Resume from '../atoms/EditProfile/Resume';
 import UpdatePassword from '../atoms/EditProfile/UpdatePassword';
 import useUser from '../../hooks/useUser';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState('Personal Details');
   const { user } = useUser(); 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [employee, setEmployee] = useState({
     name: '',
@@ -42,10 +45,31 @@ const EditProfilePage: React.FC = () => {
     setEmployee(updatedEmployee);
   };
   
-  const handleProfilePictureChange = (file: File) => {
-    console.log('New profile picture:', file);
+  const handleProfilePictureChange = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('profilePicture', file);
+  
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      };
+      const { data } = await axios.put(`${backendUrl}/api/users/profile-picture`, formData, config);
+      setEmployee(prev => ({
+        ...prev,
+        profilePicture: data.profilePicture
+      }));
+
+      toast.success('Profile picture updated successfully');
+    } catch (error) {
+      console.error('Error uploading profile picture:', error);
+      toast.error('Failed to update profile picture');
+    }
   };
 
+  
   const handleUpdateContactDetails = (details: {
     phoneNumber1: string;
     phoneNumber2?: string;

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
+import profilePlaceholder from "../assets/placeholder.png";
 
 interface PersonalDetails {
     profilePicture?: string;
@@ -78,32 +79,45 @@ interface PersonalDetails {
   }
 
   
-const useUser = () => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL;
-        const response = await axios.get(`${backendUrl}/api/users/profile`, {
-          withCredentials: true,
-        });
-
-        setUser(response.data); 
-        setLoading(false);
-      } catch (error) {
-        setUser(null);
-        setLoading(false);
-        navigate("/signin");
-      }
-    };
-
-    fetchUserProfile();
-  }, [navigate]);
-
-  return { user, loading };
-};
-
-export default useUser;
+  const useUser = () => {
+    const [user, setUser] = useState<User | null>(null);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
+  
+    useEffect(() => {
+      const fetchUserProfile = async () => {
+        try {
+          const backendUrl = process.env.REACT_APP_BACKEND_URL;
+          const response = await axios.get(`${backendUrl}/api/users/profile`, {
+            withCredentials: true,
+          });
+  
+          const profilePicturePath = response.data?.personalDetails?.profilePicture
+            ? `${backendUrl}/${response.data.personalDetails.profilePicture.replace(/\\/g, "/")}`
+            : profilePlaceholder;
+  
+          const userData = {
+            ...response.data,
+            personalDetails: {
+              ...response.data.personalDetails,
+              profilePicture: profilePicturePath,
+            },
+          };
+  
+          setUser(userData);
+          setLoading(false);
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+          setUser(null);
+          setLoading(false);
+          navigate("/signin");
+        }
+      };
+  
+      fetchUserProfile();
+    }, [navigate]);
+  
+    return { user, loading };
+  };
+  
+  export default useUser;
