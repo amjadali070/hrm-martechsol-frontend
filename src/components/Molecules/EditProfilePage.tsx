@@ -22,7 +22,7 @@ const EditProfilePage: React.FC = () => {
     name: '',
     department: '',
     jobTitle: '',
-    jobCategory: '',
+    jobType: '',
     profilePicture: '',
     shiftTimings: '',
   });
@@ -33,17 +33,49 @@ const EditProfilePage: React.FC = () => {
         name: user.name,
         department: user.personalDetails?.department || 'N/A',
         jobTitle: user.personalDetails?.jobTitle || 'N/A',
-        jobCategory: user.personalDetails?.jobType || 'N/A',
+        jobType: user.personalDetails?.jobType || 'N/A',
         profilePicture: user.personalDetails?.profilePicture || profilePlaceHolder,
         shiftTimings: user.personalDetails?.shiftTimings || 'N/A',
       });
     }
   }, [user]);
 
-  const handleUpdatePersonalDetails = (updatedEmployee: typeof employee) => {
-    console.log('Updated Personal Details:', updatedEmployee);
-    setEmployee(updatedEmployee);
+  const handleUpdatePersonalDetails = async (updatedEmployee: typeof employee) => {
+    try {
+      const { name, department, jobTitle, jobType, shiftTimings } = updatedEmployee;
+  
+      const updatedDetails = {
+        name,
+        department,
+        jobTitle,
+        jobType: jobType,
+        shiftTimings,
+      };
+  
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      };
+
+      const { data } = await axios.put(`${backendUrl}/api/users/personal-details`, updatedDetails, config);
+
+      setEmployee(prev => ({
+        ...prev,
+        name: data.name,
+        department: data.department,
+        jobTitle: data.jobTitle,
+        jobType: data.jobType,
+        shiftTimings: data.shiftTimings,
+      }));
+  
+      toast.success('Personal details updated successfully');
+    } catch (error) {
+      toast.error('Failed to update personal details');
+    }
   };
+  
   
   const handleProfilePictureChange = async (file: File) => {
     try {
@@ -64,13 +96,11 @@ const EditProfilePage: React.FC = () => {
 
       toast.success('Profile picture updated successfully');
     } catch (error) {
-      console.error('Error uploading profile picture:', error);
       toast.error('Failed to update profile picture');
     }
   };
-
   
-  const handleUpdateContactDetails = (details: {
+  const handleUpdateContactDetails = async (details: {
     phoneNumber1: string;
     phoneNumber2?: string;
     email: string;
@@ -79,51 +109,161 @@ const EditProfilePage: React.FC = () => {
     permanentCity: string;
     permanentAddress: string;
   }) => {
-    console.log('Updated Contact Details:', details);
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      };
+  
+      await axios.put(
+        `${backendUrl}/api/users/contact-details`, 
+        details, 
+        config
+      );
+
+      toast.success('Contact details updated successfully');
+    } catch (error) {
+      toast.error('Failed to update contact details');
+    }
   };
 
-  const handleUpdateEducation = (details: {
+  const handleUpdateEducation = async (details: {
     institute: string;
     degree: string;
     fieldOfStudy: string;
-    gpa: string;
+    GPA: string;
     yearOfCompletion: string;
   }) => {
-    console.log('Updated Education Details:', details);
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      };
+  
+      await axios.put(
+        `${backendUrl}/api/users/education`, 
+        details, 
+        config
+      );
+
+      toast.success('Education details updated successfully');
+    } catch (error) {
+      toast.error('Failed to update Education details');
+    }
   };
 
-  const handleUpdateEmergencyContacts = (contacts: {
-    name: string;
-    contactNumber: string;
-    relation: string;
-  }[]) => {
-    console.log('Updated Emergency Contacts:', contacts);
+  const handleUpdateEmergencyContacts= async (contacts: {
+    name1: string;
+    relation1: string;
+    contactNumber1: string;
+    name2: string;
+    relation2: string;
+    contactNumber2: string;
+  }) => {
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      };
+  
+      await axios.put(
+        `${backendUrl}/api/users/emergency-contacts`, 
+        contacts, 
+        config
+      );
+
+      toast.success('Emergency details updated successfully');
+    } catch (error) {
+      toast.error('Both Contacts are required');
+    }
   };
 
-  const handleResumeUpdate = (file: File) => {
-    console.log('Updated Resume:', file);
+  const handleResumeUpdate = async (file: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('resume', file);
+  
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      };
+  
+       await axios.put(`${backendUrl}/api/users/resume`, formData, config);
+
+      toast.success('Resume updated successfully');
+    } catch (error) {
+      toast.error('Failed to update resume');
+    }
   };
 
-  const documents: { name: string; type: 'image' | 'pdf'; fileUrl: string | null }[] = [
-    { name: 'NIC', type: 'image', fileUrl: null },
-    { name: 'Experience Letter', type: 'pdf', fileUrl: 'https://example.com/experience.pdf' },
-    { name: 'Salary Slip', type: 'pdf', fileUrl: null },
-    { name: 'Academic Document', type: 'image', fileUrl: null },
-    { name: 'Non Disclosure Agreement (NDA)', type: 'pdf', fileUrl: 'https://example.com/nda.pdf' },
-  ];
 
-  const handleDocumentUpdate = (name: string, file: File) => {
-    console.log(`Updated Document: ${name}`, file);
-  };
-
-  const handleUpdate = (details: {
+  const handleUpdateBankDetails = async (contacts: {
     bankName: string;
     branchName: string;
     accountTitle: string;
     accountNumber: string;
     ibanNumber: string;
   }) => {
-    console.log('Updated Bank Account Details:', details);
+    try {
+      const config = {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      };
+  
+      await axios.put(
+        `${backendUrl}/api/users/bank-details`, 
+        contacts, 
+        config
+      );
+
+      toast.success('Emergency details updated successfully');
+    } catch (error) {
+      toast.error('Both Contacts are required');
+    }
+  };
+
+  const documents: { name: string; type: 'image' | 'pdf'; fileUrl: string | null }[] = [
+    { name: 'NIC', type: 'image', fileUrl: user?.documents?.NIC || null },
+    { name: 'Experience Letter', type: 'pdf', fileUrl: user?.documents?.experienceLetter || null },
+    { name: 'Salary Slip', type: 'pdf', fileUrl: user?.documents?.salarySlip || null },
+    { name: 'Academic Document', type: 'image', fileUrl: user?.documents?.academicDocuments || null },
+    { name: 'Non Disclosure Agreement (NDA)', type: 'pdf', fileUrl: user?.documents?.NDA || null },
+  ];
+
+  const handleDocumentUpdate = async (name: string, file: File) => {
+    try {
+      const formData = new FormData();
+
+      const backendFieldName = name === 'Non Disclosure Agreement (NDA)' 
+        ? 'Non Disclosure Agreement (NDA)' 
+        : name;
+      
+      formData.append(backendFieldName, file);
+  
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        withCredentials: true,
+      };
+  
+      await axios.put(`${backendUrl}/api/users/documents`, formData, config);
+      
+      toast.success('Document uploaded successfully');
+    } catch (error) {
+      toast.error('Failed to upload document');
+      console.error('Error uploading document:', error);
+    }
   };
 
   const renderContent = () => {
@@ -137,37 +277,41 @@ const EditProfilePage: React.FC = () => {
             onUpdate={handleUpdatePersonalDetails}
           />
         );
-      case 'Contact Details':
-        return (
-          <ContactDetails
-            phoneNumber1="099344434"
-            phoneNumber2=""
-            email="waqas@gmail.com"
-            currentCity="Karachi"
-            currentAddress="Defence View Phase 2"
-            permanentCity="Lahore"
-            permanentAddress="Gulberg"
-            onUpdate={handleUpdateContactDetails}
-          />
-        );
+        case 'Contact Details':
+          return (
+            <ContactDetails
+              phoneNumber1={user?.contactDetails?.phoneNumber1 || ''}
+              phoneNumber2={user?.contactDetails?.phoneNumber2 || ''}
+              email={user?.contactDetails?.email || user?.email || ''}
+              currentCity={user?.contactDetails?.currentCity || ''}
+              currentAddress={user?.contactDetails?.currentAddress || ''}
+              permanentCity={user?.contactDetails?.permanentCity || ''}
+              permanentAddress={user?.contactDetails?.permanentAddress || ''}
+              onUpdate={handleUpdateContactDetails}
+            />
+          );
         case 'Education':
           return (
             <Education
-              institute="Harvard University"
-              degree="Bachelor of Science"
-              fieldOfStudy="Computer Science"
-              gpa="3.8"
-              yearOfCompletion="2020"
+              institute={user?.education?.[0]?.institute || 'N/A'}
+              degree={user?.education?.[0]?.degree || 'N/A'}
+              fieldOfStudy={user?.education?.[0]?.fieldOfStudy || 'N/A'}
+              GPA={user?.education?.[0]?.GPA || 'N/A'}
+              yearOfCompletion={String(user?.education?.[0]?.yearOfCompletion) || 'N/A'}
               onUpdate={handleUpdateEducation}
             />
           );
       case 'Emergency Contact':
         return (
           <EmergencyContact
-            contacts={[
-              { name: 'Alice', contactNumber: '1234567890', relation: 'Spouse' },
-              { name: 'Bob', contactNumber: '0987654321', relation: 'Sibling' },
-            ]}
+            name1={user?.emergencyContacts?.[0]?.name1 || ''}
+            relation1={user?.emergencyContacts?.[0]?.relation1 || ''}
+            contactNumber1={user?.emergencyContacts?.[0]?.contactNumber1 || ''}
+
+            name2={user?.emergencyContacts?.[0]?.name2 || ''}
+            relation2={user?.emergencyContacts?.[0]?.relation2 || ''}
+            contactNumber2={user?.emergencyContacts?.[0]?.contactNumber2 || ''}
+          
             onUpdate={handleUpdateEmergencyContacts}
           />
         );
@@ -175,7 +319,7 @@ const EditProfilePage: React.FC = () => {
       case 'Resume':
         return (
           <Resume
-              resumeUrl="https://resources.workable.com/wp-content/uploads/2017/09/Employee-Handbook.pdf"
+              resumeUrl={user?.resume?.resume || null}
               onUpdate={handleResumeUpdate}
            />
         );
@@ -186,12 +330,12 @@ const EditProfilePage: React.FC = () => {
       case 'Bank Account Details':
         return (
           <BankAccountDetails
-            bankName="HBL Bank"
-            branchName="Main Branch"
-            accountTitle="John Doe"
-            accountNumber="1234567890"
-            ibanNumber="PK12HBL1234567890"
-            onUpdate={handleUpdate}
+            bankName={user?.bankAccountDetails?.bankName || ''}
+            branchName={user?.bankAccountDetails?.branchName || ''}
+            accountTitle={user?.bankAccountDetails?.accountTitle || ''}
+            accountNumber={user?.bankAccountDetails?.accountNumber || ''}
+            ibanNumber={user?.bankAccountDetails?.IBANNumber || ''}
+            onUpdate={handleUpdateBankDetails}
         />
         );
       case 'Update Password':

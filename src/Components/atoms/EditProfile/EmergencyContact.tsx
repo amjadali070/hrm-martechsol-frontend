@@ -1,27 +1,49 @@
-import React, { useState } from 'react';
+import React, { useState} from 'react';
 import { FaEdit } from 'react-icons/fa';
-
 interface EmergencyContactProps {
-  contacts: {
-    name: string;
-    contactNumber: string;
-    relation: string;
-  }[];
-  onUpdate: (updatedContacts: { name: string; contactNumber: string; relation: string }[]) => void;
+    name1: string;
+    relation1: string;
+    contactNumber1: string;
+    name2: string;
+    relation2: string;
+    contactNumber2: string;
+  
+  onUpdate: (updatedContacts: {
+    name1: string;
+    relation1: string;
+    contactNumber1: string;
+    name2: string;
+    relation2: string;
+    contactNumber2: string;
+  }) => void;
 }
 
-const EmergencyContact: React.FC<EmergencyContactProps> = ({ contacts, onUpdate }) => {
-  const [formData, setFormData] = useState(contacts);
+const EmergencyContact: React.FC<EmergencyContactProps> = ({
+  name1,
+  relation1,
+  contactNumber1,
+  name2,
+  relation2,
+  contactNumber2, 
+  onUpdate }) => {
+  const [formData, setFormData] = useState({
+    name1,
+    relation1,
+    contactNumber1,
+    name2,
+    relation2,
+    contactNumber2, 
+  });
   const [isEditing, setIsEditing] = useState(false);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    index: number,
-    field: keyof typeof contacts[0]
+    field: keyof typeof formData
   ) => {
-    const updatedContacts = [...formData];
-    updatedContacts[index][field] = e.target.value;
-    setFormData(updatedContacts);
+    setFormData({
+      ...formData,
+      [field]: e.target.value,
+    });
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -39,56 +61,94 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({ contacts, onUpdate 
       <button
         onClick={toggleEdit}
         className="absolute top-10 right-10 text-blue-600 hover:text-blue-500 transition-all"
-        aria-label="Edit Bank Account Details"
+        aria-label="Edit Emergency Contacts"
       >
         <FaEdit size={24} />
       </button>
 
       <form onSubmit={handleSubmit}>
-        {formData.map((contact, index) => (
-          <div key={index} className="mb-6 mt-10">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Name</label>
-                <input
-                  type="text"
-                  value={contact.name}
-                  onChange={(e) => handleChange(e, index, 'name')}
-                  disabled={!isEditing}
-                  className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                    !isEditing ? 'cursor-not-allowed' : ''
-                  }`}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Contact Number
-                </label>
-                <input
-                  type="text"
-                  value={contact.contactNumber}
-                  onChange={(e) => handleChange(e, index, 'contactNumber')}
-                  disabled={!isEditing}
-                  className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                    !isEditing ? 'cursor-not-allowed' : ''
-                  }`}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Relation</label>
-                <input
-                  type="text"
-                  value={contact.relation}
-                  onChange={(e) => handleChange(e, index, 'relation')}
-                  disabled={!isEditing}
-                  className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                    !isEditing ? 'cursor-not-allowed' : ''
-                  }`}
-                />
-              </div>
+        <div className="mb-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Name 1</label>
+              <input
+                type="text"
+                value={formData.name1}
+                onChange={(e) => handleChange(e, 'name1')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number 1</label>
+              <input
+                type="text"
+                value={formData.contactNumber1}
+                onChange={(e) => handleChange(e, 'contactNumber1')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Relation 1</label>
+              <input
+                type="text"
+                value={formData.relation1}
+                onChange={(e) => handleChange(e, 'relation1')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
             </div>
           </div>
-        ))}
+        </div>
+
+        <div className="mb-6 mt-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Name 2</label>
+              <input
+                type="text"
+                value={formData.name2}
+                onChange={(e) => handleChange(e, 'name2')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number 2</label>
+              <input
+                type="text"
+                value={formData.contactNumber2}
+                onChange={(e) => handleChange(e, 'contactNumber2')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Relation 2</label>
+              <input
+                type="text"
+                value={formData.relation2}
+                onChange={(e) => handleChange(e, 'relation2')}
+                disabled={!isEditing}
+                className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
+                  !isEditing ? 'cursor-not-allowed' : ''
+                }`}
+              />
+            </div>
+          </div>
+        </div>
+
         {isEditing && (
           <div className="flex justify-start">
             <button

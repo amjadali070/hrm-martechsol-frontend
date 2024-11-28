@@ -6,7 +6,7 @@ interface PersonalDetailsProps {
     name: string;
     department: string;
     jobTitle: string;
-    jobCategory: string;
+    jobType: string;
     profilePicture: string;
     shiftTimings: string;
   };
@@ -16,7 +16,7 @@ interface PersonalDetailsProps {
     name: string;
     department: string;
     jobTitle: string;
-    jobCategory: string;
+    jobType: string;
     profilePicture: string;
     shiftTimings: string;
   }) => void;
@@ -80,7 +80,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         <img
           src={employee.profilePicture}
           alt="Profile"
-          className="w-40 h-40 lg:w-40 lg:h-40 rounded-full border-[4px] border-white"
+          className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
           <button
             onClick={() => {
@@ -109,6 +109,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               <input
                 type="text"
                 name="name"
+                placeholder={employee.name || 'Employee Name'}
                 value={editedEmployee.name}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -126,6 +127,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               <input
                 type="text"
                 name="department"
+                placeholder={employee.department || 'Department'}
                 value={editedEmployee.department}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -144,6 +146,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             <input
               type="text"
               name="jobTitle"
+              placeholder={employee.jobTitle || 'Job Title'}
               value={editedEmployee.jobTitle}
               onChange={handleInputChange}
               className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
@@ -157,20 +160,27 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Job Category</p>
-            {isEditing ? (
-              <input
-                type="text"
-                name="jobCategory"
-                value={editedEmployee.jobCategory}
-                onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-              />
-            ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
-                {employee.jobCategory}
-              </h2>
-            )}
+          <p className="text-sm font-medium text-gray-500">Job Type</p>
+          {isEditing ? (
+            <select
+              name="jobType"
+              defaultValue={employee.jobType || 'Select Job Type'} 
+              value={editedEmployee.jobType}
+              onChange={handleInputChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+            >
+              <option value="">Select Job Type</option>
+              <option value="Full-Time">Full-Time</option>
+              <option value="Part-Time">Part-Time</option>
+              <option value="Remote">Remote</option>
+              <option value="Contract">Contract</option>
+              <option value="Internship">Internship</option>
+            </select>
+          ) : (
+            <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              {employee.jobType}
+            </h2>
+          )}
           </div>
 
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
@@ -180,6 +190,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
                 type="text"
                 name="shiftTimings"
                 value={editedEmployee.shiftTimings}
+                placeholder={employee.shiftTimings || 'Shift Timings'}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
               />

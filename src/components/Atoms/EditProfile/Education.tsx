@@ -5,13 +5,13 @@ interface EducationProps {
   institute: string;
   degree: string;
   fieldOfStudy: string;
-  gpa: string;
+  GPA: string;
   yearOfCompletion: string;
   onUpdate: (details: {
     institute: string;
     degree: string;
     fieldOfStudy: string;
-    gpa: string;
+    GPA: string;
     yearOfCompletion: string;
   }) => void;
 }
@@ -20,7 +20,7 @@ const Education: React.FC<EducationProps> = ({
   institute,
   degree,
   fieldOfStudy,
-  gpa,
+  GPA,
   yearOfCompletion,
   onUpdate,
 }) => {
@@ -28,7 +28,7 @@ const Education: React.FC<EducationProps> = ({
     institute,
     degree,
     fieldOfStudy,
-    gpa,
+    GPA,
     yearOfCompletion,
   });
 
@@ -130,16 +130,16 @@ const Education: React.FC<EducationProps> = ({
         {/* GPA */}
         <div className="mb-6">
           <label
-            htmlFor="gpa"
+            htmlFor="GPA"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             GPA
           </label>
           <input
             type="text"
-            id="gpa"
-            name="gpa"
-            value={formData.gpa}
+            id="GPA"
+            name="GPA"
+            value={formData.GPA}
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
