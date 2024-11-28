@@ -71,7 +71,7 @@ interface PersonalDetails {
     phoneNumber?: string;
     businessAddress?: string;
     paymentDetails?: PaymentDetails;
-    mainUser?: string | null;
+    // mainUser?: string | null;
     role: 'normal' | 'HR' | 'manager' | 'SuperAdmin';
     createdAt?: Date;
     updatedAt?: Date;
