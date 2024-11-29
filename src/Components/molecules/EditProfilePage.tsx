@@ -22,35 +22,41 @@ const EditProfilePage: React.FC = () => {
     name: '',
     department: '',
     jobTitle: '',
-    jobType: '',
     jobCategory: '',
+    jobType: '',
     profilePicture: '',
     shiftTimings: '',
-  });
+    gender: '',
+    dateOfBirth: '',
+  });  
 
   useEffect(() => {
     if (user) {
       setEmployee({
         name: user.name,
         department: user.personalDetails?.department || 'N/A',
-        jobCategory: user.personalDetails?.jobCategory|| 'N/A',
+        jobCategory: user.personalDetails?.jobCategory || 'N/A',
         jobTitle: user.personalDetails?.jobTitle || 'N/A',
         jobType: user.personalDetails?.jobType || 'N/A',
         profilePicture: user.personalDetails?.profilePicture || profilePlaceHolder,
         shiftTimings: user.personalDetails?.shiftTimings || 'N/A',
+        gender: user.personalDetails?.gender || 'N/A',
+        dateOfBirth: user.personalDetails?.dateOfBirth || 'N/A',
       });
     }
   }, [user]);
 
   const handleUpdatePersonalDetails = async (updatedEmployee: typeof employee) => {
     try {
-      const { 
-        name, 
-        department, 
-        jobTitle, 
-        jobCategory, 
-        jobType, 
-        shiftTimings 
+      const {
+        name,
+        department,
+        jobTitle,
+        jobCategory,
+        jobType,
+        shiftTimings,
+        gender,
+        dateOfBirth,
       } = updatedEmployee;
   
       const updatedDetails = {
@@ -60,6 +66,8 @@ const EditProfilePage: React.FC = () => {
         jobCategory,
         jobType,
         shiftTimings,
+        gender,
+        dateOfBirth,
       };
   
       const config = {
@@ -70,8 +78,8 @@ const EditProfilePage: React.FC = () => {
       };
   
       const { data } = await axios.put(
-        `${backendUrl}/api/users/personal-details`, 
-        updatedDetails, 
+        `${backendUrl}/api/users/personal-details`,
+        updatedDetails,
         config
       );
   
@@ -83,6 +91,8 @@ const EditProfilePage: React.FC = () => {
         jobCategory: data.jobCategory,
         jobType: data.jobType,
         shiftTimings: data.shiftTimings,
+        gender: data.gender,  // Update gender
+        dateOfBirth: data.dateOfBirth,
       }));
   
       toast.success('Personal details updated successfully');
@@ -91,6 +101,7 @@ const EditProfilePage: React.FC = () => {
       console.error('Update error:', error);
     }
   };
+  
   
   const handleProfilePictureChange = async (file: File) => {
     try {

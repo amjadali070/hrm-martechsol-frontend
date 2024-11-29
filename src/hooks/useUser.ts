@@ -12,6 +12,8 @@ interface PersonalDetails {
   abbreviatedJobTitle?: string;
   jobType: 'Full-Time' | 'Part-Time' | 'Remote' | 'Contract' | 'Internship';
   shiftTimings?: string;
+  gender: string;
+  dateOfBirth: string;
 }
 
 interface ContactDetails {

@@ -3,11 +3,11 @@ import { FaEdit, FaUserEdit } from 'react-icons/fa';
 
 const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   'Account Management': [
-    'Digital Marketing', 'Book Marketing', 'Software Application', 
+    'Digital Marketing', 'Book Marketing', 'Software Application',
     'Mobile Application'
   ],
   'Project Management': [
-    'Digital Marketing', 'Book Marketing', 'Software Application', 
+    'Digital Marketing', 'Book Marketing', 'Software Application',
     'Mobile Application'
   ],
   'Content Production': [
@@ -21,18 +21,18 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   ],
   'SEO': [],
   'Creative Media': [
-    'Infographic', '2D Animation', 'Illustrator', 
+    'Infographic', '2D Animation', 'Illustrator',
     '3D Animation', 'VoiceOver'
   ],
   'Web Development': [
     'CMS Development', 'Frontend Development', 'Backend Development'
   ],
   'Paid Advertising': [
-    'Digital Marketing', 'Book Marketing', 'Social Media Marketing', 
+    'Digital Marketing', 'Book Marketing', 'Social Media Marketing',
     'SMS Marketing'
   ],
   'Software Production': [
-    'Software Development', 'Game Development', 'Android Development', 
+    'Software Development', 'Game Development', 'Android Development',
     'iOS Development'
   ],
   'IT & Networking': [],
@@ -55,6 +55,8 @@ interface PersonalDetailsProps {
     jobType: string;
     profilePicture: string;
     shiftTimings: string;
+    gender: string;
+    dateOfBirth: string;
   };
   departments: string[];
   jobTitles: string[];
@@ -69,6 +71,8 @@ interface PersonalDetailsProps {
     jobType: string;
     profilePicture: string;
     shiftTimings: string;
+    gender: string;
+    dateOfBirth: string;
   }) => void;
 }
 
@@ -76,7 +80,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   employee,
   departments,
   jobTitles,
-  jobCategories,
+  // jobCategories,
   onProfilePictureChange,
   isEditable,
   onUpdate,
@@ -101,13 +105,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    
-    // If department is changed, reset job category
+
     if (name === 'department') {
       setEditedEmployee((prev) => ({
         ...prev,
         [name]: value,
-        jobCategory: '', // Reset job category when department changes
+        jobCategory: '',
       }));
     } else {
       setEditedEmployee((prev) => ({
@@ -127,10 +130,15 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     setIsEditing(false);
   };
 
-  // Get categories for the current department
   const getCurrentDepartmentCategories = () => {
     return DEPARTMENT_CATEGORIES[editedEmployee.department as keyof typeof DEPARTMENT_CATEGORIES] || [];
   };
+
+  const formattedDate = new Date(employee.dateOfBirth).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 
   return (
     <div className="bg-white p-10 lg:p-12 rounded-xl flex flex-col items-center relative">
@@ -150,7 +158,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           alt="Profile"
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
-          <button
+        <button
             onClick={() => {
               fileInputRef.current?.click();
             }}
@@ -170,6 +178,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       </div>
 
       <div className="mt-10 w-full max-w-3xl">
+        {/* Employee Name and Job Title in the same row */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Employee Name</p>
@@ -189,7 +198,6 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
 
-          {/* Job Title Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Title</p>
             {isEditing ? (
@@ -212,7 +220,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
+        </div>
 
+        {/* Other Fields in 3-column layout */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+          {/* Department Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
             {isEditing ? (
@@ -236,6 +248,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
 
+          {/* Job Category Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Category</p>
             {isEditing ? (
@@ -286,8 +299,52 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
+        </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {/* Shift Timings Field */}
+          
+
+          {/* Date of Birth Field */}
+          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+            <p className="text-sm font-medium text-gray-500">Date of Birth</p>
+            {isEditing ? (
+              <input
+                type="date"
+                name="dateOfBirth"
+                value={editedEmployee.dateOfBirth}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+              />
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {formattedDate}
+              </h2>
+            )}
+          </div>
+
+          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+            <p className="text-sm font-medium text-gray-500">Gender</p>
+            {isEditing ? (
+              <select
+                  name="gender"
+                  value={editedEmployee.gender}
+                  onChange={handleInputChange}
+                  className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+                >
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.gender}
+              </h2>
+            )}
+          </div>
+
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
             {isEditing ? (
@@ -306,24 +363,23 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
         </div>
+        {isEditing && (
+          <div className="mt-6 flex space-x-4">
+            <button
+              onClick={handleUpdate}
+              className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-500 transition-colors"
+            >
+              Update
+            </button>
+            <button
+              onClick={handleCancel}
+              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-400 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
-
-      {isEditing && (
-        <div className="mt-6 flex space-x-4">
-          <button
-            onClick={handleUpdate}
-            className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-500 transition-colors"
-          >
-            Update
-          </button>
-          <button
-            onClick={handleCancel}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-400 transition-colors"
-          >
-            Cancel
-          </button>
-        </div>
-      )}
     </div>
   );
 };
