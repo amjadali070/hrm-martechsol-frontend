@@ -5,9 +5,12 @@ import profilePlaceholder from "../assets/placeholder.png";
 
 interface PersonalDetails {
   profilePicture?: string;
-  jobTitle?: string;
-  department?: string;
-  jobType?: 'Full-Time' | 'Part-Time' | 'Remote' | 'Contract' | 'Internship';
+  department: string;
+  jobCategory?: string;
+  jobTitle: string;
+  fullJobTitle?: string;
+  abbreviatedJobTitle?: string;
+  jobType: 'Full-Time' | 'Part-Time' | 'Remote' | 'Contract' | 'Internship';
   shiftTimings?: string;
 }
 
@@ -114,7 +117,10 @@ const useUser = () => {
         const processPath = (path?: string) => 
           path ? `${backendUrl}/${path.replace(/\\/g, "/")}` : null;
 
-        const userData = {
+        const processDocumentPaths = (documents?: string[]) => 
+          documents?.map(processPath);
+
+        const userData: User = {
           ...response.data,
           personalDetails: {
             ...response.data.personalDetails,
@@ -129,9 +135,13 @@ const useUser = () => {
             salarySlip: processPath(response.data.documents?.salarySlip),
             academicDocuments: processPath(response.data.documents?.academicDocuments),
             NDA: processPath(response.data.documents?.NDA),
-            educationalDocuments: response.data.documents?.educationalDocuments?.map(processPath),
-            professionalDocuments: response.data.documents?.professionalDocuments?.map(processPath),
+            educationalDocuments: processDocumentPaths(response.data.documents?.educationalDocuments),
+            professionalDocuments: processDocumentPaths(response.data.documents?.professionalDocuments),
           },
+          education: response.data.education?.map((edu: Education) => ({
+            ...edu,
+            yearOfCompletion: edu.yearOfCompletion ? Number(edu.yearOfCompletion) : undefined
+          })),
         };
 
         setUser(userData);

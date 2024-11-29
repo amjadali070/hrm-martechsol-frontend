@@ -11,18 +11,18 @@ const AddNewEmployee: React.FC = () => {
     'Project Management': ['Digital Marketing', 'Book Marketing', 'Software Application', 'Mobile Application'],
     'Content Production': ['SEO Content', 'Technical Content'],
     'Book Marketing': ['Book Formatting & Publishing', 'Book Editing'],
-    'Graphic Design': ['Graphic Design', 'Web Design', 'UI/UX Design'],
-    'SEO Production': [],
-    'Promotional Media': ['Infographic', '2D Animation', 'Illustrator', '3D Animation', 'VoiceOver'],
+    'Design Production': ['Graphic Design', 'Web Design', 'UI/UX Design'],
+    'SEO': [],
+    'Creative Media': ['Infographic', '2D Animation', 'Illustrator', '3D Animation', 'VoiceOver'],
     'Web Development': ['CMS Development', 'Frontend Development', 'Backend Development'],
     'Paid Advertising': ['Digital Marketing', 'Book Marketing', 'Social Media Marketing', 'SMS Marketing'],
-    'Software': ['Software Development', 'Game Development', 'Android Development', 'iOS Development'],
+    'Software Production': ['Software Development', 'Game Development', 'Android Development', 'iOS Development'],
     'IT & Networking': [],
     'Human Resource': [],
     'Training & Development': [],
     'Admin': [],
     'Finance': [],
-    'Brand Management': ['Digital Marketing', 'Book Marketing'],
+    'Brand Development': ['Digital Marketing', 'Book Marketing'],
     'Corporate Communication': []
   };
 
@@ -45,7 +45,7 @@ const AddNewEmployee: React.FC = () => {
     password: '',
     confirmPassword: '',
     department: Object.keys(departments)[0],
-    category: departments[Object.keys(departments)[0]][0] || '',
+    jobCategory: departments[Object.keys(departments)[0]][0] || '',
     jobTitle: jobTitles[0],
     jobType: 'Full-Time',
     role: 'normal'
@@ -60,12 +60,12 @@ const AddNewEmployee: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target as { name: keyof typeof formData; value: string };
 
-    // Special handling for department to reset category
+    // Special handling for department to reset jobCategory
     if (name === 'department') {
       setFormData(prev => ({
         ...prev,
         [name]: value,
-        category: departments[value][0] || ''
+        jobCategory: departments[value][0] || ''
       }));
     } else {
       setFormData(prev => ({
@@ -78,15 +78,15 @@ const AddNewEmployee: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const { name, email, password, confirmPassword, department, category, jobTitle, jobType, role } = formData;
+    const { name, email, password, confirmPassword, department, jobCategory, jobTitle, jobType, role } = formData;
 
     if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobType || !role) {
       setErrorMessage('Please fill in all required fields.');
       return;
     }
 
-    if (departments[department].length > 0 && !category) {
-      setErrorMessage('Please select a category for this department.');
+    if (departments[department].length > 0 && !jobCategory) {
+      setErrorMessage('Please select a job category for this department.');
       return;
     }
 
@@ -119,7 +119,7 @@ const AddNewEmployee: React.FC = () => {
         jobTitle,
         jobType,
         role,
-        ...(departments[department].length > 0 && { category })
+        ...(departments[department].length > 0 && { jobCategory })
       };
 
       await axiosInstance.post(`${backendUrl}/api/users/register`, payload, config);
@@ -222,13 +222,13 @@ const AddNewEmployee: React.FC = () => {
 
         {departments[formData.department].length > 0 && (
           <div>
-            <label htmlFor="category" className="block text-gray-600 font-medium mb-1">
-              Category<span className="text-red-500">*</span>
+            <label htmlFor="jobCategory" className="block text-gray-600 font-medium mb-1">
+            Job Category<span className="text-red-500">*</span>
             </label>
             <select
-              id="category"
-              name="category"
-              value={formData.category}
+              id="jobCategory"
+              name="jobCategory"
+              value={formData.jobCategory}
               onChange={handleChange}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
             >

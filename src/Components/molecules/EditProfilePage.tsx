@@ -23,6 +23,7 @@ const EditProfilePage: React.FC = () => {
     department: '',
     jobTitle: '',
     jobType: '',
+    jobCategory: '',
     profilePicture: '',
     shiftTimings: '',
   });
@@ -32,6 +33,7 @@ const EditProfilePage: React.FC = () => {
       setEmployee({
         name: user.name,
         department: user.personalDetails?.department || 'N/A',
+        jobCategory: user.personalDetails?.jobCategory|| 'N/A',
         jobTitle: user.personalDetails?.jobTitle || 'N/A',
         jobType: user.personalDetails?.jobType || 'N/A',
         profilePicture: user.personalDetails?.profilePicture || profilePlaceHolder,
@@ -42,13 +44,21 @@ const EditProfilePage: React.FC = () => {
 
   const handleUpdatePersonalDetails = async (updatedEmployee: typeof employee) => {
     try {
-      const { name, department, jobTitle, jobType, shiftTimings } = updatedEmployee;
+      const { 
+        name, 
+        department, 
+        jobTitle, 
+        jobCategory, 
+        jobType, 
+        shiftTimings 
+      } = updatedEmployee;
   
       const updatedDetails = {
         name,
         department,
         jobTitle,
-        jobType: jobType,
+        jobCategory,
+        jobType,
         shiftTimings,
       };
   
@@ -58,14 +68,19 @@ const EditProfilePage: React.FC = () => {
         },
         withCredentials: true,
       };
-
-      const { data } = await axios.put(`${backendUrl}/api/users/personal-details`, updatedDetails, config);
-
+  
+      const { data } = await axios.put(
+        `${backendUrl}/api/users/personal-details`, 
+        updatedDetails, 
+        config
+      );
+  
       setEmployee(prev => ({
         ...prev,
         name: data.name,
         department: data.department,
         jobTitle: data.jobTitle,
+        jobCategory: data.jobCategory,
         jobType: data.jobType,
         shiftTimings: data.shiftTimings,
       }));
@@ -73,9 +88,9 @@ const EditProfilePage: React.FC = () => {
       toast.success('Personal details updated successfully');
     } catch (error) {
       toast.error('Failed to update personal details');
+      console.error('Update error:', error);
     }
   };
-  
   
   const handleProfilePictureChange = async (file: File) => {
     try {
@@ -270,8 +285,32 @@ const EditProfilePage: React.FC = () => {
     switch (selectedMenu) {
       case 'Personal Details':
         return (
-          <PersonalDetails
+          <PersonalDetails 
             employee={employee}
+            departments={[
+              'Account Management', 'Project Management', 'Content Production', 
+              'Book Marketing', 'Design Production', 'SEO', 'Creative Media', 
+              'Web Development', 'Paid Advertising', 'Software Production', 
+              'IT & Networking', 'Human Resource', 'Training & Development', 
+              'Admin', 'Finance', 'Brand Development', 'Corporate Communication'
+            ]}
+            jobTitles={[
+              'Executive', 'Senior Executive', 'Assistant Manager', 
+              'Associate Manager', 'Manager', 'Senior Manager', 
+              'Assistant Vice President', 'Associate Vice President', 
+              'Vice President', 'Senior Vice President'
+            ]}
+            jobCategories={[
+              'Digital Marketing', 'Book Marketing', 'Software Application', 
+              'Mobile Application', 'SEO Content', 'Technical Content', 
+              'Book Formatting & Publishing', 'Book Editing', 'Graphic Design', 
+              'Web Design', 'UI/UX Design', 'Infographic', '2D Animation', 
+              'Illustrator', '3D Animation', 'VoiceOver', 'CMS Development', 
+              'Frontend Development', 'Backend Development', 'Social Media Marketing', 
+              'SMS Marketing', 'Software Development', 'Game Development', 
+              'Android Development', 'iOS Development', 'Digital Marketing', 
+              'Social Media Marketing'
+            ]}
             onProfilePictureChange={handleProfilePictureChange}
             isEditable={user?.role === 'HR' || user?.role === 'SuperAdmin'}
             onUpdate={handleUpdatePersonalDetails}

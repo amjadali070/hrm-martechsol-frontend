@@ -1,21 +1,71 @@
 import React, { useRef, useState } from 'react';
 import { FaEdit, FaUserEdit } from 'react-icons/fa';
 
+const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
+  'Account Management': [
+    'Digital Marketing', 'Book Marketing', 'Software Application', 
+    'Mobile Application'
+  ],
+  'Project Management': [
+    'Digital Marketing', 'Book Marketing', 'Software Application', 
+    'Mobile Application'
+  ],
+  'Content Production': [
+    'SEO Content', 'Technical Content'
+  ],
+  'Book Marketing': [
+    'Book Formatting & Publishing', 'Book Editing'
+  ],
+  'Design Production': [
+    'Graphic Design', 'Web Design', 'UI/UX Design'
+  ],
+  'SEO': [],
+  'Creative Media': [
+    'Infographic', '2D Animation', 'Illustrator', 
+    '3D Animation', 'VoiceOver'
+  ],
+  'Web Development': [
+    'CMS Development', 'Frontend Development', 'Backend Development'
+  ],
+  'Paid Advertising': [
+    'Digital Marketing', 'Book Marketing', 'Social Media Marketing', 
+    'SMS Marketing'
+  ],
+  'Software Production': [
+    'Software Development', 'Game Development', 'Android Development', 
+    'iOS Development'
+  ],
+  'IT & Networking': [],
+  'Human Resource': [],
+  'Training & Development': [],
+  'Admin': [],
+  'Finance': [],
+  'Brand Development': [
+    'Digital Marketing', 'Book Marketing'
+  ],
+  'Corporate Communication': []
+};
+
 interface PersonalDetailsProps {
   employee: {
     name: string;
     department: string;
     jobTitle: string;
+    jobCategory: string;
     jobType: string;
     profilePicture: string;
     shiftTimings: string;
   };
+  departments: string[];
+  jobTitles: string[];
+  jobCategories: string[];
   onProfilePictureChange: (file: File) => void;
   isEditable: boolean;
   onUpdate: (updatedEmployee: {
     name: string;
     department: string;
     jobTitle: string;
+    jobCategory: string;
     jobType: string;
     profilePicture: string;
     shiftTimings: string;
@@ -24,6 +74,9 @@ interface PersonalDetailsProps {
 
 const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   employee,
+  departments,
+  jobTitles,
+  jobCategories,
   onProfilePictureChange,
   isEditable,
   onUpdate,
@@ -48,10 +101,20 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setEditedEmployee((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    // If department is changed, reset job category
+    if (name === 'department') {
+      setEditedEmployee((prev) => ({
+        ...prev,
+        [name]: value,
+        jobCategory: '', // Reset job category when department changes
+      }));
+    } else {
+      setEditedEmployee((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleUpdate = () => {
@@ -62,6 +125,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   const handleCancel = () => {
     setEditedEmployee(employee);
     setIsEditing(false);
+  };
+
+  // Get categories for the current department
+  const getCurrentDepartmentCategories = () => {
+    return DEPARTMENT_CATEGORIES[editedEmployee.department as keyof typeof DEPARTMENT_CATEGORIES] || [];
   };
 
   return (
@@ -102,7 +170,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       </div>
 
       <div className="mt-10 w-full max-w-3xl">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Employee Name</p>
             {isEditing ? (
@@ -121,68 +189,105 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
 
+          {/* Job Title Field */}
+          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+            <p className="text-sm font-medium text-gray-500">Job Title</p>
+            {isEditing ? (
+              <select
+                name="jobTitle"
+                value={editedEmployee.jobTitle}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              >
+                <option value="">Select Job Title</option>
+                {jobTitles.map((title) => (
+                  <option key={title} value={title}>
+                    {title}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.jobTitle}
+              </h2>
+            )}
+          </div>
+
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
             {isEditing ? (
-              <input
-                type="text"
+              <select
                 name="department"
-                placeholder={employee.department || 'Department'}
                 value={editedEmployee.department}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-              />
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              >
+                <option value="">Select Department</option>
+                {departments.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
             ) : (
               <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
                 {employee.department}
               </h2>
             )}
           </div>
-        </div>
 
-        <div className="bg-gray-50 p-3 rounded-lg text-center mb-6 mt-6 w-full border border-gray-200">
-          <p className="text-sm font-medium text-gray-500">Job Title</p>
-          {isEditing ? (
-            <input
-              type="text"
-              name="jobTitle"
-              placeholder={employee.jobTitle || 'Job Title'}
-              value={editedEmployee.jobTitle}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-            />
-          ) : (
-            <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
-              {employee.jobTitle}
-            </h2>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-6">
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-          <p className="text-sm font-medium text-gray-500">Job Type</p>
-          {isEditing ? (
-            <select
-              name="jobType"
-              defaultValue={employee.jobType || 'Select Job Type'} 
-              value={editedEmployee.jobType}
-              onChange={handleInputChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-            >
-              <option value="">Select Job Type</option>
-              <option value="Full-Time">Full-Time</option>
-              <option value="Part-Time">Part-Time</option>
-              <option value="Remote">Remote</option>
-              <option value="Contract">Contract</option>
-              <option value="Internship">Internship</option>
-            </select>
-          ) : (
-            <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
-              {employee.jobType}
-            </h2>
-          )}
+            <p className="text-sm font-medium text-gray-500">Job Category</p>
+            {isEditing ? (
+              <select
+                name="jobCategory"
+                value={editedEmployee.jobCategory}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              >
+                <option value="">Select Job Category</option>
+                {getCurrentDepartmentCategories().length > 0 ? (
+                  getCurrentDepartmentCategories().map((category: string) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))
+                ) : (
+                  <option value="">No Categories for this Department</option>
+                )}
+              </select>
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.jobCategory}
+              </h2>
+            )}
           </div>
 
+          {/* Job Type Field */}
+          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
+            <p className="text-sm font-medium text-gray-500">Job Type</p>
+            {isEditing ? (
+              <select
+                name="jobType"
+                value={editedEmployee.jobType}
+                onChange={handleInputChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              >
+                <option value="">Select Job Type</option>
+                <option value="Full-Time">Full-Time</option>
+                <option value="Part-Time">Part-Time</option>
+                <option value="Remote">Remote</option>
+                <option value="Contract">Contract</option>
+                <option value="Internship">Internship</option>
+              </select>
+            ) : (
+              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+                {employee.jobType}
+              </h2>
+            )}
+          </div>
+
+          {/* Shift Timings Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
             {isEditing ? (

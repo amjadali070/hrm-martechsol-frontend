@@ -80,7 +80,7 @@ const DashboardLayout: React.FC = () => {
     <div className="flex flex-col space-y-5 md:space-y-10">
       <ProfileCard 
           name={user?.name || "N/A"} 
-          jobTitle={user?.personalDetails?.jobTitle || "N/A"} 
+          jobTitle={user?.personalDetails?.abbreviatedJobTitle || "N/A"} 
           imageSrc={user?.personalDetails?.profilePicture || profilePlaceHolder}
           userShift={user?.personalDetails?.shiftTimings || "N/A"}/>
 
