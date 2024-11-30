@@ -48,8 +48,10 @@ const AddNewEmployee: React.FC = () => {
     jobCategory: departments[Object.keys(departments)[0]][0] || '',
     jobTitle: jobTitles[0],
     jobType: 'Full-Time',
-    role: 'normal'
+    role: 'normal',
+    joiningDate: '',
   });
+  
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -60,7 +62,6 @@ const AddNewEmployee: React.FC = () => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target as { name: keyof typeof formData; value: string };
 
-    // Special handling for department to reset jobCategory
     if (name === 'department') {
       setFormData(prev => ({
         ...prev,
@@ -77,32 +78,32 @@ const AddNewEmployee: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    const { name, email, password, confirmPassword, department, jobCategory, jobTitle, jobType, role } = formData;
-
-    if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobType || !role) {
+  
+    const { name, email, password, confirmPassword, department, jobCategory, jobTitle, jobType, role, joiningDate } = formData;
+  
+    if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobType || !role || !joiningDate) {
       setErrorMessage('Please fill in all required fields.');
       return;
     }
-
+  
     if (departments[department].length > 0 && !jobCategory) {
       setErrorMessage('Please select a job category for this department.');
       return;
     }
-
+  
     if (password.length < 6) {
       setErrorMessage('Password must be at least 6 characters long.');
       return;
     }
-
+  
     if (password !== confirmPassword) {
       setErrorMessage('Passwords do not match.');
       return;
     }
-
+  
     setIsSubmitting(true);
     setErrorMessage(null);
-
+  
     try {
       const config = {
         headers: {
@@ -110,7 +111,7 @@ const AddNewEmployee: React.FC = () => {
         },
         withCredentials: true,
       };
-
+  
       const payload = {
         name,
         email,
@@ -119,11 +120,12 @@ const AddNewEmployee: React.FC = () => {
         jobTitle,
         jobType,
         role,
+        joiningDate,  // Add the new field to the payload
         ...(departments[department].length > 0 && { jobCategory })
       };
-
+  
       await axiosInstance.post(`${backendUrl}/api/users/register`, payload, config);
-
+  
       toast.success('Employee added successfully!');
       navigate('/organization/employee-management');
     } catch (error: any) {
@@ -136,6 +138,7 @@ const AddNewEmployee: React.FC = () => {
       setIsSubmitting(false);
     }
   };
+  
 
   return (
     <div className="w-[50%] mx-auto my-10 p-6 bg-white rounded-lg">
@@ -277,6 +280,20 @@ const AddNewEmployee: React.FC = () => {
             <option value="Contract">Contract</option>
             <option value="Internship">Internship</option>
           </select>
+        </div>
+
+        <div>
+          <label htmlFor="joiningDate" className="block text-gray-600 font-medium mb-1">
+            Joining Date<span className="text-red-500">*</span>
+          </label>
+          <input
+            type="date"
+            id="joiningDate"
+            name="joiningDate"
+            value={formData.joiningDate}
+            onChange={handleChange}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+          />
         </div>
 
         <div>

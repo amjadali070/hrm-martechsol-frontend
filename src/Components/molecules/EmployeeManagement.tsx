@@ -3,76 +3,21 @@ import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
 import { FaBriefcase, FaCalendarAlt, FaInbox, FaSearch, FaUsers, FaUserTag } from "react-icons/fa";
+import axios from 'axios';
 
 interface Employee {
-  id: number;
+  _id: string;
   name: string;
   department: string;
   jobTitle: string;
-  joinDate: string;
+  joiningDate: string;
   jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
   gender: "Male" | "Female" | "Other";
 }
 
 const EmployeeManagement: React.FC = () => {
-    const employeeData: Employee[] = [
-    {
-        id: 1,
-        name: "John Doe",
-        department: "Engineering",
-        jobTitle: "Software Engineer",
-        joinDate: "2024-05-15",
-        jobType: "Full-Time",
-        gender: "Male",
-    },
-    {
-        id: 2,
-        name: "Jane Smith",
-        department: "HR",
-        jobTitle: "HR Manager",
-        joinDate: "2024-09-20",
-        jobType: "Part-Time",
-        gender: "Female",
-    },
-    {
-        id: 3,
-        name: "Michael Johnson",
-        department: "Sales",
-        jobTitle: "Sales Executive",
-        joinDate: "2024-03-12",
-        jobType: "Remote",
-        gender: "Male",
-    },
-    {
-        id: 4,
-        name: "Emily Davis",
-        department: "Marketing",
-        jobTitle: "Content Strategist",
-        joinDate: "2024-11-01",
-        jobType: "Contract",
-        gender: "Female",
-    },
-    {
-        id: 5,
-        name: "Chris Brown",
-        department: "Engineering",
-        jobTitle: "Frontend Developer",
-        joinDate: "2024-07-10",
-        jobType: "Internship",
-        gender: "Male",
-    },
-    {
-        id: 6,
-        name: "Sophia Wilson",
-        department: "Marketing",
-        jobTitle: "SEO Specialist",
-        joinDate: "2024-01-05",
-        jobType: "Full-Time",
-        gender: "Female",
-    },
-    ];
-
-  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>(employeeData);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [filteredEmployees, setFilteredEmployees] = useState<Employee[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("All");
@@ -83,8 +28,36 @@ const EmployeeManagement: React.FC = () => {
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const navigate = useNavigate();
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   useEffect(() => {
-    let updatedEmployees = employeeData;
+    const fetchEmployees = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/users/getAllUsers`, {
+          withCredentials: true,
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+            department: departmentFilter !== "All" ? departmentFilter : undefined,
+            jobTitle: jobTitleFilter !== "All" ? jobTitleFilter : undefined,
+            jobType: jobTypeFilter !== "All" ? jobTypeFilter : undefined,
+            gender: genderFilter !== "All" ? genderFilter : undefined,
+          },
+        });
+
+        const { users } = response.data;
+        setEmployees(users);
+        setFilteredEmployees(users);
+      } catch (error) {
+        console.error("Error fetching employee data:", error);
+      }
+    };
+
+    fetchEmployees();
+  }, [currentPage, itemsPerPage, departmentFilter, jobTitleFilter, jobTypeFilter, genderFilter, backendUrl]);
+
+  useEffect(() => {
+    let updatedEmployees = employees;
 
     if (departmentFilter !== "All") {
       updatedEmployees = updatedEmployees.filter((employee) => employee.department === departmentFilter);
@@ -111,7 +84,7 @@ const EmployeeManagement: React.FC = () => {
     if (monthFilter !== "All") {
       updatedEmployees = updatedEmployees.filter((employee) => {
         const [year, month] = monthFilter.split("-");
-        const employeeDate = new Date(employee.joinDate);
+        const employeeDate = new Date(employee.joiningDate);
         return (
           employeeDate.getFullYear().toString() === year &&
           (employeeDate.getMonth() + 1).toString() === month
@@ -120,7 +93,7 @@ const EmployeeManagement: React.FC = () => {
     }
 
     setFilteredEmployees(updatedEmployees);
-  }, [departmentFilter, jobTypeFilter, jobTitleFilter, genderFilter, searchTerm, monthFilter]);
+  }, [employees, departmentFilter, jobTypeFilter, jobTitleFilter, genderFilter, searchTerm, monthFilter]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
@@ -145,7 +118,7 @@ const EmployeeManagement: React.FC = () => {
       { header: "Name", key: "name", width: 20 },
       { header: "Department", key: "department", width: 20 },
       { header: "Job Title", key: "jobTitle", width: 25 },
-      { header: "Join Date", key: "startDate", width: 15 },
+      { header: "Joining Date", key: "joiningDate", width: 15 },
       { header: "Job Type", key: "jobType", width: 15 },
       { header: "Gender", key: "gender", width: 15 },
     ];
@@ -156,7 +129,11 @@ const EmployeeManagement: React.FC = () => {
         name: employee.name,
         department: employee.department,
         jobTitle: employee.jobTitle,
-        startDate: employee.joinDate,
+        joiningDate: new Date(employee.joiningDate).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        }),
         jobType: employee.jobType,
         gender: employee.gender,
       });
@@ -164,7 +141,7 @@ const EmployeeManagement: React.FC = () => {
 
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    saveAs(blob, "EmployeeData.xlsx");
+    saveAs(blob, "AllEmployeesData.xlsx");
   };
 
   const handlePrevious = () => {
@@ -191,13 +168,13 @@ const EmployeeManagement: React.FC = () => {
   ];
 
   const years = Array.from(
-    new Set(employeeData.map((employee) => new Date(employee.joinDate).getFullYear()))
+    new Set(employees.map((employee) => new Date(employee.joiningDate).getFullYear()))
   );
 
   const monthOptions = ["All", ...years.flatMap((year) => months.map((month, index) => `${year}-${index + 1}`))];
 
-  const handleEditClick = () => {
-    navigate(`/edit-profile/1`);
+  const handleEditClick = (employee: Employee) => {
+    navigate(`/edit-profile/${employee._id}`);
   };
 
   return (
@@ -214,7 +191,7 @@ const EmployeeManagement: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-4">
+      <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
         <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaSearch className="text-gray-400 mr-2" />
           <input
@@ -234,10 +211,23 @@ const EmployeeManagement: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Departments</option>
-            <option value="HR">HR</option>
-            <option value="Engineering">Engineering</option>
-            <option value="Sales">Sales</option>
-            <option value="Marketing">Marketing</option>
+            <option value="Account Management">Account Management</option>
+            <option value="Project Management">Project Management</option>
+            <option value="Content Production">Content Production</option>
+            <option value="Book Marketing">Book Marketing</option>
+            <option value="Design Production">Design Production</option>
+            <option value="SEO">SEO</option>
+            <option value="Creative Media">Creative Media</option>
+            <option value="Web Development">Web Development</option>
+            <option value="Paid Advertising">Paid Advertising</option>
+            <option value="Software Production">Software Production</option>
+            <option value="IT & Networking">IT & Networking</option>
+            <option value="Human Resource">Human Resource</option>
+            <option value="Training & Development">Training & Development</option>
+            <option value="Admin">Admin</option>
+            <option value="Finance">Finance</option>
+            <option value="Brand Development">Brand Development</option>
+            <option value="Corporate Communication">Corporate Communication</option>
           </select>
         </div>
 
@@ -265,11 +255,16 @@ const EmployeeManagement: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Job Titles</option>
-            {Array.from(new Set(employeeData.map((employee) => employee.jobTitle))).map((title) => (
+            {[
+              'Executive', 'Senior Executive', 'Assistant Manager', 'Associate Manager', 
+              'Manager', 'Senior Manager', 'Assistant Vice President', 'Associate Vice President', 
+              'Vice President', 'Senior Vice President'
+            ].map((title) => (
               <option key={title} value={title}>
                 {title}
               </option>
             ))}
+
           </select>
         </div>
 
@@ -322,16 +317,23 @@ const EmployeeManagement: React.FC = () => {
           <tbody>
             {currentEmployees.length > 0 ? (
               currentEmployees.map((employee, index) => (
-                <tr key={employee.id} className="hover:bg-gray-50">
+                <tr key={employee._id} className="hover:bg-gray-50">
                   <td className="py-3 px-4 text-sm text-gray-800">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.name}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.department}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.jobTitle}</td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.joinDate}</td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {new Date(employee.joiningDate).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })}
+                  </td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.jobType}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">{employee.gender}</td>
                   <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
-                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"  onClick={handleEditClick}>
+                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"  
+                        onClick={() => handleEditClick(employee)}>
                       Edit
                     </button>
                   </td>
