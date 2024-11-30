@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaFilter } from 'react-icons/fa';
+import axios from 'axios';
+
+const statusColors: Record<string, string> = {
+  'Late IN': 'bg-yellow-400',
+  'Half Day': 'bg-orange-400',
+  'Early Out': 'bg-pink-400',
+  'Late In and Early Out': 'bg-red-400',
+  'Absent': 'bg-gray-400',
+  'Casual leave': 'bg-blue-400',
+  'Sick leave': 'bg-green-400',
+  'Annual Leave': 'bg-purple-400',
+};
 
 interface Attendance {
   id: string;
@@ -29,72 +41,24 @@ const ViewAttendance: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
 
-  const statusColors: Record<string, string> = {
-    'Late IN': 'bg-yellow-400',
-    'Half Day': 'bg-orange-400',
-    'Early Out': 'bg-pink-400',
-    'Late In and Early Out': 'bg-red-400',
-    'Absent': 'bg-gray-400',
-    'Casual leave': 'bg-blue-400',
-    'Sick leave': 'bg-green-400',
-    'Annual Leave': 'bg-purple-400',
-  };
-
-  const dummyData: Attendance[] = [
-    {
-      id: '1',
-      date: '2024-11-19',
-      timeIn: '09:30 AM',
-      timeOut: '05:30 PM',
-      totalTime: '8 hours',
-      status: 'Late IN',
-    },
-    {
-      id: '4',
-      date: '2024-11-16',
-      timeIn: '-',
-      timeOut: '-',
-      totalTime: '-',
-      status: 'Absent',
-    },
-    {
-      id: '2',
-      date: '2024-11-18',
-      timeIn: '08:30 AM',
-      timeOut: '02:00 PM',
-      totalTime: '5.5 hours',
-      status: 'Half Day',
-    },
-    {
-      id: '3',
-      date: '2024-11-17',
-      timeIn: '10:00 AM',
-      timeOut: '05:00 PM',
-      totalTime: '7 hours',
-      status: 'Late In and Early Out',
-    },
-    {
-      id: '5',
-      date: '2024-11-15',
-      timeIn: '-',
-      timeOut: '-',
-      totalTime: '-',
-      status: 'Casual leave',
-    },
-    {
-      id: '6',
-      date: '2024-11-14',
-      timeIn: '09:30 AM',
-      timeOut: '05:30 PM',
-      totalTime: '8 hours',
-      status: 'Early Out',
-    },
-  ];
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
-    setAttendanceData(dummyData);
-    setFilteredData(dummyData);
-  }, []);
+    const fetchAttendance = async () => {
+      try {
+        const { data } = await axios.get(`${backendUrl}/api/time-log/attendance`, {
+          withCredentials: true,
+          params: { startDate: fromDate, endDate: toDate },
+        });
+        setAttendanceData(data);
+        setFilteredData(data);
+      } catch (error) {
+        console.error('Error fetching attendance data:', error);
+      }
+    };
+    
+    fetchAttendance();
+  }, [fromDate, toDate]);
 
   useEffect(() => {
     let data = [...attendanceData];

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
+import axios from 'axios';
 import 'react-quill/dist/quill.snow.css';
 
 const FeedbackForm: React.FC = () => {
@@ -9,6 +10,8 @@ const FeedbackForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<boolean | null>(null);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { subject?: string; message?: string } = {};
@@ -20,9 +23,15 @@ const FeedbackForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log('Subject:', subject);
-      console.log('Message:', message);
+      const response = await axios.post(
+        `${backendUrl}/api/forms/`,
+        { 
+          subject, 
+          message, 
+          formType: 'feedback' 
+        },
+        { withCredentials: true }
+      );
       setSubmitSuccess(true);
       setSubject('');
       setMessage('');
@@ -36,20 +45,15 @@ const FeedbackForm: React.FC = () => {
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['link'],
-      ['clean']
+      ['clean'],
     ],
   };
 
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'link',
-  ];
+  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link'];
 
   return (
     <section className="flex flex-col w-full p-4">
@@ -66,19 +70,10 @@ const FeedbackForm: React.FC = () => {
               name="subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className={`p-3 bg-white border ${
-                errors.subject ? 'border-red-500' : 'border-gray-300'
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
+              className={`p-3 bg-white border ${errors.subject ? 'border-red-500' : 'border-gray-300'} rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
               placeholder="Enter subject"
-              required
-              aria-required="true"
-              aria-invalid={errors.subject ? 'true' : 'false'}
             />
-            {errors.subject && (
-              <p className="mt-1 text-sm text-red-600" id="subject-error">
-                {errors.subject}
-              </p>
-            )}
+            {errors.subject && <p className="mt-1 text-sm text-red-600">{errors.subject}</p>}
           </div>
 
           <div className="flex flex-col">
@@ -92,38 +87,23 @@ const FeedbackForm: React.FC = () => {
               formats={formats}
               placeholder="Enter your feedback"
               className={`rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500`}
-              style={{
-                height: '200px',
-              }}
-              aria-required="true"
-              aria-invalid={errors.message ? 'true' : 'false'}
+              style={{ height: '200px' }}
             />
-            {errors.message && (
-              <p className="mt-1 text-sm text-red-600" id="message-error">
-                {errors.message}
-              </p>
-            )}
+            {errors.message && <p className="mt-1 text-sm text-red-600">{errors.message}</p>}
           </div>
 
           <div className="flex justify-end mt-10">
             <button
               type="submit"
-              className={`px-8 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${
-                isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-              }`}
-              aria-label="Submit Feedback"
+              className={`px-8 py-3 font-semibold text-white bg-blue-600 hover:bg-blue-500 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               disabled={isSubmitting}
             >
               {isSubmitting ? 'Submitting...' : 'Submit'}
             </button>
           </div>
 
-          {submitSuccess === true && (
-            <p className="mt-4 text-sm text-green-600 text-center">Feedback submitted successfully!</p>
-          )}
-          {submitSuccess === false && (
-            <p className="mt-4 text-sm text-red-600 text-center">Failed to submit feedback. Please try again.</p>
-          )}
+          {submitSuccess === true && <p className="mt-4 text-sm text-green-600 text-center">Feedback submitted successfully!</p>}
+          {submitSuccess === false && <p className="mt-4 text-sm text-red-600 text-center">Failed to submit feedback. Please try again.</p>}
         </form>
       </div>
     </section>

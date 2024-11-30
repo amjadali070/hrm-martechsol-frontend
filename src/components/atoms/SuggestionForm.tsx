@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import ReactQuill from 'react-quill';
+import axios from 'axios';
 import 'react-quill/dist/quill.snow.css';
+import FormsModal from './ViewFormsModal';
 
 const SuggestionForm: React.FC = () => {
   const [subject, setSubject] = useState('');
@@ -9,6 +11,8 @@ const SuggestionForm: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<boolean | null>(null);
 
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: { subject?: string; message?: string } = {};
@@ -20,10 +24,15 @@ const SuggestionForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      // Replace the following line with actual API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log('Subject:', subject);
-      console.log('Message:', message);
+      const response = await axios.post(
+        `${backendUrl}/api/forms/`,
+        { 
+          subject, 
+          message, 
+          formType: 'suggestion' 
+        },
+        { withCredentials: true }
+      );
       setSubmitSuccess(true);
       setSubject('');
       setMessage('');
@@ -37,25 +46,23 @@ const SuggestionForm: React.FC = () => {
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['link'],
-      ['clean']
+      ['clean'],
     ],
   };
 
-  const formats = [
-    'header',
-    'bold', 'italic', 'underline', 'strike',
-    'list', 'bullet',
-    'link',
-  ];
+  const formats = ['header', 'bold', 'italic', 'underline', 'strike', 'list', 'bullet', 'link'];
 
   return (
     <section className="flex flex-col w-full p-4">
       <div className="flex flex-col p-8 w-full bg-white rounded-2xl">
-        <h2 className="text-2xl font-bold text-purple-900 mb-6 text-left">Suggestion Form</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-2xl font-bold text-purple-900">Suggestion Form</h2>
+          
+        </div>
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="flex flex-col">
             <label htmlFor="subject" className="text-sm font-medium text-gray-700 mb-2">
