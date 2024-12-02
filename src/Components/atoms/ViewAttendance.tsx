@@ -30,52 +30,43 @@ interface Attendance {
     | 'Annual Leave';
 }
 
-// Utility function to parse time string to minutes
 const parseTime = (timeStr: string): number => {
   if (!timeStr) return 0;
   const [hours, minutes] = timeStr.split(':').map(Number);
   return hours * 60 + minutes;
 };
 
-// Utility function to convert minutes to time string
 const formatMinutesToTime = (totalMinutes: number): string => {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
-// Function to determine attendance status
 const determineAttendanceStatus = (
   timeIn: string, 
   timeOut: string, 
   leaveType?: 'Casual leave' | 'Sick leave' | 'Annual Leave'
 ): Attendance['status'] => {
-  // If leave is specified, return the leave type
   if (leaveType) return leaveType;
 
-  // If no time in/out, mark as absent
   if (!timeIn || !timeOut) return 'Absent';
 
   const timeInMinutes = parseTime(timeIn);
   const timeOutMinutes = parseTime(timeOut);
   const totalDurationMinutes = timeOutMinutes - timeInMinutes;
 
-  // Check for late check-in (after 6:15 PM)
   const lateInThreshold = parseTime('18:15');
   const isLateIn = timeInMinutes > lateInThreshold;
 
-  // Check for early out (less than 6 hours total duration)
-  const minDurationThreshold = 6 * 60; // 6 hours in minutes
-  const maxHalfDayThreshold = 7 * 60; // 7 hours in minutes
+  const minDurationThreshold = 6 * 60;
+  const maxHalfDayThreshold = 7 * 60;
   const isEarlyOut = totalDurationMinutes < minDurationThreshold;
 
-  // Determine status based on conditions
   if (isLateIn && isEarlyOut) return 'Late In and Early Out';
   if (isLateIn) return 'Late IN';
   if (isEarlyOut) return 'Early Out';
   if (totalDurationMinutes >= minDurationThreshold && totalDurationMinutes < maxHalfDayThreshold) return 'Half Day';
 
-  // Default status if no specific condition is met
   return 'Absent';
 };
 
@@ -277,20 +268,23 @@ const ViewAttendance: React.FC = () => {
           <tbody>
             {currentData.length > 0 ? (
               currentData.map((record, index) => (
-                <tr key={record.id} className="hover:bg-gray-50">
-                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                <tr 
+                  key={record.id} 
+                  className={`hover:bg-gray-50 ${record.status === 'Absent' ?  'hover:bg-red-200 bg-red-200' : ''}`}
+                >
+                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.status === 'Absent' ? 'text-black' : ''}`}>
                     {indexOfFirstItem + index + 1}
                   </td>
-                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.status === 'Absent' ? 'text-black' : ''}`}>
                     {record.date}
                   </td>
-                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                    {record.timeIn}
+                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.status === 'Absent' ? 'text-black' : ''}`}>
+                    {record.timeIn || 'N/A'}
                   </td>
-                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                    {record.timeOut}
+                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.status === 'Absent' ? 'text-black' : ''}`}>
+                    {record.timeOut || 'N/A'}
                   </td>
-                  <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.status === 'Absent' ? 'text-black' : ''}`}>
                     {record.totalTime}
                   </td>
                   <td className="py-2 px-1 border border-gray-200 text-center">
@@ -315,7 +309,6 @@ const ViewAttendance: React.FC = () => {
               </tr>
             )}
           </tbody>
-
         </table>
       </div>
       <div className="flex justify-between items-center mt-4">
