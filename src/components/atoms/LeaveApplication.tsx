@@ -11,7 +11,6 @@ const LeaveApplication: React.FC = () => {
   const [returnToWork, setReturnToWork] = useState<string>(getTomorrowDate());
   const [reason, setReason] = useState<string>('');
   const [handoverFile, setHandoverFile] = useState<File | null>(null);
-  const [reliefOfficer, setReliefOfficer] = useState<string>('');
   const [errors, setErrors] = useState<{
     leaveType?: string;
     startDate?: string;
@@ -19,7 +18,7 @@ const LeaveApplication: React.FC = () => {
     lastDayToWork?: string;
     returnToWork?: string;
     reason?: string;
-    reliefOfficer?: string;
+    handoverFile?: string;
   }>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
@@ -100,7 +99,7 @@ const LeaveApplication: React.FC = () => {
       lastDayToWork?: string;
       returnToWork?: string;
       reason?: string;
-      reliefOfficer?: string;
+      handoverFile?: string;
     } = {};
 
     if (!leaveType) newErrors.leaveType = 'Please select a leave type.';
@@ -115,7 +114,11 @@ const LeaveApplication: React.FC = () => {
     if (new Date(returnToWork) <= new Date(endDate))
       newErrors.returnToWork = 'Return to work date must be after end date.';
     if (!reason.trim()) newErrors.reason = 'Reason for leave is required.';
-    if (!reliefOfficer) newErrors.reliefOfficer = 'Please select a relief officer.';
+
+    // Mandatory file upload for Sick Leave
+    if (leaveType === 'Sick Leave' && !handoverFile) {
+      newErrors.handoverFile = 'Medical document is required for Sick Leave.';
+    }
 
     setErrors(newErrors);
 
@@ -130,7 +133,6 @@ const LeaveApplication: React.FC = () => {
     setReturnToWork(getTomorrowDate());
     setReason('');
     setHandoverFile(null);
-    setReliefOfficer('');
     setErrors({});
   };
   
@@ -156,7 +158,6 @@ const LeaveApplication: React.FC = () => {
       formData.append('lastDayToWork', lastDayToWork);
       formData.append('returnToWork', returnToWork);
       formData.append('reason', reason);
-      formData.append('reliefOfficer', reliefOfficer);
 
       if (handoverFile) {
         formData.append('handoverDocument', handoverFile);
@@ -193,43 +194,46 @@ const LeaveApplication: React.FC = () => {
 
   return (
     <div className="w-full p-4 md:p-8 bg-white rounded-lg mb-8">
-      <h2 className="text-3xl font-bold text-center mb-4 text-purple-900">Leave Application</h2>
-      <p className="text-center mb-6 text-gray-600">Fill in the required fields below to apply for leave.</p>
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <h2 className="text-3xl font-bold text-center mb-4 text-purple-900">Leave Application</h2>
+    <p className="text-center mb-6 text-gray-600">Fill in the required fields below to apply for leave.</p>
+    <form onSubmit={handleSubmit} className="space-y-6">
 
-        <div>
-          <label htmlFor="leaveType" className="block text-gray-700 font-medium mb-1">
-            Leave Type <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="leaveType"
-            name="leaveType"
-            value={leaveType}
-            onChange={(e) => setLeaveType(e.target.value)}
-            className={`w-full p-3 border ${
-              errors.leaveType ? 'border-red-500' : 'border-gray-300'
-            } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-            required
-            aria-describedby={errors.leaveType ? 'leaveType-error' : undefined}
-          >
-            <option value="">Select Leave Type</option>
-            <option value="Casual Leave">Casual Leave</option>
-            <option value="Sick Leave">Sick Leave</option>
-            <option value="Annual Leave">Annual Leave</option>
-            <option value="Maternity Leave">Maternity Leave</option>
-            <option value="Paternity Leave">Paternity Leave</option>
-            <option value="Bereavement Leave">Bereavement Leave</option>
-            <option value="Hajj Leave">Hajj Leave</option>
-            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
-            <option value="Unapproved Absence Without Pay">Unapproved Absence Without Pay</option>
-
-          </select>
-          {errors.leaveType && (
-            <p className="mt-1 text-sm text-red-600" id="leaveType-error">
-              {errors.leaveType}
-            </p>
-          )}
-        </div>
+      <div>
+        <label htmlFor="leaveType" className="block text-gray-700 font-medium mb-1">
+          Leave Type <span className="text-red-500">*</span>
+        </label>
+        <select
+          id="leaveType"
+          name="leaveType"
+          value={leaveType}
+          onChange={(e) => {
+            setLeaveType(e.target.value);
+            // Reset file when leave type changes
+            setHandoverFile(null);
+          }}
+          className={`w-full p-3 border ${
+            errors.leaveType ? 'border-red-500' : 'border-gray-300'
+          } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
+          required
+          aria-describedby={errors.leaveType ? 'leaveType-error' : undefined}
+        >
+          <option value="">Select Leave Type</option>
+          <option value="Casual Leave">Casual Leave</option>
+          <option value="Sick Leave">Sick Leave</option>
+          <option value="Annual Leave">Annual Leave</option>
+          <option value="Maternity Leave">Maternity Leave</option>
+          <option value="Paternity Leave">Paternity Leave</option>
+          <option value="Bereavement Leave">Bereavement Leave</option>
+          <option value="Hajj Leave">Hajj Leave</option>
+          <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+          <option value="Unapproved Absence Without Pay">Unapproved Absence Without Pay</option>
+        </select>
+        {errors.leaveType && (
+          <p className="mt-1 text-sm text-red-600" id="leaveType-error">
+            {errors.leaveType}
+          </p>
+        )}
+      </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
@@ -352,7 +356,10 @@ const LeaveApplication: React.FC = () => {
 
         <div>
           <label htmlFor="handoverFile" className="block text-gray-700 font-medium mb-1">
-            Attach Handover Document
+            Attach Document {leaveType === 'Sick Leave' && <span className="text-red-500">*</span>}
+            {leaveType === 'Sick Leave' && (
+              <span className="text-sm text-gray-500 ml-2">(Medical certificate required)</span>
+            )}
           </label>
           <input
             type="file"
@@ -362,6 +369,11 @@ const LeaveApplication: React.FC = () => {
             className="w-full text-gray-700"
             accept=".pdf, .jpg, .jpeg, .png, .docx"
           />
+          {errors.handoverFile && (
+            <p className="mt-1 text-sm text-red-600" id="handoverFile-error">
+              {errors.handoverFile}
+            </p>
+          )}
           {handoverFile && (
             <div className="mt-2 flex items-center">
               {handoverFile.type.startsWith('image/') && (
@@ -373,33 +385,6 @@ const LeaveApplication: React.FC = () => {
               )}
               <span className="text-sm text-gray-600">{handoverFile.name}</span>
             </div>
-          )}
-        </div>
-
-        <div>
-          <label htmlFor="reliefOfficer" className="block text-gray-700 font-medium mb-1">
-            Choose Relief Officer <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="reliefOfficer"
-            name="reliefOfficer"
-            value={reliefOfficer}
-            onChange={(e) => setReliefOfficer(e.target.value)}
-            className={`w-full p-3 border ${
-              errors.reliefOfficer ? 'border-red-500' : 'border-gray-300'
-            } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-            required
-            aria-describedby={errors.reliefOfficer ? 'reliefOfficer-error' : undefined}
-          >
-            <option value="">Select your relief officer</option>
-            <option value="HR">HR</option>
-            <option value="Manager">Manager</option>
-            <option value="SuperAdmin">SuperAdmin</option>
-          </select>
-          {errors.reliefOfficer && (
-            <p className="mt-1 text-sm text-red-600" id="reliefOfficer-error">
-              {errors.reliefOfficer}
-            </p>
           )}
         </div>
 

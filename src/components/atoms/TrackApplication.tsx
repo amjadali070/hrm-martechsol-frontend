@@ -11,7 +11,6 @@ interface LeaveApplication {
   returnToWork: string;
   totalDays: number;
   reason: string;
-  reliefOfficer: string;
   comments: string | null;
   status: 'Pending' | 'Approved' | 'Rejected';
 }
@@ -41,7 +40,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-01-16',
       totalDays: 6,
       reason: 'Family trip.',
-      reliefOfficer: 'Officer A',
       comments: 'Approved for annual leave.',
       status: 'Approved',
     },
@@ -54,7 +52,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-02-08',
       totalDays: 3,
       reason: 'Flu symptoms.',
-      reliefOfficer: 'Officer B',
       comments: null,
       status: 'Approved',
     },
@@ -67,7 +64,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-03-14',
       totalDays: 2,
       reason: 'Personal commitments.',
-      reliefOfficer: 'Officer C',
       comments: 'Short leave approved.',
       status: 'Approved',
     },
@@ -80,7 +76,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-04-21',
       totalDays: 6,
       reason: 'Vacation.',
-      reliefOfficer: 'Officer D',
       comments: null,
       status: 'Pending',
     },
@@ -93,7 +88,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-05-07',
       totalDays: 4,
       reason: 'Medical rest.',
-      reliefOfficer: 'Officer E',
       comments: 'Get well soon.',
       status: 'Approved',
     },
@@ -106,7 +100,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-06-21',
       totalDays: 3,
       reason: 'Travel for personal reasons.',
-      reliefOfficer: 'Officer F',
       comments: 'Limited leave balance.',
       status: 'Rejected',
     },
@@ -119,7 +112,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-07-31',
       totalDays: 6,
       reason: 'Family event.',
-      reliefOfficer: 'Officer G',
       comments: null,
       status: 'Approved',
     },
@@ -132,7 +124,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-08-13',
       totalDays: 3,
       reason: 'Health checkup.',
-      reliefOfficer: 'Officer H',
       comments: 'Doctor’s note required.',
       status: 'Pending',
     },
@@ -145,7 +136,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-09-08',
       totalDays: 3,
       reason: 'Family emergency.',
-      reliefOfficer: 'Officer I',
       comments: null,
       status: 'Approved',
     },
@@ -158,7 +148,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-10-19',
       totalDays: 7,
       reason: 'Overseas travel.',
-      reliefOfficer: 'Officer J',
       comments: 'Enjoy your time off.',
       status: 'Approved',
     },
@@ -171,7 +160,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-11-22',
       totalDays: 2,
       reason: 'Fever and cold.',
-      reliefOfficer: 'Officer K',
       comments: 'Take care.',
       status: 'Approved',
     },
@@ -184,7 +172,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2023-12-30',
       totalDays: 3,
       reason: 'Year-end celebrations.',
-      reliefOfficer: 'Officer L',
       comments: null,
       status: 'Approved',
     },
@@ -197,7 +184,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2024-01-19',
       totalDays: 5,
       reason: 'Family function.',
-      reliefOfficer: 'Officer M',
       comments: 'Approved leave.',
       status: 'Approved',
     },
@@ -210,7 +196,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2024-02-26',
       totalDays: 3,
       reason: 'Dental surgery recovery.',
-      reliefOfficer: 'Officer N',
       comments: 'Pending approval.',
       status: 'Pending',
     },
@@ -223,7 +208,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2024-03-05',
       totalDays: 2,
       reason: 'Personal reasons.',
-      reliefOfficer: 'Officer O',
       comments: 'Short leave granted.',
       status: 'Approved',
     },
@@ -236,7 +220,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2024-04-13',
       totalDays: 4,
       reason: 'Family gathering.',
-      reliefOfficer: 'Officer P',
       comments: 'Enjoy!',
       status: 'Approved',
     },
@@ -249,7 +232,6 @@ const TrackApplication: React.FC = () => {
       returnToWork: '2024-05-17',
       totalDays: 2,
       reason: 'Urgent home repairs.',
-      reliefOfficer: 'Officer Q',
       comments: null,
       status: 'Rejected',
     },
@@ -282,8 +264,7 @@ const TrackApplication: React.FC = () => {
       filterStatus === 'All' ? true : app.status.toLowerCase() === filterStatus.toLowerCase();
     const matchesSearch =
       app.leaveType.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.reason.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      app.reliefOfficer.toLowerCase().includes(searchTerm.toLowerCase());
+      app.reason.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesMonth =
       selectedMonth === 'All'
@@ -491,9 +472,7 @@ const TrackApplication: React.FC = () => {
                     <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Reason
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wide border border-gray-200 truncate">
-                      Relief Officer
-                    </th>
+                    
                     <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
                       Comments
                     </th>
@@ -525,9 +504,6 @@ const TrackApplication: React.FC = () => {
                       </td>
                       <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {app.reason}
-                      </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
-                        {app.reliefOfficer}
                       </td>
                       <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {app.comments ? app.comments : 'N/A'}

@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { FaFilter, FaInbox, FaSearch } from "react-icons/fa";
+import { FaFilter, FaInbox, FaSearch, FaTimes } from "react-icons/fa";
 import axios from 'axios';
 import { toast } from "react-toastify";
+import { LeaveRequest } from "../../types/LeaveRequest";
+import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -35,6 +37,7 @@ const approveLeaveRequest = async (id: string, comments?: string) => {
       { comments },
       { withCredentials: true }
     );
+    toast.success('Leave request approved successfully');
     return data;
   } catch (error) {
     console.error('Error approving leave request', error);
@@ -48,27 +51,13 @@ const rejectLeaveRequest = async (id: string, comments?: string) => {
       { comments },
       { withCredentials: true }
     );
+    toast.warning('Leave request rejected successfully');
     return data;
   } catch (error) {
     console.error('Error rejecting leave request', error);
     throw error;
   }
 };
-
-
-interface LeaveRequest {
-  _id: string; 
-  user: { name: string; };
-  leaveType: string;
-  startDate: string;
-  endDate: string;
-  lastDayToWork: string;
-  returnToWork: string;
-  totalDays: number;
-  reason: string;
-  status: "Pending" | "Approved" | "Rejected";
-  comments?: string;
-}
 
 const LeaveManagement: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
@@ -82,10 +71,12 @@ const LeaveManagement: React.FC = () => {
   const [approvedPage, setApprovedPage] = useState<number>(1);
   const [rejectedPage, setRejectedPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
-  const [modalType, setModalType] = useState<"approve" | "reject" | "edit" | null>(null);
+  const [modalType, setModalType] = useState<"approve" | "reject" | "edit" | "viewPDF" | null>(null);
   const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
   const [comment, setComment] = useState<string>("");
   const [newLeaveType, setNewLeaveType] = useState<string>("");
+  const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     const loadLeaveRequests = async () => {
@@ -140,16 +131,48 @@ const LeaveManagement: React.FC = () => {
     setSelectedRequest(leaveRequests.find((req) => req._id === id) || null);
   };
 
+  const handleViewFile = (id: string, dataSource: 'pending' | 'approved' | 'rejected') => {
+    let request: LeaveRequest | undefined;
+  
+    switch (dataSource) {
+      case 'pending':
+        request = leaveRequests.find((req) => req._id === id);
+        break;
+      case 'approved':
+        request = approvedRequests.find((req) => req._id === id);
+        break;
+      case 'rejected':
+        request = rejectedRequests.find((req) => req._id === id);
+        break;
+    }
+  
+    console.log("request.handoverDocument", request?.handoverDocument);
+    
+    if (request && request.handoverDocument) {
+      const fullPdfUrl = `${backendUrl}/${request.handoverDocument.replace(/\\/g, '/')}`;
+      
+      setSelectedPdfUrl(fullPdfUrl);
+      setModalType("viewPDF");
+    } else {
+      toast.info('No document available');
+    }
+  };
+
   const handleEdit = (id: string | undefined) => {
     if (!id) {
       toast.error('Invalid request ID');
       return;
     }
   
-    setModalType("edit");
     const request = leaveRequests.find((req) => req._id === id.toString()) || null;
     setSelectedRequest(request);
-    setNewLeaveType(request?.leaveType || "");
+    setEditModalOpen(true);
+  };
+
+  const updateLeaveRequestsAfterEdit = (updatedRequest: LeaveRequest) => {
+    setLeaveRequests(prev => 
+      prev.map(req => req._id === updatedRequest._id ? updatedRequest : req)
+    );
   };
 
   const closeModal = () => {
@@ -157,6 +180,7 @@ const LeaveManagement: React.FC = () => {
     setSelectedRequest(null);
     setComment("");
     setNewLeaveType("");
+    setSelectedPdfUrl("");
   };
 
   const filteredRequests = leaveRequests.filter(
@@ -181,8 +205,6 @@ const LeaveManagement: React.FC = () => {
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
   const totalApprovedPages = Math.ceil(approvedRequests.length / itemsPerPage);
   const totalRejectedPages = Math.ceil(rejectedRequests.length / itemsPerPage);
-
-  console.log('totalPages:', currentPage, totalPages);
 
   return (
     <div className="w-full p-4 bg-white rounded-lg">
@@ -219,12 +241,12 @@ const LeaveManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
         <thead className="bg-purple-900">
           <tr>
-          {["S.No", "Name", "Leave Type", "From", "To", "Reason", "Actions"].map((header) => (
+          {["S.No", "Name", "Leave Type", "From", "To", "Reason", "File", "Actions"].map((header) => (
               <th
                 key={header}
                 className={`px-3 py-2 text-sm font-medium text-white ${
                   header === "Actions" ? "text-center" : "text-left"
-                }`}
+                } ${header === "S.No" ? "text-center" : ""}`}
               >
                 {header}
               </th>
@@ -244,6 +266,9 @@ const LeaveManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
+                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'pending')}>
+                    {request.handoverDocument ? "View" : "No file"}
+                  </td>
                   <td className="px-3 py-2 text-sm text-center">
                     <button
                       onClick={() => handleEdit(request._id)}
@@ -268,7 +293,7 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={7} className="text-center py-8 text-gray-500">
+                <td colSpan={8} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={40} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">No Leave Requests Found.</span>
@@ -328,7 +353,7 @@ const LeaveManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-green-600">
             <tr>
-              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days", "Reason", "Comments"].map((header) => (
+              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days","File", "Reason", "Comments"].map((header) => (
                 <th key={header} className="px-3 py-2 text-sm font-medium text-white text-left">
                   {header}
                 </th>
@@ -336,8 +361,8 @@ const LeaveManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {approvedRequests.length > 0 ? (
-              approvedRequests.map((request, index) => (
+            {paginatedApprovedRequests.length > 0 ? (
+              paginatedApprovedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
@@ -347,6 +372,9 @@ const LeaveManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
+                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'approved')}>
+                    {request.handoverDocument ? "View" : "No file"}
+                  </td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
                 </tr>
@@ -413,7 +441,7 @@ const LeaveManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-red-600">
             <tr>
-              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days", "Reason", "Comments"].map((header) => (
+              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days","File", "Reason", "Comments"].map((header) => (
                 <th key={header} className="px-3 py-2 text-sm font-medium text-white text-left">
                   {header}
                 </th>
@@ -421,8 +449,8 @@ const LeaveManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {rejectedRequests.length > 0 ? (
-              rejectedRequests.map((request, index) => (
+            {paginatedRejectedRequests.length > 0 ? (
+              paginatedRejectedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
@@ -432,6 +460,9 @@ const LeaveManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
+                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'rejected')}>
+                    {request.handoverDocument ? "View" : "No file"}
+                  </td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
                 </tr>
@@ -492,6 +523,24 @@ const LeaveManagement: React.FC = () => {
         </div>
       </div>
       </div>
+
+      {modalType === "viewPDF" && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-[80%] h-[80%] relative">
+            <button 
+              onClick={closeModal} 
+              className="absolute top-4 right-[120px] text-white z-10"
+            >
+              <FaTimes size={24} />
+            </button>
+            <iframe 
+              src={selectedPdfUrl} 
+              className="w-full h-full rounded-lg"
+              title="Handover Document"
+            />
+          </div>
+        </div>
+      )}
 
       {modalType && selectedRequest && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -629,6 +678,17 @@ const LeaveManagement: React.FC = () => {
           </div>
         </div>
       )}
+
+  {editModalOpen && selectedRequest && (
+    <EditLeaveRequestModal 
+      selectedRequest={selectedRequest}
+      closeModal={() => {
+        setEditModalOpen(false);
+        setSelectedRequest(null);
+      }}
+      updateLeaveRequests={updateLeaveRequestsAfterEdit}
+    />
+  )}
     </div>
   );
 };
