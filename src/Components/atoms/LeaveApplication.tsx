@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Like from '../../assets/like.png';
+import axios from 'axios';
 
 const LeaveApplication: React.FC = () => {
   const [leaveType, setLeaveType] = useState<string>('Annual Leave');
@@ -22,6 +23,8 @@ const LeaveApplication: React.FC = () => {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   function getTodayDate(): string {
     const today = new Date();
@@ -130,10 +133,10 @@ const LeaveApplication: React.FC = () => {
     setReliefOfficer('');
     setErrors({});
   };
-
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (!validateForm()) {
       toast.error('Please fix the errors in the form.', {
         position: 'top-center',
@@ -141,36 +144,44 @@ const LeaveApplication: React.FC = () => {
       });
       return;
     }
-
+  
     setIsSubmitting(true);
-
+  
     try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create a FormData object to handle file upload
+      const formData = new FormData();
+      formData.append('leaveType', leaveType);
+      formData.append('startDate', startDate);
+      formData.append('endDate', endDate);
+      formData.append('lastDayToWork', lastDayToWork);
+      formData.append('returnToWork', returnToWork);
+      formData.append('reason', reason);
+      formData.append('reliefOfficer', reliefOfficer);
 
-      console.log({
-        leaveType,
-        startDate,
-        endDate,
-        lastDayToWork,
-        returnToWork,
-        reason,
-        handoverFile,
-        reliefOfficer,
-      });
+      if (handoverFile) {
+        formData.append('handoverDocument', handoverFile);
+      }
 
-      toast.success('Leave application submitted successfully!', {
-        position: 'top-center',
-        autoClose: 3000,
+      await axios.post(`${backendUrl}/api/leave-applications`, formData, {
+        withCredentials: true,
       });
 
       setShowSuccess(true);
       handleReset();
     } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || 'Failed to submit leave application';
+        toast.error(errorMsg, {
+          position: 'top-center',
+          autoClose: 3000,
+        });
+      } else {
+        toast.error('An unexpected error occurred', {
+          position: 'top-center',
+          autoClose: 3000,
+        });
+      }
       console.error('Error submitting leave application:', error);
-      toast.error('Failed to submit leave application. Please try again.', {
-        position: 'top-center',
-        autoClose: 3000,
-      });
     } finally {
       setIsSubmitting(false);
     }
@@ -381,9 +392,9 @@ const LeaveApplication: React.FC = () => {
             aria-describedby={errors.reliefOfficer ? 'reliefOfficer-error' : undefined}
           >
             <option value="">Select your relief officer</option>
-            <option value="Officer 1">Officer 1</option>
-            <option value="Officer 2">Officer 2</option>
-            <option value="Officer 3">Officer 3</option>
+            <option value="HR">HR</option>
+            <option value="Manager">Manager</option>
+            <option value="SuperAdmin">SuperAdmin</option>
           </select>
           {errors.reliefOfficer && (
             <p className="mt-1 text-sm text-red-600" id="reliefOfficer-error">

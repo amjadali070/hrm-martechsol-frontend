@@ -1,13 +1,68 @@
 import React, { useState, useEffect } from "react";
 import { FaFilter, FaInbox, FaSearch } from "react-icons/fa";
+import axios from 'axios';
+import { toast } from "react-toastify";
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+const formatDate = (dateString: string) => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return date instanceof Date && !isNaN(date as any) 
+    ? date.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric'
+      }) 
+    : dateString;
+};
+
+const fetchLeaveRequests = async () => {
+  try {
+    const { data } = await axios.get(`${backendUrl}/api/leave-applications`, {
+      withCredentials: true,
+    });
+    return data;
+  } catch (error) {
+    console.error('Error fetching leave requests', error);
+    return [];
+  }
+};
+
+const approveLeaveRequest = async (id: string, comments?: string) => {
+  try {
+    const { data } = await axios.patch(`${backendUrl}/api/leave-applications/${id}/approve`, 
+      { comments },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    console.error('Error approving leave request', error);
+    throw error;
+  }
+};
+
+const rejectLeaveRequest = async (id: string, comments?: string) => {
+  try {
+    const { data } = await axios.patch(`${backendUrl }/api/leave-applications/${id}/reject`, 
+      { comments },
+      { withCredentials: true }
+    );
+    return data;
+  } catch (error) {
+    console.error('Error rejecting leave request', error);
+    throw error;
+  }
+};
+
 
 interface LeaveRequest {
-  id: number;
-  name: string;
+  _id: string; 
+  user: { name: string; };
   leaveType: string;
   startDate: string;
   endDate: string;
-  lastDayAtWork: string;
+  lastDayToWork: string;
   returnToWork: string;
   totalDays: number;
   reason: string;
@@ -32,48 +87,43 @@ const LeaveManagement: React.FC = () => {
   const [comment, setComment] = useState<string>("");
   const [newLeaveType, setNewLeaveType] = useState<string>("");
 
-  const dummyData: LeaveRequest[] = [
-    {
-      id: 1,
-      name: "John Doe",
-      leaveType: "Sick Leave",
-      startDate: "2024-11-10",
-      endDate: "2024-11-12",
-      lastDayAtWork: "2024-11-09",
-      returnToWork: "2024-11-13",
-      totalDays: 3,
-      reason: "Fever and rest",
-      status: "Pending",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      leaveType: "Casual Leave",
-      startDate: "2024-11-15",
-      endDate: "2024-11-16",
-      lastDayAtWork: "2024-11-14",
-      returnToWork: "2024-11-17",
-      totalDays: 2,
-      reason: "Family event",
-      status: "Pending",
-    },
-    {
-      id: 3,
-      name: "Michael Johnson",
-      leaveType: "Annual Leave",
-      startDate: "2024-12-01",
-      endDate: "2024-12-15",
-      lastDayAtWork: "2024-11-30",
-      returnToWork: "2024-12-16",
-      totalDays: 15,
-      reason: "Vacation",
-      status: "Pending",
-    },
-  ];
-
   useEffect(() => {
-    setLeaveRequests(dummyData);
+    const loadLeaveRequests = async () => {
+      try {
+        const requests = await fetchLeaveRequests();
+        const pendingRequests = requests.filter((req: LeaveRequest) => req.status === 'Pending');
+        const approvedReqs = requests.filter((req: LeaveRequest)=> req.status === 'Approved');
+        const rejectedReqs = requests.filter((req: LeaveRequest)=> req.status === 'Rejected');
+  
+        setLeaveRequests(pendingRequests);
+        setApprovedRequests(approvedReqs);
+        setRejectedRequests(rejectedReqs);
+      } catch (error) {
+        toast.error('Error fetching leave requests');
+      }
+    };
+  
+    loadLeaveRequests();
   }, []);
+  
+  const handleConfirmAction = async () => {
+    if (selectedRequest && modalType) {
+      try {
+        if (modalType === 'approve') {
+          const approvedRequest = await approveLeaveRequest(selectedRequest._id, comment);
+          setApprovedRequests(prev => [...prev, approvedRequest]);
+          setLeaveRequests(prev => prev.filter(req => req._id !== selectedRequest._id));
+        } else if (modalType === 'reject') {
+          const rejectedRequest = await rejectLeaveRequest(selectedRequest._id, comment);
+          setRejectedRequests(prev => [...prev, rejectedRequest]);
+          setLeaveRequests(prev => prev.filter(req => req._id !== selectedRequest._id));
+        }
+        closeModal();
+      } catch (error) {
+        toast.error('Error confirming action');
+      }
+    }
+  };
 
   const handlePagination = (
     data: LeaveRequest[],
@@ -85,42 +135,21 @@ const LeaveManagement: React.FC = () => {
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
-  const handleApproveReject = (id: number, type: "approve" | "reject") => {
+  const handleApproveReject = (id: string, type: "approve" | "reject") => {
     setModalType(type);
-    setSelectedRequest(leaveRequests.find((req) => req.id === id) || null);
+    setSelectedRequest(leaveRequests.find((req) => req._id === id) || null);
   };
 
-  const handleEdit = (id: number) => {
+  const handleEdit = (id: string | undefined) => {
+    if (!id) {
+      toast.error('Invalid request ID');
+      return;
+    }
+  
     setModalType("edit");
-    const request = leaveRequests.find((req) => req.id === id) || null;
+    const request = leaveRequests.find((req) => req._id === id.toString()) || null;
     setSelectedRequest(request);
     setNewLeaveType(request?.leaveType || "");
-  };
-
-  const handleConfirmAction = () => {
-    if (selectedRequest && modalType) {
-      if (modalType === "approve" || modalType === "reject") {
-        const updatedRequest: LeaveRequest = {
-          ...selectedRequest,
-          status: modalType === "approve" ? "Approved" : "Rejected",
-          comments: comment,
-        };
-
-        setLeaveRequests((prev) => prev.filter((req) => req.id !== selectedRequest.id));
-        if (modalType === "approve") {
-          setApprovedRequests((prev) => [...prev, updatedRequest]);
-        } else {
-          setRejectedRequests((prev) => [...prev, updatedRequest]);
-        }
-      } else if (modalType === "edit") {
-        setLeaveRequests((prev) =>
-          prev.map((req) =>
-            req.id === selectedRequest.id ? { ...req, leaveType: newLeaveType } : req
-          )
-        );
-      }
-      closeModal();
-    }
   };
 
   const closeModal = () => {
@@ -133,7 +162,7 @@ const LeaveManagement: React.FC = () => {
   const filteredRequests = leaveRequests.filter(
     (request) =>
       (filters.name === "" ||
-        request.name.toLowerCase().includes(filters.name.toLowerCase())) &&
+        (request.user.name ?? "").toLowerCase().includes(filters.name.toLowerCase())) &&
       (filters.leaveType === "All" || request.leaveType === filters.leaveType)
   );
 
@@ -152,6 +181,8 @@ const LeaveManagement: React.FC = () => {
   const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
   const totalApprovedPages = Math.ceil(approvedRequests.length / itemsPerPage);
   const totalRejectedPages = Math.ceil(rejectedRequests.length / itemsPerPage);
+
+  console.log('totalPages:', currentPage, totalPages);
 
   return (
     <div className="w-full p-4 bg-white rounded-lg">
@@ -204,30 +235,30 @@ const LeaveManagement: React.FC = () => {
           <tbody>
             {paginatedLeaveRequests.length > 0 ? (
               paginatedLeaveRequests.map((request, index) => (
-                <tr key={request.id} className="hover:bg-gray-100">
+                <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.name}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.startDate}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.endDate}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
                   <td className="px-3 py-2 text-sm text-center">
                     <button
-                      onClick={() => handleEdit(request.id)}
+                      onClick={() => handleEdit(request._id)}
                       className="px-2 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 mr-2"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() => handleApproveReject(request.id, "approve")}
+                      onClick={() => handleApproveReject(request._id, "approve")}
                       className="px-2 py-1 text-white bg-green-500 rounded-full hover:bg-green-600 mr-2"
                     >
                       Approve
                     </button>
                     <button
-                      onClick={() => handleApproveReject(request.id, "reject")}
+                      onClick={() => handleApproveReject(request._id, "reject")}
                       className="px-2 py-1 text-white bg-red-500 rounded-full hover:bg-red-600"
                     >
                       Reject
@@ -237,7 +268,7 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={40} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">No Leave Requests Found.</span>
@@ -307,14 +338,14 @@ const LeaveManagement: React.FC = () => {
           <tbody>
             {approvedRequests.length > 0 ? (
               approvedRequests.map((request, index) => (
-                <tr key={request.id} className="hover:bg-gray-100">
+                <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.name}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.startDate}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.endDate}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.lastDayAtWork}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.returnToWork}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
@@ -350,26 +381,26 @@ const LeaveManagement: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
+              approvedPage  === 1
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={approvedPage  === 1}
+            onClick={() => setApprovedPage((prev) => Math.max(prev - 1, 1))}
           >
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+            Page {approvedPage} of {totalApprovedPages}
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              approvedPage  === totalApprovedPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={approvedPage === totalApprovedPages}
+            onClick={() => setApprovedPage ((prev) => Math.min(prev + 1, totalApprovedPages))}
           >
             Next
           </button>
@@ -392,14 +423,14 @@ const LeaveManagement: React.FC = () => {
           <tbody>
             {rejectedRequests.length > 0 ? (
               rejectedRequests.map((request, index) => (
-                <tr key={request.id} className="hover:bg-gray-100">
+                <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.name}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.startDate}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.endDate}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.lastDayAtWork}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.returnToWork}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
                   <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
@@ -435,26 +466,26 @@ const LeaveManagement: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
+              rejectedPage === 1
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={rejectedPage === 1}
+            onClick={() => setRejectedPage((prev) => Math.max(prev - 1, 1))}
           >
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+            Page {rejectedPage} of {totalRejectedPages}
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              rejectedPage=== totalRejectedPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={rejectedPage === totalRejectedPages}
+            onClick={() => setRejectedPage((prev) => Math.min(prev + 1, totalRejectedPages))}
           >
             Next
           </button>
@@ -477,22 +508,22 @@ const LeaveManagement: React.FC = () => {
               <div>
                 <div className="mb-4">
                   <p className="text-sm text-gray-700">
-                    <strong>Name:</strong> {selectedRequest.name}
+                    <strong>Name:</strong> {selectedRequest.user.name}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Leave Type:</strong> {selectedRequest.leaveType}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>From:</strong> {selectedRequest.startDate}
+                    <strong>From:</strong> {formatDate(selectedRequest.startDate)}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>To:</strong> {selectedRequest.endDate}
+                    <strong>To:</strong> {formatDate(selectedRequest.endDate)}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>Last Day at Work:</strong> {selectedRequest.lastDayAtWork}
+                    <strong>Last Day at Work:</strong> {formatDate(selectedRequest.lastDayToWork)}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>Return to Work:</strong> {selectedRequest.returnToWork}
+                    <strong>Return to Work:</strong> {formatDate(selectedRequest.returnToWork)}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Total Days:</strong> {selectedRequest.totalDays}
@@ -528,7 +559,7 @@ const LeaveManagement: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  value={selectedRequest.startDate}
+                  value={formatDate(selectedRequest.startDate)}
                   onChange={(e) =>
                     setSelectedRequest((prev) =>
                       prev ? { ...prev, startDate: e.target.value } : null
@@ -542,7 +573,7 @@ const LeaveManagement: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  value={selectedRequest.endDate}
+                  value={formatDate(selectedRequest.endDate)}
                   onChange={(e) =>
                     setSelectedRequest((prev) =>
                       prev ? { ...prev, endDate: e.target.value } : null
@@ -556,10 +587,10 @@ const LeaveManagement: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  value={selectedRequest.lastDayAtWork}
+                  value={formatDate(selectedRequest.lastDayToWork)}
                   onChange={(e) =>
                     setSelectedRequest((prev) =>
-                      prev ? { ...prev, lastDayAtWork: e.target.value } : null
+                      prev ? { ...prev, lastDayToWork: e.target.value } : null
                     )
                   }
                   className="w-full border border-gray-300 rounded-lg p-2 mb-4"
@@ -598,9 +629,6 @@ const LeaveManagement: React.FC = () => {
           </div>
         </div>
       )}
-
-
-
     </div>
   );
 };

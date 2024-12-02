@@ -24,7 +24,7 @@ const SuggestionForm: React.FC = () => {
 
     setIsSubmitting(true);
     try {
-      const response = await axios.post(
+      await axios.post(
         `${backendUrl}/api/forms/`,
         { 
           subject, 
