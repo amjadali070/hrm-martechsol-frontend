@@ -26,6 +26,7 @@ const EditProfilePage: React.FC = () => {
     jobType: '',
     profilePicture: '',
     shiftTimings: '',
+    jobStatus: '',
     gender: '',
     dateOfBirth: '',
   });  
@@ -40,6 +41,7 @@ const EditProfilePage: React.FC = () => {
         jobType: user.personalDetails?.jobType || 'N/A',
         profilePicture: user.personalDetails?.profilePicture || profilePlaceHolder,
         shiftTimings: user.personalDetails?.shiftTimings || 'N/A',
+        jobStatus: user.personalDetails?.jobStatus || 'Probation',
         gender: user.personalDetails?.gender || 'N/A',
         dateOfBirth: user.personalDetails?.dateOfBirth || 'N/A',
       });
@@ -55,6 +57,7 @@ const EditProfilePage: React.FC = () => {
         jobCategory,
         jobType,
         shiftTimings,
+        jobStatus,
         gender,
         dateOfBirth,
       } = updatedEmployee;
@@ -66,6 +69,7 @@ const EditProfilePage: React.FC = () => {
         jobCategory,
         jobType,
         shiftTimings,
+        jobStatus,
         gender,
         dateOfBirth,
       };
@@ -91,7 +95,8 @@ const EditProfilePage: React.FC = () => {
         jobCategory: data.jobCategory,
         jobType: data.jobType,
         shiftTimings: data.shiftTimings,
-        gender: data.gender,  // Update gender
+        jobStatus: data.jobStatus,
+        gender: data.gender,
         dateOfBirth: data.dateOfBirth,
       }));
   
@@ -311,17 +316,17 @@ const EditProfilePage: React.FC = () => {
               'Assistant Vice President', 'Associate Vice President', 
               'Vice President', 'Senior Vice President'
             ]}
-            jobCategories={[
-              'Digital Marketing', 'Book Marketing', 'Software Application', 
-              'Mobile Application', 'SEO Content', 'Technical Content', 
-              'Book Formatting & Publishing', 'Book Editing', 'Graphic Design', 
-              'Web Design', 'UI/UX Design', 'Infographic', '2D Animation', 
-              'Illustrator', '3D Animation', 'VoiceOver', 'CMS Development', 
-              'Frontend Development', 'Backend Development', 'Social Media Marketing', 
-              'SMS Marketing', 'Software Development', 'Game Development', 
-              'Android Development', 'iOS Development', 'Digital Marketing', 
-              'Social Media Marketing'
-            ]}
+            // jobCategories={[
+            //   'Digital Marketing', 'Book Marketing', 'Software Application', 
+            //   'Mobile Application', 'SEO Content', 'Technical Content', 
+            //   'Book Formatting & Publishing', 'Book Editing', 'Graphic Design', 
+            //   'Web Design', 'UI/UX Design', 'Infographic', '2D Animation', 
+            //   'Illustrator', '3D Animation', 'VoiceOver', 'CMS Development', 
+            //   'Frontend Development', 'Backend Development', 'Social Media Marketing', 
+            //   'SMS Marketing', 'Software Development', 'Game Development', 
+            //   'Android Development', 'iOS Development', 'Digital Marketing', 
+            //   'Social Media Marketing'
+            // ]}
             onProfilePictureChange={handleProfilePictureChange}
             isEditable={user?.role === 'HR' || user?.role === 'SuperAdmin'}
             onUpdate={handleUpdatePersonalDetails}
