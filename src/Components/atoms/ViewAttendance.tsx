@@ -4,18 +4,23 @@ import axios from 'axios';
 import useUser from '../../hooks/useUser';
 
 const statusColors: Record<string, string> = {
-  'Present': 'bg-green-400',
-  'Absent': 'bg-red-400',
-  'Late IN': 'bg-yellow-400',
-  'Half Day': 'bg-orange-400',
-  'Early Out': 'bg-pink-400',
-  'Late IN and Early Out': 'bg-red-400',
-  'Casual Leave': 'bg-blue-400',
-  'Sick Leave': 'bg-green-500',
+  'Present': 'bg-green-500',
+  'Absent': 'bg-red-600',
+  'Late IN': 'bg-yellow-500',
+  'Half Day': 'bg-orange-600',
+  'Early Out': 'bg-pink-500',
+  'Late IN and Early Out': 'bg-violet-700',
+  'Casual Leave': 'bg-blue-600',
+  'Sick Leave': 'bg-lime-600',
   'Annual Leave': 'bg-purple-400',
-  'Unapproved Absence Without Pay': 'bg-red-500',
-  'Public Holiday': 'bg-gray-400'
+  'Hajj Leave': 'bg-cyan-500',
+  'Maternity Leave': 'bg-fuchsia-800',
+  'Paternity Leave': 'bg-teal-600',
+  'Bereavement Leave': 'bg-slate-700',
+  'Unapproved Absence Without Pay': 'bg-red-900',
+  'Public Holiday': 'bg-sky-700'
 };
+
 
 interface TimeLog {
   _id: string;
@@ -33,6 +38,10 @@ interface TimeLog {
     | 'Casual Leave'
     | 'Sick Leave'
     | 'Annual Leave'
+    | 'Hajj Leave'
+    | 'Maternity Leave'
+    | 'Paternity Leave'
+    | 'Bereavement Leave'
     | 'Unapproved Absence Without Pay'
     | 'Public Holiday';
   createdAt: string;
@@ -124,8 +133,8 @@ const ViewAttendance: React.FC = () => {
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
       <div className="mt-6 flex justify-center mb-8">
-        <div className="w-full sm:w-2/3">
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        <div className="w-full">
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-4">
             {Object.entries(statusColors).map(([type, color]) => (
               <div
                 key={type}
@@ -199,18 +208,18 @@ const ViewAttendance: React.FC = () => {
         <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
           <FaFilter className="text-gray-400 mr-3" />
           <select
-            id="typeFilter"
-            value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          >
-            <option value="All">All Types</option>
-            {Object.keys(statusColors).map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
+              id="typeFilter"
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="w-full border-none focus:outline-none text-sm text-gray-600"
+            >
+              <option value="All">All Types</option>
+              {Object.keys(statusColors).map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
         </div>
       </div>
 
@@ -241,8 +250,10 @@ const ViewAttendance: React.FC = () => {
               currentData.map((record, index) => (
                 <tr 
                   key={record._id} 
-                  className={`hover:bg-gray-50 ${record.type === 'Absent' ? 'hover:bg-red-200 bg-red-200' : ''}`}
-                >
+                  className={`hover:bg-gray-50 
+                    ${record.type === 'Absent' ? 'hover:bg-red-100 bg-red-100' : ''}
+                    ${record.type === 'Public Holiday' ? 'bg-sky-100 hover:bg-sky-100' : ''}`}
+                    >
                   <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
                     {indexOfFirstItem + index + 1}
                   </td>
@@ -263,8 +274,8 @@ const ViewAttendance: React.FC = () => {
                   </td>
                   <td className="py-2 px-1 border border-gray-200 text-center">
                     <span
-                      className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
-                        statusColors[record.type] || 'bg-gray-400 text-gray-800'
+                      className={`inline-block px-3 py-1 text-sm font-medium rounded-full text-white ${
+                        statusColors[record.type] || 'bg-gray-400'
                       }`}
                     >
                       {record.type}
