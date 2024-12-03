@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaFilter, FaInbox, FaSearch, FaTimes } from "react-icons/fa";
+import { FaFilter, FaInbox, FaSearch, FaSpinner, FaTimes } from "react-icons/fa";
 import axios from 'axios';
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
@@ -77,10 +77,13 @@ const LeaveManagement: React.FC = () => {
   const [newLeaveType, setNewLeaveType] = useState<string>("");
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadLeaveRequests = async () => {
       try {
+        setIsLoading(true);
+        
         const requests = await fetchLeaveRequests();
         const pendingRequests = requests.filter((req: LeaveRequest) => req.status === 'Pending');
         const approvedReqs = requests.filter((req: LeaveRequest)=> req.status === 'Approved');
@@ -91,6 +94,8 @@ const LeaveManagement: React.FC = () => {
         setRejectedRequests(rejectedReqs);
       } catch (error) {
         toast.error('Error fetching leave requests');
+      } finally {
+        setIsLoading(false);
       }
     };
   
@@ -297,12 +302,21 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
+              {isLoading ? (
+                <td colSpan={8} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaSpinner size={30} className="text-blue-500 mb-2 animate-spin" />
+                  </div>
+                </td>
+              ) : (
+          
                 <td colSpan={8} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={40} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">No Leave Requests Found.</span>
                   </div>
                 </td>
+              )}
               </tr>
             )}
           </tbody>
@@ -385,12 +399,21 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center py-8 text-gray-500">
+                {isLoading ? (
+                <td colSpan={11} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">No Approved Leaves.</span>
+                    <FaSpinner size={30} className="text-blue-500 mb-2 animate-spin" />
                   </div>
                 </td>
+              ) : (
+          
+                <td colSpan={11} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaInbox size={40} className="text-gray-400 mb-2" />
+                    <span className="text-md font-medium">No Approved Leaves Found.</span>
+                  </div>
+                </td>
+              )}
               </tr>
             )}
           </tbody>
@@ -473,12 +496,21 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center py-8 text-gray-500">
+                {isLoading ? (
+                <td colSpan={11} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium"> No Rejected Leaves.</span>
+                    <FaSpinner size={30} className="text-blue-500 mb-2 animate-spin" />
                   </div>
                 </td>
+              ) : (
+          
+                <td colSpan={11} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaInbox size={40} className="text-gray-400 mb-2" />
+                    <span className="text-md font-medium">No Rejected Leaves Found.</span>
+                  </div>
+                </td>
+              )}
               </tr>
             )}
           </tbody>

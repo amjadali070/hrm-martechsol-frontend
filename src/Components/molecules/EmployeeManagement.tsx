@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
-import { FaBriefcase, FaCalendarAlt, FaInbox, FaSearch, FaUsers, FaUserTag } from "react-icons/fa";
+import { FaBriefcase, FaCalendarAlt, FaInbox, FaSearch, FaUsers, FaUserTag, FaSpinner } from "react-icons/fa";
 import axios from 'axios';
 
 interface Employee {
@@ -26,6 +26,7 @@ const EmployeeManagement: React.FC = () => {
   const [monthFilter, setMonthFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -33,6 +34,7 @@ const EmployeeManagement: React.FC = () => {
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
+        setIsLoading(true);
         const response = await axios.get(`${backendUrl}/api/users/getAllUsers`, {
           withCredentials: true,
           params: {
@@ -50,6 +52,8 @@ const EmployeeManagement: React.FC = () => {
         setFilteredEmployees(users);
       } catch (error) {
         console.error("Error fetching employee data:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -341,14 +345,22 @@ const EmployeeManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center">
-                    <FaInbox size={40} className="text-gray-400 mb-4" />
-                    <span className="text-lg font-medium">No Employees Found.</span>
-                  </div>
-                </td>
+                {isLoading ? (
+                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center">
+                      <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
+                    </div>
+                  </td>
+                ) : (
+                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center">
+                      <FaInbox size={40} className="text-gray-400 mb-4" />
+                      <span className="text-lg font-medium">No Employees Found.</span>
+                    </div>
+                  </td>
+                )}
               </tr>
-            )}
+              )}
           </tbody>
         </table>
       </div>
