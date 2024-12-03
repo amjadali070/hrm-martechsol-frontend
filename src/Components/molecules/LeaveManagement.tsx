@@ -145,8 +145,6 @@ const LeaveManagement: React.FC = () => {
         request = rejectedRequests.find((req) => req._id === id);
         break;
     }
-  
-    console.log("request.handoverDocument", request?.handoverDocument);
     
     if (request && request.handoverDocument) {
       const fullPdfUrl = `${backendUrl}/${request.handoverDocument.replace(/\\/g, '/')}`;
@@ -230,9 +228,15 @@ const LeaveManagement: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Leave Types</option>
-            <option value="Sick Leave">Sick Leave</option>
             <option value="Casual Leave">Casual Leave</option>
+            <option value="Sick Leave">Sick Leave</option>
             <option value="Annual Leave">Annual Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
+            <option value="Paternity Leave">Paternity Leave</option>
+            <option value="Bereavement Leave">Bereavement Leave</option>
+            <option value="Hajj Leave">Hajj Leave</option>
+            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+            <option value="Unapproved Absence Without Pay">Unapproved Absence Without Pay</option>
           </select>
         </div>
       </div> 
@@ -679,16 +683,16 @@ const LeaveManagement: React.FC = () => {
         </div>
       )}
 
-  {editModalOpen && selectedRequest && (
-    <EditLeaveRequestModal 
-      selectedRequest={selectedRequest}
-      closeModal={() => {
-        setEditModalOpen(false);
-        setSelectedRequest(null);
-      }}
-      updateLeaveRequests={updateLeaveRequestsAfterEdit}
-    />
-  )}
+      {editModalOpen && selectedRequest && (
+        <EditLeaveRequestModal 
+          selectedRequest={selectedRequest}
+          closeModal={() => {
+            setEditModalOpen(false);
+            setSelectedRequest(null);
+          }}
+          updateLeaveRequests={updateLeaveRequestsAfterEdit}
+        />
+      )}
     </div>
   );
 };
