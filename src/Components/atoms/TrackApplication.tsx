@@ -296,8 +296,8 @@ const TrackApplication: React.FC = () => {
       )}
 
       {error && (
-        <div className="text-red-600 text-center mb-4">
-          {error}
+        <div className="text-black text-center mb-4 mt-10">
+          {"No leave applications found."}
         </div>
       )}
 
