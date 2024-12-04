@@ -17,10 +17,9 @@ const statusColors: Record<string, string> = {
   'Maternity Leave': 'bg-fuchsia-800',
   'Paternity Leave': 'bg-teal-600',
   'Bereavement Leave': 'bg-slate-700',
-  'Unapproved Absence Without Pay': 'bg-red-900',
+  'Absence Without Pay': 'bg-red-900',
   'Public Holiday': 'bg-sky-700'
 };
-
 
 interface TimeLog {
   _id: string;
@@ -132,13 +131,13 @@ const ViewAttendance: React.FC = () => {
 
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
-      <div className="mt-6 flex justify-center mb-8">
+      <div className="mt-2 flex justify-center mb-8">
         <div className="w-full">
-          <div className="grid grid-cols-3 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
             {Object.entries(statusColors).map(([type, color]) => (
               <div
                 key={type}
-                className="flex items-center space-x-2 bg-gray-50 p-2 border border-gray-200 rounded-lg hover:bg-gray-100"
+                className="flex items-center space-x-2 bg-gray-100 p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
                 <span className={`w-4 h-4 inline-block rounded-full ${color}`}></span>
                 <span className="text-gray-700 text-sm font-medium">{type}</span>
@@ -150,9 +149,9 @@ const ViewAttendance: React.FC = () => {
       
       <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-black">View Attendance</h2>
 
-      <div className="grid gap-4 mb-3 sm:grid-cols-1 md:grid-cols-4">
+      <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+      <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -179,7 +178,7 @@ const ViewAttendance: React.FC = () => {
         </div>
 
         {/* To Date Input */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -205,7 +204,7 @@ const ViewAttendance: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-3" />
           <select
               id="typeFilter"
