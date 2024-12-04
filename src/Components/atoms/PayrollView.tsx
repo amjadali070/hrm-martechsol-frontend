@@ -1,134 +1,148 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import SalarySlipPDF from '../../html/SalarySlipPDF';
+import useUser from '../../hooks/useUser';
 
 interface PayrollDetails {
-  name: string;
-  designation: string;
-  jobType: string;
-  from: string;
-  to: string;
+  user: string;
+  month: string;
+  year: number;
   basicSalary: number;
-  medicalAllowance: number;
-  mobileAllowance: number;
-  fuelAllowance: number;
-  grossSalary: number;
-  additions: number;
+  earnings: {
+    basicSalary: number;
+    allowances: {
+      medicalAllowance: number;
+      fuelAllowance: number;
+      mobileAllowance: number;
+    };
+    overtimePay: number;
+  };
   deductions: {
     tax: number;
     eobi: number;
-    pfContribution: number;
+    providentFund: {
+      employeeContribution: number;
+      employerContribution: number;
+    };
+    lossOfPay: number;
   };
-  providentFund: {
-    employeeContribution: number;
-    employerContribution: number;
-    totalAmount: number;
-  };
-  leaveDetails: {
-    casualLeaveAvailable: number;
-    sickLeaveAvailable: number;
-    annualLeaveAvailable: number;
-  };
+  netSalary: number;
+  presentDays: number;
+  totalWorkingDays: number;
 }
 
-const data = {
-  date: "07-Nov-2024",
-  name: "Urwah Iftikhar",
-  designation: "Assistant Vice President - Graphic Design",
-  jobType: "Full Time",
-  month: "October 2024",
-  from: "October 01, 2024",
-  to: "October 31, 2024",
-  basicSalary: "135,000 PKR",
-  medicalAllowance: "13,564 PKR",
-  mobileAllowance: "0 PKR",
-  fuelAllowance: "6,000 PKR",
-  grossSalary: "154,564 PKR",
-  tax: "9,245 PKR",
-  eobi: "370 PKR",
-  pfContribution: "6,239 PKR",
-  amountPayable: "138,710.00 PKR",
-};
-
 const PayrollView: React.FC = () => {
-  const [selectedMonthYear, setSelectedMonthYear] = useState<string>('October 2024');
+  const [selectedMonthYear, setSelectedMonthYear] = useState<string>('');
   const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
+  const [monthYearOptions, setMonthYearOptions] = useState<string[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [payrollRecords, setPayrollRecords] = useState<PayrollDetails[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const user = useUser();
   
-  const dummyData: { [key: string]: PayrollDetails } = {
-    'October 2024': {
-      name: 'Urwah Iftikhar',
-      designation: 'Assistant Vice President - Graphic Design',
-      jobType: 'Full Time',
-      from: 'October 01, 2024',
-      to: 'October 31, 2024',
-      basicSalary: 135000,
-      medicalAllowance: 13564,
-      mobileAllowance: 0,
-      fuelAllowance: 6000,
-      grossSalary: 154564,
-      additions: 0,
-      deductions: {
-        tax: 9245,
-        eobi: 370,
-        pfContribution: 6239,
-      },
-      providentFund: {
-        employeeContribution: 6239,
-        employerContribution: 6239,
-        totalAmount: 12478,
-      },
-      leaveDetails: {
-        casualLeaveAvailable: 4,
-        sickLeaveAvailable: 8,
-        annualLeaveAvailable: 15,
-      },
-    },
-    'September 2024': {
-      name: 'Urwah Iftikhar',
-      designation: 'Assistant Manager - Graphic Design',
-      jobType: 'Full Time',
-      from: 'September 01, 2024',
-      to: 'September 30, 2024',
-      basicSalary: 132000,
-      medicalAllowance: 13000,
-      mobileAllowance: 0,
-      fuelAllowance: 5000,
-      grossSalary: 150000,
-      additions: 0,
-      deductions: {
-        tax: 9100,
-        eobi: 350,
-        pfContribution: 6200,
-      },
-      providentFund: {
-        employeeContribution: 6200,
-        employerContribution: 6200,
-        totalAmount: 12400,
-      },
-      leaveDetails: {
-        casualLeaveAvailable: 5,
-        sickLeaveAvailable: 9,
-        annualLeaveAvailable: 16,
-      },
-    },
+  const backendUrl = process.env.REACT_APP_BACKEND_URL; 
+  const [payrollHistory, setPayrollHistory] = useState<any[]>([]);
+  const userId = user.user?._id;
+  useEffect(() => {
+    const fetchPayrollData = async () => {
+      // Check if userId is available before making the API call
+      if (!userId) {
+        setIsLoading(false);
+        return;
+      }
+  
+      try {
+        // Fetch payroll records for the user
+        const response = await axios.get(`${backendUrl}/api/payroll`, {
+          params: { userId },
+          withCredentials: true,
+        });
+  
+        const payrollRecords = response.data;
+        
+        // Handle case when no payroll records exist
+        if (payrollRecords.length === 0) {
+          setPayrollRecords([]);
+          setMonthYearOptions([]);
+          setPayrollData(null);
+          setError('No payroll data available');
+          setIsLoading(false);
+          return;
+        }
+  
+        setPayrollRecords(payrollRecords);
+        
+        // Generate month-year options
+        const options = payrollRecords.map((record: PayrollDetails) => 
+          `${record.month} ${record.year}`
+        );
+        setMonthYearOptions(options);
+  
+        // Set initial selected month-year to the most recent
+        if (options.length > 0) {
+          setSelectedMonthYear(options[0]);
+          const selectedRecord = payrollRecords.find(
+            (record: PayrollDetails) => 
+              `${record.month} ${record.year}` === options[0]
+          );
+          setPayrollData(selectedRecord);
+        }
+  
+        setIsLoading(false);
+      } catch (err) {
+        setError('Failed to fetch payroll data');
+        setIsLoading(false);
+      }
+    };
+  
+    // Call the function only if userId is available
+    if (userId) {
+      fetchPayrollData();
+    }
+  }, [backendUrl, userId]);
+
+  const handleMonthYearChange = (selectedValue: string) => {
+    setSelectedMonthYear(selectedValue);
+    
+    // Find the corresponding payroll record
+    const selectedRecord = payrollRecords.find(
+      (record: PayrollDetails) => 
+        `${record.month} ${record.year}` === selectedValue
+    ) || null;
+    setPayrollData(selectedRecord);
   };
 
-  useEffect(() => {
-    setPayrollData(dummyData[selectedMonthYear] || null);
-  }, [selectedMonthYear]);
+  // if (isLoading) return <div>Loading payroll data...</div>;
+  // if (!payrollData || error) return <div>Error: {error}</div>;
+  // if (!payrollData) return <div>No payroll data available</div>;
 
-  if (!payrollData) return <div>Loading payroll data...</div>;
-
-  const totalDeductions =
-    payrollData.deductions.tax +
-    payrollData.deductions.eobi +
-    payrollData.deductions.pfContribution;
-
-  const amountPayable =
-    payrollData.grossSalary + payrollData.additions - totalDeductions;
+  // Prepare data for PDF
+  const pdfData = {
+    date: new Date().toLocaleDateString(),
+    name: user.user?.name || '',
+    designation: user.user?.personalDetails?.fullJobTitle || '',
+    jobType: user.user?.personalDetails?.jobType || '',
+    month: payrollData?.month || '',
+    year: payrollData?.year?.toString() || '',
+    basicSalary: payrollData?.basicSalary?.toLocaleString() || '0',
+    medicalAllowance: payrollData?.earnings.allowances.medicalAllowance?.toLocaleString() || '0',
+    fuelAllowance: payrollData?.earnings.allowances.fuelAllowance?.toLocaleString() || '0',
+    mobileAllowance: payrollData?.earnings.allowances.mobileAllowance?.toLocaleString() || '0',
+    grossSalary: (
+      (payrollData?.basicSalary || 0) + 
+      (payrollData?.earnings?.allowances?.medicalAllowance || 0) +
+      (payrollData?.earnings?.allowances?.fuelAllowance || 0) +
+      (payrollData?.earnings?.allowances?.mobileAllowance || 0)).toLocaleString(),
+    tax: payrollData?.deductions.tax?.toLocaleString() || '0',
+    eobi: payrollData?.deductions.eobi?.toLocaleString() || '0',
+    pfContribution: payrollData?.deductions.providentFund.employeeContribution?.toLocaleString() || '0',
+    amountPayable: payrollData?.netSalary?.toLocaleString() || '0',
+  };
 
   const tableClass =
-    'w-full border-collapse bg-white border border-gray-300 rounded-md mb-4 md:mb-6';
+  'w-full border-collapse bg-white border border-gray-300 rounded-md mb-4 md:mb-6';
   const thClass =
     'bg-purple-900 text-white text-xs sm:text-sm font-semibold text-left px-2 py-2 sm:px-4 sm:py-2 border border-gray-300';
   const tdClass =
@@ -136,7 +150,6 @@ const PayrollView: React.FC = () => {
 
   return (
     <div className="w-full p-3 sm:p-6 bg-white rounded-lg" id="payroll-view">
-
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-black mb-4 sm:mb-0">
           Salary Slip
@@ -145,18 +158,18 @@ const PayrollView: React.FC = () => {
           <select
             id="monthYear"
             value={selectedMonthYear}
-            onChange={(e) => setSelectedMonthYear(e.target.value)}
+            onChange={(e) => handleMonthYearChange(e.target.value)}
             className="w-full sm:w-auto p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 text-xs sm:text-sm mb-2 sm:mb-0"
           >
-            {Object.keys(dummyData).map((key) => (
-              <option key={key} value={key}>
-                {key}
+            {monthYearOptions.map((option) => (
+              <option key={option} value={option}>
+                {option}
               </option>
             ))}
           </select>
           <PDFDownloadLink
-            document={<SalarySlipPDF data={data} />}
-            fileName={`Salary_Slip_${data.name.replace(/\s+/g, '_')}.pdf`}
+            document={<SalarySlipPDF data={pdfData} />}
+            fileName={`Salary_Slip_${selectedMonthYear.replace(/\s+/g, '_')}.pdf`}
             style={{
               textDecoration: 'none',
               padding: '10px 20px',
@@ -184,15 +197,15 @@ const PayrollView: React.FC = () => {
             <tbody>
               <tr>
                 <td className={tdClass}>Name</td>
-                <td className={`${tdClass} font-bold`}>{payrollData.name}</td>
+                <td className={`${tdClass} font-bold`}>{user.user?.name}</td>
               </tr>
               <tr>
                 <td className={tdClass}>Designation</td>
-                <td className={`${tdClass} font-bold`}>{payrollData.designation}</td>
+                <td className={`${tdClass} font-bold`}>{user.user?.personalDetails?.fullJobTitle}</td>
               </tr>
               <tr>
                 <td className={tdClass}>Job Type</td>
-                <td className={`${tdClass} font-bold`}>{payrollData.jobType}</td>
+                <td className={`${tdClass} font-bold`}>{user.user?.personalDetails?.jobType}</td>
               </tr>
             </tbody>
           </table>
@@ -213,12 +226,12 @@ const PayrollView: React.FC = () => {
                 <td className={`${tdClass} font-bold w-1/2`}>{selectedMonthYear}</td>
               </tr>
               <tr>
-                <td className={`${tdClass} w-1/2`}>From</td>
-                <td className={`${tdClass} font-bold w-1/2`}>{payrollData.from}</td>
+                <td className={`${tdClass} w-1/2`}>Year</td>
+                <td className={`${tdClass} font-bold w-1/2`}>{payrollData?.year}</td>
               </tr>
               <tr>
-                <td className={`${tdClass} w-1/2`}>To</td>
-                <td className={`${tdClass} font-bold w-1/2`}>{payrollData.to}</td>
+                <td className={`${tdClass} w-1/2`}>Month</td>
+                <td className={`${tdClass} font-bold w-1/2`}>{payrollData?.month}</td>
               </tr>
             </tbody>
           </table>
@@ -236,23 +249,23 @@ const PayrollView: React.FC = () => {
         <tbody>
           <tr>
             <td className={`${tdClass} w-1/2`}>Basic Salary</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData.basicSalary} PKR</td>
+            <td className={`${tdClass} w-1/2`}>{payrollData?.basicSalary} PKR</td>
           </tr>
           <tr>
             <td className={`${tdClass} w-1/2`}>Medical Allowance</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData.medicalAllowance} PKR</td>
+            <td className={`${tdClass} w-1/2`}>{payrollData?.earnings.allowances.medicalAllowance} PKR</td>
           </tr>
           <tr>
             <td className={`${tdClass} w-1/2`}>Mobile Allowance</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData.mobileAllowance} PKR</td>
+            <td className={`${tdClass} w-1/2`}>{payrollData?.earnings.allowances.mobileAllowance} PKR</td>
           </tr>
           <tr>
             <td className={`${tdClass} w-1/2`}>Fuel Allowance</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData.fuelAllowance} PKR</td>
+            <td className={`${tdClass} w-1/2`}>{payrollData?.earnings.allowances.fuelAllowance} PKR</td>
           </tr>
           <tr>
             <td className={`${tdClass} w-1/2`}>Gross Salary</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData.grossSalary} PKR</td>
+            <td className={`${tdClass} w-1/2`}>{payrollData?.earnings.basicSalary} PKR</td>
           </tr>
         </tbody>
       </table>
@@ -285,16 +298,16 @@ const PayrollView: React.FC = () => {
           <tbody>
             <tr>
               <td className={tdClass}>Tax</td>
-              <td className={tdClass}>{payrollData.deductions.tax} PKR</td>
+              <td className={tdClass}>{payrollData?.deductions.tax} PKR</td>
             </tr>
             <tr>
               <td className={tdClass}>EOBI</td>
-              <td className={tdClass}>{payrollData.deductions.eobi} PKR</td>
+              <td className={tdClass}>{payrollData?.deductions.eobi} PKR</td>
             </tr>
             <tr>
               <td className={tdClass}>PF Contribution</td>
               <td className={tdClass}>
-                {payrollData.deductions.pfContribution} PKR
+                {payrollData?.deductions.providentFund.employeeContribution} PKR
               </td>
             </tr>
           </tbody>
@@ -306,13 +319,13 @@ const PayrollView: React.FC = () => {
           <tr>
             <th className={`${thClass} w-1/2`}>Amount Payable</th>
             <th className={`${tdClass} w-1/2 text-black`}>
-              {amountPayable.toFixed(2)} PKR
+              {payrollData?.netSalary.toFixed(2)} PKR
             </th>
           </tr>
         </thead>
       </table>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         <div>
           <table className={tableClass}>
             <thead>
@@ -376,7 +389,7 @@ const PayrollView: React.FC = () => {
             </tbody>
           </table>
         </div>
-      </div>
+      </div> */}
     </div>
   );
 };

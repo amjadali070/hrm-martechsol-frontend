@@ -1,95 +1,75 @@
 import React, { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaFilter } from 'react-icons/fa';
+import axios from 'axios';
 
 interface LeaveDetail {
-  date: string;
+  id: string;
+  leaveType: string;
+  startDate: string;
+  endDate: string;
   status: string;
-  days: number;
+  totalDays: number;
 }
 
-interface LeaveRecord {
+interface LeaveBalance {
   type: string;
   used: number;
   total: number;
-  details: LeaveDetail[];
 }
 
 const AvailableLeaves: React.FC = () => {
-  const [leaveData] = useState<LeaveRecord[]>([
-    {
-      type: 'Sick Leave',
-      used: 4,
-      total: 8,
-      details: [
-        { date: '2024-01-03', status: 'Approved', days: 2 },
-        { date: '2024-01-15', status: 'Approved', days: 2 },
-      ],
-    },
-    {
-      type: 'Casual Leave',
-      used: 8,
-      total: 10,
-      details: [
-        { date: '2024-01-05', status: 'Approved', days: 4 },
-        { date: '2024-01-20', status: 'Approved', days: 4 },
-      ],
-    },
-    {
-      type: 'Annual Leave',
-      used: 14,
-      total: 14,
-      details: [
-        { date: '2024-01-10', status: 'Approved', days: 7 },
-        { date: '2024-01-18', status: 'Approved', days: 7 },
-      ],
-    },
+  const [leaveBalances, setLeaveBalances] = useState<LeaveBalance[]>([
+    { type: 'Sick Leave', used: 0, total: 8 },
+    { type: 'Casual Leave', used: 0, total: 10 },
+    { type: 'Annual Leave', used: 0, total: 14 }
   ]);
-
-  const leaveDetails: { type: string; date: string; status: string; days: number }[] =
-    leaveData.flatMap((record) =>
-      record.details.map((detail) => ({
-        type: record.type,
-        date: detail.date,
-        status: detail.status,
-        days: detail.days,
-      }))
-    );
+  const [leaveDetails, setLeaveDetails] = useState<LeaveDetail[]>([]);
 
   const [selectedLeaveType, setSelectedLeaveType] = useState<string>('All');
   const [fromDate, setFromDate] = useState<string>('');
   const [toDate, setToDate] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('All');
+  // const [selectedStatus, setSelectedStatus] = useState<string>('Approved');
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
 
-  const [filteredDetails, setFilteredDetails] = useState<
-    { type: string; date: string; status: string; days: number }[]
-  >([]);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
-    let data = [...leaveDetails];
+    const fetchLeaveData = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/leave-applications`, {
+          withCredentials: true
+        });
+        const approvedLeaves = response.data.filter((leave: LeaveDetail) => leave.status === 'Approved');
+        
+        const updatedBalances = leaveBalances.map(balance => {
+          const usedDays = approvedLeaves
+            .filter((leave: LeaveDetail) => leave.leaveType === balance.type)
+            .reduce((sum: number, leave: LeaveDetail) => sum + leave.totalDays, 0);
+          
+          return { ...balance, used: usedDays };
+        });
 
-    if (selectedLeaveType !== 'All') {
-      data = data.filter((detail) => detail.type === selectedLeaveType);
-    }
+        setLeaveBalances(updatedBalances);
+        setLeaveDetails(approvedLeaves);
+      } catch (error) {
+        console.error('Error fetching leave data:', error);
+      }
+    };
 
-    if (selectedStatus !== 'All') {
-      data = data.filter((detail) => detail.status === selectedStatus);
-    }
+    fetchLeaveData();
+  }, []);
 
-    if (fromDate) {
-      const from = new Date(fromDate);
-      data = data.filter((detail) => new Date(detail.date) >= from);
-    }
-    if (toDate) {
-      const to = new Date(toDate);
-      data = data.filter((detail) => new Date(detail.date) <= to);
-    }
+  const filteredDetails = leaveDetails.filter(detail => {
+    const matchesLeaveType = selectedLeaveType === 'All' || detail.leaveType === selectedLeaveType;
+    // const matchesStatus = selectedStatus === 'All' || detail.status === selectedStatus;
+    
+    const matchesFromDate = !fromDate || new Date(detail.startDate) >= new Date(fromDate);
+    const matchesToDate = !toDate || new Date(detail.endDate) <= new Date(toDate);
 
-    setFilteredDetails(data);
-    setCurrentPage(1);
-  }, [selectedLeaveType, selectedStatus, fromDate, toDate, leaveDetails]);
+    return matchesLeaveType && matchesFromDate && matchesToDate;
+  });
 
   const totalPages = Math.ceil(filteredDetails.length / rowsPerPage);
   const paginatedDetails = filteredDetails.slice(
@@ -110,26 +90,15 @@ const AvailableLeaves: React.FC = () => {
     setCurrentPage(1);
   };
 
-  const statusColors: Record<string, string> = {
-    Approved: 'bg-green-200',
-    Rejected: 'bg-red-200',
-    Pending: 'bg-yellow-200',
-  };
-
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
         Available Leaves
       </h2>
 
+      {/* Leave Balances Table */}
       <div className="overflow-x-auto mb-8">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-          <colgroup>
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-            <col style={{ width: '25%' }} />
-          </colgroup>
           <thead>
             <tr>
               <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-left">
@@ -147,7 +116,7 @@ const AvailableLeaves: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {leaveData.map((leave) => (
+            {leaveBalances.map((leave) => (
               <tr key={leave.type} className="hover:bg-gray-50">
                 <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap">
                   {leave.type}
@@ -167,9 +136,14 @@ const AvailableLeaves: React.FC = () => {
         </table>
       </div>
 
-      <h4 className="text-2xl font-bold text-black mb-4">Used Leave Details</h4>
-      <div className="grid gap-4 mb-3 sm:grid-cols-1 md:grid-cols-4">
-        <div className="flex items-center bg-white rounded-lg  px-3 py-2 shadow-sm border border-gray-300">
+      <h2 className="text-xl md:text-2xl font-bold text-left mb-6 text-black">
+        Used Leaves Details
+      </h2>
+
+      {/* Filters */}
+      <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
+        {/* Leave Type Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-3" />
           <select
             value={selectedLeaveType}
@@ -177,7 +151,7 @@ const AvailableLeaves: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Leave Types</option>
-            {leaveData.map((leave) => (
+            {leaveBalances.map((leave) => (
               <option key={leave.type} value={leave.type}>
                 {leave.type}
               </option>
@@ -185,7 +159,8 @@ const AvailableLeaves: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        {/* From Date Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -211,7 +186,8 @@ const AvailableLeaves: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        {/* To Date Filter */}
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -236,33 +212,11 @@ const AvailableLeaves: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
           />
         </div>
-
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
-          <FaFilter className="text-gray-400 mr-3" />
-          <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          >
-            <option value="All">All Statuses</option>
-            {Object.keys(statusColors).map((status) => (
-              <option key={status} value={status}>
-                {status}
-              </option>
-            ))}
-          </select>
-        </div>
       </div>
 
+      {/* Leave Details Table */}
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
-        <colgroup>
-            <col style={{ width: '5%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '15%' }} />
-            <col style={{ width: '10%' }} />
-          </colgroup>
           <thead>
             <tr>
               <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
@@ -272,7 +226,10 @@ const AvailableLeaves: React.FC = () => {
                 Leave Type
               </th>
               <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                Date
+                Start Date
+              </th>
+              <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
+                End Date
               </th>
               <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                 Status
@@ -285,15 +242,18 @@ const AvailableLeaves: React.FC = () => {
           <tbody>
             {paginatedDetails.length > 0 ? (
               paginatedDetails.map((detail, index) => (
-                <tr key={`${detail.type}-${detail.date}`} className="hover:bg-gray-50">
+                <tr key={detail.id} className="hover:bg-gray-50">
                   <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
                     {(currentPage - 1) * rowsPerPage + index + 1}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
-                    {detail.type}
+                    {detail.leaveType}
                   </td>
                   <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
-                    {new Date(detail.date).toLocaleDateString()}
+                    {new Date(detail.startDate).toLocaleDateString()}
+                  </td>
+                  <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
+                    {new Date(detail.endDate).toLocaleDateString()}
                   </td>
                   <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
                     <span
@@ -309,7 +269,7 @@ const AvailableLeaves: React.FC = () => {
                     </span>
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
-                    {detail.days}
+                    {detail.totalDays}
                   </td>
                 </tr>
               ))
@@ -317,7 +277,7 @@ const AvailableLeaves: React.FC = () => {
               <tr>
                 <td
                   className="py-4 px-4 text-sm text-gray-700 border border-gray-300 text-center"
-                  colSpan={5}
+                  colSpan={6}
                 >
                   No leave details found.
                 </td>
