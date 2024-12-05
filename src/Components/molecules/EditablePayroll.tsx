@@ -1,23 +1,29 @@
-import React, { useState } from "react";
+import React, { useState} from "react";
 import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
 import { FaUser, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 interface PayrollDetails {
+  _id?: string;
   name: string;
   jobTitle: string;
   jobType: string;
-  from: string;
-  to: string;
+  month: string;
+  year: number;
   basicSalary: number;
-  medicalAllowance: number;
-  mobileAllowance: number;
-  fuelAllowance: number;
-  grossSalary: number;
-  additions: number;
+  earnings: {
+    allowances: {
+      medicalAllowance: number;
+      mobileAllowance: number;
+      fuelAllowance: number;
+    };
+  };
   deductions: {
     tax: number;
     eobi: number;
-    pfContribution: number;
+    providentFund: {
+      employeeContribution: number;
+    };
   };
 }
 
@@ -27,45 +33,58 @@ interface EditablePayrollProps {
   onCancel: () => void;
 }
 
-const EditablePayroll: React.FC<EditablePayrollProps> = ({
-  payrollData,
-  onSave,
-  onCancel,
+const EditablePayroll: React.FC<EditablePayrollProps> = ({ 
+  payrollData, 
+  onSave, 
+  onCancel 
 }) => {
   const [editableData, setEditableData] = useState<PayrollDetails>(payrollData);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    field: string,
-    nestedField?: string
+    e: React.ChangeEvent<HTMLInputElement>, 
+    field: string, 
+    category?: string,
+    subCategory?: string
   ) => {
-    if (nestedField) {
-      setEditableData((prev) => ({
-        ...prev,
-        [field]: {
-          ...(prev[field as keyof PayrollDetails] as object),
-          [nestedField]: e.target.value,
-        },
-      }));
-    } else {
-      setEditableData((prev) => ({
-        ...prev,
-        [field]: e.target.value,
-      }));
+    const value = parseFloat(e.target.value) || 0;
+    
+    setEditableData(prev => {
+      const updated = JSON.parse(JSON.stringify(prev));
+      
+      if (category && subCategory) {
+        updated[category][subCategory][field] = value;
+      } else if (category) {
+        updated[category][field] = value;
+      } else {
+        updated[field] = value;
+      }
+      
+      return updated;
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      onSave(editableData);
+    } catch (err: any) {
+      console.error('Error saving payroll:', err);
+      toast.error(
+        err.response?.data?.message || 
+        err.message || 
+        'Failed to save payroll'
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleSave = () => {
-    onSave(editableData);
-  };
-
   return (
-    <div className="p-6 bg-white rounded-lg max-w-full mx-auto">
+    <div className="p-6 bg-white rounded-lg w-full mx-auto">
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        Edit Payroll
+        Edit Payroll for {editableData.name}
       </h2>
-
-      {/* Personal Details Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaUser className="mr-2" />
@@ -73,25 +92,22 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
-            { label: "Name", field: "name", value: editableData.name },
-            {
-              label: "Job Title",
-              field: "jobTitle",
-              value: editableData.jobTitle,
+            { label: "Name", value: editableData.name, disabled: true },
+            { label: "Job Title", value: editableData.jobTitle, disabled: true },
+            { label: "Job Type", value: editableData.jobType, disabled: true },
+            { 
+              label: "Month", 
+              value: `${editableData.month} ${editableData.year}`, 
+              disabled: true 
             },
-            {
-              label: "Job Type",
-              field: "jobType",
-              value: editableData.jobType,
-            },
-          ].map(({ label, field, value }) => (
-            <div key={field}>
+          ].map(({ label, value, disabled }) => (
+            <div key={label}>
               <label className="block font-medium text-gray-700">{label}</label>
               <input
                 type="text"
                 value={value}
-                onChange={(e) => handleInputChange(e, field)}
-                className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
+                disabled={disabled}
+                className="w-full border border-gray-300 rounded-lg p-2 bg-gray-200"
               />
             </div>
           ))}
@@ -105,38 +121,44 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
-            {
-              label: "Basic Salary",
-              field: "basicSalary",
-              value: editableData.basicSalary,
+            { 
+              label: "Basic Salary", 
+              field: "basicSalary", 
+              value: editableData.basicSalary 
             },
-            {
-              label: "Medical Allowance",
-              field: "medicalAllowance",
-              value: editableData.medicalAllowance,
+            { 
+              label: "Medical Allowance", 
+              field: "medicalAllowance", 
+              value: editableData.earnings.allowances.medicalAllowance,
+              category: "earnings",
+              subCategory: "allowances"
             },
-            {
-              label: "Mobile Allowance",
-              field: "mobileAllowance",
-              value: editableData.mobileAllowance,
+            { 
+              label: "Mobile Allowance", 
+              field: "mobileAllowance", 
+              value: editableData.earnings.allowances.mobileAllowance,
+              category: "earnings", 
+              subCategory: "allowances"
             },
-            {
-              label: "Fuel Allowance",
-              field: "fuelAllowance",
-              value: editableData.fuelAllowance,
+            { 
+              label: "Fuel Allowance", 
+              field: "fuelAllowance", 
+              value: editableData.earnings.allowances.fuelAllowance,
+              category: "earnings", 
+              subCategory: "allowances"
             },
-            {
-              label: "Gross Salary",
-              field: "grossSalary",
-              value: editableData.grossSalary,
-            },
-          ].map(({ label, field, value }) => (
+          ].map(({ label, field, value, category, subCategory }) => (
             <div key={field}>
               <label className="block font-medium text-gray-700">{label}</label>
               <input
                 type="number"
                 value={value}
-                onChange={(e) => handleInputChange(e, field)}
+                onChange={(e) => handleInputChange(
+                  e, 
+                  field, 
+                  category, 
+                  subCategory
+                )}
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -144,7 +166,6 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
       </section>
 
-      {/* Deductions Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaBriefcase className="mr-2" />
@@ -152,22 +173,37 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
-            { label: "Tax", nestedField: "tax", value: editableData.deductions.tax },
-            { label: "EOBI", nestedField: "eobi", value: editableData.deductions.eobi },
-            {
-              label: "PF Contribution",
-              nestedField: "pfContribution",
-              value: editableData.deductions.pfContribution,
+            { 
+              label: "Tax", 
+              field: "tax", 
+              value: editableData.deductions.tax, 
+              category: "deductions"
             },
-          ].map(({ label, nestedField, value }) => (
-            <div key={nestedField}>
+            { 
+              label: "EOBI", 
+              field: "eobi", 
+              value: editableData.deductions.eobi, 
+              category: "deductions"
+            },
+            { 
+              label: "PF Contribution", 
+              field: "employeeContribution", 
+              value: editableData.deductions.providentFund.employeeContribution, 
+              category: "deductions",
+              subCategory: "providentFund"
+            },
+          ].map(({ label, field, value, category, subCategory }) => (
+            <div key={field}>
               <label className="block font-medium text-gray-700">{label}</label>
               <input
                 type="number"
                 value={value}
-                onChange={(e) =>
-                  handleInputChange(e, "deductions", nestedField!)
-                }
+                onChange={(e) => handleInputChange(
+                  e, 
+                  field, 
+                  category, 
+                  subCategory
+                )}
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -178,14 +214,16 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
       <div className="flex justify-end gap-4">
         <button
           onClick={handleSave}
-          className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500"
+          disabled={loading}
+          className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50"
         >
           <AiOutlineSave />
-          Save
+          {loading ? "Saving..." : "Save"}
         </button>
         <button
           onClick={onCancel}
-          className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500"
+          disabled={loading}
+          className="flex items-center gap-2 px-6 py-2 bg-gray-600 text-white rounded-full hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 disabled:opacity-50"
         >
           <AiOutlineClose />
           Cancel

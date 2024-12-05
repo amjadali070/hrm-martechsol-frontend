@@ -97,7 +97,7 @@ const AvailableLeaves: React.FC = () => {
       </h2>
 
       {/* Leave Balances Table */}
-      <div className="overflow-x-auto mb-8">
+      <div className="overflow-x-auto mb-6">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
           <thead>
             <tr>
@@ -136,7 +136,7 @@ const AvailableLeaves: React.FC = () => {
         </table>
       </div>
 
-      <h2 className="text-xl md:text-2xl font-bold text-left mb-6 text-black">
+      <h2 className="text-xl md:text-2xl font-bold text-left mb-2 text-black">
         Used Leaves Details
       </h2>
 
