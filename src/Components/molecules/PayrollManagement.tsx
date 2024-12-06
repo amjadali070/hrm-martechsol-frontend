@@ -11,7 +11,7 @@ import {
 } from "react-icons/fa";
 import UserPayrolls from "../atoms/UserPayrolls";
 import { IoDocumentText } from "react-icons/io5";
-import axios from "axios"; // Import axios for API calls
+import axios from "axios";
 
 export interface PayrollDetails {
   payrollId: string;
@@ -64,6 +64,7 @@ const PayrollManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [userLoading, setUserLoading] = useState<boolean>(false);
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [jobTitleFilter, setJobTitleFilter] = useState<string>("All");
@@ -77,6 +78,7 @@ const PayrollManagement: React.FC = () => {
 
   useEffect(() => {
     const fetchPayrollData = async () => {
+      setLoading(true);
       try {
         const response = await axios.get(`${backendUrl}/api/payrolls/summary`, {
           withCredentials: true,
@@ -84,9 +86,13 @@ const PayrollManagement: React.FC = () => {
         setPayrollData(response.data);
       } catch (error) {
         console.error("Error fetching payroll data:", error);
+      } finally {
+        setLoading(false);
       }
     };
+
     const fetchUsers = async () => {
+      setUserLoading(true);
       try {
         const response = await axios.get(
           `${backendUrl}/api/users/getAllUsers`,
@@ -97,12 +103,13 @@ const PayrollManagement: React.FC = () => {
         setUsers(response.data.users);
       } catch (error) {
         console.error("Error fetching users:", error);
+      } finally {
+        setUserLoading(false);
       }
     };
 
     fetchPayrollData();
     fetchUsers();
-    setLoading(false);
   }, [backendUrl]);
 
   const handleExportToExcel = () => {
@@ -154,6 +161,7 @@ const PayrollManagement: React.FC = () => {
   const handleUserSelect = async (user: User) => {
     setSelectedUser(user);
     setTab("user");
+    setUserLoading(true);
 
     try {
       const response = await axios.get(
@@ -165,6 +173,8 @@ const PayrollManagement: React.FC = () => {
       setUserPayrolls(response.data);
     } catch (error) {
       console.error("Error fetching user payrolls:", error);
+    } finally {
+      setUserLoading(false);
     }
   };
 
@@ -215,14 +225,6 @@ const PayrollManagement: React.FC = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
-  if (loading) {
-    return (
-      <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
-        <FaSpinner size={30} className="text-blue-500 mb-10 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="w-full mx-auto p-6 bg-white rounded-lg">
@@ -362,76 +364,89 @@ const PayrollManagement: React.FC = () => {
             </div>
           </div>
 
-          <table className="min-w-full border-collapse bg-white border border-gray-300 rounded-lg">
-            <thead className="bg-purple-900">
-              <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  S.No
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Department
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Job Title
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Job Type
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Month
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Year
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentPayrolls.map((payroll, index) => (
-                <tr key={payroll.payrollId} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {index + 1}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.user.name}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.user.department}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.user.jobTitle}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.user.jobType}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.month}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {payroll.year}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    <button
-                      onClick={() =>
-                        navigate(
-                          `/organization/payroll-management/edit/${payroll.payrollId}`,
-                          { state: { payroll } }
-                        )
-                      }
-                      className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 transition duration-300"
-                    >
-                      Edit
-                    </button>
-                  </td>
+          {loading ? (
+            <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
+              <FaSpinner
+                size={30}
+                className="text-blue-500 mb-10 animate-spin"
+              />
+            </div>
+          ) : currentPayrolls.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              <span>No payroll data found.</span>
+            </div>
+          ) : (
+            <table className="min-w-full border-collapse bg-white border border-gray-300 rounded-lg">
+              <thead className="bg-purple-900">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    S.No
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Department
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Job Title
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Job Type
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Month
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Year
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentPayrolls.map((payroll, index) => (
+                  <tr key={payroll.payrollId} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {index + 1}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.user.name}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.user.department}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.user.jobTitle}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.user.jobType}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.month}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.year}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/organization/payroll-management/edit/${payroll.payrollId}`,
+                            { state: { payroll } }
+                          )
+                        }
+                        className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 transition duration-300"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
@@ -535,59 +550,72 @@ const PayrollManagement: React.FC = () => {
             </div>
           </div>
 
-          <table className="min-w-full border-collapse bg-white border border-gray-300 rounded-lg">
-            <thead className="bg-purple-900">
-              <tr>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  S.No
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Department
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Job Title
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Job Type
-                </th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentUsers.map((user, index) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {index + 1 + (currentPage - 1) * itemsPerPage}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {user.name}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {user.department}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {user.jobTitle}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {user.jobType}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    <button
-                      onClick={() => handleUserSelect(user)}
-                      className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 transition duration-300"
-                    >
-                      View Payrolls
-                    </button>
-                  </td>
+          {userLoading ? (
+            <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
+              <FaSpinner
+                size={30}
+                className="text-blue-500 mb-10 animate-spin"
+              />
+            </div>
+          ) : currentUsers.length === 0 ? (
+            <div className="text-center py-4 text-gray-500">
+              <span>No users found.</span>
+            </div>
+          ) : (
+            <table className="min-w-full border-collapse bg-white border border-gray-300 rounded-lg">
+              <thead className="bg-purple-900">
+                <tr>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    S.No
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Name
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Department
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Job Title
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Job Type
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Actions
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {currentUsers.map((user, index) => (
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {user.name}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {user.department}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {user.jobTitle}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {user.jobType}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      <button
+                        onClick={() => handleUserSelect(user)}
+                        className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 transition duration-300"
+                      >
+                        View Payrolls
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
 
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
