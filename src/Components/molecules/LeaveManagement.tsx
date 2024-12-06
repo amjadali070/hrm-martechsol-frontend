@@ -10,20 +10,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
+import { formatDate } from "../../utils/formatDate";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return "";
-  const date = new Date(dateString);
-  return date instanceof Date && !isNaN(date as any)
-    ? date.toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "numeric",
-        day: "numeric",
-      })
-    : dateString;
-};
 
 const fetchLeaveRequests = async () => {
   try {

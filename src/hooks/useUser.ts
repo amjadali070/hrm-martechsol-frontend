@@ -10,11 +10,12 @@ interface PersonalDetails {
   jobTitle: string;
   fullJobTitle?: string;
   abbreviatedJobTitle?: string;
-  jobType: 'Full-Time' | 'Part-Time' | 'Remote' | 'Contract' | 'Internship';
+  jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
   shiftTimings?: string;
   jobStatus: string;
   gender: string;
   dateOfBirth: string;
+  joiningDate: string;
 }
 
 interface ContactDetails {
@@ -99,7 +100,7 @@ interface User {
   phoneNumber?: string;
   businessAddress?: string;
   paymentDetails?: PaymentDetails;
-  role: 'normal' | 'HR' | 'manager' | 'SuperAdmin';
+  role: "normal" | "HR" | "manager" | "SuperAdmin";
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -117,33 +118,45 @@ const useUser = () => {
           withCredentials: true,
         });
 
-        const processPath = (path?: string) => 
+        const processPath = (path?: string) =>
           path ? `${backendUrl}/${path.replace(/\\/g, "/")}` : null;
 
-        const processDocumentPaths = (documents?: string[]) => 
+        const processDocumentPaths = (documents?: string[]) =>
           documents?.map(processPath);
 
         const userData: User = {
           ...response.data,
           personalDetails: {
             ...response.data.personalDetails,
-            profilePicture: processPath(response.data.personalDetails?.profilePicture) || profilePlaceholder,
+            profilePicture:
+              processPath(response.data.personalDetails?.profilePicture) ||
+              profilePlaceholder,
           },
           resume: {
             resume: processPath(response.data.resume?.resume),
           },
           documents: {
             NIC: processPath(response.data.documents?.NIC),
-            experienceLetter: processPath(response.data.documents?.experienceLetter),
+            experienceLetter: processPath(
+              response.data.documents?.experienceLetter
+            ),
             salarySlip: processPath(response.data.documents?.salarySlip),
-            academicDocuments: processPath(response.data.documents?.academicDocuments),
+            academicDocuments: processPath(
+              response.data.documents?.academicDocuments
+            ),
             NDA: processPath(response.data.documents?.NDA),
-            educationalDocuments: processDocumentPaths(response.data.documents?.educationalDocuments),
-            professionalDocuments: processDocumentPaths(response.data.documents?.professionalDocuments),
+            educationalDocuments: processDocumentPaths(
+              response.data.documents?.educationalDocuments
+            ),
+            professionalDocuments: processDocumentPaths(
+              response.data.documents?.professionalDocuments
+            ),
           },
           education: response.data.education?.map((edu: Education) => ({
             ...edu,
-            yearOfCompletion: edu.yearOfCompletion ? Number(edu.yearOfCompletion) : undefined
+            yearOfCompletion: edu.yearOfCompletion
+              ? Number(edu.yearOfCompletion)
+              : undefined,
           })),
         };
 

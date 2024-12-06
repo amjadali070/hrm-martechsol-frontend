@@ -2,8 +2,16 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
-import { FaBriefcase, FaCalendarAlt, FaInbox, FaSearch, FaUsers, FaUserTag, FaSpinner } from "react-icons/fa";
-import axios from 'axios';
+import {
+  FaBriefcase,
+  FaCalendarAlt,
+  FaInbox,
+  FaSearch,
+  FaUsers,
+  FaUserTag,
+  FaSpinner,
+} from "react-icons/fa";
+import axios from "axios";
 
 interface Employee {
   _id: string;
@@ -35,17 +43,21 @@ const EmployeeManagement: React.FC = () => {
     const fetchEmployees = async () => {
       try {
         setIsLoading(true);
-        const response = await axios.get(`${backendUrl}/api/users/getAllUsers`, {
-          withCredentials: true,
-          params: {
-            page: currentPage,
-            limit: itemsPerPage,
-            department: departmentFilter !== "All" ? departmentFilter : undefined,
-            jobTitle: jobTitleFilter !== "All" ? jobTitleFilter : undefined,
-            jobType: jobTypeFilter !== "All" ? jobTypeFilter : undefined,
-            gender: genderFilter !== "All" ? genderFilter : undefined,
-          },
-        });
+        const response = await axios.get(
+          `${backendUrl}/api/users/getAllUsers`,
+          {
+            withCredentials: true,
+            params: {
+              page: currentPage,
+              limit: itemsPerPage,
+              department:
+                departmentFilter !== "All" ? departmentFilter : undefined,
+              jobTitle: jobTitleFilter !== "All" ? jobTitleFilter : undefined,
+              jobType: jobTypeFilter !== "All" ? jobTypeFilter : undefined,
+              gender: genderFilter !== "All" ? genderFilter : undefined,
+            },
+          }
+        );
 
         const { users } = response.data;
         setEmployees(users);
@@ -58,25 +70,41 @@ const EmployeeManagement: React.FC = () => {
     };
 
     fetchEmployees();
-  }, [currentPage, itemsPerPage, departmentFilter, jobTitleFilter, jobTypeFilter, genderFilter, backendUrl]);
+  }, [
+    currentPage,
+    itemsPerPage,
+    departmentFilter,
+    jobTitleFilter,
+    jobTypeFilter,
+    genderFilter,
+    backendUrl,
+  ]);
 
   useEffect(() => {
     let updatedEmployees = employees;
 
     if (departmentFilter !== "All") {
-      updatedEmployees = updatedEmployees.filter((employee) => employee.department === departmentFilter);
+      updatedEmployees = updatedEmployees.filter(
+        (employee) => employee.department === departmentFilter
+      );
     }
 
     if (jobTypeFilter !== "All") {
-      updatedEmployees = updatedEmployees.filter((employee) => employee.jobType === jobTypeFilter);
+      updatedEmployees = updatedEmployees.filter(
+        (employee) => employee.jobType === jobTypeFilter
+      );
     }
 
     if (jobTitleFilter !== "All") {
-      updatedEmployees = updatedEmployees.filter((employee) => employee.jobTitle === jobTitleFilter);
+      updatedEmployees = updatedEmployees.filter(
+        (employee) => employee.jobTitle === jobTitleFilter
+      );
     }
 
     if (genderFilter !== "All") {
-      updatedEmployees = updatedEmployees.filter((employee) => employee.gender === genderFilter);
+      updatedEmployees = updatedEmployees.filter(
+        (employee) => employee.gender === genderFilter
+      );
     }
 
     if (searchTerm) {
@@ -97,11 +125,22 @@ const EmployeeManagement: React.FC = () => {
     }
 
     setFilteredEmployees(updatedEmployees);
-  }, [employees, departmentFilter, jobTypeFilter, jobTitleFilter, genderFilter, searchTerm, monthFilter]);
+  }, [
+    employees,
+    departmentFilter,
+    jobTypeFilter,
+    jobTitleFilter,
+    genderFilter,
+    searchTerm,
+    monthFilter,
+  ]);
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentEmployees = filteredEmployees.slice(indexOfFirstItem, indexOfLastItem);
+  const currentEmployees = filteredEmployees.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
   const totalPages = Math.ceil(filteredEmployees.length / itemsPerPage);
 
   const handleAddNewEmployee = () => {
@@ -133,18 +172,23 @@ const EmployeeManagement: React.FC = () => {
         name: employee.name,
         department: employee.department,
         jobTitle: employee.jobTitle,
-        joiningDate: new Date(employee.joiningDate).toLocaleDateString('en-US', {
-          year: 'numeric',
-          month: 'long',
-          day: 'numeric'
-        }),
+        joiningDate: new Date(employee.joiningDate).toLocaleDateString(
+          "en-US",
+          {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          }
+        ),
         jobType: employee.jobType,
         gender: employee.gender,
       });
     });
 
     const buffer = await workbook.xlsx.writeBuffer();
-    const blob = new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    const blob = new Blob([buffer], {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
     saveAs(blob, "AllEmployeesData.xlsx");
   };
 
@@ -172,10 +216,17 @@ const EmployeeManagement: React.FC = () => {
   ];
 
   const years = Array.from(
-    new Set(employees.map((employee) => new Date(employee.joiningDate).getFullYear()))
+    new Set(
+      employees.map((employee) => new Date(employee.joiningDate).getFullYear())
+    )
   );
 
-  const monthOptions = ["All", ...years.flatMap((year) => months.map((month, index) => `${year}-${index + 1}`))];
+  const monthOptions = [
+    "All",
+    ...years.flatMap((year) =>
+      months.map((month, index) => `${year}-${index + 1}`)
+    ),
+  ];
 
   const handleEditClick = (employee: Employee) => {
     navigate(`/edit-profile/${employee._id}`);
@@ -184,12 +235,20 @@ const EmployeeManagement: React.FC = () => {
   return (
     <div className="w-full p-6 bg-white rounded-lg">
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Employee Management</h2>
+        <h2 className="text-2xl font-bold text-gray-800">
+          Employee Management
+        </h2>
         <div className="flex gap-4">
-          <button className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500" onClick={handleAddNewEmployee}>
+          <button
+            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
+            onClick={handleAddNewEmployee}
+          >
             Add New Employee
           </button>
-          <button className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700" onClick={handleExportData}>
+          <button
+            className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+            onClick={handleExportData}
+          >
             Export Employee Data
           </button>
         </div>
@@ -227,11 +286,15 @@ const EmployeeManagement: React.FC = () => {
             <option value="Software Production">Software Production</option>
             <option value="IT & Networking">IT & Networking</option>
             <option value="Human Resource">Human Resource</option>
-            <option value="Training & Development">Training & Development</option>
+            <option value="Training & Development">
+              Training & Development
+            </option>
             <option value="Admin">Admin</option>
             <option value="Finance">Finance</option>
             <option value="Brand Development">Brand Development</option>
-            <option value="Corporate Communication">Corporate Communication</option>
+            <option value="Corporate Communication">
+              Corporate Communication
+            </option>
           </select>
         </div>
 
@@ -260,15 +323,21 @@ const EmployeeManagement: React.FC = () => {
           >
             <option value="All">All Job Titles</option>
             {[
-              'Executive', 'Senior Executive', 'Assistant Manager', 'Associate Manager', 
-              'Manager', 'Senior Manager', 'Assistant Vice President', 'Associate Vice President', 
-              'Vice President', 'Senior Vice President'
+              "Executive",
+              "Senior Executive",
+              "Assistant Manager",
+              "Associate Manager",
+              "Manager",
+              "Senior Manager",
+              "Assistant Vice President",
+              "Associate Vice President",
+              "Vice President",
+              "Senior Vice President",
             ].map((title) => (
               <option key={title} value={title}>
                 {title}
               </option>
             ))}
-
           </select>
         </div>
 
@@ -297,7 +366,9 @@ const EmployeeManagement: React.FC = () => {
               <option key={option} value={option}>
                 {option === "All"
                   ? "By Month"
-                  : `${months[parseInt(option.split("-")[1], 10) - 1]} ${option.split("-")[0]}`}
+                  : `${months[parseInt(option.split("-")[1], 10) - 1]} ${
+                      option.split("-")[0]
+                    }`}
               </option>
             ))}
           </select>
@@ -308,36 +379,69 @@ const EmployeeManagement: React.FC = () => {
         <table className="min-w-full bg-white border border-gray-300 rounded-lg">
           <thead>
             <tr className="bg-purple-900">
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">S.No</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Name(s)</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Department</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Job Title</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Joining Date</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Job Type</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Gender</th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">Actions</th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                S.No
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Name(s)
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Department
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Job Title
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Joining Date
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Job Type
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Gender
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentEmployees.length > 0 ? (
               currentEmployees.map((employee, index) => (
                 <tr key={employee._id} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm text-gray-800">{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.name}</td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.department}</td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.jobTitle}</td>
                   <td className="py-3 px-4 text-sm text-gray-800">
-                    {new Date(employee.joiningDate).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
+                    {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.jobType}</td>
-                  <td className="py-3 px-4 text-sm text-gray-800">{employee.gender}</td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.name}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.department}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.jobTitle}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {new Date(employee.joiningDate).toLocaleDateString(
+                      "en-US",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.jobType}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.gender}
+                  </td>
                   <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
-                    <button className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"  
-                        onClick={() => handleEditClick(employee)}>
+                    <button
+                      className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
+                      onClick={() => handleEditClick(employee)}
+                    >
                       Edit
                     </button>
                   </td>
@@ -348,19 +452,24 @@ const EmployeeManagement: React.FC = () => {
                 {isLoading ? (
                   <td colSpan={8} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
-                      <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
+                      <FaSpinner
+                        size={30}
+                        className="text-blue-500 mb-4 animate-spin"
+                      />
                     </div>
                   </td>
                 ) : (
                   <td colSpan={8} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
                       <FaInbox size={40} className="text-gray-400 mb-4" />
-                      <span className="text-lg font-medium">No Employees Found.</span>
+                      <span className="text-lg font-medium">
+                        No Employees Found.
+                      </span>
                     </div>
                   </td>
                 )}
               </tr>
-              )}
+            )}
           </tbody>
         </table>
       </div>
