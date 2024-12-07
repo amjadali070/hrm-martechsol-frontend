@@ -1,48 +1,74 @@
-import React, { useState } from 'react';
-import { FaFilter } from 'react-icons/fa';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import { FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
+import { toast } from "react-toastify";
+import { formatDate } from "../../utils/formatDate";
+import useUser from "../../hooks/useUser";
+import DocumentViewerModal from "./DocumentViewerModal";
 
 const AttendanceTicket: React.FC = () => {
-  const [attendanceList, setAttendanceList] = useState([
-    {
-      id: 1,
-      date: '6/28/2024',
-      timeIn: '12:00 PM',
-      timeOut: '8:30 PM',
-      totalTime: '08:30:00',
-      comments: 'I forgot to clock in.',
-      file: 'No File',
-      managerStatus: 'Approved',
-    },
-    {
-      id: 2,
-      date: '6/15/2024',
-      timeIn: '12:00 PM',
-      timeOut: '8:30 PM',
-      totalTime: '08:30:00',
-      comments: 'I forgot to clock out.',
-      file: 'No File',
-      managerStatus: 'Pending',
-    },
-    {
-      id: 3,
-      date: '6/10/2024',
-      timeIn: '12:00 PM',
-      timeOut: '8:30 PM',
-      totalTime: '08:30:00',
-      comments: 'Missed clock-in time.',
-      file: 'No File',
-      managerStatus: 'Rejected',
-    },
-  ]);
-
-  const [filteredStatus, setFilteredStatus] = useState<string>('All');
+  const [attendanceList, setAttendanceList] = useState<any[]>([]);
+  const [filteredStatus, setFilteredStatus] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [notFound, setNotFound] = useState<boolean>(false);
+  const [formData, setFormData] = useState<{
+    date: string;
+    timeIn: string;
+    timeOut: string;
+    comments: string;
+    file: File | null;
+    workLocation: string;
+  }>({
+    date: "",
+    timeIn: "",
+    timeOut: "",
+    comments: "",
+    file: null,
+    workLocation: "",
+  });
+
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [selectedFile, setSelectedFile] = useState<{
+    url: string;
+    name: string;
+    type: "image" | "pdf";
+  } | null>(null);
+
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const user = useUser();
+  const userId = user.user?._id;
+
+  useEffect(() => {
+    const fetchAttendanceTickets = async () => {
+      if (!userId) return;
+
+      try {
+        setLoading(true);
+        const response = await axios.get(
+          `${backendUrl}/api/attendance-tickets/user/${userId}`,
+          {
+            withCredentials: true,
+          }
+        );
+        setAttendanceList(response.data);
+        setNotFound(response.data.length === 0);
+      } catch (error) {
+        console.error("Error fetching tickets:", error);
+        setNotFound(true);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendanceTickets();
+  }, [backendUrl, userId]);
 
   const filteredAttendanceList =
-    filteredStatus === 'All'
+    filteredStatus === "All"
       ? attendanceList
-      : attendanceList.filter((record) => record.managerStatus === filteredStatus);
+      : attendanceList.filter((record) => record.status === filteredStatus);
 
   const totalPages = Math.ceil(filteredAttendanceList.length / itemsPerPage);
   const paginatedList = filteredAttendanceList.slice(
@@ -58,10 +84,101 @@ const AttendanceTicket: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
+  const handleInputChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setFormData({ ...formData, file: e.target.files[0] });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const { date, timeIn, timeOut, comments, workLocation, file } = formData;
+
+    if (!date || !timeIn || !timeOut || !workLocation) {
+      toast.error("Date, Time In, Time Out, and Work Location are required.");
+      return;
+    }
+
+    const timeInDate = new Date(`1970-01-01T${timeIn}:00`);
+    const timeOutDate = new Date(`1970-01-01T${timeOut}:00`);
+    if (timeOutDate <= timeInDate) {
+      toast.error("Time Out must be after Time In.");
+      return;
+    }
+
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append("date", new Date(date).toISOString());
+    formDataToSubmit.append("timeIn", timeIn);
+    formDataToSubmit.append("timeOut", timeOut);
+    formDataToSubmit.append(
+      "totalTime",
+      `${Math.floor(
+        (timeOutDate.getTime() - timeInDate.getTime()) / (1000 * 60 * 60)
+      )}h ${Math.floor(
+        ((timeOutDate.getTime() - timeInDate.getTime()) / (1000 * 60)) % 60
+      )}m`
+    );
+    formDataToSubmit.append("comments", comments || "");
+    formDataToSubmit.append("workLocation", workLocation);
+    if (userId) {
+      formDataToSubmit.append("userId", userId);
+    }
+
+    if (file) {
+      formDataToSubmit.append("attendanceTicket", file);
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.post(
+        `${backendUrl}/api/attendance-tickets`,
+        formDataToSubmit,
+        {
+          withCredentials: true,
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      );
+
+      setAttendanceList([response.data.attendanceTicket, ...attendanceList]);
+      setFormData({
+        date: "",
+        timeIn: "",
+        timeOut: "",
+        comments: "",
+        file: null,
+        workLocation: "",
+      });
+      toast.success("Attendance ticket submitted successfully!");
+    } catch (error: any) {
+      console.error("Error submitting ticket:", error);
+      toast.error(
+        error.response?.data?.message || "Failed to submit attendance ticket."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewFile = (filePath: string, fileName: string) => {
+    const fileUrl = `${backendUrl}/${filePath}`;
+    const fileType = fileUrl.endsWith(".pdf") ? "pdf" : "image";
+    setSelectedFile({ url: fileUrl, name: fileName, type: fileType });
+    setModalOpen(true);
+  };
+
   const thClass =
-    'bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center';
+    "bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center";
   const tdClass =
-    'text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center';
+    "text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center";
 
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
@@ -69,70 +186,104 @@ const AttendanceTicket: React.FC = () => {
         Submit New Attendance Ticket
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Select Date</label>
-          <input
-            type="date"
-            name="date"
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
+      <form onSubmit={handleSubmit} className="mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Select Date
+            </label>
+            <input
+              type="date"
+              name="date"
+              value={formData.date}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700">
+              Work Location
+            </label>
+            <select
+              name="workLocation"
+              value={formData.workLocation}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              required
+            >
+              <option value="">Select Work Location</option>
+              <option value="Remote">Remote</option>
+              <option value="On-site">On-site</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Time In
+            </label>
+            <input
+              type="time"
+              name="timeIn"
+              value={formData.timeIn}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">
+              Time Out
+            </label>
+            <input
+              type="time"
+              name="timeOut"
+              value={formData.timeOut}
+              onChange={handleInputChange}
+              className="w-full p-2 border border-gray-300 rounded-md"
+              required
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Work From Home</label>
-          <select
-            name="workFromHome"
-            className="w-full p-2 border border-gray-300 rounded-md"
-          >
-            <option value="">-- Select Option --</option>
-            <option value="Half Day">Half Day</option>
-            <option value="Full Day">Full Day</option>
-          </select>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Time In</label>
-          <input
-            type="time"
-            name="timeIn"
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Time Out</label>
-          <input
-            type="time"
-            name="timeOut"
-            className="w-full p-2 border border-gray-300 rounded-md"
-          />
-        </div>
-      </div>
 
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Comments</label>
-        <textarea
-          name="comments"
-          rows={3}
-          className="w-full p-2 border border-gray-300 rounded-md"
-        ></textarea>
-      </div>
-      <div className="mb-4">
-        <label className="block text-sm font-medium text-gray-700">Select File</label>
-        <input type="file" className="w-full p-2 border border-gray-300 rounded-md" />
-      </div>
-      <button className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-600 transition-all">
-        Submit
-      </button>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Comments
+          </label>
+          <textarea
+            name="comments"
+            rows={3}
+            value={formData.comments}
+            onChange={handleInputChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          ></textarea>
+        </div>
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-gray-700">
+            Select File
+          </label>
+          <input
+            type="file"
+            onChange={handleFileChange}
+            className="w-full p-2 border border-gray-300 rounded-md"
+          />
+        </div>
+        <button className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all">
+          Submit
+        </button>
+      </form>
 
       <div className="flex justify-between items-center mb-3 mt-6">
-        <h2 className="text-lg md:text-xl font-bold text-black">Ticket Status</h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 ">
+        <h2 className="text-lg md:text-xl font-bold text-black">
+          Ticket Status
+        </h2>
+        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300 ">
           <FaFilter className="text-gray-400 mr-2" />
           <select
-           value={filteredStatus}
-           onChange={(e) => {
-             setFilteredStatus(e.target.value);
-             setCurrentPage(1);
-           }}
+            value={filteredStatus}
+            onChange={(e) => {
+              setFilteredStatus(e.target.value);
+              setCurrentPage(1);
+            }}
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Statuses</option>
@@ -144,56 +295,94 @@ const AttendanceTicket: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-          <colgroup>
-                <col style={{ width: '5%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '12%' }} />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center mt-10 mb-10">
+            <FaSpinner
+              size={30}
+              className="animate-spin text-blue-600 mb-2"
+              aria-hidden="true"
+            />
+            <h1 className="text-xl font-semibold text-black">
+              Loading Data...
+            </h1>
+          </div>
+        ) : notFound ? (
+          <div className="flex flex-col items-center">
+            <FaInbox size={30} className="text-gray-400 mb-4" />
+            <span className="text-lg font-medium">No tickets available</span>
+          </div>
+        ) : paginatedList.length > 0 ? (
+          <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+            <colgroup>
+              <col style={{ width: "5%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "12%" }} />
             </colgroup>
-          <thead>
-            <tr>
-              <th className={thClass}>S.No</th>
-              <th className={thClass}>Date</th>
-              <th className={thClass}>Time In</th>
-              <th className={thClass}>Time Out</th>
-              <th className={thClass}>Total Time</th>
-              <th className={thClass}>Comments</th>
-              <th className={thClass}>File</th>
-              <th className={thClass}>Manager Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedList.map((record, index) => (
-              <tr key={record.id}>
-                <td className={tdClass}>{index + 1 + (currentPage - 1) * itemsPerPage}</td>
-                <td className={tdClass}>{record.date}</td>
-                <td className={tdClass}>{record.timeIn}</td>
-                <td className={tdClass}>{record.timeOut}</td>
-                <td className={tdClass}>{record.totalTime}</td>
-                <td className={`${tdClass} text-blue-600 cursor-pointer`}>
-                  {record.comments}
-                </td>
-                <td className={tdClass}>{record.file}</td>
-                <td
-                  className={`${tdClass} ${
-                    record.managerStatus === 'Approved'
-                      ? 'text-green-600'
-                      : record.managerStatus === 'Pending'
-                      ? 'text-yellow-600'
-                      : 'text-red-600'
-                  }`}
-                >
-                  {record.managerStatus}
-                </td>
+            <thead>
+              <tr>
+                <th className={thClass}>S.No</th>
+                <th className={thClass}>Date</th>
+                <th className={thClass}>Time In</th>
+                <th className={thClass}>Time Out</th>
+                <th className={thClass}>Total Time</th>
+                <th className={thClass}>Comments</th>
+                <th className={thClass}>File</th>
+                <th className={thClass}>Status</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginatedList.map((record, index) => (
+                <tr key={record.id}>
+                  <td className={tdClass}>
+                    {index + 1 + (currentPage - 1) * itemsPerPage}
+                  </td>
+                  <td className={tdClass}>{formatDate(record.date)}</td>
+                  <td className={tdClass}>{record.timeIn}</td>
+                  <td className={tdClass}>{record.timeOut}</td>
+                  <td className={tdClass}>{record.totalTime}</td>
+                  <td className={`${tdClass} text-blue-600 cursor-pointer`}>
+                    {record.comments}
+                  </td>
+                  <td className={tdClass}>
+                    {record.file ? (
+                      <button
+                        onClick={() =>
+                          handleViewFile(record.file, record.fileName)
+                        }
+                        className="text-blue-600 hover:underline"
+                      >
+                        View
+                      </button>
+                    ) : (
+                      "No File"
+                    )}
+                  </td>
+                  <td
+                    className={`${tdClass} ${
+                      record.status === "Approved"
+                        ? "text-green-600"
+                        : record.status === "Pending"
+                        ? "text-yellow-600"
+                        : "text-red-600"
+                    }`}
+                  >
+                    {record.status}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="flex flex-col items-center">
+            <FaInbox size={30} className="text-gray-400 mb-4" />
+            <span className="text-lg font-medium">No tickets available</span>
+          </div>
+        )}
       </div>
 
       <div className="flex justify-between items-center mt-4">
@@ -215,8 +404,8 @@ const AttendanceTicket: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === 1
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
@@ -229,8 +418,8 @@ const AttendanceTicket: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-700'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
             disabled={currentPage === totalPages}
             onClick={handleNext}
@@ -239,6 +428,14 @@ const AttendanceTicket: React.FC = () => {
           </button>
         </div>
       </div>
+
+      <DocumentViewerModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        fileUrl={selectedFile?.url || ""}
+        fileName={selectedFile?.name || ""}
+        fileType={selectedFile?.type || "image"}
+      />
     </div>
   );
 };

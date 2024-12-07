@@ -18,29 +18,32 @@ const EditablePayrollPage: React.FC = () => {
     const fetchPayrollDetails = async () => {
       try {
         const stateData = location.state?.payroll;
-        
+
         if (stateData) {
           setPayrollData(stateData);
           setLoading(false);
           return;
         }
         if (!id) {
-          throw new Error('No payroll ID found');
+          throw new Error("No payroll ID found");
         }
 
-        const response = await axiosInstance.get(`${backendUrl}/api/payrolls/${id}`, {
-          withCredentials: true,
-        });
+        const response = await axiosInstance.get(
+          `${backendUrl}/api/payrolls/${id}`,
+          {
+            withCredentials: true,
+          }
+        );
 
         setPayrollData(response.data);
       } catch (err: any) {
-        console.error('Error fetching payroll details:', err);
+        console.error("Error fetching payroll details:", err);
         setError(
-          err.response?.data?.message || 
-          err.message || 
-          'Failed to fetch payroll data'
+          err.response?.data?.message ||
+            err.message ||
+            "Failed to fetch payroll data"
         );
-        toast.error('Failed to load payroll details');
+        toast.error("Failed to load payroll details");
       } finally {
         setLoading(false);
       }
@@ -63,18 +66,20 @@ const EditablePayrollPage: React.FC = () => {
         jobType: undefined,
       };
 
-      await axiosInstance.put(`${backendUrl}/api/payrolls/${payrollData._id}`, payload, {
-        withCredentials: true,
-      });
+      await axiosInstance.put(
+        `${backendUrl}/api/payrolls/${payrollData._id}`,
+        payload,
+        {
+          withCredentials: true,
+        }
+      );
 
-      toast.success('Payroll updated successfully');
+      toast.success("Payroll updated successfully");
       navigate("/organization/payroll-management");
     } catch (err: any) {
-      console.error('Error updating payroll:', err);
+      console.error("Error updating payroll:", err);
       toast.error(
-        err.response?.data?.message || 
-        err.message || 
-        'Failed to update payroll'
+        err.response?.data?.message || err.message || "Failed to update payroll"
       );
     }
   };

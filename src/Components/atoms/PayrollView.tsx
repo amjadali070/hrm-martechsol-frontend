@@ -223,7 +223,7 @@ const PayrollView: React.FC = () => {
   if (!payrollData)
     return (
       <div className="flex flex-col items-center mt-20">
-        <FaInbox size={50} className="text-gray-600 mb-4" />
+        <FaInbox size={30} className="text-gray-600 mb-4" />
         <span className="text-lg font-medium">No Payroll Data Available</span>
       </div>
     );

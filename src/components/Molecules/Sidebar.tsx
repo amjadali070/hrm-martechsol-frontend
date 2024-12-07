@@ -8,7 +8,7 @@ import {
   FaChevronUp,
   FaBars,
   FaTimes,
-  FaClipboardList
+  FaClipboardList,
 } from "react-icons/fa";
 import { PiNetworkFill } from "react-icons/pi";
 import { RiCashFill } from "react-icons/ri";
@@ -38,12 +38,18 @@ const menuItems: MenuItem[] = [
     path: "/organization",
     visibleTo: ["HR"],
     subItems: [
-      { label: "Employee Management", path: "/organization/employee-management" },
+      {
+        label: "Employee Management",
+        path: "/organization/employee-management",
+      },
       { label: "Payroll Management", path: "/organization/payroll-management" },
       { label: "Leave Management", path: "/organization/leave-management" },
       { label: "Ticket Management", path: "/organization/ticket-management" },
       { label: "Holiday Management", path: "/organization/holiday-management" },
-      {label: "User Shift Management", path: "/organization/user-shift-management" },
+      {
+        label: "User Shift Management",
+        path: "/organization/user-shift-management",
+      },
     ],
   },
   {
@@ -89,8 +95,8 @@ const menuItems: MenuItem[] = [
     label: "Letters",
     path: "/letters",
     subItems: [
-      {label: "Employee Letter", path: "/letters/employee-letter"},
-      {label: "Experience Letter", path: "/letters/experience-letter"},
+      { label: "Employee Letter", path: "/letters/employee-letter" },
+      { label: "Experience Letter", path: "/letters/experience-letter" },
     ],
   },
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
@@ -137,13 +143,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
       >
         <div className="flex justify-between items-center px-4 py-3 bg-purple-800 md:hidden">
           <span className="text-lg font-semibold text-white">Menu</span>
-          <button onClick={() => setIsSidebarOpen(false)} className="text-white">
+          <button
+            onClick={() => setIsSidebarOpen(false)}
+            className="text-white"
+          >
             <FaTimes size={24} />
           </button>
         </div>
-        <nav
-          className="flex flex-col pt-2 pb-10 mx-auto w-full text-lg overflow-y-auto custom-scroll"
-        >
+        <nav className="flex flex-col pt-2 pb-10 mx-auto w-full text-lg overflow-y-auto custom-scroll">
           {menuItems
             .filter((item) => !item.visibleTo || item.visibleTo.includes(role))
             .map((item, index) => {
@@ -167,7 +174,11 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                           <span className="text-md">{item.label}</span>
                         </div>
                         <div>
-                          {openMenus[item.label] ? <FaChevronUp /> : <FaChevronDown />}
+                          {openMenus[item.label] ? (
+                            <FaChevronUp />
+                          ) : (
+                            <FaChevronDown />
+                          )}
                         </div>
                       </button>
                     ) : (

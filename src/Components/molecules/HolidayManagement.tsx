@@ -11,12 +11,36 @@ interface Holiday {
 
 const HolidayManagement: React.FC = () => {
   const [holidays, setHolidays] = useState<Holiday[]>([
-    { id: 1, fromDate: "2024-01-01", toDate: null, name: "New Year's Day", description: "Celebration of the New Year." },
-    { id: 2, fromDate: "2024-07-04", toDate: "2024-07-06", name: "Independence Weekend", description: "National holiday in the USA." },
-    { id: 3, fromDate: "2024-12-25", toDate: null, name: "Christmas Day", description: "Celebration of Christmas." },
+    {
+      id: 1,
+      fromDate: "2024-01-01",
+      toDate: null,
+      name: "New Year's Day",
+      description: "Celebration of the New Year.",
+    },
+    {
+      id: 2,
+      fromDate: "2024-07-04",
+      toDate: "2024-07-06",
+      name: "Independence Weekend",
+      description: "National holiday in the USA.",
+    },
+    {
+      id: 3,
+      fromDate: "2024-12-25",
+      toDate: null,
+      name: "Christmas Day",
+      description: "Celebration of Christmas.",
+    },
   ]);
 
-  const [form, setForm] = useState({ id: 0, fromDate: "", toDate: "", name: "", description: "" });
+  const [form, setForm] = useState({
+    id: 0,
+    fromDate: "",
+    toDate: "",
+    name: "",
+    description: "",
+  });
   const [isEditing, setIsEditing] = useState(false);
   const [filters, setFilters] = useState({ search: "", date: "", month: "" });
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +81,9 @@ const HolidayManagement: React.FC = () => {
     return holidays.filter((holiday) => {
       const searchFilter =
         holiday.name.toLowerCase().includes(filters.search.toLowerCase()) ||
-        holiday.description.toLowerCase().includes(filters.search.toLowerCase()) ||
+        holiday.description
+          .toLowerCase()
+          .includes(filters.search.toLowerCase()) ||
         holiday.fromDate.includes(filters.search) ||
         (holiday.toDate && holiday.toDate.includes(filters.search));
 
@@ -77,9 +103,13 @@ const HolidayManagement: React.FC = () => {
   const totalPages = Math.ceil(filteredHolidays.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentHolidays = filteredHolidays.slice(indexOfFirstItem, indexOfLastItem);
+  const currentHolidays = filteredHolidays.slice(
+    indexOfFirstItem,
+    indexOfLastItem
+  );
 
-  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handleNext = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
@@ -87,10 +117,14 @@ const HolidayManagement: React.FC = () => {
       <h1 className="text-2xl font-bold mb-6">Holiday Management</h1>
 
       <div className="bg-gray-100 p-4 rounded-lg mb-6">
-        <h2 className="text-lg font-bold mb-4">{isEditing ? "Edit Holiday" : "Add New Holiday"}</h2>
+        <h2 className="text-lg font-bold mb-4">
+          {isEditing ? "Edit Holiday" : "Add New Holiday"}
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">From Date</label>
+            <label className="block text-sm font-medium text-gray-700">
+              From Date
+            </label>
             <input
               type="date"
               value={form.fromDate}
@@ -99,7 +133,9 @@ const HolidayManagement: React.FC = () => {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">To Date (Optional)</label>
+            <label className="block text-sm font-medium text-gray-700">
+              To Date (Optional)
+            </label>
             <input
               type="date"
               value={form.toDate}
@@ -108,7 +144,9 @@ const HolidayManagement: React.FC = () => {
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Holiday Name</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Holiday Name
+            </label>
             <input
               type="text"
               placeholder="Holiday Name"
@@ -118,11 +156,15 @@ const HolidayManagement: React.FC = () => {
             />
           </div>
           <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">Description</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Description
+            </label>
             <textarea
               placeholder="Description"
               value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, description: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -130,7 +172,9 @@ const HolidayManagement: React.FC = () => {
         <button
           onClick={handleAddOrUpdate}
           className={`mt-4 px-4 py-2 text-white rounded-full hover:bg-opacity-90 ${
-            isEditing ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-600 hover:bg-blue-700"
+            isEditing
+              ? "bg-orange-500 hover:bg-orange-600"
+              : "bg-blue-600 hover:bg-blue-700"
           }`}
         >
           {isEditing ? "Update Holiday" : "Add Holiday"}
@@ -138,7 +182,7 @@ const HolidayManagement: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -150,7 +194,7 @@ const HolidayManagement: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaCalendarAlt className="text-gray-400 mr-2" />
           <input
             type="date"
@@ -160,7 +204,7 @@ const HolidayManagement: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filters.month}
@@ -170,7 +214,9 @@ const HolidayManagement: React.FC = () => {
             <option value="">Select Month</option>
             {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
               <option key={month} value={month}>
-                {new Date(2024, month - 1).toLocaleString("default", { month: "long" })}
+                {new Date(2024, month - 1).toLocaleString("default", {
+                  month: "long",
+                })}
               </option>
             ))}
           </select>
@@ -181,7 +227,14 @@ const HolidayManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-purple-900">
             <tr>
-              {["S.No", "From Date", "To Date", "Holiday Name", "Description", "Actions"].map((header) => (
+              {[
+                "S.No",
+                "From Date",
+                "To Date",
+                "Holiday Name",
+                "Description",
+                "Actions",
+              ].map((header) => (
                 <th
                   key={header}
                   className="px-4 py-2 text-left text-sm font-medium text-white"
@@ -195,13 +248,21 @@ const HolidayManagement: React.FC = () => {
             {currentHolidays.length > 0 ? (
               currentHolidays.map((holiday, index) => (
                 <tr key={holiday.id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2 text-sm text-gray-800">{indexOfFirstItem + index + 1}</td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{holiday.fromDate}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {indexOfFirstItem + index + 1}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {holiday.fromDate}
+                  </td>
                   <td className="px-4 py-2 text-sm text-gray-800">
                     {holiday.toDate || "Single Day"}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{holiday.name}</td>
-                  <td className="px-4 py-2 text-sm text-gray-800">{holiday.description}</td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {holiday.name}
+                  </td>
+                  <td className="px-4 py-2 text-sm text-gray-800">
+                    {holiday.description}
+                  </td>
                   <td className="px-4 py-2 text-sm text-gray-800 flex space-x-4">
                     <button
                       onClick={() => handleEdit(holiday)}
@@ -220,14 +281,14 @@ const HolidayManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td
-                  colSpan={6}
-                   className="text-center py-8 text-gray-500"
-                >
-                <div className="flex flex-col items-center justify-center">
-                  <FaInbox size={40} className="text-gray-400 mb-2" />
-                  <span className="text-md font-medium"> No holidays found.</span>
-                </div>
+                <td colSpan={6} className="text-center py-8 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaInbox size={30} className="text-gray-400 mb-2" />
+                    <span className="text-md font-medium">
+                      {" "}
+                      No holidays found.
+                    </span>
+                  </div>
                 </td>
               </tr>
             )}

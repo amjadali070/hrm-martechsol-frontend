@@ -213,7 +213,7 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                 <tr>
                   <td colSpan={7} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
-                      <FaInbox size={40} className="text-gray-400 mb-4" />
+                      <FaInbox size={30} className="text-gray-400 mb-4" />
                       <span className="text-lg font-medium">
                         No Payroll Found.
                       </span>
@@ -342,7 +342,7 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
               className="fixed inset-0 flex items-center justify-center modal-overlay bg-black bg-opacity-50"
               onClick={handleOverlayClick}
             >
-              <div className="bg-white p-6 rounded-lg shadow-lg">
+              <div className="bg-white p-6 rounded-lg">
                 <div className="flex justify-between items-center">
                   <h2 className="text-lg font-semibold mb-4">
                     Payroll Details for {selectedPayroll.month}{" "}

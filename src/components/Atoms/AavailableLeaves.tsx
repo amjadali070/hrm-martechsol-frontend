@@ -160,7 +160,7 @@ const AvailableLeaves: React.FC = () => {
           </h2>
 
           <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaFilter className="text-gray-400 mr-3" />
               <select
                 value={selectedLeaveType}
@@ -177,7 +177,7 @@ const AvailableLeaves: React.FC = () => {
             </div>
 
             {/* From Date Filter */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaCalendarAlt className="text-gray-400 mr-3" />
               <input
                 type="text"
@@ -208,7 +208,7 @@ const AvailableLeaves: React.FC = () => {
             </div>
 
             {/* To Date Filter */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaCalendarAlt className="text-gray-400 mr-3" />
               <input
                 type="text"

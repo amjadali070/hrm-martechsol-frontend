@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React, { useState } from "react";
 import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
 import { FaUser, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
 import { toast } from "react-toastify";
@@ -33,25 +33,25 @@ interface EditablePayrollProps {
   onCancel: () => void;
 }
 
-const EditablePayroll: React.FC<EditablePayrollProps> = ({ 
-  payrollData, 
-  onSave, 
-  onCancel 
+const EditablePayroll: React.FC<EditablePayrollProps> = ({
+  payrollData,
+  onSave,
+  onCancel,
 }) => {
   const [editableData, setEditableData] = useState<PayrollDetails>(payrollData);
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleInputChange = (
-    e: React.ChangeEvent<HTMLInputElement>, 
-    field: string, 
+    e: React.ChangeEvent<HTMLInputElement>,
+    field: string,
     category?: string,
     subCategory?: string
   ) => {
     const value = parseFloat(e.target.value) || 0;
-    
-    setEditableData(prev => {
+
+    setEditableData((prev) => {
       const updated = JSON.parse(JSON.stringify(prev));
-      
+
       if (category && subCategory) {
         updated[category][subCategory][field] = value;
       } else if (category) {
@@ -59,7 +59,7 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
       } else {
         updated[field] = value;
       }
-      
+
       return updated;
     });
   };
@@ -69,11 +69,9 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
       setLoading(true);
       onSave(editableData);
     } catch (err: any) {
-      console.error('Error saving payroll:', err);
+      console.error("Error saving payroll:", err);
       toast.error(
-        err.response?.data?.message || 
-        err.message || 
-        'Failed to save payroll'
+        err.response?.data?.message || err.message || "Failed to save payroll"
       );
     } finally {
       setLoading(false);
@@ -93,12 +91,16 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
             { label: "Name", value: editableData.name, disabled: true },
-            { label: "Job Title", value: editableData.jobTitle, disabled: true },
+            {
+              label: "Job Title",
+              value: editableData.jobTitle,
+              disabled: true,
+            },
             { label: "Job Type", value: editableData.jobType, disabled: true },
-            { 
-              label: "Month", 
-              value: `${editableData.month} ${editableData.year}`, 
-              disabled: true 
+            {
+              label: "Month",
+              value: `${editableData.month} ${editableData.year}`,
+              disabled: true,
             },
           ].map(({ label, value, disabled }) => (
             <div key={label}>
@@ -121,31 +123,31 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
-            { 
-              label: "Basic Salary", 
-              field: "basicSalary", 
-              value: editableData.basicSalary 
+            {
+              label: "Basic Salary",
+              field: "basicSalary",
+              value: editableData.basicSalary,
             },
-            { 
-              label: "Medical Allowance", 
-              field: "medicalAllowance", 
+            {
+              label: "Medical Allowance",
+              field: "medicalAllowance",
               value: editableData.earnings.allowances.medicalAllowance,
               category: "earnings",
-              subCategory: "allowances"
+              subCategory: "allowances",
             },
-            { 
-              label: "Mobile Allowance", 
-              field: "mobileAllowance", 
+            {
+              label: "Mobile Allowance",
+              field: "mobileAllowance",
               value: editableData.earnings.allowances.mobileAllowance,
-              category: "earnings", 
-              subCategory: "allowances"
+              category: "earnings",
+              subCategory: "allowances",
             },
-            { 
-              label: "Fuel Allowance", 
-              field: "fuelAllowance", 
+            {
+              label: "Fuel Allowance",
+              field: "fuelAllowance",
               value: editableData.earnings.allowances.fuelAllowance,
-              category: "earnings", 
-              subCategory: "allowances"
+              category: "earnings",
+              subCategory: "allowances",
             },
           ].map(({ label, field, value, category, subCategory }) => (
             <div key={field}>
@@ -153,12 +155,9 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               <input
                 type="number"
                 value={value}
-                onChange={(e) => handleInputChange(
-                  e, 
-                  field, 
-                  category, 
-                  subCategory
-                )}
+                onChange={(e) =>
+                  handleInputChange(e, field, category, subCategory)
+                }
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>
@@ -173,24 +172,24 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-100 rounded-b-md">
           {[
-            { 
-              label: "Tax", 
-              field: "tax", 
-              value: editableData.deductions.tax, 
-              category: "deductions"
-            },
-            { 
-              label: "EOBI", 
-              field: "eobi", 
-              value: editableData.deductions.eobi, 
-              category: "deductions"
-            },
-            { 
-              label: "PF Contribution", 
-              field: "employeeContribution", 
-              value: editableData.deductions.providentFund.employeeContribution, 
+            {
+              label: "Tax",
+              field: "tax",
+              value: editableData.deductions.tax,
               category: "deductions",
-              subCategory: "providentFund"
+            },
+            {
+              label: "EOBI",
+              field: "eobi",
+              value: editableData.deductions.eobi,
+              category: "deductions",
+            },
+            {
+              label: "PF Contribution",
+              field: "employeeContribution",
+              value: editableData.deductions.providentFund.employeeContribution,
+              category: "deductions",
+              subCategory: "providentFund",
             },
           ].map(({ label, field, value, category, subCategory }) => (
             <div key={field}>
@@ -198,12 +197,9 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               <input
                 type="number"
                 value={value}
-                onChange={(e) => handleInputChange(
-                  e, 
-                  field, 
-                  category, 
-                  subCategory
-                )}
+                onChange={(e) =>
+                  handleInputChange(e, field, category, subCategory)
+                }
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
               />
             </div>

@@ -255,7 +255,7 @@ const EmployeeManagement: React.FC = () => {
       </div>
 
       <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -266,7 +266,7 @@ const EmployeeManagement: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUsers className="text-gray-400 mr-2" />
           <select
             value={departmentFilter}
@@ -298,7 +298,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaBriefcase className="text-gray-400 mr-2" />
           <select
             value={jobTypeFilter}
@@ -314,7 +314,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUserTag className="text-gray-400 mr-2" />
           <select
             value={jobTitleFilter}
@@ -341,7 +341,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUsers className="text-gray-400 mr-2" />
           <select
             value={genderFilter}
@@ -355,7 +355,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-2" />
           <select
             value={monthFilter}
@@ -461,7 +461,7 @@ const EmployeeManagement: React.FC = () => {
                 ) : (
                   <td colSpan={8} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
-                      <FaInbox size={40} className="text-gray-400 mb-4" />
+                      <FaInbox size={30} className="text-gray-400 mb-4" />
                       <span className="text-lg font-medium">
                         No Employees Found.
                       </span>

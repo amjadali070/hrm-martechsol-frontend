@@ -1,57 +1,85 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router';
-import axiosInstance from '../../utils/axiosConfig';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import axiosInstance from "../../utils/axiosConfig";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const AddNewEmployee: React.FC = () => {
-
   const departments: { [key: string]: string[] } = {
-    'Account Management': ['Digital Marketing', 'Book Marketing', 'Software Application', 'Mobile Application'],
-    'Project Management': ['Digital Marketing', 'Book Marketing', 'Software Application', 'Mobile Application'],
-    'Content Production': ['SEO Content', 'Technical Content'],
-    'Book Marketing': ['Book Formatting & Publishing', 'Book Editing'],
-    'Design Production': ['Graphic Design', 'Web Design', 'UI/UX Design'],
-    'SEO': [],
-    'Creative Media': ['Infographic', '2D Animation', 'Illustrator', '3D Animation', 'VoiceOver'],
-    'Web Development': ['CMS Development', 'Frontend Development', 'Backend Development'],
-    'Paid Advertising': ['Digital Marketing', 'Book Marketing', 'Social Media Marketing', 'SMS Marketing'],
-    'Software Production': ['Software Development', 'Game Development', 'Android Development', 'iOS Development'],
-    'IT & Networking': [],
-    'Human Resource': [],
-    'Training & Development': [],
-    'Admin': [],
-    'Finance': [],
-    'Brand Development': ['Digital Marketing', 'Book Marketing'],
-    'Corporate Communication': []
+    "Account Management": [
+      "Digital Marketing",
+      "Book Marketing",
+      "Software Application",
+      "Mobile Application",
+    ],
+    "Project Management": [
+      "Digital Marketing",
+      "Book Marketing",
+      "Software Application",
+      "Mobile Application",
+    ],
+    "Content Production": ["SEO Content", "Technical Content"],
+    "Book Marketing": ["Book Formatting & Publishing", "Book Editing"],
+    "Design Production": ["Graphic Design", "Web Design", "UI/UX Design"],
+    SEO: [],
+    "Creative Media": [
+      "Infographic",
+      "2D Animation",
+      "Illustrator",
+      "3D Animation",
+      "VoiceOver",
+    ],
+    "Web Development": [
+      "CMS Development",
+      "Frontend Development",
+      "Backend Development",
+    ],
+    "Paid Advertising": [
+      "Digital Marketing",
+      "Book Marketing",
+      "Social Media Marketing",
+      "SMS Marketing",
+    ],
+    "Software Production": [
+      "Software Development",
+      "Game Development",
+      "Android Development",
+      "iOS Development",
+    ],
+    "IT & Networking": [],
+    "Human Resource": [],
+    "Training & Development": [],
+    Admin: [],
+    Finance: [],
+    "Brand Development": ["Digital Marketing", "Book Marketing"],
+    "Corporate Communication": [],
   };
 
   const jobTitles = [
-    'Executive',
-    'Senior Executive', 
-    'Assistant Manager',
-    'Associate Manager',
-    'Manager',
-    'Senior Manager',
-    'Assistant Vice President',
-    'Associate Vice President',
-    'Vice President',
-    'Senior Vice President'
+    "Executive",
+    "Senior Executive",
+    "Assistant Manager",
+    "Associate Manager",
+    "Manager",
+    "Senior Manager",
+    "Assistant Vice President",
+    "Associate Vice President",
+    "Vice President",
+    "Senior Vice President",
   ];
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
     department: Object.keys(departments)[0],
-    jobCategory: departments[Object.keys(departments)[0]][0] || '',
+    jobCategory: departments[Object.keys(departments)[0]][0] || "",
     jobTitle: jobTitles[0],
-    jobType: 'Full-Time',
-    role: 'normal',
-    joiningDate: '',
+    jobType: "Full-Time",
+    role: "normal",
+    joiningDate: "",
   });
-  
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -59,59 +87,85 @@ const AddNewEmployee: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target as { name: keyof typeof formData; value: string };
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value } = e.target as {
+      name: keyof typeof formData;
+      value: string;
+    };
 
-    if (name === 'department') {
-      setFormData(prev => ({
+    if (name === "department") {
+      setFormData((prev) => ({
         ...prev,
         [name]: value,
-        jobCategory: departments[value][0] || ''
+        jobCategory: departments[value][0] || "",
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: value
+        [name]: value,
       }));
     }
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-  
-    const { name, email, password, confirmPassword, department, jobCategory, jobTitle, jobType, role, joiningDate } = formData;
-  
-    if (!name || !email || !password || !confirmPassword || !department || !jobTitle || !jobType || !role || !joiningDate) {
-      setErrorMessage('Please fill in all required fields.');
+
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+      department,
+      jobCategory,
+      jobTitle,
+      jobType,
+      role,
+      joiningDate,
+    } = formData;
+
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !confirmPassword ||
+      !department ||
+      !jobTitle ||
+      !jobType ||
+      !role ||
+      !joiningDate
+    ) {
+      setErrorMessage("Please fill in all required fields.");
       return;
     }
-  
+
     if (departments[department].length > 0 && !jobCategory) {
-      setErrorMessage('Please select a job category for this department.');
+      setErrorMessage("Please select a job category for this department.");
       return;
     }
-  
+
     if (password.length < 6) {
-      setErrorMessage('Password must be at least 6 characters long.');
+      setErrorMessage("Password must be at least 6 characters long.");
       return;
     }
-  
+
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match.');
+      setErrorMessage("Passwords do not match.");
       return;
     }
-  
+
     setIsSubmitting(true);
     setErrorMessage(null);
-  
+
     try {
       const config = {
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         withCredentials: true,
       };
-  
+
       const payload = {
         name,
         email,
@@ -120,32 +174,40 @@ const AddNewEmployee: React.FC = () => {
         jobTitle,
         jobType,
         role,
-        joiningDate,  // Add the new field to the payload
-        ...(departments[department].length > 0 && { jobCategory })
+        joiningDate, // Add the new field to the payload
+        ...(departments[department].length > 0 && { jobCategory }),
       };
-  
-      await axiosInstance.post(`${backendUrl}/api/users/register`, payload, config);
-  
-      toast.success('Employee added successfully!');
-      navigate('/organization/employee-management');
+
+      await axiosInstance.post(
+        `${backendUrl}/api/users/register`,
+        payload,
+        config
+      );
+
+      toast.success("Employee added successfully!");
+      navigate("/organization/employee-management");
     } catch (error: any) {
       const message =
         error.response && error.response.data.message
           ? error.response.data.message
-          : 'Failed to add employee. Please try again.';
+          : "Failed to add employee. Please try again.";
       setErrorMessage(message);
     } finally {
       setIsSubmitting(false);
     }
   };
-  
 
   return (
     <div className="w-[50%] mx-auto my-10 p-6 bg-white rounded-lg">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Add New Employee</h2>
+      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+        Add New Employee
+      </h2>
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="relative">
-          <label htmlFor="name" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="name"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Employee Name<span className="text-red-500">*</span>
           </label>
           <input
@@ -160,7 +222,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="email" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="email"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Employee Email<span className="text-red-500">*</span>
           </label>
           <input
@@ -175,7 +240,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="password" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="password"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Password<span className="text-red-500">*</span>
           </label>
           <input
@@ -190,7 +258,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="confirmPassword" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="confirmPassword"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Confirm Password<span className="text-red-500">*</span>
           </label>
           <input
@@ -205,7 +276,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="department" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="department"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Department<span className="text-red-500">*</span>
           </label>
           <select
@@ -225,8 +299,11 @@ const AddNewEmployee: React.FC = () => {
 
         {departments[formData.department].length > 0 && (
           <div>
-            <label htmlFor="jobCategory" className="block text-gray-600 font-medium mb-1">
-            Job Category<span className="text-red-500">*</span>
+            <label
+              htmlFor="jobCategory"
+              className="block text-gray-600 font-medium mb-1"
+            >
+              Job Category<span className="text-red-500">*</span>
             </label>
             <select
               id="jobCategory"
@@ -245,7 +322,10 @@ const AddNewEmployee: React.FC = () => {
         )}
 
         <div>
-          <label htmlFor="jobTitle" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="jobTitle"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Job Title<span className="text-red-500">*</span>
           </label>
           <select
@@ -264,7 +344,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="jobType" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="jobType"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Job Type<span className="text-red-500">*</span>
           </label>
           <select
@@ -283,7 +366,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="joiningDate" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="joiningDate"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Joining Date<span className="text-red-500">*</span>
           </label>
           <input
@@ -297,7 +383,10 @@ const AddNewEmployee: React.FC = () => {
         </div>
 
         <div>
-          <label htmlFor="role" className="block text-gray-600 font-medium mb-1">
+          <label
+            htmlFor="role"
+            className="block text-gray-600 font-medium mb-1"
+          >
             Role<span className="text-red-500">*</span>
           </label>
           <select
@@ -314,14 +403,16 @@ const AddNewEmployee: React.FC = () => {
           </select>
         </div>
 
-        {errorMessage && <div className="text-red-500 text-center">{errorMessage}</div>}
+        {errorMessage && (
+          <div className="text-red-500 text-center">{errorMessage}</div>
+        )}
 
         <button
           type="submit"
           className="w-full bg-blue-600 text-white py-2 rounded-lg disabled:bg-gray-400"
           disabled={isSubmitting}
         >
-          {isSubmitting ? 'Adding...' : 'Add Employee'}
+          {isSubmitting ? "Adding..." : "Add Employee"}
         </button>
       </form>
     </div>

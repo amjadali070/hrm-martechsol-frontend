@@ -208,7 +208,7 @@ const AdminTicket: React.FC = () => {
         <h2 className="text-lg md:text-xl font-bold text-black">
           Ticket Status
         </h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 ">
+        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300 ">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filteredStatus}
@@ -239,7 +239,7 @@ const AdminTicket: React.FC = () => {
           </div>
         ) : notFound ? (
           <div className="flex flex-col items-center">
-            <FaInbox size={40} className="text-gray-400 mb-4" />
+            <FaInbox size={30} className="text-gray-400 mb-4" />
             <span className="text-lg font-medium">No tickets available</span>
           </div>
         ) : paginatedTickets.length > 0 ? (
@@ -310,7 +310,7 @@ const AdminTicket: React.FC = () => {
           </table>
         ) : (
           <div className="flex flex-col items-center">
-            <FaInbox size={40} className="text-gray-400 mb-4" />
+            <FaInbox size={30} className="text-gray-400 mb-4" />
             <span className="text-lg font-medium">No tickets available</span>
           </div>
         )}

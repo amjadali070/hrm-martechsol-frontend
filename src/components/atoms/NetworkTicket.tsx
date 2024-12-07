@@ -5,13 +5,13 @@ import { IoCloseCircle } from "react-icons/io5";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import useUser from "../../hooks/useUser";
-import { toast } from "react-toastify"; // Import toast
+import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 
-interface Ticket {
+interface NetworkTicketProps {
   id: number;
   date: string;
-  from: string;
+  departmentTo: string;
   subject: string;
   message: string;
   status: "Open" | "Closed";
@@ -19,16 +19,17 @@ interface Ticket {
 
 const NetworkTicket: React.FC = () => {
   const [formData, setFormData] = useState({
-    deptTo: "",
+    departmentTo: "",
     subject: "",
     message: "",
   });
 
-  const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [tickets, setTickets] = useState<NetworkTicketProps[]>([]);
   const [filteredStatus, setFilteredStatus] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [selectedTicket, setSelectedTicket] =
+    useState<NetworkTicketProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
@@ -67,7 +68,7 @@ const NetworkTicket: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${backendUrl}/api/tickets/user/${userId}`,
+          `${backendUrl}/api/network-tickets/user/${userId}`,
           {
             withCredentials: true,
           }
@@ -120,9 +121,9 @@ const NetworkTicket: React.FC = () => {
     setIsSubmitting(true);
     try {
       const response = await axios.post(
-        `${backendUrl}/api/tickets`,
+        `${backendUrl}/api/network-tickets`,
         {
-          from: formData.deptTo,
+          departmentTo: formData.departmentTo,
           subject,
           message,
         },
@@ -130,7 +131,7 @@ const NetworkTicket: React.FC = () => {
       );
       setSubmitSuccess(true);
       setTickets([response.data.ticket, ...tickets]);
-      setFormData({ deptTo: "", subject: "", message: "" });
+      setFormData({ departmentTo: "", subject: "", message: "" });
       toast.success("Ticket submitted successfully!");
     } catch (error) {
       console.error("Error submitting ticket:", error);
@@ -161,15 +162,15 @@ const NetworkTicket: React.FC = () => {
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="mb-4">
           <label
-            htmlFor="deptTo"
+            htmlFor="departmentTo"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
             Department To
           </label>
           <select
-            id="deptTo"
-            name="deptTo"
-            value={formData.deptTo}
+            id="departmentTo"
+            name="departmentTo"
+            value={formData.departmentTo}
             onChange={handleInputChange}
             className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
             required
@@ -230,11 +231,12 @@ const NetworkTicket: React.FC = () => {
         </button>
       </form>
 
+      {/* Ticket Status Section */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg md:text-xl font-bold text-black">
           Ticket Status
         </h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 ">
+        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300 ">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filteredStatus}
@@ -251,6 +253,7 @@ const NetworkTicket: React.FC = () => {
         </div>
       </div>
 
+      {/* Tickets Table */}
       <div className="overflow-x-auto">
         {loading ? (
           <div className="flex flex-col items-center justify-center mt-10 mb-10">
@@ -305,7 +308,7 @@ const NetworkTicket: React.FC = () => {
                     {formatDate(ticket.date)}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.from}
+                    {ticket.departmentTo}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {ticket.subject}
@@ -332,13 +335,14 @@ const NetworkTicket: React.FC = () => {
         ) : (
           !loading && (
             <div className="flex flex-col items-center">
-              <FaInbox size={40} className="text-gray-400 mb-4" />
+              <FaInbox size={30} className="text-gray-400 mb-4" />
               <span className="text-lg font-medium">No tickets available</span>
             </div>
           )
         )}
       </div>
 
+      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>
@@ -399,7 +403,7 @@ const NetworkTicket: React.FC = () => {
               <strong>Date:</strong> {formatDate(selectedTicket.date)}
             </p>
             <p>
-              <strong>From:</strong> {selectedTicket.from}
+              <strong>Department To:</strong> {selectedTicket.departmentTo}
             </p>
             <p>
               <strong>Subject:</strong> {selectedTicket.subject}

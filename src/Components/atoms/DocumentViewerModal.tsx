@@ -1,37 +1,37 @@
-import React from 'react';
-import { FaTimes } from 'react-icons/fa';
+import React from "react";
+import { FaTimes } from "react-icons/fa";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
   onClose: () => void;
   fileUrl: string;
   fileName: string;
-  fileType: 'image' | 'pdf';
+  fileType: "image" | "pdf";
 }
 
-const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({ 
-  isOpen, 
-  onClose, 
-  fileUrl, 
-  fileName, 
-  fileType 
+const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
+  isOpen,
+  onClose,
+  fileUrl,
+  fileName,
+  fileType,
 }) => {
   if (!isOpen) return null;
 
   const renderContent = () => {
     switch (fileType) {
-      case 'image':
+      case "image":
         return (
-          <img 
-            src={fileUrl} 
-            alt={fileName} 
-            className="max-w-full max-h-[80vh] object-contain mx-auto" 
+          <img
+            src={fileUrl}
+            alt={fileName}
+            className="max-w-full max-h-[80vh] object-contain mx-auto"
           />
         );
-      case 'pdf':
+      case "pdf":
         return (
-          <iframe 
-            src={fileUrl} 
+          <iframe
+            src={fileUrl}
             title={fileName}
             className="w-full h-[80vh]"
             frameBorder="0"
@@ -45,8 +45,8 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
   return (
     <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg max-w-4xl w-full relative">
-        <button 
-          onClick={onClose} 
+        <button
+          onClick={onClose}
           className="absolute top-4 right-4 z-60 text-gray-700 hover:text-black"
           aria-label="Close"
         >
@@ -57,9 +57,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
           <h2 className="text-xl font-semibold text-center">{fileName}</h2>
         </div>
 
-        <div className="p-4">
-          {renderContent()}
-        </div>
+        <div className="p-4">{renderContent()}</div>
       </div>
     </div>
   );

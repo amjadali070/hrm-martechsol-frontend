@@ -158,7 +158,7 @@ const TrackApplication: React.FC = () => {
       </h2>
 
       <div className="flex flex-wrap gap-4 mb-2">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filterStatus}
@@ -175,7 +175,7 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filterLeaveType}
@@ -193,7 +193,7 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -207,7 +207,7 @@ const TrackApplication: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <select
             value={selectedMonth}
@@ -233,7 +233,7 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -259,7 +259,7 @@ const TrackApplication: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <input
             type="text"

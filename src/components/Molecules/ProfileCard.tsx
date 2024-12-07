@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate } from 'react-router';
+import React from "react";
+import { useNavigate } from "react-router";
 
 interface ProfileImageProps {
   src: string;
@@ -21,16 +21,20 @@ interface ProfileInfoProps {
 const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
   return (
     <div className="flex justify-center object-cover w-1/5 max-md:w-24 max-sm:w-1/3">
-      <img 
-        src={src} 
-        alt="Profile" 
+      <img
+        src={src}
+        alt="Profile"
         className="rounded-full object-cover border-[6px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
       />
     </div>
   );
 };
 
-const ProfileInfo: React.FC<ProfileInfoProps> = ({ name, jobTitle, userShift }) => {
+const ProfileInfo: React.FC<ProfileInfoProps> = ({
+  name,
+  jobTitle,
+  userShift,
+}) => {
   return (
     <div className="flex flex-col ml-5 w-4/5 max-md:ml-0 max-md:w-full">
       <div className="flex flex-col text-white">
@@ -42,11 +46,16 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({ name, jobTitle, userShift }) 
   );
 };
 
-const ProfileCard: React.FC<ProfileCardProps> = ({ name, jobTitle, imageSrc, userShift }) =>  {
+const ProfileCard: React.FC<ProfileCardProps> = ({
+  name,
+  jobTitle,
+  imageSrc,
+  userShift,
+}) => {
   const navigate = useNavigate();
 
   const handleEditProfile = () => {
-    navigate('/edit-profile');
+    navigate("/edit-profile");
   };
 
   return (

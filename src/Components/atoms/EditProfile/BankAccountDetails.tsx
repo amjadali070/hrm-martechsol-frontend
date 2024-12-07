@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
-import Select from 'react-select';
+import React, { useState } from "react";
+import { FaEdit } from "react-icons/fa";
+import Select from "react-select";
 
 interface BankAccountDetailsProps {
   bankName: string;
@@ -35,14 +35,15 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
 
   const [isEditing, setIsEditing] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleBankNameChange = (selectedOption: { value: string; label: string }) => {
+  const handleBankNameChange = (selectedOption: {
+    value: string;
+    label: string;
+  }) => {
     setFormData({ ...formData, bankName: selectedOption.value });
   };
 
@@ -57,60 +58,87 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
   };
 
   const pakistaniBanks = [
-    { value: 'AlBaraka Bank (Pakistan) Limited', label: 'AlBaraka Bank (Pakistan) Limited' },
-    { value: 'Allied Bank Limited', label: 'Allied Bank Limited' },
-    { value: 'Askari Bank Limited', label: 'Askari Bank Limited' },
-    { value: 'Bank AL Habib Limited', label: 'Bank AL Habib Limited' },
-    { value: 'Bank Alfalah Limited', label: 'Bank Alfalah Limited' },
-    { value: 'The Bank of Khyber', label: 'The Bank of Khyber' },
-    { value: 'The Bank of Punjab', label: 'The Bank of Punjab' },
-    { value: 'BankIslami Pakistan Limited', label: 'BankIslami Pakistan Limited' },
-    { value: 'Citibank N.A.', label: 'Citibank N.A.' },
-    { value: 'Deutsche Bank AG', label: 'Deutsche Bank AG' },
-    { value: 'Dubai Islamic Bank Pakistan Limited', label: 'Dubai Islamic Bank Pakistan Limited' },
-    { value: 'Faysal Bank Limited', label: 'Faysal Bank Limited' },
-    { value: 'First Women Bank Limited', label: 'First Women Bank Limited' },
-    { value: 'Habib Bank Limited', label: 'Habib Bank Limited' },
-    { value: 'Habib Metropolitan Bank Limited', label: 'Habib Metropolitan Bank Limited' },
-    { value: 'Industrial and Commercial Bank of China Limited', label: 'Industrial and Commercial Bank of China Limited' },
-    { value: 'Industrial Development Bank of Pakistan', label: 'Industrial Development Bank of Pakistan' },
-    { value: 'JS Bank Limited', label: 'JS Bank Limited' },
-    { value: 'Meezan Bank Limited', label: 'Meezan Bank Limited' },
-    { value: 'MCB Bank Limited', label: 'MCB Bank Limited' },
-    { value: 'MCB Islamic Bank', label: 'MCB Islamic Bank' },
-    { value: 'National Bank of Pakistan', label: 'National Bank of Pakistan' },
-    { value: 'Punjab Provincial Cooperative Bank Ltd.', label: 'Punjab Provincial Cooperative Bank Ltd.' },
-    { value: 'Samba Bank Limited', label: 'Samba Bank Limited' },
-    { value: 'Sindh Bank Limited', label: 'Sindh Bank Limited' },
-    { value: 'Silkbank Limited', label: 'Silkbank Limited' },
-    { value: 'SME Bank Limited', label: 'SME Bank Limited' },
-    { value: 'Soneri Bank Limited', label: 'Soneri Bank Limited' },
-    { value: 'Standard Chartered Bank (Pakistan) Ltd', label: 'Standard Chartered Bank (Pakistan) Ltd' },
-    { value: 'Summit Bank Limited', label: 'Summit Bank Limited' },
-    { value: 'The Bank of Tokyo-Mitsubishi UFJ Ltd.', label: 'The Bank of Tokyo-Mitsubishi UFJ Ltd.' },
-    { value: 'United Bank Limited', label: 'United Bank Limited' },
-    { value: 'Zarai Taraqiati Bank Ltd.', label: 'Zarai Taraqiati Bank Ltd.' },
+    {
+      value: "AlBaraka Bank (Pakistan) Limited",
+      label: "AlBaraka Bank (Pakistan) Limited",
+    },
+    { value: "Allied Bank Limited", label: "Allied Bank Limited" },
+    { value: "Askari Bank Limited", label: "Askari Bank Limited" },
+    { value: "Bank AL Habib Limited", label: "Bank AL Habib Limited" },
+    { value: "Bank Alfalah Limited", label: "Bank Alfalah Limited" },
+    { value: "The Bank of Khyber", label: "The Bank of Khyber" },
+    { value: "The Bank of Punjab", label: "The Bank of Punjab" },
+    {
+      value: "BankIslami Pakistan Limited",
+      label: "BankIslami Pakistan Limited",
+    },
+    { value: "Citibank N.A.", label: "Citibank N.A." },
+    { value: "Deutsche Bank AG", label: "Deutsche Bank AG" },
+    {
+      value: "Dubai Islamic Bank Pakistan Limited",
+      label: "Dubai Islamic Bank Pakistan Limited",
+    },
+    { value: "Faysal Bank Limited", label: "Faysal Bank Limited" },
+    { value: "First Women Bank Limited", label: "First Women Bank Limited" },
+    { value: "Habib Bank Limited", label: "Habib Bank Limited" },
+    {
+      value: "Habib Metropolitan Bank Limited",
+      label: "Habib Metropolitan Bank Limited",
+    },
+    {
+      value: "Industrial and Commercial Bank of China Limited",
+      label: "Industrial and Commercial Bank of China Limited",
+    },
+    {
+      value: "Industrial Development Bank of Pakistan",
+      label: "Industrial Development Bank of Pakistan",
+    },
+    { value: "JS Bank Limited", label: "JS Bank Limited" },
+    { value: "Meezan Bank Limited", label: "Meezan Bank Limited" },
+    { value: "MCB Bank Limited", label: "MCB Bank Limited" },
+    { value: "MCB Islamic Bank", label: "MCB Islamic Bank" },
+    { value: "National Bank of Pakistan", label: "National Bank of Pakistan" },
+    {
+      value: "Punjab Provincial Cooperative Bank Ltd.",
+      label: "Punjab Provincial Cooperative Bank Ltd.",
+    },
+    { value: "Samba Bank Limited", label: "Samba Bank Limited" },
+    { value: "Sindh Bank Limited", label: "Sindh Bank Limited" },
+    { value: "Silkbank Limited", label: "Silkbank Limited" },
+    { value: "SME Bank Limited", label: "SME Bank Limited" },
+    { value: "Soneri Bank Limited", label: "Soneri Bank Limited" },
+    {
+      value: "Standard Chartered Bank (Pakistan) Ltd",
+      label: "Standard Chartered Bank (Pakistan) Ltd",
+    },
+    { value: "Summit Bank Limited", label: "Summit Bank Limited" },
+    {
+      value: "The Bank of Tokyo-Mitsubishi UFJ Ltd.",
+      label: "The Bank of Tokyo-Mitsubishi UFJ Ltd.",
+    },
+    { value: "United Bank Limited", label: "United Bank Limited" },
+    { value: "Zarai Taraqiati Bank Ltd.", label: "Zarai Taraqiati Bank Ltd." },
   ];
 
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      height: '50px',
-      border: '1px solid #D1D5DB',
-      borderRadius: '0.375rem',
-      backgroundColor: '#F3F4F6',
-      boxShadow: state.isFocused ? '0 0 0 2px #6B46C1' : 'none',
-      '&:hover': {
-        borderColor: '#6B46C1',
+      height: "50px",
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      backgroundColor: "#F3F4F6",
+      boxShadow: state.isFocused ? "0 0 0 2px #6B46C1" : "none",
+      "&:hover": {
+        borderColor: "#6B46C1",
       },
     }),
     singleValue: (base: any) => ({
       ...base,
-      fontSize: '1rem',
+      fontSize: "1rem",
     }),
     placeholder: (base: any) => ({
       ...base,
-      fontSize: '1rem',
+      fontSize: "1rem",
     }),
   };
 
@@ -132,9 +160,13 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
             </label>
             {isEditing ? (
               <Select
-                value={pakistaniBanks.find((bank) => bank.value === formData.bankName)}
+                value={pakistaniBanks.find(
+                  (bank) => bank.value === formData.bankName
+                )}
                 onChange={(selectedOption) =>
-                  handleBankNameChange(selectedOption as { value: string; label: string })
+                  handleBankNameChange(
+                    selectedOption as { value: string; label: string }
+                  )
                 }
                 options={pakistaniBanks}
                 isDisabled={!isEditing}
@@ -159,7 +191,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
               onChange={handleChange}
               disabled={!isEditing}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             />
           </div>
@@ -176,7 +208,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           />
         </div>
@@ -193,7 +225,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
               onChange={handleChange}
               disabled={!isEditing}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             />
           </div>
@@ -208,7 +240,7 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
               onChange={handleChange}
               disabled={!isEditing}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             />
           </div>

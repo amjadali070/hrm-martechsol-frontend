@@ -20,10 +20,34 @@ const departmentOptions = ["HR", "Engineering", "Sales", "Marketing"];
 const jobTitleOptions = ["Manager", "Developer", "Analyst", "Designer"];
 
 const initialData: UserShiftData[] = [
-  { id: 1, name: "John Doe", department: "Engineering", jobTitle: "Developer", shift: "6:00 AM - 2:00 PM" },
-  { id: 2, name: "Jane Smith", department: "HR", jobTitle: "Manager", shift: "2:00 PM - 10:00 PM" },
-  { id: 3, name: "Alice Brown", department: "Sales", jobTitle: "Analyst", shift: "10:00 PM - 6:00 AM" },
-  { id: 4, name: "Bob Johnson", department: "Marketing", jobTitle: "Designer", shift: "6:00 PM - 2:30 AM" },
+  {
+    id: 1,
+    name: "John Doe",
+    department: "Engineering",
+    jobTitle: "Developer",
+    shift: "6:00 AM - 2:00 PM",
+  },
+  {
+    id: 2,
+    name: "Jane Smith",
+    department: "HR",
+    jobTitle: "Manager",
+    shift: "2:00 PM - 10:00 PM",
+  },
+  {
+    id: 3,
+    name: "Alice Brown",
+    department: "Sales",
+    jobTitle: "Analyst",
+    shift: "10:00 PM - 6:00 AM",
+  },
+  {
+    id: 4,
+    name: "Bob Johnson",
+    department: "Marketing",
+    jobTitle: "Designer",
+    shift: "6:00 PM - 2:30 AM",
+  },
 ];
 
 const UserShiftManagement: React.FC = () => {
@@ -34,7 +58,9 @@ const UserShiftManagement: React.FC = () => {
     jobTitle: "",
     shift: "",
   });
-  const [editedShifts, setEditedShifts] = useState<{ [key: number]: string }>({});
+  const [editedShifts, setEditedShifts] = useState<{ [key: number]: string }>(
+    {}
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
 
@@ -74,7 +100,9 @@ const UserShiftManagement: React.FC = () => {
       !filters.jobTitle || user.jobTitle === filters.jobTitle;
     const matchesShift = !filters.shift || user.shift === filters.shift;
 
-    return matchesSearch && matchesDepartment && matchesJobTitle && matchesShift;
+    return (
+      matchesSearch && matchesDepartment && matchesJobTitle && matchesShift
+    );
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -89,9 +117,8 @@ const UserShiftManagement: React.FC = () => {
         User Shift Management
       </h1>
 
-      {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -102,7 +129,7 @@ const UserShiftManagement: React.FC = () => {
             className="w-full border-none focus:outline-none"
           />
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="department"
@@ -118,7 +145,7 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="jobTitle"
@@ -134,7 +161,7 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="shift"
@@ -157,16 +184,21 @@ const UserShiftManagement: React.FC = () => {
         <table className="w-full bg-white rounded-lg">
           <thead className="bg-purple-900 text-white">
             <tr>
-              {["S.No", "Employee Name", "Department", "Job Title", "Shift", "Actions"].map(
-                (header) => (
-                  <th
-                    key={header}
-                    className="text-left px-4 py-2 text-sm font-medium"
-                  >
-                    {header}
-                  </th>
-                )
-              )}
+              {[
+                "S.No",
+                "Employee Name",
+                "Department",
+                "Job Title",
+                "Shift",
+                "Actions",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="text-left px-4 py-2 text-sm font-medium"
+                >
+                  {header}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody>
@@ -175,10 +207,16 @@ const UserShiftManagement: React.FC = () => {
                 key={user.id}
                 className="border-t border-gray-200 hover:bg-gray-50"
               >
-                <td className="px-4 py-2 text-sm text-gray-600">{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                <td className="px-4 py-2 text-sm text-gray-600">
+                  {(currentPage - 1) * itemsPerPage + index + 1}
+                </td>
                 <td className="px-4 py-2 text-sm text-gray-600">{user.name}</td>
-                <td className="px-4 py-2 text-sm text-gray-600">{user.department}</td>
-                <td className="px-4 py-2 text-sm text-gray-600">{user.jobTitle}</td>
+                <td className="px-4 py-2 text-sm text-gray-600">
+                  {user.department}
+                </td>
+                <td className="px-4 py-2 text-sm text-gray-600">
+                  {user.jobTitle}
+                </td>
                 <td className="px-4 py-2">
                   <select
                     value={editedShifts[user.id] || user.shift}
@@ -250,7 +288,9 @@ const UserShiftManagement: React.FC = () => {
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
             disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
           >
             Next
           </button>

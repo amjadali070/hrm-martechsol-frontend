@@ -1,24 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaFilter} from 'react-icons/fa';
-import axios from 'axios';
-import useUser from '../../hooks/useUser';
+import React, { useState, useEffect } from "react";
+import { FaCalendarAlt, FaFilter } from "react-icons/fa";
+import axios from "axios";
+import useUser from "../../hooks/useUser";
 
 const statusColors: Record<string, string> = {
-  'Present': 'bg-green-500',
-  'Absent': 'bg-red-600',
-  'Late IN': 'bg-yellow-500',
-  'Half Day': 'bg-orange-600',
-  'Early Out': 'bg-pink-500',
-  'Late IN and Early Out': 'bg-violet-700',
-  'Casual Leave': 'bg-blue-600',
-  'Sick Leave': 'bg-lime-600',
-  'Annual Leave': 'bg-purple-400',
-  'Hajj Leave': 'bg-cyan-500',
-  'Maternity Leave': 'bg-fuchsia-800',
-  'Paternity Leave': 'bg-teal-600',
-  'Bereavement Leave': 'bg-slate-700',
-  'Absence Without Pay': 'bg-red-900',
-  'Public Holiday': 'bg-sky-700'
+  Present: "bg-green-500",
+  Absent: "bg-red-600",
+  "Late IN": "bg-yellow-500",
+  "Half Day": "bg-orange-600",
+  "Early Out": "bg-pink-500",
+  "Late IN and Early Out": "bg-violet-700",
+  "Casual Leave": "bg-blue-600",
+  "Sick Leave": "bg-lime-600",
+  "Annual Leave": "bg-purple-400",
+  "Hajj Leave": "bg-cyan-500",
+  "Maternity Leave": "bg-fuchsia-800",
+  "Paternity Leave": "bg-teal-600",
+  "Bereavement Leave": "bg-slate-700",
+  "Absence Without Pay": "bg-red-900",
+  "Public Holiday": "bg-sky-700",
 };
 
 interface TimeLog {
@@ -27,22 +27,22 @@ interface TimeLog {
   timeIn: string;
   timeOut: string | null;
   duration: number;
-  type: 
-    | 'Present'
-    | 'Absent'
-    | 'Late IN'
-    | 'Half Day'
-    | 'Early Out'
-    | 'Late IN and Early Out'
-    | 'Casual Leave'
-    | 'Sick Leave'
-    | 'Annual Leave'
-    | 'Hajj Leave'
-    | 'Maternity Leave'
-    | 'Paternity Leave'
-    | 'Bereavement Leave'
-    | 'Unapproved Absence Without Pay'
-    | 'Public Holiday';
+  type:
+    | "Present"
+    | "Absent"
+    | "Late IN"
+    | "Half Day"
+    | "Early Out"
+    | "Late IN and Early Out"
+    | "Casual Leave"
+    | "Sick Leave"
+    | "Annual Leave"
+    | "Hajj Leave"
+    | "Maternity Leave"
+    | "Paternity Leave"
+    | "Bereavement Leave"
+    | "Unapproved Absence Without Pay"
+    | "Public Holiday";
   createdAt: string;
   leaveApplication?: string | null;
 }
@@ -50,9 +50,9 @@ interface TimeLog {
 const ViewAttendance: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<TimeLog[]>([]);
   const [filteredData, setFilteredData] = useState<TimeLog[]>([]);
-  const [fromDate, setFromDate] = useState<string>('');
-  const [toDate, setToDate] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('All');
+  const [fromDate, setFromDate] = useState<string>("");
+  const [toDate, setToDate] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const user = useUser();
@@ -62,24 +62,30 @@ const ViewAttendance: React.FC = () => {
   useEffect(() => {
     const fetchAttendance = async () => {
       try {
-        const { data } = await axios.get(`${backendUrl}/api/time-log/${user_Id}`, {
-          withCredentials: true,
-          params: { 
-            startDate: fromDate, 
-            endDate: toDate 
-          },
-        });
+        const { data } = await axios.get(
+          `${backendUrl}/api/time-log/${user_Id}`,
+          {
+            withCredentials: true,
+            params: {
+              startDate: fromDate,
+              endDate: toDate,
+            },
+          }
+        );
         setAttendanceData(data);
         setFilteredData(data);
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          console.error('Detailed error:', error.response ? error.response.data : error.message);
+          console.error(
+            "Detailed error:",
+            error.response ? error.response.data : error.message
+          );
         } else {
-          console.error('Error:', error);
+          console.error("Error:", error);
         }
       }
     };
-     
+
     if (user_Id) {
       fetchAttendance();
     }
@@ -96,7 +102,7 @@ const ViewAttendance: React.FC = () => {
       );
     }
 
-    if (typeFilter !== 'All') {
+    if (typeFilter !== "All") {
       data = data.filter((record) => record.type === typeFilter);
     }
 
@@ -124,7 +130,15 @@ const ViewAttendance: React.FC = () => {
   };
 
   const getDayOfWeek = (dateString: string) => {
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
     const date = new Date(dateString);
     return days[date.getDay()];
   };
@@ -139,19 +153,24 @@ const ViewAttendance: React.FC = () => {
                 key={type}
                 className="flex items-center space-x-2 bg-gray-100 p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
               >
-                <span className={`w-4 h-4 inline-block rounded-full ${color}`}></span>
-                <span className="text-gray-700 text-sm font-medium">{type}</span>
+                <span
+                  className={`w-4 h-4 inline-block rounded-full ${color}`}
+                ></span>
+                <span className="text-gray-700 text-sm font-medium">
+                  {type}
+                </span>
               </div>
             ))}
           </div>
         </div>
       </div>
-      
-      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-black">View Attendance</h2>
+
+      <h2 className="text-2xl sm:text-3xl font-bold text-center mb-6 text-black">
+        View Attendance
+      </h2>
 
       <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
-
-      <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -178,7 +197,7 @@ const ViewAttendance: React.FC = () => {
         </div>
 
         {/* To Date Input */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <input
             type="text"
@@ -204,77 +223,127 @@ const ViewAttendance: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-3" />
           <select
-              id="typeFilter"
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              className="w-full border-none focus:outline-none text-sm text-gray-600"
-            >
-              <option value="All">All Types</option>
-              {Object.keys(statusColors).map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
+            id="typeFilter"
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
+          >
+            <option value="All">All Types</option>
+            {Object.keys(statusColors).map((type) => (
+              <option key={type} value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 
       <div className="overflow-x-auto">
         <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-           <colgroup>
-            <col style={{ width: '5%' }} />
-            <col style={{ width: '12%' }} />
-            <col style={{ width: '13%' }} />
-            <col style={{ width: '12%' }} />
-            <col style={{ width: '12%' }} />
-            <col style={{ width: '12%' }} />
-            <col style={{ width: '25%' }} />
+          <colgroup>
+            <col style={{ width: "5%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "13%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "12%" }} />
+            <col style={{ width: "25%" }} />
           </colgroup>
           <thead>
             <tr>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">S.No</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Date</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Day</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Time In</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Time Out</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Total Time</th>
-              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">Type</th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                S.No
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Date
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Day
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Time In
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Time Out
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Total Time
+              </th>
+              <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                Type
+              </th>
             </tr>
           </thead>
           <tbody>
             {currentData.length > 0 ? (
               currentData.map((record, index) => (
-                <tr 
-                  key={record._id} 
+                <tr
+                  key={record._id}
                   className={`hover:bg-gray-50 
-                    ${record.type === 'Absent' ? 'hover:bg-red-100 bg-red-100' : ''}
-                    ${record.type === 'Public Holiday' ? 'bg-sky-100 hover:bg-sky-100' : ''}`}
-                    >
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
+                    ${
+                      record.type === "Absent"
+                        ? "hover:bg-red-100 bg-red-100"
+                        : ""
+                    }
+                    ${
+                      record.type === "Public Holiday"
+                        ? "bg-sky-100 hover:bg-sky-100"
+                        : ""
+                    }`}
+                >
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
                     {indexOfFirstItem + index + 1}
                   </td>
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
                     {new Date(record.createdAt).toLocaleDateString()}
                   </td>
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
                     {getDayOfWeek(record.createdAt)}
                   </td>
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
-                    {record.timeIn ? new Date(record.timeIn).toLocaleTimeString() : 'N/A'}
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
+                    {record.timeIn
+                      ? new Date(record.timeIn).toLocaleTimeString()
+                      : "N/A"}
                   </td>
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
-                    {record.timeOut ? new Date(record.timeOut).toLocaleTimeString() : 'N/A'}
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
+                    {record.timeOut
+                      ? new Date(record.timeOut).toLocaleTimeString()
+                      : "N/A"}
                   </td>
-                  <td className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${record.type === 'Absent' ? 'text-black' : ''}`}>
-                    {record.duration ? formatDuration(record.duration) : 'N/A'}
+                  <td
+                    className={`py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center ${
+                      record.type === "Absent" ? "text-black" : ""
+                    }`}
+                  >
+                    {record.duration ? formatDuration(record.duration) : "N/A"}
                   </td>
                   <td className="py-2 px-1 border border-gray-200 text-center">
                     <span
                       className={`inline-block px-3 py-1 text-sm font-medium rounded-full text-white ${
-                        statusColors[record.type] || 'bg-gray-400'
+                        statusColors[record.type] || "bg-gray-400"
                       }`}
                     >
                       {record.type}
@@ -316,8 +385,8 @@ const ViewAttendance: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === 1
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
@@ -330,8 +399,8 @@ const ViewAttendance: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-600'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-600"
             }`}
             disabled={currentPage === totalPages}
             onClick={handleNext}

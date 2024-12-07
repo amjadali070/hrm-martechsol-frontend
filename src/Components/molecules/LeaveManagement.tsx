@@ -244,7 +244,7 @@ const LeaveManagement: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">Leave Management</h1>
 
       <div className="flex flex-wrap gap-4 mb-4 w-[50%]">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -255,7 +255,7 @@ const LeaveManagement: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filters.leaveType}
@@ -372,7 +372,7 @@ const LeaveManagement: React.FC = () => {
                 ) : (
                   <td colSpan={8} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={40} className="text-gray-400 mb-2" />
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
                       <span className="text-md font-medium">
                         No Leave Requests Found.
                       </span>
@@ -513,7 +513,7 @@ const LeaveManagement: React.FC = () => {
                 ) : (
                   <td colSpan={11} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={40} className="text-gray-400 mb-2" />
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
                       <span className="text-md font-medium">
                         No Approved Leaves Found.
                       </span>
@@ -656,7 +656,7 @@ const LeaveManagement: React.FC = () => {
                 ) : (
                   <td colSpan={11} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={40} className="text-gray-400 mb-2" />
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
                       <span className="text-md font-medium">
                         No Rejected Leaves Found.
                       </span>
