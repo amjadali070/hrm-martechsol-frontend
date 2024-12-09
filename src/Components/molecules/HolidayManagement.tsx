@@ -1,86 +1,148 @@
-import React, { useState } from "react";
-import { FaCalendarAlt, FaFilter, FaInbox, FaSearch } from "react-icons/fa";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import {
+  FaCalendarAlt,
+  FaFilter,
+  FaInbox,
+  FaSearch,
+  FaSpinner,
+} from "react-icons/fa"; // Import FaSpinner
+import { formatDate } from "../../utils/formatDate";
+import { toast } from "react-toastify";
 
 interface Holiday {
-  id: number;
+  _id: number;
   fromDate: string;
-  toDate: string | null; // Null indicates a single-day holiday
-  name: string;
+  toDate: string | null;
+  holidayName: string;
   description: string;
 }
 
 const HolidayManagement: React.FC = () => {
-  const [holidays, setHolidays] = useState<Holiday[]>([
-    {
-      id: 1,
-      fromDate: "2024-01-01",
-      toDate: null,
-      name: "New Year's Day",
-      description: "Celebration of the New Year.",
-    },
-    {
-      id: 2,
-      fromDate: "2024-07-04",
-      toDate: "2024-07-06",
-      name: "Independence Weekend",
-      description: "National holiday in the USA.",
-    },
-    {
-      id: 3,
-      fromDate: "2024-12-25",
-      toDate: null,
-      name: "Christmas Day",
-      description: "Celebration of Christmas.",
-    },
-  ]);
-
+  const [holidays, setHolidays] = useState<Holiday[]>([]);
   const [form, setForm] = useState({
-    id: 0,
+    _id: 0,
     fromDate: "",
     toDate: "",
-    name: "",
+    holidayName: "",
     description: "",
   });
   const [isEditing, setIsEditing] = useState(false);
   const [filters, setFilters] = useState({ search: "", date: "", month: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [loading, setLoading] = useState(false); // Loading state
 
-  const handleAddOrUpdate = () => {
-    if (isEditing) {
-      setHolidays((prev) =>
-        prev.map((holiday) =>
-          holiday.id === form.id
-            ? { ...holiday, ...form, toDate: form.toDate || null }
-            : holiday
-        )
-      );
-      setIsEditing(false);
-    } else {
-      setHolidays((prev) => [
-        ...prev,
-        { ...form, id: Date.now(), toDate: form.toDate || null },
-      ]);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  const fetchHolidays = async () => {
+    setLoading(true); // Set loading to true before fetching
+    try {
+      const response = await axios.get(`${backendUrl}/api/holidays`, {
+        withCredentials: true,
+      });
+      setHolidays(response.data);
+    } catch (error) {
+      console.error("Error fetching holidays:", error);
+    } finally {
+      setLoading(false); // Set loading to false after fetching
     }
-    setForm({ id: 0, fromDate: "", toDate: "", name: "", description: "" });
+  };
+
+  useEffect(() => {
+    fetchHolidays();
+  }, []);
+
+  const handleAddOrUpdate = async () => {
+    if (isEditing) {
+      try {
+        await axios.put(
+          `${backendUrl}/api/holidays/${form._id}`,
+          {
+            ...form,
+            toDate: form.toDate || null,
+          },
+          { withCredentials: true }
+        );
+
+        setHolidays((prev) =>
+          prev.map((holiday) =>
+            holiday._id === form._id
+              ? { ...holiday, ...form, toDate: form.toDate || null }
+              : holiday
+          )
+        );
+        toast.success("Holiday updated successfully.");
+        setIsEditing(false);
+      } catch (error) {
+        toast.error("Error updating holiday.");
+        console.error("Error updating holiday:", error);
+      }
+    } else {
+      try {
+        const response = await axios.post(
+          `${backendUrl}/api/holidays`,
+          {
+            ...form,
+            toDate: form.toDate || null,
+          },
+          { withCredentials: true }
+        );
+        toast.success("Holiday added successfully.");
+        setHolidays((prev) => [...prev, response.data]);
+      } catch (error) {
+        toast.error("Error adding holiday.");
+        console.error("Error adding holiday:", error);
+      }
+    }
+    setForm({
+      _id: 0,
+      fromDate: "",
+      toDate: "",
+      holidayName: "",
+      description: "",
+    });
+  };
+
+  const formatDateForInput = (dateString: string) => {
+    const date = new Date(dateString);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
   };
 
   const handleEdit = (holiday: Holiday) => {
     setForm({
-      ...holiday,
-      toDate: holiday.toDate || "",
+      _id: holiday._id,
+      fromDate: formatDateForInput(holiday.fromDate),
+      toDate: holiday.toDate ? formatDateForInput(holiday.toDate) : "",
+      holidayName: holiday.holidayName,
+      description: holiday.description,
     });
     setIsEditing(true);
   };
 
-  const handleDelete = (id: number) => {
-    setHolidays((prev) => prev.filter((holiday) => holiday.id !== id));
+  const handleDelete = async (_id: number) => {
+    try {
+      await axios.delete(`${backendUrl}/api/holidays/${_id}`, {
+        withCredentials: true,
+      });
+      toast.success("Holiday deleted successfully.");
+      setHolidays((prev) => prev.filter((holiday) => holiday._id !== _id));
+    } catch (error) {
+      toast.error("Error deleting holiday.");
+      console.error("Error deleting holiday:", error);
+    }
   };
 
   const applyFilters = () => {
     return holidays.filter((holiday) => {
       const searchFilter =
-        holiday.name.toLowerCase().includes(filters.search.toLowerCase()) ||
+        holiday.holidayName
+          .toLowerCase()
+          .includes(filters.search.toLowerCase()) ||
         holiday.description
           .toLowerCase()
           .includes(filters.search.toLowerCase()) ||
@@ -150,8 +212,10 @@ const HolidayManagement: React.FC = () => {
             <input
               type="text"
               placeholder="Holiday Name"
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              value={form.holidayName}
+              onChange={(e) =>
+                setForm({ ...form, holidayName: e.target.value })
+              }
               className="w-full px-3 py-2 border border-gray-300 rounded-md"
             />
           </div>
@@ -225,6 +289,14 @@ const HolidayManagement: React.FC = () => {
 
       <div className="overflow-x-auto">
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
+          <colgroup>
+            <col style={{ width: "5%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "10%" }} />
+            <col style={{ width: "20%" }} />
+            <col style={{ width: "30%" }} />
+            <col style={{ width: "10%" }} />
+          </colgroup>
           <thead className="bg-purple-900">
             <tr>
               {[
@@ -237,7 +309,7 @@ const HolidayManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-4 py-2 text-left text-sm font-medium text-white"
+                  className="px-4 py-2 text-center text-sm font-medium text-white"
                 >
                   {header}
                 </th>
@@ -245,25 +317,36 @@ const HolidayManagement: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {currentHolidays.length > 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-8 text-blue-600">
+                  <div className="flex flex-col items-center justify-center">
+                    <FaSpinner
+                      className="text-blue-500 mb-4 animate-spin"
+                      size={30}
+                    />
+                  </div>
+                </td>
+              </tr>
+            ) : currentHolidays.length > 0 ? (
               currentHolidays.map((holiday, index) => (
-                <tr key={holiday.id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2 text-sm text-gray-800">
+                <tr key={holiday._id} className="hover:bg-gray-100">
+                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
                     {indexOfFirstItem + index + 1}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {holiday.fromDate}
+                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
+                    {formatDate(holiday.fromDate)}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {holiday.toDate || "Single Day"}
+                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
+                    {holiday.toDate ? formatDate(holiday.toDate) : "Single Day"}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
-                    {holiday.name}
+                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
+                    {holiday.holidayName}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800">
+                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
                     {holiday.description}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 flex space-x-4">
+                  <td className="px-4 py-2 text-sm text-gray-800 flex space-x-4 text-center">
                     <button
                       onClick={() => handleEdit(holiday)}
                       className="px-3 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600"
@@ -271,7 +354,7 @@ const HolidayManagement: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleDelete(holiday.id)}
+                      onClick={() => handleDelete(holiday._id)}
                       className="px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700"
                     >
                       Delete
@@ -285,7 +368,6 @@ const HolidayManagement: React.FC = () => {
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={30} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">
-                      {" "}
                       No holidays found.
                     </span>
                   </div>
@@ -295,7 +377,6 @@ const HolidayManagement: React.FC = () => {
           </tbody>
         </table>
 
-        {/* Pagination */}
         <div className="flex justify-between items-center mt-4">
           <div className="flex items-center">
             <span className="text-sm text-gray-700 mr-2">Show:</span>
@@ -304,7 +385,7 @@ const HolidayManagement: React.FC = () => {
               value={itemsPerPage}
               onChange={(e) => {
                 setItemsPerPage(parseInt(e.target.value));
-                setCurrentPage(1); // Reset to the first page when items per page changes
+                setCurrentPage(1);
               }}
             >
               {[5, 10, 20].map((option) => (
