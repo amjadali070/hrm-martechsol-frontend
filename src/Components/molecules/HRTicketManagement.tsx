@@ -12,7 +12,6 @@ export interface HRTicket {
     department: string;
     abbreviatedJobTitle: string;
   };
-  category: string;
   subject: string;
   message: string;
   status: "Open" | "Closed" | "Rejected";
@@ -24,7 +23,6 @@ const HRTicketManagement: React.FC = () => {
     fromDate: "",
     toDate: "",
     status: "All",
-    category: "All",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -67,10 +65,8 @@ const HRTicketManagement: React.FC = () => {
 
     const matchesStatus =
       filters.status === "All" || ticket.status === filters.status;
-    const matchesCategory =
-      filters.category === "All" || ticket.category === filters.category;
 
-    return withinDateRange && matchesStatus && matchesCategory;
+    return withinDateRange && matchesStatus;
   });
 
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
@@ -189,23 +185,6 @@ const HRTicketManagement: React.FC = () => {
             <div className="flex items-center bg-white rounded-lg px-3 py-2  border border-gray-300">
               <FaFilter className="text-gray-400 mr-2" />
               <select
-                value={filters.category}
-                onChange={(e) =>
-                  setFilters({ ...filters, category: e.target.value })
-                }
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
-              >
-                <option value="All">All Categories</option>
-                <option value="Leave">Leave</option>
-                <option value="Benefits">Benefits</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex-grow min-w-[200px]">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2  border border-gray-300">
-              <FaFilter className="text-gray-400 mr-2" />
-              <select
                 value={filters.status}
                 onChange={(e) =>
                   setFilters({ ...filters, status: e.target.value })
@@ -231,7 +210,6 @@ const HRTicketManagement: React.FC = () => {
                 "Date",
                 "User Name",
                 "Job Title",
-                "Category",
                 "Subject",
                 "Status",
                 "Action",
@@ -283,9 +261,7 @@ const HRTicketManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.user.abbreviatedJobTitle}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.category}
-                  </td>
+
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.subject}
                   </td>

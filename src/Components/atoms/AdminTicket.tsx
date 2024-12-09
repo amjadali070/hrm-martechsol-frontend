@@ -9,17 +9,16 @@ import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 
 interface Ticket {
-  id: number;
+  _id: string; // Unique identifier from backend
   date: string;
-  issueType: string;
   subject: string;
   message: string;
   status: "Open" | "Closed";
+  // Add other properties if needed
 }
 
 const AdminTicket: React.FC = () => {
   const [formData, setFormData] = useState({
-    issueType: "",
     subject: "",
     message: "",
   });
@@ -36,13 +35,6 @@ const AdminTicket: React.FC = () => {
   const user = useUser();
   const userId = user.user?._id;
 
-  const issueTypes = [
-    "System Access Request",
-    "Hardware Issue",
-    "Software Installation",
-    "Other",
-  ];
-
   useEffect(() => {
     const fetchTickets = async () => {
       if (!userId) return;
@@ -55,8 +47,13 @@ const AdminTicket: React.FC = () => {
             withCredentials: true,
           }
         );
-        setTickets(response.data);
-        setNotFound(response.data.length === 0);
+
+        const fetchedTickets: Ticket[] = Array.isArray(response.data)
+          ? response.data
+          : [];
+
+        setTickets(fetchedTickets);
+        setNotFound(fetchedTickets.length === 0);
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setNotFound(true);
@@ -92,9 +89,9 @@ const AdminTicket: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { issueType, subject, message } = formData;
+    const { subject, message } = formData;
 
-    if (!issueType || !subject.trim() || !message.trim()) {
+    if (!subject.trim() || !message.trim()) {
       toast.error("All fields are required.");
       return;
     }
@@ -103,18 +100,32 @@ const AdminTicket: React.FC = () => {
       const response = await axios.post(
         `${backendUrl}/api/admin-tickets`,
         {
-          issueType,
           subject,
           message,
         },
         { withCredentials: true }
       );
-      setTickets([response.data.ticket, ...tickets]);
-      setFormData({ issueType: "", subject: "", message: "" });
-      toast.success("Admin Ticket submitted successfully!");
-    } catch (error) {
+
+      const newTicket: Ticket = response.data.adminTicket;
+
+      if (newTicket) {
+        setTickets([newTicket, ...tickets]);
+        setFormData({ subject: "", message: "" });
+        toast.success("Admin Ticket submitted successfully!");
+      } else {
+        throw new Error("Invalid ticket data");
+      }
+    } catch (error: any) {
       console.error("Error submitting ticket:", error);
-      toast.error("Failed to submit Admin ticket.");
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message);
+      } else {
+        toast.error("Failed to submit Admin ticket.");
+      }
     }
   };
 
@@ -136,30 +147,6 @@ const AdminTicket: React.FC = () => {
         Submit Admin Ticket
       </h2>
       <form onSubmit={handleSubmit} className="mb-6">
-        <div className="mb-4">
-          <label
-            htmlFor="issueType"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Issue Type
-          </label>
-          <select
-            id="issueType"
-            name="issueType"
-            value={formData.issueType}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          >
-            <option value="">-- Select Issue Type --</option>
-            {issueTypes.map((type, index) => (
-              <option key={index} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="mb-4">
           <label
             htmlFor="subject"
@@ -247,8 +234,7 @@ const AdminTicket: React.FC = () => {
             <colgroup>
               <col style={{ width: "5%" }} />
               <col style={{ width: "10%" }} />
-              <col style={{ width: "20%" }} />
-              <col style={{ width: "30%" }} />
+              <col style={{ width: "25%" }} />
               <col style={{ width: "10%" }} />
               <col style={{ width: "10%" }} />
             </colgroup>
@@ -259,9 +245,6 @@ const AdminTicket: React.FC = () => {
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Date
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Issue Type
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Subject
@@ -276,18 +259,15 @@ const AdminTicket: React.FC = () => {
             </thead>
             <tbody>
               {paginatedTickets.map((ticket, index) => (
-                <tr key={ticket.id}>
+                <tr key={ticket._id}>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {formatDate(ticket.date)}
+                    {ticket.date ? formatDate(ticket.date) : "N/A"}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.issueType}
-                  </td>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.subject}
+                    {ticket.subject || "No Subject"}
                   </td>
                   <td
                     className={`text-sm px-4 py-2 border text-center ${
@@ -296,7 +276,7 @@ const AdminTicket: React.FC = () => {
                         : "text-red-600"
                     }`}
                   >
-                    {ticket.status}
+                    {ticket.status || "Unknown"}
                   </td>
                   <td
                     className="text-sm px-4 py-2 border text-blue-600 cursor-pointer hover:underline text-center"
@@ -322,7 +302,10 @@ const AdminTicket: React.FC = () => {
           <select
             className="text-sm border border-gray-300 rounded-md"
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1); // Reset to first page when items per page change
+            }}
           >
             {[5, 10, 20].map((option) => (
               <option key={option} value={option}>
@@ -344,15 +327,15 @@ const AdminTicket: React.FC = () => {
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {totalPages || 1}
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              currentPage === totalPages || totalPages === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next
@@ -366,6 +349,7 @@ const AdminTicket: React.FC = () => {
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 text-blue-600 hover:text-blue-500 transition duration-200"
+              aria-label="Close Ticket Details"
             >
               <IoCloseCircle size={28} />
             </button>
@@ -373,18 +357,18 @@ const AdminTicket: React.FC = () => {
               Ticket Details
             </h3>
             <p>
-              <strong>Date:</strong> {formatDate(selectedTicket.date)}
+              <strong>Date:</strong>{" "}
+              {selectedTicket.date ? formatDate(selectedTicket.date) : "N/A"}
             </p>
             <p>
-              <strong>Issue Type:</strong> {selectedTicket.issueType}
-            </p>
-            <p>
-              <strong>Subject:</strong> {selectedTicket.subject}
+              <strong>Subject:</strong> {selectedTicket.subject || "No Subject"}
             </p>
             <div className="my-4 p-4 bg-gray-100 rounded-md">
               <strong>Message:</strong>
               <div
-                dangerouslySetInnerHTML={{ __html: selectedTicket.message }}
+                dangerouslySetInnerHTML={{
+                  __html: selectedTicket.message || "No Message",
+                }}
               />
             </div>
             <p>
@@ -396,7 +380,7 @@ const AdminTicket: React.FC = () => {
                     : "text-red-600"
                 }
               >
-                {selectedTicket.status}
+                {selectedTicket.status || "Unknown"}
               </span>
             </p>
           </div>

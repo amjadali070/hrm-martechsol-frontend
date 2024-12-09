@@ -12,7 +12,6 @@ export interface AdminTicket {
     department: string;
     abbreviatedJobTitle: string;
   };
-  issueType: string;
   subject: string;
   message: string;
   status: "Open" | "Closed" | "Rejected";
@@ -24,7 +23,6 @@ const AdminTicketManagement: React.FC = () => {
     fromDate: "",
     toDate: "",
     status: "All",
-    issueType: "All",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -69,10 +67,8 @@ const AdminTicketManagement: React.FC = () => {
 
     const matchesStatus =
       filters.status === "All" || ticket.status === filters.status;
-    const matchesIssueType =
-      filters.issueType === "All" || ticket.issueType === filters.issueType;
 
-    return withinDateRange && matchesStatus && matchesIssueType;
+    return withinDateRange && matchesStatus;
   });
 
   const totalPages = Math.ceil(filteredTickets.length / itemsPerPage);
@@ -123,7 +119,7 @@ const AdminTicketManagement: React.FC = () => {
 
       <div className="mb-4">
         <div className="flex flex-wrap items-center gap-2 w-full">
-          {/* Date Filters and Issue Type/Status Selectors */}
+          {/* Date Filters and Status Selectors */}
           <div className="flex-grow min-w-[200px]">
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
               <FaCalendarAlt className="text-gray-400 mr-2" />
@@ -192,23 +188,6 @@ const AdminTicketManagement: React.FC = () => {
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
               <FaFilter className="text-gray-400 mr-2" />
               <select
-                value={filters.issueType}
-                onChange={(e) =>
-                  setFilters({ ...filters, issueType: e.target.value })
-                }
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
-              >
-                <option value="All">All Issue Types</option>
-                <option value="Technical">Technical</option>
-                <option value="Billing">Billing</option>
-              </select>
-            </div>
-          </div>
-
-          <div className="flex-grow min-w-[200px]">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-              <FaFilter className="text-gray-400 mr-2" />
-              <select
                 value={filters.status}
                 onChange={(e) =>
                   setFilters({ ...filters, status: e.target.value })
@@ -234,7 +213,6 @@ const AdminTicketManagement: React.FC = () => {
                 "Date",
                 "User Name",
                 "Job Title",
-                "Issue Type",
                 "Subject",
                 "Status",
                 "Action",
@@ -251,7 +229,7 @@ const AdminTicketManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   <div className="w-full bg-white rounded-lg flex justify-center items-center">
                     <FaSpinner
                       size={30}
@@ -262,7 +240,7 @@ const AdminTicketManagement: React.FC = () => {
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={30} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">
@@ -285,9 +263,6 @@ const AdminTicketManagement: React.FC = () => {
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.user.abbreviatedJobTitle}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.issueType}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.subject}
@@ -336,7 +311,7 @@ const AdminTicketManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
+                <td colSpan={7} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={30} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">
@@ -375,30 +350,35 @@ const AdminTicketManagement: React.FC = () => {
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
-            onClick={handlePrevious}
             disabled={currentPage === 1}
+            onClick={handlePrevious}
           >
             Previous
           </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-bule-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            onClick={handleNext}
             disabled={currentPage === totalPages}
+            onClick={handleNext}
           >
             Next
           </button>
         </div>
       </div>
 
-      <TicketDetailModal
-        isOpen={isModalOpen}
-        ticket={selectedTicket}
-        onClose={closeModal}
-      />
+      {isModalOpen && selectedTicket && (
+        <TicketDetailModal
+          isOpen={isModalOpen}
+          ticket={selectedTicket}
+          onClose={closeModal}
+        />
+      )}
     </div>
   );
 };

@@ -47,14 +47,14 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
       <div className="bg-white rounded-lg max-w-4xl w-full relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-60 text-gray-700 hover:text-black"
+          className="absolute top-5 right-5 z-60 text-gray-700 hover:text-black"
           aria-label="Close"
         >
           <FaTimes size={24} />
         </button>
 
-        <div className="p-4 bg-gray-100 rounded-t-lg border-b">
-          <h2 className="text-xl font-semibold text-center">{fileName}</h2>
+        <div className="p-4 bg-gray-100 rounded-t-lg border-b mt-1">
+          <h2 className="text-xl font-semibold text-left ml-3">{fileName}</h2>
         </div>
 
         <div className="p-4">{renderContent()}</div>

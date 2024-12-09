@@ -11,7 +11,6 @@ import { formatDate } from "../../utils/formatDate";
 interface NetworkTicketProps {
   id: number;
   date: string;
-  departmentTo: string;
   subject: string;
   message: string;
   status: "Open" | "Closed";
@@ -19,7 +18,6 @@ interface NetworkTicketProps {
 
 const NetworkTicket: React.FC = () => {
   const [formData, setFormData] = useState({
-    departmentTo: "",
     subject: "",
     message: "",
   });
@@ -40,26 +38,6 @@ const NetworkTicket: React.FC = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
   const userId = user.user?._id;
-
-  const departments = [
-    "Account Management",
-    "Project Management",
-    "Content Production",
-    "Book Marketing",
-    "Design Production",
-    "SEO",
-    "Creative Media",
-    "Web Development",
-    "Paid Advertising",
-    "Software Production",
-    "IT & Networking",
-    "Human Resource",
-    "Training & Development",
-    "Admin",
-    "Finance",
-    "Brand Development",
-    "Corporate Communication",
-  ];
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -123,7 +101,6 @@ const NetworkTicket: React.FC = () => {
       const response = await axios.post(
         `${backendUrl}/api/network-tickets`,
         {
-          departmentTo: formData.departmentTo,
           subject,
           message,
         },
@@ -131,7 +108,7 @@ const NetworkTicket: React.FC = () => {
       );
       setSubmitSuccess(true);
       setTickets([response.data.ticket, ...tickets]);
-      setFormData({ departmentTo: "", subject: "", message: "" });
+      setFormData({ subject: "", message: "" });
       toast.success("Ticket submitted successfully!");
     } catch (error) {
       console.error("Error submitting ticket:", error);
@@ -160,30 +137,6 @@ const NetworkTicket: React.FC = () => {
         Submit Network Ticket
       </h2>
       <form onSubmit={handleSubmit} className="mb-6">
-        <div className="mb-4">
-          <label
-            htmlFor="departmentTo"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Department To
-          </label>
-          <select
-            id="departmentTo"
-            name="departmentTo"
-            value={formData.departmentTo}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          >
-            <option value="">-- Select Department --</option>
-            {departments.map((dept, index) => (
-              <option key={index} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="mb-4">
           <label
             htmlFor="subject"
@@ -253,7 +206,6 @@ const NetworkTicket: React.FC = () => {
         </div>
       </div>
 
-      {/* Tickets Table */}
       <div className="overflow-x-auto">
         {loading ? (
           <div className="flex flex-col items-center justify-center mt-10 mb-10">
@@ -271,7 +223,6 @@ const NetworkTicket: React.FC = () => {
             <colgroup>
               <col style={{ width: "5%" }} />
               <col style={{ width: "10%" }} />
-              <col style={{ width: "20%" }} />
               <col style={{ width: "30%" }} />
               <col style={{ width: "10%" }} />
               <col style={{ width: "10%" }} />
@@ -283,9 +234,6 @@ const NetworkTicket: React.FC = () => {
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Date
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  From
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Subject
@@ -307,9 +255,7 @@ const NetworkTicket: React.FC = () => {
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.departmentTo}
-                  </td>
+
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {ticket.subject}
                   </td>
@@ -401,9 +347,6 @@ const NetworkTicket: React.FC = () => {
             </h3>
             <p>
               <strong>Date:</strong> {formatDate(selectedTicket.date)}
-            </p>
-            <p>
-              <strong>Department To:</strong> {selectedTicket.departmentTo}
             </p>
             <p>
               <strong>Subject:</strong> {selectedTicket.subject}

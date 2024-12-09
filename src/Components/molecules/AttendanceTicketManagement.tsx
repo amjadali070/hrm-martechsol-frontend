@@ -4,6 +4,7 @@ import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
+import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 
 interface AttendanceTicket {
   id: string;
@@ -231,8 +232,6 @@ const AttendanceTicketManagement: React.FC = () => {
                 "Time Out",
                 "Total Time",
                 "Work Location",
-                "Comments",
-                "File",
                 "Action",
               ].map((header) => (
                 <th
@@ -248,7 +247,12 @@ const AttendanceTicketManagement: React.FC = () => {
             {loading ? (
               <tr>
                 <td colSpan={11} className="text-center py-8 text-gray-500">
-                  <FaSpinner size={30} className="text-blue-500 animate-spin" />
+                  <div className="flex flex-col items-center justify-center">
+                    <FaSpinner
+                      size={30}
+                      className="text-blue-500 animate-spin"
+                    />
+                  </div>
                 </td>
               </tr>
             ) : notFound ? (
@@ -289,26 +293,7 @@ const AttendanceTicketManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800">
                     {ticket.workLocation}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {ticket.comments}
-                  </td>
-                  <td className="px-3 py-2 text-center text-sm">
-                    {ticket.file ? (
-                      <button
-                        onClick={() =>
-                          openViewer(
-                            `/${ticket.file}`,
-                            ticket.file?.split("\\").pop() || ""
-                          )
-                        }
-                        className="text-blue-600 cursor-pointer"
-                      >
-                        View
-                      </button>
-                    ) : (
-                      "No File"
-                    )}
-                  </td>
+
                   <td className="px-3 py-2 text-center space-x-2 flex items-center justify-center">
                     {ticket.status === "Open" && (
                       <>
@@ -411,10 +396,11 @@ const AttendanceTicketManagement: React.FC = () => {
         </div>
       </div>
 
-      <TicketDetailModal
+      <AttendanceTicketDetailModal
         isOpen={isModalOpen}
         ticket={selectedTicket}
         onClose={closeModal}
+        onOpenFile={openViewer}
       />
 
       <DocumentViewerModal

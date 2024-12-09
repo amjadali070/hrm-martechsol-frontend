@@ -11,7 +11,6 @@ import { formatDate } from "../../utils/formatDate";
 interface Ticket {
   id: number;
   date: string;
-  category: string;
   subject: string;
   message: string;
   status: "Open" | "Closed";
@@ -19,7 +18,6 @@ interface Ticket {
 
 const HRTicket: React.FC = () => {
   const [formData, setFormData] = useState({
-    category: "",
     subject: "",
     message: "",
   });
@@ -105,7 +103,6 @@ const HRTicket: React.FC = () => {
       const response = await axios.post(
         `${backendUrl}/api/hr-tickets`,
         {
-          category: formData.category,
           subject,
           message,
         },
@@ -115,7 +112,7 @@ const HRTicket: React.FC = () => {
       const newTicket = response.data.hrTicket;
       setSubmitSuccess(true);
       setTickets([newTicket, ...tickets]);
-      setFormData({ category: "", subject: "", message: "" });
+      setFormData({ subject: "", message: "" });
       toast.success("HR Ticket submitted successfully!");
     } catch (error) {
       console.error("Error submitting ticket:", error);
@@ -142,30 +139,6 @@ const HRTicket: React.FC = () => {
         Submit HR Ticket
       </h2>
       <form onSubmit={handleSubmit} className="mb-6">
-        <div className="mb-4">
-          <label
-            htmlFor="category"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Category
-          </label>
-          <select
-            id="category"
-            name="category"
-            value={formData.category}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            required
-          >
-            <option value="">-- Select Category --</option>
-            {categories.map((category, index) => (
-              <option key={index} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div className="mb-4">
           <label
             htmlFor="subject"
@@ -255,7 +228,6 @@ const HRTicket: React.FC = () => {
             <colgroup>
               <col style={{ width: "5%" }} />
               <col style={{ width: "10%" }} />
-              <col style={{ width: "15%" }} />
               <col style={{ width: "30%" }} />
               <col style={{ width: "10%" }} />
               <col style={{ width: "10%" }} />
@@ -268,9 +240,7 @@ const HRTicket: React.FC = () => {
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Date
                 </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Category
-                </th>
+
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Subject
                 </th>
@@ -291,9 +261,7 @@ const HRTicket: React.FC = () => {
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.category}
-                  </td>
+
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {ticket.subject}
                   </td>
@@ -382,9 +350,6 @@ const HRTicket: React.FC = () => {
             </h3>
             <p>
               <strong>Date:</strong> {formatDate(selectedTicket.date)}
-            </p>
-            <p>
-              <strong>Category:</strong> {selectedTicket.category}
             </p>
             <p>
               <strong>Subject:</strong> {selectedTicket.subject}
