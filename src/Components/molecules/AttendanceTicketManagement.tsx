@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
-import TicketDetailModal from "../atoms/TicketDetailModal";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
 import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 
@@ -13,12 +12,13 @@ interface AttendanceTicket {
   timeOut: string;
   totalTime: string;
   user: {
+    id: string;
     name: string;
     abbreviatedJobTitle: string;
   };
   workLocation: "Remote" | "On-site";
   comments: string;
-  file: string | null;
+  file: string | undefined;
   status: "Open" | "Closed" | "Rejected";
 }
 
@@ -236,7 +236,7 @@ const AttendanceTicketManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-3 py-2 text-left text-sm font-medium text-white"
+                  className="px-3 py-2 text-sm font-medium text-white text-center"
                 >
                   {header}
                 </th>
@@ -272,25 +272,25 @@ const AttendanceTicketManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.user.name}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.user.abbreviatedJobTitle}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.timeIn}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.timeOut}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.totalTime}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.workLocation}
                   </td>
 

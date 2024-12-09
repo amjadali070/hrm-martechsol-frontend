@@ -6,8 +6,27 @@ import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
 import DocumentViewerModal from "./DocumentViewerModal";
 
+interface User {
+  name: string;
+  abbreviatedJobTitle: string;
+}
+
+interface AttendanceRecord {
+  _id: string;
+  date: string;
+  timeIn: string;
+  timeOut: string;
+  totalTime: string;
+  comments: string;
+  file?: string;
+  fileName?: string;
+  status: "Open" | "Closed" | "Rejected";
+  workLocation: string;
+  user: User;
+}
+
 const AttendanceTicket: React.FC = () => {
-  const [attendanceList, setAttendanceList] = useState<any[]>([]);
+  const [attendanceList, setAttendanceList] = useState<AttendanceRecord[]>([]);
   const [filteredStatus, setFilteredStatus] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
@@ -46,12 +65,14 @@ const AttendanceTicket: React.FC = () => {
 
       try {
         setLoading(true);
-        const response = await axios.get(
+        const response = await axios.get<AttendanceRecord[]>(
           `${backendUrl}/api/attendance-tickets/user/${userId}`,
           {
             withCredentials: true,
           }
         );
+        console.log("Fetched Tickets:", response.data); // Debugging line
+
         setAttendanceList(response.data);
         setNotFound(response.data.length === 0);
       } catch (error) {
@@ -95,7 +116,21 @@ const AttendanceTicket: React.FC = () => {
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setFormData({ ...formData, file: e.target.files[0] });
+      const selected = e.target.files[0];
+      const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+      const maxSize = 5 * 1024 * 1024; // 5MB
+
+      if (!allowedTypes.includes(selected.type)) {
+        toast.error("Only JPG, PNG, and PDF files are allowed.");
+        return;
+      }
+
+      if (selected.size > maxSize) {
+        toast.error("File size must be less than 5MB.");
+        return;
+      }
+
+      setFormData({ ...formData, file: selected });
     }
   };
 
@@ -103,30 +138,49 @@ const AttendanceTicket: React.FC = () => {
     e.preventDefault();
     const { date, timeIn, timeOut, comments, workLocation, file } = formData;
 
+    // Validation
     if (!date || !timeIn || !timeOut || !workLocation) {
       toast.error("Date, Time In, Time Out, and Work Location are required.");
       return;
     }
 
-    const timeInDate = new Date(`1970-01-01T${timeIn}:00`);
-    const timeOutDate = new Date(`1970-01-01T${timeOut}:00`);
+    // Parse the selected date
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0); // Reset to midnight
+
+    // Parse Time In
+    const [timeInHour, timeInMinute] = timeIn.split(":").map(Number);
+    const timeInDate = new Date(selectedDate);
+    timeInDate.setHours(timeInHour, timeInMinute, 0, 0);
+
+    // Parse Time Out
+    const [timeOutHour, timeOutMinute] = timeOut.split(":").map(Number);
+    const timeOutDate = new Date(selectedDate);
+    timeOutDate.setHours(timeOutHour, timeOutMinute, 0, 0);
+
+    // If Time Out is earlier than or equal to Time In, assume it's the next day
     if (timeOutDate <= timeInDate) {
-      toast.error("Time Out must be after Time In.");
-      return;
+      timeOutDate.setDate(timeOutDate.getDate() + 1);
     }
 
+    // Calculate total time in milliseconds
+    const totalTimeMs = timeOutDate.getTime() - timeInDate.getTime();
+
+    // Convert milliseconds to hours and minutes
+    const totalHours = Math.floor(totalTimeMs / (1000 * 60 * 60));
+    const totalMinutes = Math.floor(
+      (totalTimeMs % (1000 * 60 * 60)) / (1000 * 60)
+    );
+
+    // Format totalTime string
+    const totalTimeStr = `${totalHours}h ${totalMinutes}m`;
+
+    // Prepare FormData for submission
     const formDataToSubmit = new FormData();
-    formDataToSubmit.append("date", new Date(date).toISOString());
+    formDataToSubmit.append("date", selectedDate.toISOString());
     formDataToSubmit.append("timeIn", timeIn);
     formDataToSubmit.append("timeOut", timeOut);
-    formDataToSubmit.append(
-      "totalTime",
-      `${Math.floor(
-        (timeOutDate.getTime() - timeInDate.getTime()) / (1000 * 60 * 60)
-      )}h ${Math.floor(
-        ((timeOutDate.getTime() - timeInDate.getTime()) / (1000 * 60)) % 60
-      )}m`
-    );
+    formDataToSubmit.append("totalTime", totalTimeStr);
     formDataToSubmit.append("comments", comments || "");
     formDataToSubmit.append("workLocation", workLocation);
     if (userId) {
@@ -148,7 +202,16 @@ const AttendanceTicket: React.FC = () => {
         }
       );
 
-      setAttendanceList([response.data.attendanceTicket, ...attendanceList]);
+      console.log("Submitted Ticket:", response.data.attendanceTicket); // Debugging line
+
+      // Update attendanceList with the new ticket
+      setAttendanceList((prevList) => [
+        response.data.attendanceTicket,
+        ...prevList,
+      ]);
+      setCurrentPage(1); // Reset to the first page to show the new ticket
+
+      // Reset form data
       setFormData({
         date: "",
         timeIn: "",
@@ -180,6 +243,13 @@ const AttendanceTicket: React.FC = () => {
   const tdClass =
     "text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center";
 
+  const formatTime = (time: string) => {
+    const [hour, minute] = time.split(":").map(Number);
+    const ampm = hour >= 12 ? "PM" : "AM";
+    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
+    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
+  };
+
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mt-2 mb-3 text-black">
@@ -201,7 +271,7 @@ const AttendanceTicket: React.FC = () => {
               required
             />
           </div>
-          <div className="mb-4">
+          <div>
             <label className="block text-sm font-medium text-gray-700">
               Work Location
             </label>
@@ -265,10 +335,17 @@ const AttendanceTicket: React.FC = () => {
             type="file"
             onChange={handleFileChange}
             className="w-full p-2 border border-gray-300 rounded-md"
+            accept=".jpg,.jpeg,.png,.pdf" // Restrict file types
           />
         </div>
-        <button className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all">
-          Submit
+        <button
+          type="submit"
+          className={`px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all ${
+            loading ? "opacity-50 cursor-not-allowed" : ""
+          }`}
+          disabled={loading}
+        >
+          {loading ? "Submitting..." : "Submit"}
         </button>
       </form>
 
@@ -276,7 +353,7 @@ const AttendanceTicket: React.FC = () => {
         <h2 className="text-lg md:text-xl font-bold text-black">
           Ticket Status
         </h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300 ">
+        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filteredStatus}
@@ -337,22 +414,22 @@ const AttendanceTicket: React.FC = () => {
             </thead>
             <tbody>
               {paginatedList.map((record, index) => (
-                <tr key={record.id}>
+                <tr key={record._id}>
                   <td className={tdClass}>
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
                   <td className={tdClass}>{formatDate(record.date)}</td>
-                  <td className={tdClass}>{record.timeIn}</td>
-                  <td className={tdClass}>{record.timeOut}</td>
+                  <td className={tdClass}>{formatTime(record.timeIn)}</td>
+                  <td className={tdClass}>{formatTime(record.timeOut)}</td>
                   <td className={tdClass}>{record.totalTime}</td>
                   <td className={`${tdClass} text-blue-600 cursor-pointer`}>
-                    {record.comments}
+                    {record.comments || "No Comments"}
                   </td>
                   <td className={tdClass}>
                     {record.file ? (
                       <button
                         onClick={() =>
-                          handleViewFile(record.file, record.fileName)
+                          handleViewFile(record.file!, record.fileName!)
                         }
                         className="text-blue-600 hover:underline"
                       >
@@ -364,9 +441,9 @@ const AttendanceTicket: React.FC = () => {
                   </td>
                   <td
                     className={`${tdClass} ${
-                      record.status === "Approved"
+                      record.status === "Closed"
                         ? "text-green-600"
-                        : record.status === "Pending"
+                        : record.status === "Open"
                         ? "text-yellow-600"
                         : "text-red-600"
                     }`}
@@ -391,7 +468,10 @@ const AttendanceTicket: React.FC = () => {
           <select
             className="text-sm border border-gray-300 rounded-md"
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1);
+            }}
           >
             {[5, 10, 20].map((option) => (
               <option key={option} value={option}>
@@ -413,15 +493,15 @@ const AttendanceTicket: React.FC = () => {
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {totalPages || 1}
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              currentPage === totalPages || totalPages === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next
