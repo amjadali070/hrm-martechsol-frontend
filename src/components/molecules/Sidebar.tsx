@@ -50,6 +50,10 @@ const menuItems: MenuItem[] = [
         label: "User Shift Management",
         path: "/organization/user-shift-management",
       },
+      {
+        label: "Notice Management",
+        path: "/organization/notice-management",
+      },
     ],
   },
   {

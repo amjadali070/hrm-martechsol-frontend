@@ -89,9 +89,7 @@ const DashboardLayout: React.FC = () => {
     },
   ];
 
-  const handleViewAllAnnouncements = () => navigate("/announcements");
   const handleViewAllAttendance = () => navigate("/attendance/view");
-  const handleViewAllAttendanceTickets = () => navigate("/tickets/attendance");
 
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
@@ -106,10 +104,7 @@ const DashboardLayout: React.FC = () => {
 
       <div>
         <div className="flex flex-col md:flex-row gap-3">
-          <Announcements
-            announcements={announcementsData}
-            onViewAll={handleViewAllAnnouncements}
-          />
+          <Announcements />
           <LeaveOverview />
         </div>
 

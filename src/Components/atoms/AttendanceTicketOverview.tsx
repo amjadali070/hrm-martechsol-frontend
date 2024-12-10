@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { formatDate } from "../../utils/formatDate";
+import { FaSpinner } from "react-icons/fa";
 
 interface AttendanceRecord {
   _id: string;
@@ -66,7 +67,9 @@ const AttendanceTicketOverview: React.FC = () => {
 
         <div className="overflow-x-auto" style={{ height: "180px" }}>
           {loading ? (
-            <div className="text-center text-gray-500">Loading...</div>
+            <div className="flex justify-center items-center h-40">
+              <FaSpinner className="text-blue-500 animate-spin" size={30} />
+            </div>
           ) : attendanceTickets.length === 0 ? (
             <div className="text-center text-gray-500 mt-20">
               No Attendence tickets submitted.

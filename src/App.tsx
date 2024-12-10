@@ -40,6 +40,7 @@ import UserShiftManagement from "./Components/molecules/UserShiftManagement";
 import EmployeeLetter from "./Components/atoms/EmployeeLetter";
 import ExperienceLetter from "./Components/atoms/ExperienceLetter";
 import ForgotPasswordPage from "./Components/molecules/ForgotPasswordPage";
+import NoticesManagement from "./Components/atoms/NoticesManagement";
 
 const App: React.FC = () => {
   return (
@@ -135,6 +136,10 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/user-shift-management"
                   element={<UserShiftManagement />}
+                />
+                <Route
+                  path="/organization/notice-management"
+                  element={<NoticesManagement />}
                 />
                 <Route
                   path="/letters/employee-letter"

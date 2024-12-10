@@ -121,7 +121,10 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center h-40">
+          <div
+            className="flex justify-center items-center"
+            style={{ height: "180px" }}
+          >
             <FaSpinner className="text-blue-500 animate-spin" size={30} />
           </div>
         ) : (
@@ -141,9 +144,9 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Time Out
                   </th>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                  {/* <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Total Time
-                  </th>
+                  </th> */}
                   <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md">
                     Status
                   </th>
@@ -169,11 +172,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                           ? new Date(record.timeOut).toLocaleTimeString()
                           : "N/A"}
                       </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.duration
-                          ? formatDuration(record.duration)
-                          : "N/A"}
-                      </td>
+
                       <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${

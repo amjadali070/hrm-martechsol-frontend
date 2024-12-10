@@ -104,7 +104,7 @@ const AttendanceTicketDetailModal: React.FC<
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-      <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] shadow-2xl overflow-hidden transform transition-transform duration-300 scale-100 origin-center">
+      <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-hidden transform transition-transform duration-300 scale-100 origin-center">
         <div className="bg-purple-900 p-4 flex justify-between items-center text-white">
           <h2 className="text-2xl font-bold flex items-center">
             <FaFileAlt className="mr-3" /> Attendance Ticket Details
