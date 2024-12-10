@@ -41,54 +41,6 @@ const DashboardLayout: React.FC = () => {
     },
   ];
 
-  const announcementsData = [
-    {
-      id: 1,
-      date: "2024-11-15",
-      subject: "Annual Holiday Announcement",
-      status: "Read" as "Read",
-      paragraph:
-        "The office will remain closed on the 25th of December for the annual holiday.",
-    },
-    {
-      id: 2,
-      date: "2024-11-10",
-      subject: "Policy Update Notification",
-      status: "Read" as "Read",
-      paragraph:
-        "The company policy has been updated. Please review it on the HR portal.",
-    },
-    {
-      id: 3,
-      date: "2024-11-05",
-      subject: "Team Meeting Schedule",
-      status: "Read" as "Read",
-      paragraph:
-        "The team meeting is scheduled for 10 AM on November 7th in the main conference room.",
-    },
-  ];
-
-  const attendanceTickets = [
-    {
-      id: 1,
-      date: "2024-11-20",
-      comments: "Worked from home.",
-      status: "Approved" as "Approved",
-    },
-    {
-      id: 2,
-      date: "2024-11-19",
-      comments: "Arrived late due to traffic.",
-      status: "Pending" as "Pending",
-    },
-    {
-      id: 3,
-      date: "2024-11-18",
-      comments: "Left early for a doctor's appointment.",
-      status: "Rejected" as "Rejected",
-    },
-  ];
-
   const handleViewAllAttendance = () => navigate("/attendance/view");
 
   return (

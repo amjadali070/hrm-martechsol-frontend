@@ -1,21 +1,28 @@
+// src/components/Header.tsx
 import React, { useState, useEffect, useRef } from "react";
 import MarTechLogo from "../../assets/LogoMartechSol.png";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineMoreTime, MdOutlineTimerOff } from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
-import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import useUser from "../../hooks/useUser";
-import RouteDisplay from "./RouteDisplay";
+import useNotifications from "../../hooks/useNotifications";
+import NotificationModal from "./NotificationModal";
+import axiosInstance from "../../utils/axiosConfig";
 
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
   const [timer, setTimer] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
-  const { user, loading } = useUser(); // Destructure loading state
+  const { user, loading } = useUser();
+  const { notifications, unreadCount, markAsRead } = useNotifications(
+    user?._id
+  );
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
@@ -40,7 +47,6 @@ const Header: React.FC = () => {
   };
 
   const checkTimeLogStatus = async () => {
-    // Only proceed if user is loaded and has an ID
     if (!user?._id) return;
 
     try {
@@ -56,6 +62,7 @@ const Header: React.FC = () => {
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
           },
+          withCredentials: true,
         }
       );
 
@@ -81,7 +88,6 @@ const Header: React.FC = () => {
   };
 
   useEffect(() => {
-    // Only check time log status when user is loaded
     if (!loading) {
       checkTimeLogStatus();
     }
@@ -91,10 +97,10 @@ const Header: React.FC = () => {
         clearInterval(timerRef.current);
       }
     };
-  }, [loading, user]); // Add dependencies to re-run when user or loading changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user]);
 
   const handleTimeToggle = async () => {
-    // Ensure user ID is available before making the request
     if (!user?._id) {
       toast.error("User information not available");
       return;
@@ -104,7 +110,8 @@ const Header: React.FC = () => {
       if (isTimedIn) {
         const response = await axiosInstance.post(
           `${backendUrl}/api/time-log/out`,
-          { userId: user._id }
+          { userId: user._id },
+          { withCredentials: true }
         );
         if (response.status === 200) {
           if (timerRef.current) {
@@ -117,7 +124,8 @@ const Header: React.FC = () => {
       } else {
         const response = await axiosInstance.post(
           `${backendUrl}/api/time-log/in`,
-          { userId: user._id }
+          { userId: user._id },
+          { withCredentials: true }
         );
         if (response.status === 201) {
           setIsTimedIn(true);
@@ -133,11 +141,20 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/users/logout");
+      await axiosInstance.post("/users/logout", {}, { withCredentials: true });
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
+      toast.error("Failed to logout. Please try again.");
     }
+  };
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -153,11 +170,23 @@ const Header: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-1 justify-end items-center md:flex-nowrap md:space-x-3">
             <button
-              className="p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
+              onClick={handleOpenModal}
+              className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
               aria-label="Notifications"
             >
               <IoNotificationsSharp size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
+                  {unreadCount}
+                </span>
+              )}
             </button>
+            <NotificationModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              notifications={notifications}
+              markAsRead={markAsRead}
+            />
 
             {isTimedIn && (
               <div className="flex items-center">
@@ -231,7 +260,6 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
-      {/* <RouteDisplay /> */}
     </header>
   );
 };

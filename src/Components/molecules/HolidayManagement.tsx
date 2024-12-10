@@ -6,7 +6,7 @@ import {
   FaInbox,
   FaSearch,
   FaSpinner,
-} from "react-icons/fa"; // Import FaSpinner
+} from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import { toast } from "react-toastify";
 
@@ -31,12 +31,12 @@ const HolidayManagement: React.FC = () => {
   const [filters, setFilters] = useState({ search: "", date: "", month: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const fetchHolidays = async () => {
-    setLoading(true); // Set loading to true before fetching
+    setLoading(true);
     try {
       const response = await axios.get(`${backendUrl}/api/holidays`, {
         withCredentials: true,
@@ -45,7 +45,7 @@ const HolidayManagement: React.FC = () => {
     } catch (error) {
       console.error("Error fetching holidays:", error);
     } finally {
-      setLoading(false); // Set loading to false after fetching
+      setLoading(false);
     }
   };
 

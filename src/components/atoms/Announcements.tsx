@@ -83,17 +83,6 @@ const Announcements: React.FC = () => {
 
   const handleViewAll = () => navigate("/announcements");
 
-  // if (loading) {
-  //   return (
-  //     <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-8 py-8 bg-white rounded-xl max-md:px-4 max-md:mt-6">
-  //       <div className="text-center">
-  //         {" "}
-  //         <FaSpinner className="text-blue-500 animate-spin" size={30} />
-  //       </div>
-  //     </section>
-  //   );
-  // }
-
   if (error) {
     return (
       <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-8 py-8 bg-white rounded-xl max-md:px-4 max-md:mt-6">
@@ -178,10 +167,6 @@ const Announcements: React.FC = () => {
             <p className="mb-4 text-gray-700">
               <strong>Message:</strong> {selectedAnnouncement.paragraph}
             </p>
-            {/* <p className="mb-4 text-gray-700">
-              {" "}
-              <strong>Status: </strong> {selectedAnnouncement.status}
-            </p> */}
           </div>
         </div>
       )}

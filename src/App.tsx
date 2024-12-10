@@ -41,6 +41,8 @@ import EmployeeLetter from "./Components/atoms/EmployeeLetter";
 import ExperienceLetter from "./Components/atoms/ExperienceLetter";
 import ForgotPasswordPage from "./Components/molecules/ForgotPasswordPage";
 import NoticesManagement from "./Components/atoms/NoticesManagement";
+import FullNotificationsPage from "./Components/atoms/FullNotificationsPage";
+import NotificationDetailPage from "./Components/atoms/NotificationDetailPage";
 
 const App: React.FC = () => {
   return (
@@ -150,6 +152,14 @@ const App: React.FC = () => {
                   element={<ExperienceLetter />}
                 />
                 <Route path="/edit-profile/:id" element={<EditProfilePage />} />
+                <Route
+                  path="/notifications"
+                  element={<FullNotificationsPage />}
+                />
+                <Route
+                  path="/notification-detail"
+                  element={<NotificationDetailPage />}
+                />
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>
