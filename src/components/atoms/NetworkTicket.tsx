@@ -214,9 +214,6 @@ const NetworkTicket: React.FC = () => {
               className="animate-spin text-blue-600 mb-2"
               aria-hidden="true"
             />
-            <h1 className="text-xl font-semibold text-black">
-              Loading Data...
-            </h1>
           </div>
         ) : paginatedTickets.length > 0 ? (
           <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">

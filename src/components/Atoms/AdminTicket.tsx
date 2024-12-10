@@ -220,9 +220,6 @@ const AdminTicket: React.FC = () => {
               className="animate-spin text-blue-600 mb-2"
               aria-hidden="true"
             />
-            <h1 className="text-xl font-semibold text-black">
-              Loading Data...
-            </h1>
           </div>
         ) : notFound ? (
           <div className="flex flex-col items-center">

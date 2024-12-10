@@ -7,6 +7,7 @@ import { useNavigate } from "react-router";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import useUser from "../../hooks/useUser";
+import RouteDisplay from "./RouteDisplay";
 
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
@@ -20,7 +21,10 @@ const Header: React.FC = () => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(secs).padStart(2, "0")}`;
   };
 
   const startTimer = (initialSeconds = 0) => {
@@ -44,21 +48,29 @@ const Header: React.FC = () => {
       startDate.setHours(0, 0, 0, 0);
       const endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
-      
-      const response = await axiosInstance.get(`${backendUrl}/api/time-log/${user._id}`, {
-        params: {
-          startDate: startDate.toISOString(),
-          endDate: endDate.toISOString()
+
+      const response = await axiosInstance.get(
+        `${backendUrl}/api/time-log/${user._id}`,
+        {
+          params: {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+          },
         }
-      });
-    
+      );
+
       const todayLogs = response.data;
-      const activeLog = todayLogs.find((log: { timeOut: string | null }) => !log.timeOut);
-    
+      const activeLog = todayLogs.find(
+        (log: { timeOut: string | null }) => !log.timeOut
+      );
+
       if (activeLog) {
         setIsTimedIn(true);
-        const elapsedTime = activeLog.timeIn 
-          ? Math.floor((new Date().getTime() - new Date(activeLog.timeIn).getTime()) / 1000) 
+        const elapsedTime = activeLog.timeIn
+          ? Math.floor(
+              (new Date().getTime() - new Date(activeLog.timeIn).getTime()) /
+                1000
+            )
           : 0;
         startTimer(elapsedTime);
       }
@@ -90,7 +102,10 @@ const Header: React.FC = () => {
 
     try {
       if (isTimedIn) {
-        const response = await axiosInstance.post(`${backendUrl}/api/time-log/out`, { userId: user._id });
+        const response = await axiosInstance.post(
+          `${backendUrl}/api/time-log/out`,
+          { userId: user._id }
+        );
         if (response.status === 200) {
           if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -100,7 +115,10 @@ const Header: React.FC = () => {
           toast.warning("Successfully Timed Out.");
         }
       } else {
-        const response = await axiosInstance.post(`${backendUrl}/api/time-log/in`, { userId: user._id });
+        const response = await axiosInstance.post(
+          `${backendUrl}/api/time-log/in`,
+          { userId: user._id }
+        );
         if (response.status === 201) {
           setIsTimedIn(true);
           startTimer();
@@ -213,6 +231,7 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+      {/* <RouteDisplay /> */}
     </header>
   );
 };

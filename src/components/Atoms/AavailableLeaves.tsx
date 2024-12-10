@@ -112,7 +112,6 @@ const AvailableLeaves: React.FC = () => {
             className="animate-spin text-blue-600 mb-2"
             aria-hidden="true"
           />
-          <h1 className="text-xl font-semibold text-black">Loading Data...</h1>
         </div>
       ) : (
         <>
