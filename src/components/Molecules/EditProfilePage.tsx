@@ -11,6 +11,7 @@ import UpdatePassword from "../atoms/EditProfile/UpdatePassword";
 import useUser from "../../hooks/useUser";
 import axios from "axios";
 import { toast } from "react-toastify";
+import SalaryDetails from "../atoms/EditProfile/SalaryDetails";
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState("Personal Details");
@@ -430,6 +431,23 @@ const EditProfilePage: React.FC = () => {
             onUpdate={handleUpdateBankDetails}
           />
         );
+      case "Salary Details":
+        return (
+          <SalaryDetails
+            basicSalary={""}
+            allowances={{
+              medical: "",
+              mobile: "",
+              fuel: "",
+            }}
+            onUpdate={function (details: {
+              basicSalary: string;
+              allowances: { medical: string; mobile: string; fuel: string };
+            }): void {
+              throw new Error("Function not implemented.");
+            }}
+          />
+        );
       case "Update Password":
         return <UpdatePassword />;
       default:
@@ -449,6 +467,7 @@ const EditProfilePage: React.FC = () => {
             "Resume",
             "Document",
             "Bank Account Details",
+            "Salary Details",
             "Update Password",
           ].map((item, index) => (
             <li

@@ -444,6 +444,13 @@ const EmployeeManagement: React.FC = () => {
                     >
                       Edit
                     </button>
+
+                    <button
+                      className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
+                      onClick={() => handleEditClick(employee)}
+                    >
+                      Deactivate Account
+                    </button>
                   </td>
                 </tr>
               ))

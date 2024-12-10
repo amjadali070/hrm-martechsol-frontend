@@ -141,11 +141,10 @@ const Header: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/users/logout", {}, { withCredentials: true });
+      await axiosInstance.post("api/users/logout");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
-      toast.error("Failed to logout. Please try again.");
     }
   };
 

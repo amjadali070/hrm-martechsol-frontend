@@ -8,6 +8,8 @@ import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
 import useUser from "../../hooks/useUser";
+import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
+import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -63,6 +65,11 @@ const DashboardLayout: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-3 mt-3">
           <AttendanceOverview onViewAll={handleViewAllAttendance} />
           <AttendanceTicketOverview />
+        </div>
+
+        <div className="flex flex-col md:flex-row gap-3 mt-3">
+          <WorkAnniversariesCard />
+          <UpcomingBirthdaysCard />
         </div>
       </div>
     </div>
