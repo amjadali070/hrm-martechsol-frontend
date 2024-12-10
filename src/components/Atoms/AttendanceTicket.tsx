@@ -71,7 +71,7 @@ const AttendanceTicket: React.FC = () => {
             withCredentials: true,
           }
         );
-        console.log("Fetched Tickets:", response.data); // Debugging line
+        console.log("Fetched Tickets:", response.data);
 
         setAttendanceList(response.data);
         setNotFound(response.data.length === 0);
@@ -138,44 +138,35 @@ const AttendanceTicket: React.FC = () => {
     e.preventDefault();
     const { date, timeIn, timeOut, comments, workLocation, file } = formData;
 
-    // Validation
     if (!date || !timeIn || !timeOut || !workLocation) {
       toast.error("Date, Time In, Time Out, and Work Location are required.");
       return;
     }
 
-    // Parse the selected date
     const selectedDate = new Date(date);
-    selectedDate.setHours(0, 0, 0, 0); // Reset to midnight
+    selectedDate.setHours(0, 0, 0, 0);
 
-    // Parse Time In
     const [timeInHour, timeInMinute] = timeIn.split(":").map(Number);
     const timeInDate = new Date(selectedDate);
     timeInDate.setHours(timeInHour, timeInMinute, 0, 0);
 
-    // Parse Time Out
     const [timeOutHour, timeOutMinute] = timeOut.split(":").map(Number);
     const timeOutDate = new Date(selectedDate);
     timeOutDate.setHours(timeOutHour, timeOutMinute, 0, 0);
 
-    // If Time Out is earlier than or equal to Time In, assume it's the next day
     if (timeOutDate <= timeInDate) {
       timeOutDate.setDate(timeOutDate.getDate() + 1);
     }
 
-    // Calculate total time in milliseconds
     const totalTimeMs = timeOutDate.getTime() - timeInDate.getTime();
 
-    // Convert milliseconds to hours and minutes
     const totalHours = Math.floor(totalTimeMs / (1000 * 60 * 60));
     const totalMinutes = Math.floor(
       (totalTimeMs % (1000 * 60 * 60)) / (1000 * 60)
     );
 
-    // Format totalTime string
     const totalTimeStr = `${totalHours}h ${totalMinutes}m`;
 
-    // Prepare FormData for submission
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("date", selectedDate.toISOString());
     formDataToSubmit.append("timeIn", timeIn);
@@ -202,9 +193,6 @@ const AttendanceTicket: React.FC = () => {
         }
       );
 
-      console.log("Submitted Ticket:", response.data.attendanceTicket); // Debugging line
-
-      // Update attendanceList with the new ticket
       setAttendanceList((prevList) => [
         response.data.attendanceTicket,
         ...prevList,

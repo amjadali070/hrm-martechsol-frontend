@@ -29,12 +29,12 @@ const AvailableLeaves: React.FC = () => {
   const [toDate, setToDate] = useState<string>("");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [loading, setLoading] = useState<boolean>(true);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchLeaveData = async () => {
-      setLoading(true); // Set loading to true before fetching data
+      setLoading(true);
       try {
         const response = await axios.get(
           `${backendUrl}/api/leave-applications`,
@@ -62,7 +62,7 @@ const AvailableLeaves: React.FC = () => {
       } catch (error) {
         console.error("Error fetching leave data:", error);
       } finally {
-        setLoading(false); // Set loading to false after fetching data
+        setLoading(false);
       }
     };
 

@@ -68,30 +68,6 @@ const DashboardLayout: React.FC = () => {
     },
   ];
 
-  const attendanceRecords = [
-    {
-      date: "11 Nov 2024",
-      timeIn: "11:58AM",
-      timeOut: "9:41PM",
-      totalTime: "9:42",
-      status: "COMPLETED",
-    },
-    {
-      date: "12 Nov 2024",
-      timeIn: "9:00AM",
-      timeOut: "5:00PM",
-      totalTime: "8:00",
-      status: "COMPLETED",
-    },
-    {
-      date: "13 Nov 2024",
-      timeIn: "9:15AM",
-      timeOut: "5:15PM",
-      totalTime: "8:00",
-      status: "NOT COMPLETED",
-    },
-  ];
-
   const attendanceTickets = [
     {
       id: 1,
@@ -108,7 +84,7 @@ const DashboardLayout: React.FC = () => {
     {
       id: 3,
       date: "2024-11-18",
-      comments: "Left early for a doctor’s appointment.",
+      comments: "Left early for a doctor's appointment.",
       status: "Rejected" as "Rejected",
     },
   ];
@@ -138,14 +114,8 @@ const DashboardLayout: React.FC = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-3 mt-3">
-          <AttendanceOverview
-            attendanceRecords={attendanceRecords}
-            onViewAll={handleViewAllAttendance}
-          />
-          <AttendanceTicketOverview
-            attendanceTickets={attendanceTickets}
-            onViewAll={handleViewAllAttendanceTickets}
-          />
+          <AttendanceOverview onViewAll={handleViewAllAttendance} />
+          <AttendanceTicketOverview />
         </div>
       </div>
     </div>
