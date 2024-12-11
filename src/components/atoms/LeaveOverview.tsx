@@ -77,7 +77,7 @@ const LeaveOverview: React.FC = () => {
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col p-10 mx-auto w-full bg-white rounded-xl">
+      <div className="flex flex-col p-8 mx-auto w-full bg-white rounded-xl">
         <h2 className="text-2xl font-bold text-black">Available Leave Days</h2>
         {leaveBalances.map((leave, index) => {
           const usagePercentage = (leave.used / leave.total) * 100;

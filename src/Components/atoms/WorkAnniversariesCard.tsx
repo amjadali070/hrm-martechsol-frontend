@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { ReactComponent as CelebrateIcon } from "../../assets/celebrateIcon.svg";
+import { useNavigate } from "react-router-dom";
 
 interface User {
   _id: string;
@@ -14,30 +15,25 @@ interface User {
 const WorkAnniversariesCard: React.FC = () => {
   const [anniversaries, setAnniversaries] = useState<User[]>([]);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
+  const navigate = useNavigate();
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const { data } = await axios.get(
           `${backendUrl}/api/users/work-anniversaries`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
 
         if (data.allAnniversaries) {
-          // Sort the anniversaries based on the upcoming date
           const sortedAnniversaries = data.allAnniversaries.sort(
             (a: User, b: User) => {
               const aDate = new Date(a.personalDetails.joiningDate);
               const bDate = new Date(b.personalDetails.joiningDate);
               const currentYear = new Date().getFullYear();
 
-              // Calculate next anniversary dates
               const nextAnniversaryA = new Date(aDate.setFullYear(currentYear));
               const nextAnniversaryB = new Date(bDate.setFullYear(currentYear));
 
-              // If the anniversary has already passed this year, set to next year
               if (nextAnniversaryA < new Date()) {
                 nextAnniversaryA.setFullYear(currentYear + 1);
               }
@@ -48,8 +44,7 @@ const WorkAnniversariesCard: React.FC = () => {
               return nextAnniversaryA.getTime() - nextAnniversaryB.getTime();
             }
           );
-
-          setAnniversaries(sortedAnniversaries);
+          setAnniversaries(sortedAnniversaries.slice(0, 5));
         } else {
           console.error("Unexpected API response structure:", data);
         }
@@ -68,13 +63,14 @@ const WorkAnniversariesCard: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-5 py-8 bg-white rounded-xl max-md:mt-6">
-      <div className="flex items-center justify-between p-3">
+    <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full bg-white rounded-xl p-6">
+      <div className="flex items-center justify-between">
         <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-black">
           Upcoming Work Anniversaries
         </h2>
         <button
           aria-label="View all work anniversaries"
+          onClick={() => navigate("/all-anniversaries")}
           className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
         >
           View All

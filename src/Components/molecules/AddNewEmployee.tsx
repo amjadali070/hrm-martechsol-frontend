@@ -125,6 +125,7 @@ const AddNewEmployee: React.FC = () => {
       joiningDate,
     } = formData;
 
+    // Validation checks
     if (
       !name ||
       !email ||
@@ -174,7 +175,7 @@ const AddNewEmployee: React.FC = () => {
         jobTitle,
         jobType,
         role,
-        joiningDate, // Add the new field to the payload
+        joiningDate,
         ...(departments[department].length > 0 && { jobCategory }),
       };
 
@@ -185,7 +186,18 @@ const AddNewEmployee: React.FC = () => {
       );
 
       toast.success("Employee added successfully!");
-      navigate("/organization/employee-management");
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        department: Object.keys(departments)[0],
+        jobCategory: departments[Object.keys(departments)[0]][0] || "",
+        jobTitle: jobTitles[0],
+        jobType: "Full-Time",
+        role: "normal",
+        joiningDate: "",
+      });
     } catch (error: any) {
       const message =
         error.response && error.response.data.message

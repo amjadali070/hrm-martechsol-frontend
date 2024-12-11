@@ -92,7 +92,7 @@ const Announcements: React.FC = () => {
   }
 
   return (
-    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-8 py-8 bg-white rounded-xl max-md:px-4 max-md:mt-6">
+    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full bg-white rounded-xl p-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4">
         <h2 className="text-2xl sm:text-2xl font-bold text-black">
           Announcements

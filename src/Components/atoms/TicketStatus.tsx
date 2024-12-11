@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const TicketStatus: React.FC = () => {
   interface Ticket {
@@ -10,19 +10,43 @@ const TicketStatus: React.FC = () => {
   }
 
   const [tickets, setTickets] = useState<Ticket[]>([
-    { id: 1, date: '2024-11-01', from: 'John Doe', subject: 'Issue with login', status: 'Open' },
-    { id: 2, date: '2024-11-02', from: 'Jane Smith', subject: 'Request for password reset', status: 'Closed' },
-    { id: 3, date: '2024-11-03', from: 'Alice Johnson', subject: 'System not responding', status: 'Open' },
-    { id: 4, date: '2024-11-04', from: 'Bob Brown', subject: 'Bug in the dashboard', status: 'Closed' },
+    {
+      id: 1,
+      date: "2024-11-01",
+      from: "John Doe",
+      subject: "Issue with login",
+      status: "Open",
+    },
+    {
+      id: 2,
+      date: "2024-11-02",
+      from: "Jane Smith",
+      subject: "Request for password reset",
+      status: "Closed",
+    },
+    {
+      id: 3,
+      date: "2024-11-03",
+      from: "Alice Johnson",
+      subject: "System not responding",
+      status: "Open",
+    },
+    {
+      id: 4,
+      date: "2024-11-04",
+      from: "Bob Brown",
+      subject: "Bug in the dashboard",
+      status: "Closed",
+    },
   ]);
 
-  const [filteredStatus, setFilteredStatus] = useState<string>('All');
+  const [filteredStatus, setFilteredStatus] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
 
   const filteredTickets =
-    filteredStatus === 'All'
+    filteredStatus === "All"
       ? tickets
       : tickets.filter((ticket) => ticket.status === filteredStatus);
 
@@ -48,10 +72,9 @@ const TicketStatus: React.FC = () => {
     <div className="w-full p-6 bg-white rounded-lg">
       <div className="flex justify-between items-center mb-1">
         <h2 className="text-lg md:text-xl font-bold text-black">
-            Ticket Status
+          Ticket Status
         </h2>
         <div className="flex items-center space-x-2 mb-3">
-          
           <label htmlFor="status" className="text-sm font-medium text-gray-700">
             Filter by Status:
           </label>
@@ -73,71 +96,75 @@ const TicketStatus: React.FC = () => {
 
       <div className="overflow-x-auto">
         {filteredTickets.length > 0 ? (
-            <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
+          <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
             <colgroup>
-                <col style={{ width: '5%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '20%' }} />
-                <col style={{ width: '30%' }} />
-                <col style={{ width: '10%' }} />
-                <col style={{ width: '10%' }} />
+              <col style={{ width: "5%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "20%" }} />
+              <col style={{ width: "30%" }} />
+              <col style={{ width: "10%" }} />
+              <col style={{ width: "10%" }} />
             </colgroup>
             <thead>
-                <tr>
+              <tr>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    S.No
+                  S.No
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Date
+                  Date
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    From
+                  From
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Subject
+                  Subject
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Status
+                  Status
                 </th>
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Action
+                  Action
                 </th>
-                </tr>
+              </tr>
             </thead>
             <tbody>
-                {paginatedTickets.map((ticket, index) => (
+              {paginatedTickets.map((ticket, index) => (
                 <tr key={ticket.id}>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                     {ticket.date}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                     {ticket.from}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                     {ticket.subject}
-                    </td>
-                    <td
+                  </td>
+                  <td
                     className={`text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center ${
-                        ticket.status === 'Open' ? 'text-green-600' : 'text-red-600'
+                      ticket.status === "Open"
+                        ? "text-green-600"
+                        : "text-red-600"
                     }`}
-                    >
+                  >
                     {ticket.status}
-                    </td>
-                    <td
+                  </td>
+                  <td
                     className="text-sm px-4 py-2 border border-gray-300 whitespace-nowrap text-center text-blue-600 cursor-pointer hover:underline"
                     onClick={() => setSelectedTicket(ticket)}
-                    >
+                  >
                     View
-                    </td>
+                  </td>
                 </tr>
-                ))}
+              ))}
             </tbody>
-            </table>
+          </table>
         ) : (
-            <div className="text-center text-gray-500 text-sm py-6">No tickets available</div>
+          <div className="text-center text-gray-500 text-sm py-6">
+            No tickets available
+          </div>
         )}
       </div>
 
@@ -160,8 +187,8 @@ const TicketStatus: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === 1
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-gray-200 text-black hover:bg-gray-300'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
@@ -174,8 +201,8 @@ const TicketStatus: React.FC = () => {
           <button
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
-                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                : 'bg-blue-600 text-white hover:bg-blue-600'
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-600"
             }`}
             disabled={currentPage === totalPages}
             onClick={handleNext}
@@ -200,7 +227,11 @@ const TicketStatus: React.FC = () => {
                 stroke="currentColor"
                 className="w-6 h-6"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
             <h3 className="text-xl font-bold mb-6 text-purple-900 border-b border-gray-300 pb-2">
@@ -217,10 +248,12 @@ const TicketStatus: React.FC = () => {
                 <strong>Subject:</strong> {selectedTicket.subject}
               </p>
               <p>
-                <strong>Status:</strong>{' '}
+                <strong>Status:</strong>{" "}
                 <span
                   className={`${
-                    selectedTicket.status === 'Open' ? 'text-green-600' : 'text-red-600'
+                    selectedTicket.status === "Open"
+                      ? "text-green-600"
+                      : "text-red-600"
                   } font-semibold`}
                 >
                   {selectedTicket.status}
