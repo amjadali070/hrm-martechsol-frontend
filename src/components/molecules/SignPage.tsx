@@ -1,15 +1,15 @@
-import React, { useState, useContext } from 'react';
-import {useNavigate } from 'react-router';
-import axios from 'axios';
-import { AiFillEye, AiFillEyeInvisible } from 'react-icons/ai';
-import logIN from '../../assets/martechsol-sign.jpg';
-import logo from '../../assets/logo.png';
-import { AuthContext } from '../organisms/AuthContext';
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router";
+import axios from "axios";
+import { AiFillEye, AiFillEyeInvisible } from "react-icons/ai";
+import logIN from "../../assets/martechsol-sign.jpg";
+import logo from "../../assets/logo.png";
+import { AuthContext } from "../organisms/AuthContext";
 
 const SiginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const SiginPage: React.FC = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -28,7 +28,7 @@ const SiginPage: React.FC = () => {
         {
           withCredentials: true,
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
@@ -36,16 +36,16 @@ const SiginPage: React.FC = () => {
       if (response.status === 200) {
         const userData = await fetchUserProfile();
         if (userData) {
-          navigate('/dashboard');
+          navigate("/dashboard");
         } else {
-          setErrorMessage('Unable to fetch user profile');
+          setErrorMessage("Unable to fetch user profile");
         }
       }
     } catch (error: any) {
       if (error.response && error.response.data.message) {
         setErrorMessage(error.response.data.message);
       } else {
-        setErrorMessage('An unexpected error occurred');
+        setErrorMessage("An unexpected error occurred");
       }
       setUser(null);
     } finally {
@@ -57,7 +57,7 @@ const SiginPage: React.FC = () => {
     console.log("Navigating to Forgot Password Page");
     navigate("/forgot-password");
   };
-  
+
   return (
     <>
       <main className="flex h-screen bg-gray-50 overflow-hidden">
@@ -76,7 +76,10 @@ const SiginPage: React.FC = () => {
             onSubmit={handleSignIn}
           >
             <div className="flex flex-col">
-              <label htmlFor="emailInput" className="text-start text-base font-medium text-black">
+              <label
+                htmlFor="emailInput"
+                className="text-start text-base font-medium text-black"
+              >
                 Email
               </label>
               <input
@@ -91,11 +94,14 @@ const SiginPage: React.FC = () => {
             </div>
 
             <div className="flex flex-col relative">
-              <label htmlFor="passwordInput" className="text-start text-base font-medium text-black">
+              <label
+                htmlFor="passwordInput"
+                className="text-start text-base font-medium text-black"
+              >
                 Password
               </label>
               <input
-                type={showPassword ? 'text' : 'password'}
+                type={showPassword ? "text" : "password"}
                 id="passwordInput"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -107,11 +113,17 @@ const SiginPage: React.FC = () => {
                 className="absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-zinc-600"
                 onClick={() => setShowPassword(!showPassword)}
               >
-                {showPassword ? <AiFillEyeInvisible size={24} className='mt-6' /> : <AiFillEye size={24} className='mt-6' />}
+                {showPassword ? (
+                  <AiFillEyeInvisible size={24} className="mt-6" />
+                ) : (
+                  <AiFillEye size={24} className="mt-6" />
+                )}
               </div>
             </div>
 
-            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="text-red-500 text-sm">{errorMessage}</p>
+            )}
 
             <button
               type="button"
@@ -148,14 +160,18 @@ const SiginPage: React.FC = () => {
                   ></path>
                 </svg>
               ) : (
-                'Sign In'
+                "Sign In"
               )}
             </button>
           </form>
         </section>
 
         <section className="hidden lg:flex items-center justify-center w-1/2">
-          <img src={logIN} alt="Sign In Page Illustration" className="object-contain w-full h-auto" />
+          <img
+            src={logIN}
+            alt="Sign In Page Illustration"
+            className="object-contain w-full h-auto"
+          />
         </section>
       </main>
     </>

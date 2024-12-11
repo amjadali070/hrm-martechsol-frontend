@@ -149,8 +149,9 @@ interface SalarySlipPDFProps {
     designation: string;
     jobType: string;
     month: string;
-    from: string;
-    to: string;
+    // from: string;
+    // to: string;
+    year: string;
     basicSalary: string;
     medicalAllowance: string;
     mobileAllowance: string;
@@ -195,16 +196,12 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => (
         <Text style={styles.sectionTitle}>Salary Period</Text>
         <View style={styles.table}>
           <View style={styles.tableRow}>
+            <Text style={[styles.tableRowHeader, styles.boldText]}>Year</Text>
+            <Text style={styles.tableCol}>{data.year}</Text>
+          </View>
+          <View style={styles.tableRow}>
             <Text style={[styles.tableRowHeader, styles.boldText]}>Salary for the month of</Text>
             <Text style={styles.tableCol}>{data.month}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>From</Text>
-            <Text style={styles.tableCol}>{data.from}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>To</Text>
-            <Text style={styles.tableCol}>{data.to}</Text>
           </View>
         </View>
       </View>

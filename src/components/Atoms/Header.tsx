@@ -1,26 +1,37 @@
+// src/components/Header.tsx
 import React, { useState, useEffect, useRef } from "react";
 import MarTechLogo from "../../assets/LogoMartechSol.png";
 import { IoNotificationsSharp } from "react-icons/io5";
 import { MdOutlineMoreTime, MdOutlineTimerOff } from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
-import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
+import useUser from "../../hooks/useUser";
+import useNotifications from "../../hooks/useNotifications";
+import NotificationModal from "./NotificationModal";
+import axiosInstance from "../../utils/axiosConfig";
 
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
   const [timer, setTimer] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const serverTimeOffsetRef = useRef(0);
   const navigate = useNavigate();
-  
+  const { user, loading } = useUser();
+  const { notifications, unreadCount, markAsRead } = useNotifications(
+    user?._id
+  );
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
-    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+    return `${String(hours).padStart(2, "0")}:${String(minutes).padStart(
+      2,
+      "0"
+    )}:${String(secs).padStart(2, "0")}`;
   };
 
   const startTimer = (initialSeconds = 0) => {
@@ -36,68 +47,117 @@ const Header: React.FC = () => {
   };
 
   const checkTimeLogStatus = async () => {
+    if (!user?._id) return;
+
     try {
-      const response = await axiosInstance.get(`${backendUrl}/api/time-log/status`);
+      const startDate = new Date();
+      startDate.setHours(0, 0, 0, 0);
+      const endDate = new Date();
+      endDate.setHours(23, 59, 59, 999);
 
-      const clientTime = Date.now();
-      serverTimeOffsetRef.current = response.data.serverTime - clientTime;
+      const response = await axiosInstance.get(
+        `${backendUrl}/api/time-log/${user._id}`,
+        {
+          params: {
+            startDate: startDate.toISOString(),
+            endDate: endDate.toISOString(),
+          },
+          withCredentials: true,
+        }
+      );
 
-      if (response.data.hasActiveTimeLog) {
+      const todayLogs = response.data;
+      const activeLog = todayLogs.find(
+        (log: { timeOut: string | null }) => !log.timeOut
+      );
+
+      if (activeLog) {
         setIsTimedIn(true);
-        startTimer(response.data.elapsedTime);
+        const elapsedTime = activeLog.timeIn
+          ? Math.floor(
+              (new Date().getTime() - new Date(activeLog.timeIn).getTime()) /
+                1000
+            )
+          : 0;
+        startTimer(elapsedTime);
       }
     } catch (error) {
       console.error("Error checking time log status:", error);
+      toast.error("Failed to retrieve time log status");
     }
   };
 
   useEffect(() => {
-    checkTimeLogStatus();
+    if (!loading) {
+      checkTimeLogStatus();
+    }
 
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
       }
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loading, user]);
 
   const handleTimeToggle = async () => {
+    if (!user?._id) {
+      toast.error("User information not available");
+      return;
+    }
+
     try {
       if (isTimedIn) {
-        const response = await axiosInstance.post(`${backendUrl}/api/time-log/out`);
+        const response = await axiosInstance.post(
+          `${backendUrl}/api/time-log/out`,
+          { userId: user._id },
+          { withCredentials: true }
+        );
         if (response.status === 200) {
           if (timerRef.current) {
             clearInterval(timerRef.current);
             timerRef.current = null;
           }
           setIsTimedIn(false);
-          toast.warning(" Successfully Timed Out.");
+          toast.warning("Successfully Timed Out.");
         }
       } else {
-        const response = await axiosInstance.post(`${backendUrl}/api/time-log/in`);
+        const response = await axiosInstance.post(
+          `${backendUrl}/api/time-log/in`,
+          { userId: user._id },
+          { withCredentials: true }
+        );
         if (response.status === 201) {
           setIsTimedIn(true);
           startTimer();
-          toast.success(" Successfully Timed In.");
+          toast.success("Successfully Timed In.");
         }
       }
     } catch (error) {
       console.error("Error logging time:", error);
-      alert("An error occurred while trying to clock in/out.");
+      toast.error("An error occurred while trying to clock in/out.");
     }
   };
 
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("/users/logout");
+      await axiosInstance.post("api/users/logout");
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     }
   };
 
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
   return (
-    <header className="mt-2">
+    <header className="mt-1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
           <div className="flex items-center ml-2 sm:ml-2">
@@ -109,11 +169,23 @@ const Header: React.FC = () => {
           </div>
           <div className="flex flex-wrap gap-1 justify-end items-center md:flex-nowrap md:space-x-3">
             <button
-              className="p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
+              onClick={handleOpenModal}
+              className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
               aria-label="Notifications"
             >
               <IoNotificationsSharp size={20} />
+              {unreadCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
+                  {unreadCount}
+                </span>
+              )}
             </button>
+            <NotificationModal
+              isOpen={isModalOpen}
+              onClose={handleCloseModal}
+              notifications={notifications}
+              markAsRead={markAsRead}
+            />
 
             {isTimedIn && (
               <div className="flex items-center">

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
+import axios from "axios";
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
 
@@ -15,30 +15,32 @@ const EditLeaveRequestModal: React.FC<{
     startDate: "",
     endDate: "",
     lastDayToWork: "",
-    returnToWork: ""
+    returnToWork: "",
   });
 
   useEffect(() => {
     if (selectedRequest) {
       setFormData({
         leaveType: selectedRequest.leaveType,
-        startDate: selectedRequest.startDate.split('T')[0],
-        endDate: selectedRequest.endDate.split('T')[0],
-        lastDayToWork: selectedRequest.lastDayToWork 
-          ? selectedRequest.lastDayToWork.split('T')[0] 
-          : '',
-        returnToWork: selectedRequest.returnToWork 
-          ? selectedRequest.returnToWork.split('T')[0] 
-          : ''
+        startDate: selectedRequest.startDate.split("T")[0],
+        endDate: selectedRequest.endDate.split("T")[0],
+        lastDayToWork: selectedRequest.lastDayToWork
+          ? selectedRequest.lastDayToWork.split("T")[0]
+          : "",
+        returnToWork: selectedRequest.returnToWork
+          ? selectedRequest.returnToWork.split("T")[0]
+          : "",
       });
     }
   }, [selectedRequest]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -46,25 +48,27 @@ const EditLeaveRequestModal: React.FC<{
     e.preventDefault();
 
     if (!selectedRequest) {
-      toast.error('No leave request selected');
+      toast.error("No leave request selected");
       return;
     }
 
     try {
       const { data } = await axios.put(
-        `${backendUrl}/api/leave-applications/${selectedRequest._id}`, 
+        `${backendUrl}/api/leave-applications/${selectedRequest._id}`,
         formData,
-        { 
-          withCredentials: true
+        {
+          withCredentials: true,
         }
       );
 
-      toast.success('Leave request updated successfully');
+      toast.success("Leave request updated successfully");
       updateLeaveRequests(data);
       closeModal();
     } catch (error: any) {
-      console.error('Error updating leave request', error);
-      toast.error(error.response?.data?.message || 'Failed to update leave request');
+      console.error("Error updating leave request", error);
+      toast.error(
+        error.response?.data?.message || "Failed to update leave request"
+      );
     }
   };
 
@@ -74,12 +78,14 @@ const EditLeaveRequestModal: React.FC<{
         <h2 className="text-xl font-bold mb-4">Edit Leave Request</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Leave Type</label>
+            <label className="block text-sm font-medium text-gray-700">
+              Leave Type
+            </label>
             <select
               name="leaveType"
               value={formData.leaveType}
               onChange={handleInputChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+              className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
               required
             >
               <option value="Sick Leave">Sick Leave</option>
@@ -90,24 +96,28 @@ const EditLeaveRequestModal: React.FC<{
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Start Date</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Start Date
+              </label>
               <input
                 type="date"
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">End Date</label>
+              <label className="block text-sm font-medium text-gray-700">
+                End Date
+              </label>
               <input
                 type="date"
                 name="endDate"
                 value={formData.endDate}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
                 required
               />
             </div>
@@ -115,24 +125,28 @@ const EditLeaveRequestModal: React.FC<{
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Last Day at Work</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Last Day at Work
+              </label>
               <input
                 type="date"
                 name="lastDayToWork"
                 value={formData.lastDayToWork}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
                 required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Return to Work</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Return to Work
+              </label>
               <input
                 type="date"
                 name="returnToWork"
                 value={formData.returnToWork}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3"
+                className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
                 required
               />
             </div>

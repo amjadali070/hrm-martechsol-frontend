@@ -1,20 +1,20 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import { toast } from 'react-toastify';
-import logo from '../../assets/logo.png';
-import forgotPasswordImg from '../../assets/forgot-password-img.png';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { toast } from "react-toastify";
+import logo from "../../assets/logo.png";
+import forgotPasswordImg from "../../assets/forgot-password-img.png";
 
 const ForgotPasswordPage: React.FC = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
 
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setErrorMessage('');
+    setErrorMessage("");
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -23,19 +23,21 @@ const ForgotPasswordPage: React.FC = () => {
         { email },
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
         }
       );
 
-      toast.success(response.data.message || 'Password reset link sent to your email');
+      toast.success(
+        response.data.message || "Password reset link sent to your email"
+      );
 
-      navigate('/signin');
+      navigate("/signin");
     } catch (error: any) {
       if (error.response && error.response.data.message) {
         setErrorMessage(error.response.data.message);
       } else {
-        setErrorMessage('An unexpected error occurred. Please try again.');
+        setErrorMessage("An unexpected error occurred. Please try again.");
       }
     } finally {
       setIsLoading(false);
@@ -63,13 +65,13 @@ const ForgotPasswordPage: React.FC = () => {
           </h2>
 
           <p className="text-center text-gray-600 mb-4">
-            Enter the email address associated with your account. 
-            We'll send you a link to reset your password.
+            Enter the email address associated with your account. We'll send you
+            a link to reset your password.
           </p>
 
           <div className="flex flex-col">
-            <label 
-              htmlFor="emailInput" 
+            <label
+              htmlFor="emailInput"
               className="text-start text-base font-medium text-black mb-2"
             >
               Email Address
@@ -117,7 +119,7 @@ const ForgotPasswordPage: React.FC = () => {
                 ></path>
               </svg>
             ) : (
-              'Reset Password'
+              "Reset Password"
             )}
           </button>
 
@@ -125,7 +127,7 @@ const ForgotPasswordPage: React.FC = () => {
             <button
               type="button"
               className="text-sm font-medium text-blue-600 hover:underline"
-              onClick={() => navigate('/signin')}
+              onClick={() => navigate("/signin")}
             >
               Back to Sign In
             </button>
@@ -134,10 +136,10 @@ const ForgotPasswordPage: React.FC = () => {
       </section>
 
       <section className="hidden lg:flex items-center justify-center w-1/2">
-        <img 
-          src={forgotPasswordImg} 
-          alt="Forgot Password Illustration" 
-          className="object-contain w-full h-full" 
+        <img
+          src={forgotPasswordImg}
+          alt="Forgot Password Illustration"
+          className="object-contain w-full h-full"
         />
       </section>
     </main>

@@ -1,23 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { FaFilter, FaInbox, FaSearch, FaTimes } from "react-icons/fa";
-import axios from 'axios';
+import {
+  FaFilter,
+  FaInbox,
+  FaSearch,
+  FaSpinner,
+  FaTimes,
+} from "react-icons/fa";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
+import { formatDate } from "../../utils/formatDate";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-const formatDate = (dateString: string) => {
-  if (!dateString) return '';
-  const date = new Date(dateString);
-  return date instanceof Date && !isNaN(date as any) 
-    ? date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric'
-      }) 
-    : dateString;
-};
 
 const fetchLeaveRequests = async () => {
   try {
@@ -26,35 +21,37 @@ const fetchLeaveRequests = async () => {
     });
     return data;
   } catch (error) {
-    console.error('Error fetching leave requests', error);
+    console.error("Error fetching leave requests", error);
     return [];
   }
 };
 
 const approveLeaveRequest = async (id: string, comments?: string) => {
   try {
-    const { data } = await axios.patch(`${backendUrl}/api/leave-applications/${id}/approve`, 
+    const { data } = await axios.patch(
+      `${backendUrl}/api/leave-applications/${id}/approve`,
       { comments },
       { withCredentials: true }
     );
-    toast.success('Leave request approved successfully');
+    toast.success("Leave request approved successfully");
     return data;
   } catch (error) {
-    console.error('Error approving leave request', error);
+    console.error("Error approving leave request", error);
     throw error;
   }
 };
 
 const rejectLeaveRequest = async (id: string, comments?: string) => {
   try {
-    const { data } = await axios.patch(`${backendUrl }/api/leave-applications/${id}/reject`, 
+    const { data } = await axios.patch(
+      `${backendUrl}/api/leave-applications/${id}/reject`,
       { comments },
       { withCredentials: true }
     );
-    toast.warning('Leave request rejected successfully');
+    toast.warning("Leave request rejected successfully");
     return data;
   } catch (error) {
-    console.error('Error rejecting leave request', error);
+    console.error("Error rejecting leave request", error);
     throw error;
   }
 };
@@ -71,47 +68,72 @@ const LeaveManagement: React.FC = () => {
   const [approvedPage, setApprovedPage] = useState<number>(1);
   const [rejectedPage, setRejectedPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
-  const [modalType, setModalType] = useState<"approve" | "reject" | "edit" | "viewPDF" | null>(null);
-  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(null);
+  const [modalType, setModalType] = useState<
+    "approve" | "reject" | "edit" | "viewPDF" | null
+  >(null);
+  const [selectedRequest, setSelectedRequest] = useState<LeaveRequest | null>(
+    null
+  );
   const [comment, setComment] = useState<string>("");
   const [newLeaveType, setNewLeaveType] = useState<string>("");
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadLeaveRequests = async () => {
       try {
+        setIsLoading(true);
+
         const requests = await fetchLeaveRequests();
-        const pendingRequests = requests.filter((req: LeaveRequest) => req.status === 'Pending');
-        const approvedReqs = requests.filter((req: LeaveRequest)=> req.status === 'Approved');
-        const rejectedReqs = requests.filter((req: LeaveRequest)=> req.status === 'Rejected');
-  
+        const pendingRequests = requests.filter(
+          (req: LeaveRequest) => req.status === "Pending"
+        );
+        const approvedReqs = requests.filter(
+          (req: LeaveRequest) => req.status === "Approved"
+        );
+        const rejectedReqs = requests.filter(
+          (req: LeaveRequest) => req.status === "Rejected"
+        );
+
         setLeaveRequests(pendingRequests);
         setApprovedRequests(approvedReqs);
         setRejectedRequests(rejectedReqs);
       } catch (error) {
-        toast.error('Error fetching leave requests');
+        toast.error("Error fetching leave requests");
+      } finally {
+        setIsLoading(false);
       }
     };
-  
+
     loadLeaveRequests();
   }, []);
-  
+
   const handleConfirmAction = async () => {
     if (selectedRequest && modalType) {
       try {
-        if (modalType === 'approve') {
-          const approvedRequest = await approveLeaveRequest(selectedRequest._id, comment);
-          setApprovedRequests(prev => [...prev, approvedRequest]);
-          setLeaveRequests(prev => prev.filter(req => req._id !== selectedRequest._id));
-        } else if (modalType === 'reject') {
-          const rejectedRequest = await rejectLeaveRequest(selectedRequest._id, comment);
-          setRejectedRequests(prev => [...prev, rejectedRequest]);
-          setLeaveRequests(prev => prev.filter(req => req._id !== selectedRequest._id));
+        if (modalType === "approve") {
+          const approvedRequest = await approveLeaveRequest(
+            selectedRequest._id,
+            comment
+          );
+          setApprovedRequests((prev) => [...prev, approvedRequest]);
+          setLeaveRequests((prev) =>
+            prev.filter((req) => req._id !== selectedRequest._id)
+          );
+        } else if (modalType === "reject") {
+          const rejectedRequest = await rejectLeaveRequest(
+            selectedRequest._id,
+            comment
+          );
+          setRejectedRequests((prev) => [...prev, rejectedRequest]);
+          setLeaveRequests((prev) =>
+            prev.filter((req) => req._id !== selectedRequest._id)
+          );
         }
         closeModal();
       } catch (error) {
-        toast.error('Error confirming action');
+        toast.error("Error confirming action");
       }
     }
   };
@@ -131,47 +153,52 @@ const LeaveManagement: React.FC = () => {
     setSelectedRequest(leaveRequests.find((req) => req._id === id) || null);
   };
 
-  const handleViewFile = (id: string, dataSource: 'pending' | 'approved' | 'rejected') => {
+  const handleViewFile = (
+    id: string,
+    dataSource: "pending" | "approved" | "rejected"
+  ) => {
     let request: LeaveRequest | undefined;
-  
+
     switch (dataSource) {
-      case 'pending':
+      case "pending":
         request = leaveRequests.find((req) => req._id === id);
         break;
-      case 'approved':
+      case "approved":
         request = approvedRequests.find((req) => req._id === id);
         break;
-      case 'rejected':
+      case "rejected":
         request = rejectedRequests.find((req) => req._id === id);
         break;
     }
-  
-    console.log("request.handoverDocument", request?.handoverDocument);
-    
+
     if (request && request.handoverDocument) {
-      const fullPdfUrl = `${backendUrl}/${request.handoverDocument.replace(/\\/g, '/')}`;
-      
+      const fullPdfUrl = `${backendUrl}/${request.handoverDocument.replace(
+        /\\/g,
+        "/"
+      )}`;
+
       setSelectedPdfUrl(fullPdfUrl);
       setModalType("viewPDF");
     } else {
-      toast.info('No document available');
+      toast.info("No document available");
     }
   };
 
   const handleEdit = (id: string | undefined) => {
     if (!id) {
-      toast.error('Invalid request ID');
+      toast.error("Invalid request ID");
       return;
     }
-  
-    const request = leaveRequests.find((req) => req._id === id.toString()) || null;
+
+    const request =
+      leaveRequests.find((req) => req._id === id.toString()) || null;
     setSelectedRequest(request);
     setEditModalOpen(true);
   };
 
   const updateLeaveRequestsAfterEdit = (updatedRequest: LeaveRequest) => {
-    setLeaveRequests(prev => 
-      prev.map(req => req._id === updatedRequest._id ? updatedRequest : req)
+    setLeaveRequests((prev) =>
+      prev.map((req) => (req._id === updatedRequest._id ? updatedRequest : req))
     );
   };
 
@@ -186,11 +213,17 @@ const LeaveManagement: React.FC = () => {
   const filteredRequests = leaveRequests.filter(
     (request) =>
       (filters.name === "" ||
-        (request.user.name ?? "").toLowerCase().includes(filters.name.toLowerCase())) &&
+        (request.user.name ?? "")
+          .toLowerCase()
+          .includes(filters.name.toLowerCase())) &&
       (filters.leaveType === "All" || request.leaveType === filters.leaveType)
   );
 
-  const paginatedLeaveRequests = handlePagination(filteredRequests, currentPage, itemsPerPage);
+  const paginatedLeaveRequests = handlePagination(
+    filteredRequests,
+    currentPage,
+    itemsPerPage
+  );
   const paginatedApprovedRequests = handlePagination(
     approvedRequests,
     approvedPage,
@@ -211,7 +244,7 @@ const LeaveManagement: React.FC = () => {
       <h1 className="text-2xl font-bold mb-4">Leave Management</h1>
 
       <div className="flex flex-wrap gap-4 mb-4 w-[50%]">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -222,37 +255,56 @@ const LeaveManagement: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 shadow-sm border border-gray-300 flex-grow min-w-[250px]">
+        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filters.leaveType}
-            onChange={(e) => setFilters({ ...filters, leaveType: e.target.value })}
+            onChange={(e) =>
+              setFilters({ ...filters, leaveType: e.target.value })
+            }
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Leave Types</option>
-            <option value="Sick Leave">Sick Leave</option>
             <option value="Casual Leave">Casual Leave</option>
+            <option value="Sick Leave">Sick Leave</option>
             <option value="Annual Leave">Annual Leave</option>
+            <option value="Maternity Leave">Maternity Leave</option>
+            <option value="Paternity Leave">Paternity Leave</option>
+            <option value="Bereavement Leave">Bereavement Leave</option>
+            <option value="Hajj Leave">Hajj Leave</option>
+            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+            <option value="Unapproved Absence Without Pay">
+              Unapproved Absence Without Pay
+            </option>
           </select>
         </div>
-      </div> 
+      </div>
 
       <div className="overflow-x-auto mb-6">
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-        <thead className="bg-purple-900">
-          <tr>
-          {["S.No", "Name", "Leave Type", "From", "To", "Reason", "File", "Actions"].map((header) => (
-              <th
-                key={header}
-                className={`px-3 py-2 text-sm font-medium text-white ${
-                  header === "Actions" ? "text-center" : "text-left"
-                } ${header === "S.No" ? "text-center" : ""}`}
-              >
-                {header}
-              </th>
-            ))}
-          </tr>
-        </thead>
+          <thead className="bg-purple-900">
+            <tr>
+              {[
+                "S.No",
+                "Name",
+                "Leave Type",
+                "From",
+                "To",
+                "Reason",
+                "File",
+                "Actions",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className={`px-3 py-2 text-sm font-medium text-white ${
+                    header === "Actions" ? "text-center" : "text-left"
+                  } ${header === "S.No" ? "text-center" : ""}`}
+                >
+                  {header}
+                </th>
+              ))}
+            </tr>
+          </thead>
 
           <tbody>
             {paginatedLeaveRequests.length > 0 ? (
@@ -261,12 +313,25 @@ const LeaveManagement: React.FC = () => {
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
-                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'pending')}>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.user.name}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.leaveType}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.startDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.endDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.reason}
+                  </td>
+                  <td
+                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
+                    onClick={() => handleViewFile(request._id, "pending")}
+                  >
                     {request.handoverDocument ? "View" : "No file"}
                   </td>
                   <td className="px-3 py-2 text-sm text-center">
@@ -277,7 +342,9 @@ const LeaveManagement: React.FC = () => {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleApproveReject(request._id, "approve")}
+                      onClick={() =>
+                        handleApproveReject(request._id, "approve")
+                      }
                       className="px-2 py-1 text-white bg-green-500 rounded-full hover:bg-green-600 mr-2"
                     >
                       Approve
@@ -293,59 +360,74 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={8} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">No Leave Requests Found.</span>
-                  </div>
-                </td>
+                {isLoading ? (
+                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaSpinner
+                        size={30}
+                        className="text-blue-500 mb-2 animate-spin"
+                      />
+                    </div>
+                  </td>
+                ) : (
+                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
+                      <span className="text-md font-medium">
+                        No Leave Requests Found.
+                      </span>
+                    </div>
+                  </td>
+                )}
               </tr>
             )}
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md"
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-700 mr-2">Show:</span>
+            <select
+              className="text-sm border border-gray-300 rounded-md"
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            >
+              {[5, 10, 20].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                currentPage === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }`}
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                currentPage === totalPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              disabled={currentPage === totalPages}
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+            >
+              Next
+            </button>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }`}
-            disabled={currentPage === 1}
-            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-            disabled={currentPage === totalPages}
-            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-          >
-            Next
-          </button>
-        </div>
-      </div>
       </div>
 
       <h2 className="text-xl font-bold mb-4">Approved Leaves</h2>
@@ -353,8 +435,23 @@ const LeaveManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-green-600">
             <tr>
-              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days","File", "Reason", "Comments"].map((header) => (
-                <th key={header} className="px-3 py-2 text-sm font-medium text-white text-left">
+              {[
+                "S.No",
+                "Name",
+                "Leave Type",
+                "From",
+                "To",
+                "Last Day at Work",
+                "Return to Work",
+                "Total Days",
+                "File",
+                "Reason",
+                "Comments",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-3 py-2 text-sm font-medium text-white text-left"
+                >
                   {header}
                 </th>
               ))}
@@ -364,76 +461,116 @@ const LeaveManagement: React.FC = () => {
             {paginatedApprovedRequests.length > 0 ? (
               paginatedApprovedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
-                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'approved')}>
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.user.name}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.leaveType}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.startDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.endDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.lastDayToWork)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.returnToWork)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.totalDays}
+                  </td>
+                  <td
+                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
+                    onClick={() => handleViewFile(request._id, "approved")}
+                  >
                     {request.handoverDocument ? "View" : "No file"}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.reason}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.comments}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">No Approved Leaves.</span>
-                  </div>
-                </td>
+                {isLoading ? (
+                  <td colSpan={11} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaSpinner
+                        size={30}
+                        className="text-blue-500 mb-2 animate-spin"
+                      />
+                    </div>
+                  </td>
+                ) : (
+                  <td colSpan={11} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
+                      <span className="text-md font-medium">
+                        No Approved Leaves Found.
+                      </span>
+                    </div>
+                  </td>
+                )}
               </tr>
             )}
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md"
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-700 mr-2">Show:</span>
+            <select
+              className="text-sm border border-gray-300 rounded-md"
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            >
+              {[5, 10, 20].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                approvedPage === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }`}
+              disabled={approvedPage === 1}
+              onClick={() => setApprovedPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {approvedPage} of {totalApprovedPages}
+            </span>
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                approvedPage === totalApprovedPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              disabled={approvedPage === totalApprovedPages}
+              onClick={() =>
+                setApprovedPage((prev) =>
+                  Math.min(prev + 1, totalApprovedPages)
+                )
+              }
+            >
+              Next
+            </button>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              approvedPage  === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }`}
-            disabled={approvedPage  === 1}
-            onClick={() => setApprovedPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {approvedPage} of {totalApprovedPages}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              approvedPage  === totalApprovedPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-            disabled={approvedPage === totalApprovedPages}
-            onClick={() => setApprovedPage ((prev) => Math.min(prev + 1, totalApprovedPages))}
-          >
-            Next
-          </button>
-        </div>
-      </div>
       </div>
 
       <h2 className="text-xl font-bold mb-4">Rejected Leaves</h2>
@@ -441,8 +578,23 @@ const LeaveManagement: React.FC = () => {
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-red-600">
             <tr>
-              {["S.No", "Name", "Leave Type", "From", "To", "Last Day at Work", "Return to Work", "Total Days","File", "Reason", "Comments"].map((header) => (
-                <th key={header} className="px-3 py-2 text-sm font-medium text-white text-left">
+              {[
+                "S.No",
+                "Name",
+                "Leave Type",
+                "From",
+                "To",
+                "Last Day at Work",
+                "Return to Work",
+                "Total Days",
+                "File",
+                "Reason",
+                "Comments",
+              ].map((header) => (
+                <th
+                  key={header}
+                  className="px-3 py-2 text-sm font-medium text-white text-left"
+                >
                   {header}
                 </th>
               ))}
@@ -452,89 +604,129 @@ const LeaveManagement: React.FC = () => {
             {paginatedRejectedRequests.length > 0 ? (
               paginatedRejectedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">{index + 1}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.user.name}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.leaveType}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.startDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.endDate)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.lastDayToWork)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{formatDate(request.returnToWork)}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.totalDays}</td>
-                  <td className="px-3 py-2 text-sm text-blue-600 cursor-pointer" onClick={() => handleViewFile(request._id, 'rejected')}>
+                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.user.name}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.leaveType}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.startDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.endDate)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.lastDayToWork)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {formatDate(request.returnToWork)}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.totalDays}
+                  </td>
+                  <td
+                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
+                    onClick={() => handleViewFile(request._id, "rejected")}
+                  >
                     {request.handoverDocument ? "View" : "No file"}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.reason}</td>
-                  <td className="px-3 py-2 text-sm text-gray-800">{request.comments}</td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.reason}
+                  </td>
+                  <td className="px-3 py-2 text-sm text-gray-800">
+                    {request.comments}
+                  </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={10} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium"> No Rejected Leaves.</span>
-                  </div>
-                </td>
+                {isLoading ? (
+                  <td colSpan={11} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaSpinner
+                        size={30}
+                        className="text-blue-500 mb-2 animate-spin"
+                      />
+                    </div>
+                  </td>
+                ) : (
+                  <td colSpan={11} className="text-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center">
+                      <FaInbox size={30} className="text-gray-400 mb-2" />
+                      <span className="text-md font-medium">
+                        No Rejected Leaves Found.
+                      </span>
+                    </div>
+                  </td>
+                )}
               </tr>
             )}
           </tbody>
         </table>
         <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md"
-            value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-700 mr-2">Show:</span>
+            <select
+              className="text-sm border border-gray-300 rounded-md"
+              value={itemsPerPage}
+              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            >
+              {[5, 10, 20].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center space-x-4">
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                rejectedPage === 1
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }`}
+              disabled={rejectedPage === 1}
+              onClick={() => setRejectedPage((prev) => Math.max(prev - 1, 1))}
+            >
+              Previous
+            </button>
+            <span className="text-sm text-gray-700">
+              Page {rejectedPage} of {totalRejectedPages}
+            </span>
+            <button
+              className={`px-3 py-1 text-sm rounded-full ${
+                rejectedPage === totalRejectedPages
+                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
+              }`}
+              disabled={rejectedPage === totalRejectedPages}
+              onClick={() =>
+                setRejectedPage((prev) =>
+                  Math.min(prev + 1, totalRejectedPages)
+                )
+              }
+            >
+              Next
+            </button>
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              rejectedPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }`}
-            disabled={rejectedPage === 1}
-            onClick={() => setRejectedPage((prev) => Math.max(prev - 1, 1))}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {rejectedPage} of {totalRejectedPages}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              rejectedPage=== totalRejectedPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-            disabled={rejectedPage === totalRejectedPages}
-            onClick={() => setRejectedPage((prev) => Math.min(prev + 1, totalRejectedPages))}
-          >
-            Next
-          </button>
-        </div>
-      </div>
       </div>
 
       {modalType === "viewPDF" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-[80%] h-[80%] relative">
-            <button 
-              onClick={closeModal} 
+            <button
+              onClick={closeModal}
               className="absolute top-4 right-[120px] text-white z-10"
             >
               <FaTimes size={24} />
             </button>
-            <iframe 
-              src={selectedPdfUrl} 
+            <iframe
+              src={selectedPdfUrl}
               className="w-full h-full rounded-lg"
               title="Handover Document"
             />
@@ -563,16 +755,19 @@ const LeaveManagement: React.FC = () => {
                     <strong>Leave Type:</strong> {selectedRequest.leaveType}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>From:</strong> {formatDate(selectedRequest.startDate)}
+                    <strong>From:</strong>{" "}
+                    {formatDate(selectedRequest.startDate)}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>To:</strong> {formatDate(selectedRequest.endDate)}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>Last Day at Work:</strong> {formatDate(selectedRequest.lastDayToWork)}
+                    <strong>Last Day at Work:</strong>{" "}
+                    {formatDate(selectedRequest.lastDayToWork)}
                   </p>
                   <p className="text-sm text-gray-700">
-                    <strong>Return to Work:</strong> {formatDate(selectedRequest.returnToWork)}
+                    <strong>Return to Work:</strong>{" "}
+                    {formatDate(selectedRequest.returnToWork)}
                   </p>
                   <p className="text-sm text-gray-700">
                     <strong>Total Days:</strong> {selectedRequest.totalDays}
@@ -679,16 +874,16 @@ const LeaveManagement: React.FC = () => {
         </div>
       )}
 
-  {editModalOpen && selectedRequest && (
-    <EditLeaveRequestModal 
-      selectedRequest={selectedRequest}
-      closeModal={() => {
-        setEditModalOpen(false);
-        setSelectedRequest(null);
-      }}
-      updateLeaveRequests={updateLeaveRequestsAfterEdit}
-    />
-  )}
+      {editModalOpen && selectedRequest && (
+        <EditLeaveRequestModal
+          selectedRequest={selectedRequest}
+          closeModal={() => {
+            setEditModalOpen(false);
+            setSelectedRequest(null);
+          }}
+          updateLeaveRequests={updateLeaveRequestsAfterEdit}
+        />
+      )}
     </div>
   );
 };

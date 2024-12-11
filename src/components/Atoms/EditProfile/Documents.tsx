@@ -1,11 +1,16 @@
-import React, { useState } from 'react';
-import { FaFileUpload, FaCheckCircle, FaTimesCircle, FaEye } from 'react-icons/fa';
-import DocumentViewerModal from '../DocumentViewerModal';
+import React, { useState } from "react";
+import {
+  FaFileUpload,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaEye,
+} from "react-icons/fa";
+import DocumentViewerModal from "../DocumentViewerModal";
 
 interface DocumentProps {
   documents: {
     name: string;
-    type: 'image' | 'pdf';
+    type: "image" | "pdf";
     fileUrl: string | null;
   }[];
   onUpdate: (name: string, file: File) => void;
@@ -17,7 +22,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
   const [viewingDocument, setViewingDocument] = useState<{
     url: string;
     name: string;
-    type: 'image' | 'pdf';
+    type: "image" | "pdf";
   } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +43,11 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
     setEditingDocument((prev) => (prev === name ? null : name));
   };
 
-  const handleViewDocument = (fileUrl: string, name: string, type: 'image' | 'pdf') => {
+  const handleViewDocument = (
+    fileUrl: string,
+    name: string,
+    type: "image" | "pdf"
+  ) => {
     setViewingDocument({ url: fileUrl, name, type });
   };
 
@@ -56,13 +65,17 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
               ) : (
                 <FaCheckCircle className="text-green-500" size={24} />
               )}
-              <p className="text-lg sm:text-xl font-medium text-gray-700">{doc.name}</p>
+              <p className="text-lg sm:text-xl font-medium text-gray-700">
+                {doc.name}
+              </p>
             </div>
 
             <div className="flex flex-wrap gap-4 justify-start sm:justify-end items-center">
               {doc.fileUrl && (
                 <button
-                  onClick={() => handleViewDocument(doc.fileUrl!, doc.name, doc.type)}
+                  onClick={() =>
+                    handleViewDocument(doc.fileUrl!, doc.name, doc.type)
+                  }
                   className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all uppercase text-sm sm:text-base"
                   aria-label={`View ${doc.name}`}
                 >
@@ -88,7 +101,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
                   </h3>
                   <input
                     type="file"
-                    accept={doc.type === 'pdf' ? 'application/pdf' : 'image/*'}
+                    accept={doc.type === "pdf" ? "application/pdf" : "image/*"}
                     onChange={handleFileChange}
                     className="w-full p-3 border border-gray-300 rounded-md bg-gray-50 focus:outline-none focus:ring-2 focus:ring-purple-900 mb-4"
                   />
@@ -112,7 +125,7 @@ const Documents: React.FC<DocumentProps> = ({ documents, onUpdate }) => {
           </div>
         ))}
       </div>
-      
+
       {viewingDocument && (
         <DocumentViewerModal
           isOpen={!!viewingDocument}

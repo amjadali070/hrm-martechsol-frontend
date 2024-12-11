@@ -20,16 +20,15 @@ const MainLayout: React.FC = () => {
     const fetchUserProfile = async () => {
       try {
         const backendUrl = process.env.REACT_APP_BACKEND_URL;
-        const response = await axios.get(`${backendUrl}/api/users/profile`, { 
-          withCredentials: true 
+        const response = await axios.get(`${backendUrl}/api/users/profile`, {
+          withCredentials: true,
         });
         setUser(response.data);
         setLoading(false);
       } catch (error) {
-        // If profile fetch fails, redirect to login
         setUser(null);
         setLoading(false);
-        navigate('/signin');
+        navigate("/signin");
       }
     };
 
