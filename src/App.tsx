@@ -43,6 +43,7 @@ import ForgotPasswordPage from "./Components/molecules/ForgotPasswordPage";
 import NoticesManagement from "./Components/atoms/NoticesManagement";
 import FullNotificationsPage from "./Components/atoms/FullNotificationsPage";
 import NotificationDetailPage from "./Components/atoms/NotificationDetailPage";
+import FormsManagement from "./Components/molecules/FormsManagement";
 
 const App: React.FC = () => {
   return (
@@ -142,6 +143,10 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/notice-management"
                   element={<NoticesManagement />}
+                />
+                <Route
+                  path="/organization/forms-management"
+                  element={<FormsManagement />}
                 />
                 <Route
                   path="/letters/employee-letter"

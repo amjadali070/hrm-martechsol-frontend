@@ -15,22 +15,20 @@ const anniversaries: Anniversary[] = [
     title: "1st",
     position: "Senior Manager",
   },
-  { id: 2, name: "Sameer Wali", title: "2nd", position: "Senior Executive" },
-  { id: 3, name: "Hammad Faheem", title: "3rd", position: "Manager" },
-  { id: 4, name: "Rameez Abbas", title: "4th", position: "Vice President" },
-  { id: 5, name: "Amjad Ali", title: "5th", position: "Assistant Manager" },
+  { id: 2, name: "Rameez Abbas", title: "4th", position: "Vice President" },
+  { id: 3, name: "Amjad Ali", title: "5th", position: "Assistant Manager" },
 ];
 
 const WorkAnniversariesCard: React.FC = () => {
   return (
-    <div className="w-full mx-auto bg-white text-black rounded-lg border border-gray-300 overflow-hidden">
-      <div className="flex items-center justify-between p-3 bg-purple-900">
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-white">
+    <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-5 py-8 bg-white rounded-xl max-md:mt-6">
+      <div className="flex items-center justify-between p-3 ">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-black">
           Upcoming Work Anniversaries
         </h2>
         <button
           aria-label="View all work anniversaries"
-          className="bg-white text-purple-800 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg hover:bg-gray-100 transition"
+          className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
         >
           View All
         </button>
@@ -47,7 +45,7 @@ const WorkAnniversariesCard: React.FC = () => {
             </div>
 
             <div className="ml-3 sm:ml-4 flex-1">
-              <p className="text-sm sm:text-md font-bold text-black">
+              <p className="text-md sm:text-md font-bold text-black">
                 {item.name}
               </p>
               <p className="text-xs sm:text-sm text-gray-600">

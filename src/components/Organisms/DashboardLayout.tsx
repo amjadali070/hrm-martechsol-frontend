@@ -15,6 +15,10 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useUser();
 
+  const authorizedRoles = ["HR", "SuperAdmin"];
+
+  const isAuthorized = authorizedRoles.includes(user?.role || "");
+
   const actions = [
     {
       label: "Apply for Leave",
@@ -67,10 +71,12 @@ const DashboardLayout: React.FC = () => {
           <AttendanceTicketOverview />
         </div>
 
-        <div className="flex flex-col md:flex-row gap-3 mt-3">
-          <WorkAnniversariesCard />
-          <UpcomingBirthdaysCard />
-        </div>
+        {isAuthorized && (
+          <div className="flex flex-col md:flex-row gap-3 mt-3">
+            <WorkAnniversariesCard />
+            <UpcomingBirthdaysCard />
+          </div>
+        )}
       </div>
     </div>
   );

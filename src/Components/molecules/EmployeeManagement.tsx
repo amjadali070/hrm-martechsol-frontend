@@ -12,15 +12,18 @@ import {
   FaSpinner,
 } from "react-icons/fa";
 import axios from "axios";
+import { toast } from "react-toastify"; // Import toast for notifications
+import UserStatusToggleConfirmation from "../atoms/UserStatusToggleConfirmation";
 
 interface Employee {
-  _id: string;
+  _id: string; // Ensure _id is included
   name: string;
   department: string;
   jobTitle: string;
   joiningDate: string;
   jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
   gender: "Male" | "Female" | "Other";
+  isActive: boolean; // Include isActive status
 }
 
 const EmployeeManagement: React.FC = () => {
@@ -62,8 +65,10 @@ const EmployeeManagement: React.FC = () => {
         const { users } = response.data;
         setEmployees(users);
         setFilteredEmployees(users);
-      } catch (error) {
+        console.log("Fetched Employees:", users); // Debugging line
+      } catch (error: any) {
         console.error("Error fetching employee data:", error);
+        toast.error("Failed to fetch employee data.");
       } finally {
         setIsLoading(false);
       }
@@ -164,6 +169,7 @@ const EmployeeManagement: React.FC = () => {
       { header: "Joining Date", key: "joiningDate", width: 15 },
       { header: "Job Type", key: "jobType", width: 15 },
       { header: "Gender", key: "gender", width: 15 },
+      { header: "Status", key: "status", width: 15 }, // New Column for Status
     ];
 
     filteredEmployees.forEach((employee, index) => {
@@ -182,6 +188,7 @@ const EmployeeManagement: React.FC = () => {
         ),
         jobType: employee.jobType,
         gender: employee.gender,
+        status: employee.isActive ? "Active" : "Deactivated", // Populate Status
       });
     });
 
@@ -232,6 +239,33 @@ const EmployeeManagement: React.FC = () => {
     navigate(`/edit-profile/${employee._id}`);
   };
 
+  const handleToggleStatus = async (userId: string, currentStatus: boolean) => {
+    try {
+      await axios.put(
+        `${backendUrl}/api/users/${userId}/status`,
+        { isActive: !currentStatus },
+        { withCredentials: true }
+      );
+
+      setEmployees((prevEmployees) =>
+        prevEmployees.map((employee) =>
+          employee._id === userId
+            ? { ...employee, isActive: !currentStatus }
+            : employee
+        )
+      );
+
+      toast.success(
+        `User ${!currentStatus ? "activated" : "deactivated"} successfully!`
+      );
+    } catch (error: any) {
+      console.error("Error updating user status:", error);
+      toast.error(
+        error.response?.data.message || "Failed to update user status."
+      );
+    }
+  };
+
   return (
     <div className="w-full p-6 bg-white rounded-lg">
       <div className="flex justify-between items-center mb-6">
@@ -255,6 +289,7 @@ const EmployeeManagement: React.FC = () => {
       </div>
 
       <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
+        {/* Search Input */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaSearch className="text-gray-400 mr-2" />
           <input
@@ -266,6 +301,7 @@ const EmployeeManagement: React.FC = () => {
           />
         </div>
 
+        {/* Department Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUsers className="text-gray-400 mr-2" />
           <select
@@ -298,6 +334,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
+        {/* Job Type Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaBriefcase className="text-gray-400 mr-2" />
           <select
@@ -314,6 +351,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
+        {/* Job Title Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUserTag className="text-gray-400 mr-2" />
           <select
@@ -341,6 +379,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
+        {/* Gender Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaUsers className="text-gray-400 mr-2" />
           <select
@@ -355,6 +394,7 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
+        {/* Joining Month Filter */}
         <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendarAlt className="text-gray-400 mr-2" />
           <select
@@ -375,6 +415,7 @@ const EmployeeManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Employees Table */}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white border border-gray-300 rounded-lg">
           <thead>
@@ -399,6 +440,9 @@ const EmployeeManagement: React.FC = () => {
               </th>
               <th className="py-3 px-4 text-left text-sm font-medium text-white">
                 Gender
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                Status
               </th>
               <th className="py-3 px-4 text-left text-sm font-medium text-white">
                 Actions
@@ -437,6 +481,17 @@ const EmployeeManagement: React.FC = () => {
                   <td className="py-3 px-4 text-sm text-gray-800">
                     {employee.gender}
                   </td>
+                  <td className="py-3 px-4 text-sm text-gray-800">
+                    {employee.isActive ? (
+                      <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">
+                        Active
+                      </span>
+                    ) : (
+                      <span className="px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-full">
+                        Deactivated
+                      </span>
+                    )}
+                  </td>
                   <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
                     <button
                       className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
@@ -445,19 +500,20 @@ const EmployeeManagement: React.FC = () => {
                       Edit
                     </button>
 
-                    <button
-                      className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
-                      onClick={() => handleEditClick(employee)}
-                    >
-                      Deactivate Account
-                    </button>
+                    <UserStatusToggleConfirmation
+                      userId={employee._id}
+                      currentStatus={employee.isActive}
+                      onConfirm={() =>
+                        handleToggleStatus(employee._id, employee.isActive)
+                      }
+                    />
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
                 {isLoading ? (
-                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                  <td colSpan={9} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
                       <FaSpinner
                         size={30}
@@ -466,7 +522,7 @@ const EmployeeManagement: React.FC = () => {
                     </div>
                   </td>
                 ) : (
-                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                  <td colSpan={9} className="text-center py-8 text-gray-500">
                     <div className="flex flex-col items-center">
                       <FaInbox size={30} className="text-gray-400 mb-4" />
                       <span className="text-lg font-medium">
@@ -480,6 +536,7 @@ const EmployeeManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
+
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>

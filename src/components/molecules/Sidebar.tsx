@@ -54,6 +54,10 @@ const menuItems: MenuItem[] = [
         label: "Notice Management",
         path: "/organization/notice-management",
       },
+      {
+        label: "Forms Management",
+        path: "/organization/forms-management",
+      },
     ],
   },
   {

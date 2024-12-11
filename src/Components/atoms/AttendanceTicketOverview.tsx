@@ -70,10 +70,6 @@ const AttendanceTicketOverview: React.FC = () => {
             <div className="flex justify-center items-center h-40">
               <FaSpinner className="text-blue-500 animate-spin" size={30} />
             </div>
-          ) : attendanceTickets.length === 0 ? (
-            <div className="text-center text-gray-500 mt-20">
-              No Attendence tickets submitted.
-            </div>
           ) : (
             <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-purple-900">
@@ -105,32 +101,43 @@ const AttendanceTicketOverview: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {attendanceTickets.map((ticket, index) => (
-                  <tr key={ticket._id} className="hover:bg-gray-100">
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                      {index + 1}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                      {formatDate(ticket.date)}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
-                      {ticket.comments || "No Comments"}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
-                      <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          ticket.status === "Closed"
-                            ? "bg-green-100 text-green-800"
-                            : ticket.status === "Open"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-red-100 text-red-800"
-                        }`}
-                      >
-                        {ticket.status}
-                      </span>
+                {attendanceTickets.length > 0 ? (
+                  attendanceTickets.map((ticket, index) => (
+                    <tr key={ticket._id} className="hover:bg-gray-100">
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                        {index + 1}
+                      </td>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                        {formatDate(ticket.date)}
+                      </td>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
+                        {ticket.comments || "No Comments"}
+                      </td>
+                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            ticket.status === "Closed"
+                              ? "bg-green-100 text-green-800"
+                              : ticket.status === "Open"
+                              ? "bg-yellow-100 text-yellow-800"
+                              : "bg-red-100 text-red-800"
+                          }`}
+                        >
+                          {ticket.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={4}
+                      className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
+                    >
+                      No recent attendance ticket found.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           )}

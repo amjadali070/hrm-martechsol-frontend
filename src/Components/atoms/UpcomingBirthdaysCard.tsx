@@ -15,20 +15,18 @@ const birthdays: Birthday[] = [
     title: "1st",
     birthdayDate: "January 15",
   },
-  { id: 2, name: "Sameer Wali", title: "2nd", birthdayDate: "February 20" },
-  { id: 3, name: "Hammad Faheem", title: "3rd", birthdayDate: "March 10" },
-  { id: 4, name: "Rameez Abbas", title: "4th", birthdayDate: "April 5" },
-  { id: 5, name: "Amjad Ali", title: "5th", birthdayDate: "May 25" },
+  { id: 2, name: "Rameez Abbas", title: "4th", birthdayDate: "April 5" },
+  { id: 3, name: "Amjad Ali", title: "5th", birthdayDate: "May 25" },
 ];
 
 const UpcomingBirthdaysCard: React.FC = () => {
   return (
-    <div className="w-full mx-auto bg-white rounded-lg border border-gray-300 overflow-hidden">
-      <div className="flex items-center justify-between p-3 bg-purple-900">
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-white">
+    <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full px-5 py-8 bg-white rounded-xl max-md:mt-6">
+      <div className="flex items-center justify-between p-3">
+        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-black">
           Upcoming Birthdays
         </h2>
-        <button className="bg-white text-purple-900 text-xs sm:text-sm font-semibold px-3 sm:px-4 py-1 sm:py-2 rounded-lg hover:bg-gray-100 transition">
+        <button className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300">
           View All
         </button>
       </div>
@@ -44,10 +42,10 @@ const UpcomingBirthdaysCard: React.FC = () => {
             </div>
 
             <div className="ml-3 sm:ml-4 flex-1">
-              <p className="text-sm sm:text-md font-bold text-gray-800">
+              <p className="text-md sm:text-md font-bold text-gray-800">
                 {item.name}
               </p>
-              <p className="text-xs sm:text-sm text-gray-600">{item.title}</p>
+              {/* <p className="text-xs sm:text-sm text-gray-600">{item.title}</p> */}
             </div>
 
             <div className="ml-auto text-sm sm:text-lg font-semibold text-gray-800">
