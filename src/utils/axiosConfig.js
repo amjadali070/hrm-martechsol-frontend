@@ -16,7 +16,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Request Interceptor for logging and potential token injection
 axiosInstance.interceptors.request.use(
   (config) => {
     console.log(`Sending request to: ${config.url}`);

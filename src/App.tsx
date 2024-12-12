@@ -128,6 +128,10 @@ const App: React.FC = () => {
                   element={<EditablePayrollPage />}
                 />
                 <Route
+                  path="/organization/payroll-management/:id"
+                  element={<EditablePayrollPage />}
+                />
+                <Route
                   path="/organization/leave-management"
                   element={<LeaveManagement />}
                 />

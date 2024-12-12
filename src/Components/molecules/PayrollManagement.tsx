@@ -12,6 +12,7 @@ import {
 import UserPayrolls from "../atoms/UserPayrolls";
 import { IoDocumentText } from "react-icons/io5";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 export interface PayrollDetails {
   payrollId: string;
@@ -50,7 +51,7 @@ export interface PayrollDetails {
 }
 
 interface User {
-  id: string;
+  _id: string;
   name: string;
   email?: string;
   department: string;
@@ -73,8 +74,19 @@ const PayrollManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [userPayrolls, setUserPayrolls] = useState<PayrollDetails[]>([]);
+  const [generateLoading, setGenerateLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  // States for Generate Payroll Modal
+  const [isGenerateModalOpen, setIsGenerateModalOpen] =
+    useState<boolean>(false);
+  const [generateMonth, setGenerateMonth] = useState<string>(
+    new Date().toLocaleString("default", { month: "long" })
+  );
+  const [generateYear, setGenerateYear] = useState<number>(
+    new Date().getFullYear()
+  );
 
   useEffect(() => {
     const fetchPayrollData = async () => {
@@ -84,8 +96,11 @@ const PayrollManagement: React.FC = () => {
           withCredentials: true,
         });
         setPayrollData(response.data);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching payroll data:", error);
+        toast.error(
+          error.response?.data?.message || "Error fetching payroll data"
+        );
       } finally {
         setLoading(false);
       }
@@ -101,8 +116,9 @@ const PayrollManagement: React.FC = () => {
           }
         );
         setUsers(response.data.users);
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error fetching users:", error);
+        toast.error(error.response?.data?.message || "Error fetching users");
       } finally {
         setUserLoading(false);
       }
@@ -134,7 +150,14 @@ const PayrollManagement: React.FC = () => {
         payroll.deductions.providentFund.employerContribution +
         payroll.deductions.eobi;
 
-      const netSalary = payroll.earnings.basicSalary - totalDeductions;
+      const totalEarnings =
+        payroll.earnings.basicSalary +
+        payroll.earnings.allowances.medicalAllowance +
+        payroll.earnings.allowances.mobileAllowance +
+        payroll.earnings.allowances.fuelAllowance +
+        payroll.earnings.overtimePay;
+
+      const netSalary = totalEarnings - totalDeductions;
 
       worksheet.addRow({
         sNo: index + 1,
@@ -144,7 +167,7 @@ const PayrollManagement: React.FC = () => {
         basicSalary: payroll.earnings.basicSalary,
         netSalary: netSalary,
         deductions: totalDeductions,
-        earnings: payroll.earnings,
+        earnings: totalEarnings,
       });
     });
 
@@ -153,9 +176,44 @@ const PayrollManagement: React.FC = () => {
         new Blob([buffer], {
           type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         }),
-        `PayrollData.xlsx`
+        `PayrollData_${new Date().toISOString()}.xlsx`
       );
     });
+  };
+
+  const handleGeneratePayroll = async () => {
+    if (!generateMonth || !generateYear) {
+      toast.error("Please select both month and year.");
+      return;
+    }
+
+    setGenerateLoading(true);
+    try {
+      const response = await axios.post(
+        `${backendUrl}/api/payrolls/generate-all`,
+        {
+          month: generateMonth,
+          year: generateYear,
+        },
+        {
+          withCredentials: true,
+        }
+      );
+
+      toast.success(response.data.message || "Payroll generated successfully.");
+      setIsGenerateModalOpen(false);
+      // Refresh payroll summary
+      const refreshedPayrolls = await axios.get(
+        `${backendUrl}/api/payrolls/summary`,
+        { withCredentials: true }
+      );
+      setPayrollData(refreshedPayrolls.data);
+    } catch (error: any) {
+      console.error("Error generating payroll:", error);
+      toast.error(error.response?.data?.message || "Error generating payroll");
+    } finally {
+      setGenerateLoading(false);
+    }
   };
 
   const handleUserSelect = async (user: User) => {
@@ -165,16 +223,42 @@ const PayrollManagement: React.FC = () => {
 
     try {
       const response = await axios.get(
-        `${backendUrl}/api/payrolls/user/${user.id}`,
+        `${backendUrl}/api/payrolls/user/${user._id}`,
         {
           withCredentials: true,
         }
       );
       setUserPayrolls(response.data);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error fetching user payrolls:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching user payrolls"
+      );
     } finally {
       setUserLoading(false);
+    }
+  };
+
+  const handleSaveUpdatedPayroll = async (updatedPayroll: PayrollDetails) => {
+    try {
+      setLoading(true);
+      const response = await axios.put(
+        `${backendUrl}/api/payrolls/${updatedPayroll.payrollId}`,
+        updatedPayroll,
+        { withCredentials: true }
+      );
+      toast.success("Payroll updated successfully.");
+      // Refresh payroll data
+      const refreshedPayrolls = await axios.get(
+        `${backendUrl}/api/payrolls/summary`,
+        { withCredentials: true }
+      );
+      setPayrollData(refreshedPayrolls.data);
+    } catch (error: any) {
+      console.error("Error updating payroll:", error);
+      toast.error(error.response?.data?.message || "Error updating payroll");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -259,7 +343,14 @@ const PayrollManagement: React.FC = () => {
 
       {tab === "summary" && (
         <div>
-          <div className="flex justify-end mb-4">
+          <div className="flex justify-between mb-4">
+            <button
+              onClick={() => setIsGenerateModalOpen(true)}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 flex items-center space-x-2"
+            >
+              <FaBriefcase />
+              <span>Generate Payroll for All Users</span>
+            </button>
             <button
               onClick={handleExportToExcel}
               className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300"
@@ -267,6 +358,82 @@ const PayrollManagement: React.FC = () => {
               Export to Excel
             </button>
           </div>
+
+          {/* Generate Payroll Modal */}
+          {isGenerateModalOpen && (
+            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+              <div className="bg-white p-6 rounded-lg w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-4">
+                  Generate Payroll for All Users
+                </h2>
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">
+                    Select Month:
+                  </label>
+                  <select
+                    value={generateMonth}
+                    onChange={(e) => setGenerateMonth(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-2"
+                  >
+                    {[
+                      "January",
+                      "February",
+                      "March",
+                      "April",
+                      "May",
+                      "June",
+                      "July",
+                      "August",
+                      "September",
+                      "October",
+                      "November",
+                      "December",
+                    ].map((month, index) => (
+                      <option key={index} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label className="block text-gray-700 mb-2">
+                    Select Year:
+                  </label>
+                  <select
+                    value={generateYear}
+                    onChange={(e) => setGenerateYear(parseInt(e.target.value))}
+                    className="w-full border border-gray-300 rounded-lg p-2"
+                  >
+                    {Array.from(
+                      { length: 5 },
+                      (_, i) => new Date().getFullYear() - i
+                    ).map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex justify-end space-x-4">
+                  <button
+                    onClick={() => setIsGenerateModalOpen(false)}
+                    className="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition duration-300"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleGeneratePayroll}
+                    disabled={generateLoading}
+                    className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 flex items-center space-x-2"
+                  >
+                    {generateLoading && <FaSpinner className="animate-spin" />}
+                    <span>Generate</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaSearch className="text-gray-400 mr-2" />
@@ -401,6 +568,9 @@ const PayrollManagement: React.FC = () => {
                     Year
                   </th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Status
+                  </th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
                     Actions
                   </th>
                 </tr>
@@ -409,7 +579,7 @@ const PayrollManagement: React.FC = () => {
                 {currentPayrolls.map((payroll, index) => (
                   <tr key={payroll.payrollId} className="hover:bg-gray-50">
                     <td className="px-4 py-2 text-sm text-gray-800">
-                      {index + 1}
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
                     </td>
                     <td className="px-4 py-2 text-sm text-gray-800">
                       {payroll.user.name}
@@ -429,6 +599,9 @@ const PayrollManagement: React.FC = () => {
                     <td className="px-4 py-2 text-sm text-gray-800">
                       {payroll.year}
                     </td>
+                    <td className="px-4 py-2 text-sm text-gray-800 capitalize">
+                      {payroll.status}
+                    </td>
                     <td className="px-4 py-2 text-sm text-gray-800">
                       <button
                         onClick={() =>
@@ -441,6 +614,18 @@ const PayrollManagement: React.FC = () => {
                       >
                         Edit
                       </button>
+                      {payroll.status !== "Processed" && (
+                        <button
+                          onClick={() =>
+                            navigate(
+                              `/organization/payroll-management/process/${payroll.payrollId}`
+                            )
+                          }
+                          className="px-3 py-1 text-white bg-green-500 rounded-full hover:bg-green-600 transition duration-300 ml-2"
+                        >
+                          Process
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))}
@@ -587,7 +772,7 @@ const PayrollManagement: React.FC = () => {
               </thead>
               <tbody>
                 {currentUsers.map((user, index) => (
-                  <tr key={user.id} className="hover:bg-gray-50">
+                  <tr key={user._id} className="hover:bg-gray-50">
                     <td className="px-4 py-2 text-sm text-gray-800">
                       {index + 1 + (currentPage - 1) * itemsPerPage}
                     </td>
