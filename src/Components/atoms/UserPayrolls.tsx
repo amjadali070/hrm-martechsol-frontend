@@ -68,18 +68,18 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
 
     currentPayrolls.forEach((payroll, index) => {
       const totalDeductions =
-        payroll.deductions.providentFund.employeeContribution +
-        payroll.deductions.providentFund.employerContribution +
-        payroll.deductions.tax +
-        payroll.deductions.eobi +
-        payroll.deductions.lossOfPay;
+        (payroll.deductions?.providentFund?.employeeContribution || 0) +
+        (payroll.deductions?.providentFund?.employerContribution || 0) +
+        (payroll.deductions?.tax || 0) +
+        (payroll.deductions?.eobi || 0) +
+        (payroll.deductions?.lossOfPay || 0);
 
       const totalEarnings =
-        payroll.earnings.basicSalary +
-        payroll.earnings.allowances.medicalAllowance +
-        payroll.earnings.allowances.fuelAllowance +
-        payroll.earnings.allowances.mobileAllowance +
-        payroll.earnings.overtimePay;
+        (payroll.earnings?.basicSalary || 0) +
+        (payroll.earnings?.allowances?.medicalAllowance || 0) +
+        (payroll.earnings?.allowances?.fuelAllowance || 0) +
+        (payroll.earnings?.allowances?.mobileAllowance || 0) +
+        (payroll.earnings?.overtimePay || 0);
 
       const netSalary = totalEarnings - totalDeductions;
 
@@ -114,6 +114,30 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
     if (target.classList.contains("modal-overlay")) {
       closeModal();
     }
+  };
+
+  // Helper function to safely calculate total earnings
+  const calculateTotalEarnings = (earnings: PayrollDetails["earnings"]) => {
+    return (
+      (earnings?.basicSalary || 0) +
+      (earnings?.allowances?.medicalAllowance || 0) +
+      (earnings?.allowances?.fuelAllowance || 0) +
+      (earnings?.allowances?.mobileAllowance || 0) +
+      (earnings?.overtimePay || 0)
+    );
+  };
+
+  // Helper function to safely calculate total deductions
+  const calculateTotalDeductions = (
+    deductions: PayrollDetails["deductions"]
+  ) => {
+    return (
+      (deductions?.providentFund?.employeeContribution || 0) +
+      (deductions?.providentFund?.employerContribution || 0) +
+      (deductions?.tax || 0) +
+      (deductions?.eobi || 0) +
+      (deductions?.lossOfPay || 0)
+    );
   };
 
   return (
@@ -195,7 +219,7 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                   Year
                 </th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                  Total Salary
+                  Total Earnings
                 </th>
                 <th className="px-4 py-2 text-left text-sm font-medium text-white">
                   Total Deductions
@@ -209,78 +233,56 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
               </tr>
             </thead>
             <tbody>
-              {currentPayrolls.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="text-center py-8 text-gray-500">
-                    <div className="flex flex-col items-center">
-                      <FaInbox size={30} className="text-gray-400 mb-4" />
-                      <span className="text-lg font-medium">
-                        No Payroll Found.
-                      </span>
-                    </div>
-                  </td>
-                </tr>
-              ) : (
-                currentPayrolls.map((payroll, index) => {
-                  const totalDeductions =
-                    payroll.deductions.providentFund.employeeContribution +
-                    payroll.deductions.providentFund.employerContribution +
-                    payroll.deductions.tax +
-                    payroll.deductions.eobi +
-                    payroll.deductions.lossOfPay;
+              {payrolls.map((payroll, index) => {
+                const totalDeductions = calculateTotalDeductions(
+                  payroll.deductions
+                );
+                const totalEarnings = calculateTotalEarnings(payroll.earnings);
+                const netSalary = totalEarnings - totalDeductions;
 
-                  const totalEarnings =
-                    payroll.earnings.basicSalary +
-                    payroll.earnings.allowances.medicalAllowance +
-                    payroll.earnings.allowances.fuelAllowance +
-                    payroll.earnings.allowances.mobileAllowance +
-                    payroll.earnings.overtimePay;
-
-                  const netSalary = totalEarnings - totalDeductions;
-
-                  return (
-                    <tr key={payroll.payrollId} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {index + 1 + (currentPage - 1) * itemsPerPage}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {payroll.month}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {payroll.year}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {totalEarnings}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {totalDeductions}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        {netSalary}
-                      </td>
-                      <td className="px-4 py-2 text-sm text-gray-800">
-                        <button
-                          onClick={() => openModal(payroll)}
-                          className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 transition duration-300"
-                        >
-                          View Details
-                        </button>
-                        <button
-                          onClick={() =>
-                            navigate(
-                              `/organization/payroll-management/edit/${payroll.payrollId}`,
-                              { state: { payroll } }
-                            )
-                          }
-                          className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 transition duration-300 ml-2"
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
+                return (
+                  <tr key={payroll.payrollId} className="hover:bg-gray-50">
+                    {" "}
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.month}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.year}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {totalEarnings}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {totalDeductions}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {netSalary}
+                    </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      <button
+                        onClick={() => openModal(payroll)}
+                        className="px-3 py-1 text-white bg-blue-500 rounded-full hover:bg-blue-600 transition duration-300"
+                      >
+                        View Details
+                      </button>
+                      <button
+                        onClick={() =>
+                          navigate(
+                            `/organization/payroll-management/edit/${payroll.payrollId}`,
+                            { state: { payroll } }
+                          )
+                        }
+                        className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 transition duration-300 ml-2"
+                      >
+                        Edit
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
 
@@ -370,50 +372,40 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                         <tr>
                           <td className="px-4 py-2">Basic Salary</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.earnings.basicSalary}
+                            {selectedPayroll.earnings?.basicSalary || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Medical Allowance</td>
                           <td className="px-4 py-2 text-right">
-                            {
-                              selectedPayroll.earnings.allowances
-                                .medicalAllowance
-                            }
+                            {selectedPayroll.earnings?.allowances
+                              ?.medicalAllowance || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Fuel Allowance</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.earnings.allowances.fuelAllowance}
+                            {selectedPayroll.earnings?.allowances
+                              ?.fuelAllowance || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Mobile Allowance</td>
                           <td className="px-4 py-2 text-right">
-                            {
-                              selectedPayroll.earnings.allowances
-                                .mobileAllowance
-                            }
+                            {selectedPayroll.earnings?.allowances
+                              ?.mobileAllowance || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Overtime Pay</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.earnings.overtimePay}
+                            {selectedPayroll.earnings?.overtimePay || 0}
                           </td>
                         </tr>
                         <tr className="font-bold">
                           <td className="px-4 py-2">Total Earnings</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.earnings.basicSalary +
-                              selectedPayroll.earnings.allowances
-                                .medicalAllowance +
-                              selectedPayroll.earnings.allowances
-                                .fuelAllowance +
-                              selectedPayroll.earnings.allowances
-                                .mobileAllowance +
-                              selectedPayroll.earnings.overtimePay}
+                            {calculateTotalEarnings(selectedPayroll.earnings)}
                           </td>
                         </tr>
                       </tbody>
@@ -435,10 +427,8 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                             Employee PF Contribution
                           </td>
                           <td className="px-4 py-2 text-right">
-                            {
-                              selectedPayroll.deductions.providentFund
-                                .employeeContribution
-                            }
+                            {selectedPayroll.deductions?.providentFund
+                              ?.employeeContribution || 0}
                           </td>
                         </tr>
                         <tr>
@@ -446,28 +436,26 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                             Employer PF Contribution
                           </td>
                           <td className="px-4 py-2 text-right">
-                            {
-                              selectedPayroll.deductions.providentFund
-                                .employerContribution
-                            }
+                            {selectedPayroll.deductions.providentFund
+                              .employerContribution || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Tax</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.deductions.tax}
+                            {selectedPayroll.deductions.tax || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">EOBI</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.deductions.eobi}
+                            {selectedPayroll.deductions.eobi || 0}
                           </td>
                         </tr>
                         <tr>
                           <td className="px-4 py-2">Loss of Pay</td>
                           <td className="px-4 py-2 text-right">
-                            {selectedPayroll.deductions.lossOfPay}
+                            {selectedPayroll.deductions.lossOfPay || 0}
                           </td>
                         </tr>
                         <tr className="font-bold">
@@ -479,7 +467,7 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                                 .employerContribution +
                               selectedPayroll.deductions.tax +
                               selectedPayroll.deductions.eobi +
-                              selectedPayroll.deductions.lossOfPay}
+                              selectedPayroll.deductions.lossOfPay || 0}
                           </td>
                         </tr>
                       </tbody>
@@ -524,18 +512,8 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
                         Net Salary
                       </th>
                       <td className="px-4 py-2 text-right text-black font-extrabold">
-                        {selectedPayroll.earnings.basicSalary +
-                          selectedPayroll.earnings.allowances.medicalAllowance +
-                          selectedPayroll.earnings.allowances.fuelAllowance +
-                          selectedPayroll.earnings.allowances.mobileAllowance +
-                          selectedPayroll.earnings.overtimePay -
-                          (selectedPayroll.deductions.providentFund
-                            .employeeContribution +
-                            selectedPayroll.deductions.providentFund
-                              .employerContribution +
-                            selectedPayroll.deductions.tax +
-                            selectedPayroll.deductions.eobi +
-                            selectedPayroll.deductions.lossOfPay)}
+                        {calculateTotalEarnings(selectedPayroll.earnings) -
+                          calculateTotalDeductions(selectedPayroll.deductions)}
                       </td>
                     </tr>
                   </thead>

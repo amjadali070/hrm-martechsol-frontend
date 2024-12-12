@@ -15,7 +15,7 @@ import SalaryDetails from "../atoms/EditProfile/SalaryDetails";
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState("Personal Details");
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [employee, setEmployee] = useState({
@@ -121,16 +121,14 @@ const EditProfilePage: React.FC = () => {
         },
         withCredentials: true,
       };
-      const { data } = await axios.put(
+      await axios.put(
         `${backendUrl}/api/users/profile-picture`,
         formData,
         config
       );
-      setEmployee((prev) => ({
-        ...prev,
-        profilePicture: data.profilePicture,
-      }));
 
+      // Refetch user data after successful upload
+      await refetchUser();
       toast.success("Profile picture updated successfully");
     } catch (error) {
       toast.error("Failed to update profile picture");
@@ -231,6 +229,8 @@ const EditProfilePage: React.FC = () => {
 
       await axios.put(`${backendUrl}/api/users/resume`, formData, config);
 
+      // Refetch user data after successful upload
+      await refetchUser();
       toast.success("Resume updated successfully");
     } catch (error) {
       toast.error("Failed to update resume");
@@ -308,10 +308,39 @@ const EditProfilePage: React.FC = () => {
 
       await axios.put(`${backendUrl}/api/users/documents`, formData, config);
 
+      await refetchUser();
       toast.success("Document uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload document");
       console.error("Error uploading document:", error);
+    }
+  };
+
+  const handleUpdateSalaryDetails = async (details: {
+    basicSalary: number;
+    medicalAllowance: number;
+    mobileAllowance: number;
+    fuelAllowance: number;
+  }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      };
+
+      await axios.put(
+        `${backendUrl}/api/users/salary-details`,
+        details,
+        config
+      );
+
+      toast.success("Salary details updated successfully");
+      await refetchUser();
+    } catch (error) {
+      toast.error("Failed to update salary details");
+      console.error("Update error:", error);
     }
   };
 
@@ -434,18 +463,11 @@ const EditProfilePage: React.FC = () => {
       case "Salary Details":
         return (
           <SalaryDetails
-            basicSalary={""}
-            allowances={{
-              medical: "",
-              mobile: "",
-              fuel: "",
-            }}
-            onUpdate={function (details: {
-              basicSalary: string;
-              allowances: { medical: string; mobile: string; fuel: string };
-            }): void {
-              throw new Error("Function not implemented.");
-            }}
+            basicSalary={user?.salaryDetails?.basicSalary || 0}
+            medicalAllowance={user?.salaryDetails?.medicalAllowance || 0}
+            mobileAllowance={user?.salaryDetails?.mobileAllowance || 0}
+            fuelAllowance={user?.salaryDetails?.fuelAllowance || 0}
+            onUpdate={handleUpdateSalaryDetails}
           />
         );
       case "Update Password":

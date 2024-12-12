@@ -4,15 +4,77 @@ import EditablePayroll from "./EditablePayroll";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 
+interface PayrollDetails {
+  _id?: string;
+  payrollId: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    department: string;
+    jobTitle: string;
+    jobType: string;
+  };
+  month: string;
+  year: number;
+  earnings: {
+    allowances: {
+      medicalAllowance: number;
+      fuelAllowance: number;
+      mobileAllowance: number;
+    };
+    basicSalary: number;
+    overtimePay: number;
+  };
+  deductions: {
+    tax: number;
+    eobi: number;
+    providentFund: {
+      employeeContribution: number;
+    };
+  };
+}
+
 const EditablePayrollPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { id } = useParams();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  const [payrollData, setPayrollData] = useState<any>(null);
+  const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const normalizePayrollData = (data: any): PayrollDetails => ({
+    payrollId: data.payrollId || "",
+    _id: data._id || "",
+    user: {
+      name: data.user?.name || "",
+      id: data.user?.id || "",
+      email: data.user?.email || "",
+      department: data.user?.department || "",
+      jobTitle: data.user?.jobTitle || "",
+      jobType: data.user?.jobType || "",
+    },
+    earnings: {
+      basicSalary: data.earnings?.basicSalary || 0,
+      allowances: {
+        medicalAllowance: data.earnings?.allowances?.medicalAllowance || 0,
+        mobileAllowance: data.earnings?.allowances?.mobileAllowance || 0,
+        fuelAllowance: data.earnings?.allowances?.fuelAllowance || 0,
+      },
+      overtimePay: data.earnings?.overtimePay || 0,
+    },
+    deductions: {
+      tax: data.deductions?.tax || 0,
+      eobi: data.deductions?.eobi || 0,
+      providentFund: {
+        employeeContribution:
+          data.deductions?.providentFund?.employeeContribution || 0,
+      },
+    },
+    month: data.month || "",
+    year: data.year || new Date().getFullYear(),
+  });
 
   useEffect(() => {
     const fetchPayrollDetails = async () => {
@@ -20,7 +82,7 @@ const EditablePayrollPage: React.FC = () => {
         const stateData = location.state?.payroll;
 
         if (stateData) {
-          setPayrollData(stateData);
+          setPayrollData(normalizePayrollData(stateData));
           setLoading(false);
           return;
         }
@@ -35,7 +97,7 @@ const EditablePayrollPage: React.FC = () => {
           }
         );
 
-        setPayrollData(response.data);
+        setPayrollData(normalizePayrollData(response.data));
       } catch (err: any) {
         console.error("Error fetching payroll details:", err);
         setError(
@@ -52,22 +114,29 @@ const EditablePayrollPage: React.FC = () => {
     fetchPayrollDetails();
   }, [id, location.state, backendUrl]);
 
-  const handleSave = async (updatedPayroll: any) => {
+  const handleSave = async (updatedPayroll: PayrollDetails) => {
     try {
-      if (!payrollData?._id) {
+      if (!payrollData?.payrollId) {
         toast.error("No payroll ID found");
         return;
       }
+
       const payload = {
-        ...updatedPayroll,
-        user: undefined,
-        name: undefined,
-        jobTitle: undefined,
-        jobType: undefined,
+        basicSalary: updatedPayroll.earnings.basicSalary || 0,
+        medicalAllowance:
+          updatedPayroll.earnings.allowances.medicalAllowance || 0,
+        mobileAllowance:
+          updatedPayroll.earnings.allowances.mobileAllowance || 0,
+        fuelAllowance: updatedPayroll.earnings.allowances.fuelAllowance || 0,
+        overtimePay: updatedPayroll.earnings.overtimePay || 0,
+        tax: updatedPayroll.deductions.tax || 0,
+        eobi: updatedPayroll.deductions.eobi || 0,
+        providentFundContribution:
+          updatedPayroll.deductions.providentFund.employeeContribution || 0,
       };
 
       await axiosInstance.put(
-        `${backendUrl}/api/payrolls/${payrollData._id}`,
+        `${backendUrl}/api/payrolls/update-details/${payrollData.payrollId}`,
         payload,
         {
           withCredentials: true,
