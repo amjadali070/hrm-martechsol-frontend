@@ -15,7 +15,7 @@ import SalaryDetails from "../atoms/EditProfile/SalaryDetails";
 
 const EditProfilePage: React.FC = () => {
   const [selectedMenu, setSelectedMenu] = useState("Personal Details");
-  const { user } = useUser();
+  const { user, refetchUser } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [employee, setEmployee] = useState({
@@ -121,16 +121,14 @@ const EditProfilePage: React.FC = () => {
         },
         withCredentials: true,
       };
-      const { data } = await axios.put(
+      await axios.put(
         `${backendUrl}/api/users/profile-picture`,
         formData,
         config
       );
-      setEmployee((prev) => ({
-        ...prev,
-        profilePicture: data.profilePicture,
-      }));
 
+      // Refetch user data after successful upload
+      await refetchUser();
       toast.success("Profile picture updated successfully");
     } catch (error) {
       toast.error("Failed to update profile picture");
@@ -231,6 +229,8 @@ const EditProfilePage: React.FC = () => {
 
       await axios.put(`${backendUrl}/api/users/resume`, formData, config);
 
+      // Refetch user data after successful upload
+      await refetchUser();
       toast.success("Resume updated successfully");
     } catch (error) {
       toast.error("Failed to update resume");
@@ -308,6 +308,8 @@ const EditProfilePage: React.FC = () => {
 
       await axios.put(`${backendUrl}/api/users/documents`, formData, config);
 
+      // Refetch user data after successful upload
+      await refetchUser();
       toast.success("Document uploaded successfully");
     } catch (error) {
       toast.error("Failed to upload document");

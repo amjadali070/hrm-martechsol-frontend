@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
 import profilePlaceholder from "../assets/placeholder.png";
@@ -110,70 +110,72 @@ const useUser = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const backendUrl = process.env.REACT_APP_BACKEND_URL;
-        const response = await axios.get(`${backendUrl}/api/users/profile`, {
-          withCredentials: true,
-        });
+  const fetchUserProfile = useCallback(async () => {
+    try {
+      const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      const response = await axios.get(`${backendUrl}/api/users/profile`, {
+        withCredentials: true,
+      });
 
-        const processPath = (path?: string) =>
-          path ? `${backendUrl}/${path.replace(/\\/g, "/")}` : null;
+      const processPath = (path?: string) =>
+        path ? `${backendUrl}/${path.replace(/\\/g, "/")}` : null;
 
-        const processDocumentPaths = (documents?: string[]) =>
-          documents?.map(processPath);
+      const processDocumentPaths = (documents?: string[]) =>
+        documents?.map(processPath);
 
-        const userData: User = {
-          ...response.data,
-          personalDetails: {
-            ...response.data.personalDetails,
-            profilePicture:
-              processPath(response.data.personalDetails?.profilePicture) ||
-              profilePlaceholder,
-          },
-          resume: {
-            resume: processPath(response.data.resume),
-          },
-          documents: {
-            NIC: processPath(response.data.documents?.NIC),
-            experienceLetter: processPath(
-              response.data.documents?.experienceLetter
-            ),
-            salarySlip: processPath(response.data.documents?.salarySlip),
-            academicDocuments: processPath(
-              response.data.documents?.academicDocuments
-            ),
-            NDA: processPath(response.data.documents?.NDA),
-            educationalDocuments: processDocumentPaths(
-              response.data.documents?.educationalDocuments
-            ),
-            professionalDocuments: processDocumentPaths(
-              response.data.documents?.professionalDocuments
-            ),
-          },
-          education: response.data.education?.map((edu: Education) => ({
-            ...edu,
-            yearOfCompletion: edu.yearOfCompletion
-              ? Number(edu.yearOfCompletion)
-              : undefined,
-          })),
-        };
+      const userData: User = {
+        ...response.data,
+        personalDetails: {
+          ...response.data.personalDetails,
+          profilePicture:
+            processPath(response.data.personalDetails?.profilePicture) ||
+            profilePlaceholder,
+        },
+        resume: {
+          resume: processPath(response.data.resume),
+        },
+        documents: {
+          NIC: processPath(response.data.documents?.NIC),
+          experienceLetter: processPath(
+            response.data.documents?.experienceLetter
+          ),
+          salarySlip: processPath(response.data.documents?.salarySlip),
+          academicDocuments: processPath(
+            response.data.documents?.academicDocuments
+          ),
+          NDA: processPath(response.data.documents?.NDA),
+          educationalDocuments: processDocumentPaths(
+            response.data.documents?.educationalDocuments
+          ),
+          professionalDocuments: processDocumentPaths(
+            response.data.documents?.professionalDocuments
+          ),
+        },
+        education: response.data.education?.map((edu: Education) => ({
+          ...edu,
+          yearOfCompletion: edu.yearOfCompletion
+            ? Number(edu.yearOfCompletion)
+            : undefined,
+        })),
+      };
 
-        setUser(userData);
-        setLoading(false);
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-        setUser(null);
-        setLoading(false);
-        navigate("/signin");
-      }
-    };
-
-    fetchUserProfile();
+      setUser(userData);
+      setLoading(false);
+      return userData;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      setUser(null);
+      setLoading(false);
+      navigate("/signin");
+      throw error;
+    }
   }, [navigate]);
 
-  return { user, loading };
+  useEffect(() => {
+    fetchUserProfile();
+  }, [fetchUserProfile]);
+
+  return { user, loading, refetchUser: fetchUserProfile };
 };
 
 export default useUser;
