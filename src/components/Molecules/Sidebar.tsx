@@ -58,6 +58,10 @@ const menuItems: MenuItem[] = [
         label: "Forms Management",
         path: "/organization/forms-management",
       },
+      {
+        label: "Vehical Management",
+        path: "/organization/vehical-management",
+      },
     ],
   },
   {

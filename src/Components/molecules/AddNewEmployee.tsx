@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -85,8 +84,6 @@ const AddNewEmployee: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  const navigate = useNavigate();
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -125,7 +122,6 @@ const AddNewEmployee: React.FC = () => {
       joiningDate,
     } = formData;
 
-    // Validation checks
     if (
       !name ||
       !email ||

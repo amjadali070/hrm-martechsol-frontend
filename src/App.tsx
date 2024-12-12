@@ -46,6 +46,7 @@ import NotificationDetailPage from "./Components/atoms/NotificationDetailPage";
 import FormsManagement from "./Components/molecules/FormsManagement";
 import AllWorkAnniversaries from "./Components/atoms/AllWorkAnniversaries";
 import AllUpcomingBirthdays from "./Components/atoms/AllUpcomingBirthdays";
+import VehicleManagement from "./Components/molecules/VehicleManagement";
 
 const App: React.FC = () => {
   return (
@@ -149,6 +150,10 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/forms-management"
                   element={<FormsManagement />}
+                />
+                <Route
+                  path="/organization/vehical-management"
+                  element={<VehicleManagement />}
                 />
                 <Route
                   path="/all-anniversaries"

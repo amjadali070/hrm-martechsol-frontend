@@ -133,7 +133,7 @@ const useUser = () => {
               profilePlaceholder,
           },
           resume: {
-            resume: processPath(response.data.resume?.resume),
+            resume: processPath(response.data.resume),
           },
           documents: {
             NIC: processPath(response.data.documents?.NIC),
