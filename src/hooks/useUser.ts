@@ -18,6 +18,13 @@ interface PersonalDetails {
   joiningDate: string;
 }
 
+interface SalaryDetails {
+  basicSalary: number;
+  medicalAllowance: number;
+  mobileAllowance: number;
+  fuelAllowance: number;
+}
+
 interface ContactDetails {
   phoneNumber1: string;
   phoneNumber2?: string;
@@ -100,6 +107,7 @@ interface User {
   phoneNumber?: string;
   businessAddress?: string;
   paymentDetails?: PaymentDetails;
+  salaryDetails?: SalaryDetails; // Add salaryDetails here
   role: "normal" | "HR" | "manager" | "SuperAdmin";
   createdAt?: Date;
   updatedAt?: Date;
@@ -157,6 +165,7 @@ const useUser = () => {
             ? Number(edu.yearOfCompletion)
             : undefined,
         })),
+        salaryDetails: response.data.salaryDetails, // Include salaryDetails here
       };
 
       setUser(userData);

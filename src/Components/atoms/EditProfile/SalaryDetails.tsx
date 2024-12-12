@@ -2,30 +2,30 @@ import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 
 interface SalaryDetailsProps {
-  basicSalary: string;
-  allowances: {
-    medical: string;
-    mobile: string;
-    fuel: string;
-  };
+  basicSalary: number;
+  medicalAllowance: number;
+  mobileAllowance: number;
+  fuelAllowance: number;
   onUpdate: (details: {
-    basicSalary: string;
-    allowances: {
-      medical: string;
-      mobile: string;
-      fuel: string;
-    };
+    basicSalary: number;
+    medicalAllowance: number;
+    mobileAllowance: number;
+    fuelAllowance: number;
   }) => void;
 }
 
 const SalaryDetails: React.FC<SalaryDetailsProps> = ({
   basicSalary,
-  allowances,
+  medicalAllowance,
+  mobileAllowance,
+  fuelAllowance,
   onUpdate,
 }) => {
   const [formData, setFormData] = useState({
     basicSalary,
-    allowances,
+    medicalAllowance,
+    mobileAllowance,
+    fuelAllowance,
   });
 
   const [isEditing, setIsEditing] = useState(false);
@@ -38,20 +38,14 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
     }));
   };
 
-  const handleAllowanceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      allowances: {
-        ...prev.allowances,
-        [name]: value,
-      },
-    }));
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdate(formData);
+    onUpdate({
+      basicSalary: formData.basicSalary,
+      medicalAllowance: formData.medicalAllowance,
+      mobileAllowance: formData.mobileAllowance,
+      fuelAllowance: formData.fuelAllowance,
+    });
     setIsEditing(false);
   };
 
@@ -94,9 +88,9 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
               </label>
               <input
                 type="text"
-                name="medical"
-                value={formData.allowances.medical}
-                onChange={handleAllowanceChange}
+                name="medicalAllowance"
+                value={formData.medicalAllowance}
+                onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
                   !isEditing ? "cursor-not-allowed" : ""
@@ -109,9 +103,9 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
               </label>
               <input
                 type="text"
-                name="mobile"
-                value={formData.allowances.mobile}
-                onChange={handleAllowanceChange}
+                name="mobileAllowance"
+                value={formData.mobileAllowance}
+                onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
                   !isEditing ? "cursor-not-allowed" : ""
@@ -124,9 +118,9 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
               </label>
               <input
                 type="text"
-                name="fuel"
-                value={formData.allowances.fuel}
-                onChange={handleAllowanceChange}
+                name="formData.fuelAllowance}"
+                value={formData.fuelAllowance}
+                onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
                   !isEditing ? "cursor-not-allowed" : ""
