@@ -36,7 +36,7 @@ const menuItems: MenuItem[] = [
     icon: PiNetworkFill,
     label: "Ecosystems",
     path: "/organization",
-    visibleTo: ["HR"],
+    visibleTo: ["HR", "SuperAdmin"],
     subItems: [
       {
         label: "Employee Management",
