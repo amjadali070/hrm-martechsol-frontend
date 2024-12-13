@@ -54,6 +54,12 @@ const UpcomingBirthdaysCard: React.FC = () => {
         </button>
       </div>
 
+      {birthdays.length === 0 && (
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          No upcoming birthdays.
+        </p>
+      )}
+
       <ul className="divide-y divide-gray-200">
         {birthdays.map((user) => {
           const dateOfBirth = new Date(user.personalDetails.dateOfBirth);

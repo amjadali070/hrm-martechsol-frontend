@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useUser from "../../hooks/useUser";
 import { FaInbox, FaSpinner } from "react-icons/fa";
+import { formatDate } from "../../utils/formatDate";
 
 const ProvidentFund: React.FC = () => {
   interface PFDetail {
@@ -18,6 +19,7 @@ const ProvidentFund: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [dataFetched, setDataFetched] = useState<boolean>(false);
   const user = useUser();
+  console.log(user);
   const userId = user.user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -104,7 +106,7 @@ const ProvidentFund: React.FC = () => {
                     Member Since:
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-left font-semibold">
-                    {user.user?.personalDetails?.joiningDate}
+                    {formatDate(user.user?.personalDetails?.joiningDate ?? "")}
                   </td>
                 </tr>
               </tbody>

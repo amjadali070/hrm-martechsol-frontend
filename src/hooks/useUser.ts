@@ -10,12 +10,12 @@ interface PersonalDetails {
   jobTitle: string;
   fullJobTitle?: string;
   abbreviatedJobTitle?: string;
+  joiningDate: string;
   jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
   shiftTimings?: string;
   jobStatus: string;
   gender: string;
   dateOfBirth: string;
-  joiningDate: string;
 }
 
 interface SalaryDetails {
@@ -107,7 +107,7 @@ interface User {
   phoneNumber?: string;
   businessAddress?: string;
   paymentDetails?: PaymentDetails;
-  salaryDetails?: SalaryDetails; // Add salaryDetails here
+  salaryDetails?: SalaryDetails;
   role: "normal" | "HR" | "manager" | "SuperAdmin";
   createdAt?: Date;
   updatedAt?: Date;

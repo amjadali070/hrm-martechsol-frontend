@@ -77,6 +77,12 @@ const WorkAnniversariesCard: React.FC = () => {
         </button>
       </div>
 
+      {anniversaries.length === 0 && (
+        <p className="text-sm text-gray-600 mt-4 text-center">
+          No upcoming work anniversaries.
+        </p>
+      )}
+
       <ul className="divide-y divide-gray-200">
         {anniversaries.map((user) => {
           const joiningDate = new Date(user.personalDetails.joiningDate);
