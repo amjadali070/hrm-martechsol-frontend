@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaEdit } from "react-icons/fa";
 
 interface EducationProps {
   institute: string;
@@ -82,7 +82,7 @@ const Education: React.FC<EducationProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           />
         </div>
@@ -102,7 +102,7 @@ const Education: React.FC<EducationProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           />
         </div>
@@ -122,7 +122,7 @@ const Education: React.FC<EducationProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           />
         </div>
@@ -143,7 +143,7 @@ const Education: React.FC<EducationProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           />
         </div>
@@ -163,7 +163,7 @@ const Education: React.FC<EducationProps> = ({
             onChange={handleChange}
             disabled={!isEditing}
             className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? 'cursor-not-allowed' : ''
+              !isEditing ? "cursor-not-allowed" : ""
             }`}
           >
             <option value="">-- Select Year --</option>

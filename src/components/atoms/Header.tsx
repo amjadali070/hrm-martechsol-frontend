@@ -17,9 +17,8 @@ const Header: React.FC = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { user, loading } = useUser();
-  const { notifications, unreadCount, markAsRead } = useNotifications(
-    user?._id
-  );
+  const { notifications, unreadCount, markAsRead, fetchNotifications } =
+    useNotifications(user?._id);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -152,7 +151,8 @@ const Header: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = async () => {
+    await fetchNotifications();
     setIsModalOpen(false);
   };
 
@@ -184,7 +184,10 @@ const Header: React.FC = () => {
               isOpen={isModalOpen}
               onClose={handleCloseModal}
               notifications={notifications}
-              markAsRead={markAsRead}
+              markAsRead={async (notificationId: string) => {
+                await markAsRead(notificationId);
+                await fetchNotifications();
+              }}
             />
 
             {isTimedIn && (

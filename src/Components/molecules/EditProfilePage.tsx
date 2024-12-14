@@ -467,7 +467,6 @@ const EditProfilePage: React.FC = () => {
             medicalAllowance={user?.salaryDetails?.medicalAllowance || 0}
             mobileAllowance={user?.salaryDetails?.mobileAllowance || 0}
             fuelAllowance={user?.salaryDetails?.fuelAllowance || 0}
-            onUpdate={handleUpdateSalaryDetails}
           />
         );
       case "Update Password":

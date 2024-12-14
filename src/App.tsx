@@ -47,6 +47,7 @@ import FormsManagement from "./Components/molecules/FormsManagement";
 import AllWorkAnniversaries from "./Components/atoms/AllWorkAnniversaries";
 import AllUpcomingBirthdays from "./Components/atoms/AllUpcomingBirthdays";
 import VehicleManagement from "./Components/molecules/VehicleManagement";
+import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/EditSpeficUserProfile";
 
 const App: React.FC = () => {
   return (
@@ -172,10 +173,14 @@ const App: React.FC = () => {
                   element={<EmployeeLetter />}
                 />
                 <Route
-                  path="//letters/experience-letter"
+                  path="/letters/experience-letter"
                   element={<ExperienceLetter />}
                 />
-                <Route path="/edit-profile/:id" element={<EditProfilePage />} />
+                {/* <Route path="/edit-profile/:id" element={<EditProfilePage />} /> */}
+                <Route
+                  path="/edit-profile/:id"
+                  element={<UserProfileUpdater />}
+                />
                 <Route
                   path="/notifications"
                   element={<FullNotificationsPage />}

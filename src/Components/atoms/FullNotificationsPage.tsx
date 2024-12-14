@@ -11,28 +11,32 @@ import useNotifications, { Notification } from "../../hooks/useNotifications";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
 import { FaSpinner } from "react-icons/fa";
+import axios from "axios";
 
 const FullNotificationsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, loading: userLoading } = useUser();
-  const { notifications, isLoading, markAllAsRead, markAsRead } =
-    useNotifications(user?._id);
+  const {
+    notifications,
+    isLoading,
+    markAsRead,
+    fetchNotifications, // Add this
+  } = useNotifications(user?._id);
   const [filter, setFilter] = useState<"all" | "read" | "unread">("all");
   const [expanded, setExpanded] = useState<boolean>(false);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     if (!userLoading) {
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userLoading, user]);
 
-  const handleMarkAllAsReadClick = async () => {
-    try {
-      await markAllAsRead();
-      toast.success("All notifications marked as read.");
-    } catch (error) {
-      toast.error("Failed to mark all notifications as read.");
-    }
+  const handleMarkAllAsRead = () => {
+    notifications.forEach((notification) => {
+      if (notification.status === "unread") {
+        markAsRead(notification.id);
+      }
+    });
   };
 
   const handleFilterChange = (newFilter: "all" | "read" | "unread") => {
@@ -58,6 +62,28 @@ const FullNotificationsPage: React.FC = () => {
       await markAsRead(notification.id);
     }
     navigate("/notification-detail", { state: { notification } });
+  };
+
+  const toggleStatus = async (
+    noticeId: string,
+    currentStatus: "Read" | "Unread"
+  ) => {
+    const newStatus = currentStatus === "Read" ? "Unread" : "Read";
+
+    try {
+      await axios.patch(
+        `${backendUrl}/api/notices/${noticeId}/status`,
+        { status: newStatus },
+        { withCredentials: true }
+      );
+
+      await fetchNotifications();
+
+      toast.success(`Notification marked as ${newStatus}`);
+    } catch (err) {
+      toast.error("Failed to update notice status");
+      console.error(err);
+    }
   };
 
   return (
@@ -108,7 +134,7 @@ const FullNotificationsPage: React.FC = () => {
           </div>
 
           <button
-            onClick={handleMarkAllAsReadClick}
+            onClick={handleMarkAllAsRead}
             className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-200"
             aria-label="Mark all notifications as read"
           >
@@ -157,6 +183,26 @@ const FullNotificationsPage: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-gray-700">{notification.message}</p>
+                  <div className="flex space-x-2 mt-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleStatus(
+                          notification.id,
+                          notification.status === "unread" ? "Unread" : "Read"
+                        );
+                      }}
+                      className={`px-3 py-1 text-sm rounded-md ${
+                        notification.status === "unread"
+                          ? "bg-green-600 text-white hover:bg-green-700"
+                          : "bg-yellow-500 text-white hover:bg-yellow-600"
+                      }`}
+                    >
+                      {notification.status === "unread"
+                        ? "Mark as Read"
+                        : "Mark as Unread"}
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

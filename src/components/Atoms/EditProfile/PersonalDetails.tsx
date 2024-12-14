@@ -50,6 +50,7 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Brand Development": ["Digital Marketing", "Book Marketing"],
   "Corporate Communication": [],
 };
+
 interface PersonalDetailsProps {
   employee: {
     name: string;
@@ -91,10 +92,21 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedEmployee, setEditedEmployee] = useState(employee);
+  const [editedEmployee, setEditedEmployee] = useState({
+    ...employee,
+    dateOfBirth: employee.dateOfBirth
+      ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
+      : "",
+  });
 
   const handleEditClick = () => {
     if (isEditable) {
+      setEditedEmployee({
+        ...employee,
+        dateOfBirth: employee.dateOfBirth
+          ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
+          : "",
+      });
       setIsEditing(true);
     }
   };

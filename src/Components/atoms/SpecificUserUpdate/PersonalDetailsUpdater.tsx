@@ -50,8 +50,21 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Brand Development": ["Digital Marketing", "Book Marketing"],
   "Corporate Communication": [],
 };
+interface Employee {
+  name: string;
+  department: string;
+  jobTitle: string;
+  jobCategory: string;
+  jobType: string;
+  profilePicture: string;
+  shiftTimings: string;
+  gender: string;
+  dateOfBirth: string;
+  jobStatus: string;
+}
 
-interface PersonalDetailsProps {
+interface PersonalDetailsUpdaterProps {
+  userId: string;
   employee: {
     name: string;
     department: string;
@@ -68,21 +81,11 @@ interface PersonalDetailsProps {
   jobTitles: string[];
   onProfilePictureChange: (file: File) => void;
   isEditable: boolean;
-  onUpdate: (updatedEmployee: {
-    name: string;
-    department: string;
-    jobTitle: string;
-    jobCategory: string;
-    jobType: string;
-    profilePicture: string;
-    shiftTimings: string;
-    gender: string;
-    dateOfBirth: string;
-    jobStatus: string;
-  }) => void;
+  onUpdate: (updatedEmployee: Employee) => void;
 }
 
-const PersonalDetails: React.FC<PersonalDetailsProps> = ({
+const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
+  userId,
   employee,
   departments,
   jobTitles,
@@ -92,21 +95,10 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [editedEmployee, setEditedEmployee] = useState({
-    ...employee,
-    dateOfBirth: employee.dateOfBirth
-      ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
-      : "",
-  });
-
+  const [editedEmployee, setEditedEmployee] = useState(employee);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const handleEditClick = () => {
     if (isEditable) {
-      setEditedEmployee({
-        ...employee,
-        dateOfBirth: employee.dateOfBirth
-          ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
-          : "",
-      });
       setIsEditing(true);
     }
   };
@@ -164,12 +156,12 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   );
 
   return (
-    <div className="bg-white p-10 lg:p-12 rounded-xl flex flex-col items-center relative">
+    <div className="bg-white p-4 rounded-xl flex flex-col items-center relative">
       {isEditable && !isEditing && (
         <button
           onClick={handleEditClick}
           className="absolute top-5 right-8 text-blue-600 hover:text-blue-500 transition-all"
-          aria-label="Edit Personal Details"
+          aria-label="Edit User Details"
         >
           <FaEdit size={24} />
         </button>
@@ -177,7 +169,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
       <div className="relative border-[7px] border-blue-600 rounded-full">
         <img
-          src={employee.profilePicture}
+          src={`${backendUrl}/${employee.profilePicture.replace(/\\/g, "/")}`}
           alt="Profile"
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
@@ -242,7 +234,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
-          {/* Department Field */}
+
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
             {isEditing ? (
@@ -317,6 +309,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
+
           {/* Job Status Field - New addition */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Status</p>
@@ -418,4 +411,4 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
   );
 };
 
-export default PersonalDetails;
+export default PersonalDetailsUpdater;

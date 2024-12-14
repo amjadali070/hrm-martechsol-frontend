@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { FaEdit } from 'react-icons/fa';
-import Select from 'react-select';
-import { City } from 'country-state-city';
+import React, { useState } from "react";
+import { FaEdit } from "react-icons/fa";
+import Select from "react-select";
+import { City } from "country-state-city";
 
 interface ContactDetailsProps {
   phoneNumber1: string;
@@ -24,7 +24,7 @@ interface ContactDetailsProps {
 
 const ContactDetails: React.FC<ContactDetailsProps> = ({
   phoneNumber1,
-  phoneNumber2 = '',
+  phoneNumber2 = "",
   email,
   currentCity,
   currentAddress,
@@ -51,7 +51,10 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleCityChange = (selectedOption: { value: string; label: string }, field: string) => {
+  const handleCityChange = (
+    selectedOption: { value: string; label: string },
+    field: string
+  ) => {
     setFormData({ ...formData, [field]: selectedOption.value });
   };
 
@@ -65,30 +68,31 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
     setIsEditing((prev) => !prev);
   };
 
-  const pakistanCities = City.getCitiesOfCountry('PK')?.map((city) => ({
-    value: city.name,
-    label: city.name,
-  })) || [];
+  const pakistanCities =
+    City.getCitiesOfCountry("PK")?.map((city) => ({
+      value: city.name,
+      label: city.name,
+    })) || [];
 
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      height: '50px',
-      border: '1px solid #D1D5DB',
-      borderRadius: '0.375rem',
-      backgroundColor: '#F3F4F6',
-      boxShadow: state.isFocused ? '0 0 0 2px #6B46C1' : 'none',
-      '&:hover': {
-        borderColor: '#6B46C1',
+      height: "50px",
+      border: "1px solid #D1D5DB",
+      borderRadius: "0.375rem",
+      backgroundColor: "#F3F4F6",
+      boxShadow: state.isFocused ? "0 0 0 2px #6B46C1" : "none",
+      "&:hover": {
+        borderColor: "#6B46C1",
       },
     }),
     singleValue: (base: any) => ({
       ...base,
-      fontSize: '1rem',
+      fontSize: "1rem",
     }),
     placeholder: (base: any) => ({
       ...base,
-      fontSize: '1rem',
+      fontSize: "1rem",
     }),
   };
 
@@ -119,7 +123,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               onChange={handleChange}
               disabled={!isEditing}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             />
           </div>
@@ -140,7 +144,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               disabled={!isEditing}
               placeholder="Phone Number 2"
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             />
           </div>
@@ -158,16 +162,21 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               <Select
                 id="currentCity"
                 name="currentCity"
-                value={pakistanCities.find((city) => city.value === formData.currentCity)}
+                value={pakistanCities.find(
+                  (city) => city.value === formData.currentCity
+                )}
                 onChange={(selectedOption) =>
-                  handleCityChange(selectedOption as { value: string; label: string }, 'currentCity')
+                  handleCityChange(
+                    selectedOption as { value: string; label: string },
+                    "currentCity"
+                  )
                 }
                 options={pakistanCities}
                 styles={customSelectStyles}
               />
             ) : (
               <div className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-                {formData.currentCity || 'No City Selected'}
+                {formData.currentCity || "No City Selected"}
               </div>
             )}
           </div>
@@ -187,7 +196,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               disabled={!isEditing}
               rows={1}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             ></textarea>
           </div>
@@ -205,16 +214,21 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               <Select
                 id="permanentCity"
                 name="permanentCity"
-                value={pakistanCities.find((city) => city.value === formData.permanentCity)}
+                value={pakistanCities.find(
+                  (city) => city.value === formData.permanentCity
+                )}
                 onChange={(selectedOption) =>
-                  handleCityChange(selectedOption as { value: string; label: string }, 'permanentCity')
+                  handleCityChange(
+                    selectedOption as { value: string; label: string },
+                    "permanentCity"
+                  )
                 }
                 options={pakistanCities}
                 styles={customSelectStyles}
               />
             ) : (
               <div className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-                {formData.permanentCity || 'No City Selected'}
+                {formData.permanentCity || "No City Selected"}
               </div>
             )}
           </div>
@@ -234,7 +248,7 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
               disabled={!isEditing}
               rows={1}
               className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? 'cursor-not-allowed' : ''
+                !isEditing ? "cursor-not-allowed" : ""
               }`}
             ></textarea>
           </div>
