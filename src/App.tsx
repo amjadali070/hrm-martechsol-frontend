@@ -47,7 +47,7 @@ import FormsManagement from "./Components/molecules/FormsManagement";
 import AllWorkAnniversaries from "./Components/atoms/AllWorkAnniversaries";
 import AllUpcomingBirthdays from "./Components/atoms/AllUpcomingBirthdays";
 import VehicleManagement from "./Components/molecules/VehicleManagement";
-import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/EditSpeficUserProfile";
+import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
 
 const App: React.FC = () => {
   return (
