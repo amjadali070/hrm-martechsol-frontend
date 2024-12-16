@@ -44,6 +44,10 @@ const menuItems: MenuItem[] = [
       },
       { label: "Payroll Management", path: "/organization/payroll-management" },
       { label: "Leave Management", path: "/organization/leave-management" },
+      {
+        label: "Attendance Management",
+        path: "/organization/attendance-management",
+      },
       { label: "Ticket Management", path: "/organization/ticket-management" },
       { label: "Holiday Management", path: "/organization/holiday-management" },
       {

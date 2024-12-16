@@ -380,6 +380,7 @@ const EditProfilePage: React.FC = () => {
               "Associate Vice President",
               "Vice President",
               "Senior Vice President",
+              "President",
             ]}
             // jobCategories={[
             //   'Digital Marketing', 'Book Marketing', 'Software Application',

@@ -1,4 +1,5 @@
 // src/components/Header.tsx
+
 import React, { useState, useEffect, useRef } from "react";
 import MarTechLogo from "../../assets/LogoMartechSol.png";
 import { IoNotificationsSharp } from "react-icons/io5";
@@ -23,6 +24,11 @@ const Header: React.FC = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  /**
+   * Formats seconds into HH:MM:SS format.
+   * @param seconds Number of seconds.
+   * @returns Formatted time string.
+   */
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -33,18 +39,26 @@ const Header: React.FC = () => {
     )}:${String(secs).padStart(2, "0")}`;
   };
 
+  /**
+   * Starts the timer with an initial count.
+   * @param initialSeconds Initial seconds to start the timer.
+   */
   const startTimer = (initialSeconds = 0) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
 
+    setTimer(initialSeconds);
+
     timerRef.current = setInterval(() => {
       setTimer((prevTimer) => prevTimer + 1);
     }, 1000);
-
-    setTimer(initialSeconds);
   };
 
+  /**
+   * Checks the current time log status of the user.
+   * Determines if the user is currently timed in and starts the timer accordingly.
+   */
   const checkTimeLogStatus = async () => {
     if (!user?._id) return;
 
@@ -54,18 +68,19 @@ const Header: React.FC = () => {
       const endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
 
+      // Updated API endpoint to match backend routes
       const response = await axiosInstance.get(
-        `${backendUrl}/api/time-log/${user._id}`,
+        `${backendUrl}/api/time-log/user/${user._id}`,
         {
           params: {
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
           },
-          withCredentials: true,
+          withCredentials: true, // Ensures cookies are sent with the request
         }
       );
 
-      const todayLogs = response.data;
+      const todayLogs = response.data; // Assuming the backend returns an array of TimeLogs
       const activeLog = todayLogs.find(
         (log: { timeOut: string | null }) => !log.timeOut
       );
@@ -80,9 +95,12 @@ const Header: React.FC = () => {
           : 0;
         startTimer(elapsedTime);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error checking time log status:", error);
-      toast.error("Failed to retrieve time log status");
+      // Display error message based on backend response
+      const errorMessage =
+        error.response?.data?.message || "Failed to retrieve time log status";
+      toast.error(errorMessage);
     }
   };
 
@@ -99,6 +117,10 @@ const Header: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
+  /**
+   * Handles toggling between Time In and Time Out.
+   * Updates the UI and starts/stops the timer accordingly.
+   */
   const handleTimeToggle = async () => {
     if (!user?._id) {
       toast.error("User information not available");
@@ -107,8 +129,9 @@ const Header: React.FC = () => {
 
     try {
       if (isTimedIn) {
+        // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
-          `${backendUrl}/api/time-log/out`,
+          `${backendUrl}/api/time-log/time-out`,
           { userId: user._id },
           { withCredentials: true }
         );
@@ -121,8 +144,9 @@ const Header: React.FC = () => {
           toast.warning("Successfully Timed Out.");
         }
       } else {
+        // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
-          `${backendUrl}/api/time-log/in`,
+          `${backendUrl}/api/time-log/time-in`,
           { userId: user._id },
           { withCredentials: true }
         );
@@ -132,25 +156,48 @@ const Header: React.FC = () => {
           toast.success("Successfully Timed In.");
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error logging time:", error);
-      toast.error("An error occurred while trying to clock in/out.");
+      // Display error message based on backend response
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred while trying to clock in/out.";
+      toast.error(errorMessage);
     }
   };
 
+  /**
+   * Handles logging out the user.
+   * Clears the session and redirects to the login page.
+   */
   const handleLogout = async () => {
     try {
-      await axiosInstance.post("api/users/logout");
+      await axiosInstance.post(
+        `${backendUrl}/api/users/logout`,
+        {},
+        { withCredentials: true }
+      );
       navigate("/login");
-    } catch (error) {
+      toast.success("Logged out successfully.");
+    } catch (error: any) {
       console.error("Logout failed:", error);
+      // Display error message based on backend response
+      const errorMessage =
+        error.response?.data?.message || "Logout failed. Please try again.";
+      toast.error(errorMessage);
     }
   };
 
+  /**
+   * Opens the notification modal.
+   */
   const handleOpenModal = () => {
     setIsModalOpen(true);
   };
 
+  /**
+   * Closes the notification modal and fetches updated notifications.
+   */
   const handleCloseModal = async () => {
     await fetchNotifications();
     setIsModalOpen(false);
@@ -160,6 +207,7 @@ const Header: React.FC = () => {
     <header className="mt-1">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
+          {/* Company Logo */}
           <div className="flex items-center ml-2 sm:ml-2">
             <img
               src={MarTechLogo}
@@ -167,7 +215,9 @@ const Header: React.FC = () => {
               className="h-6 w-auto sm:h-5 md:h-10"
             />
           </div>
+          {/* Action Buttons */}
           <div className="flex flex-wrap gap-1 justify-end items-center md:flex-nowrap md:space-x-3">
+            {/* Notification Button */}
             <button
               onClick={handleOpenModal}
               className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
@@ -180,6 +230,7 @@ const Header: React.FC = () => {
                 </span>
               )}
             </button>
+            {/* Notification Modal */}
             <NotificationModal
               isOpen={isModalOpen}
               onClose={handleCloseModal}
@@ -190,6 +241,7 @@ const Header: React.FC = () => {
               }}
             />
 
+            {/* Timer Display when Timed In */}
             {isTimedIn && (
               <div className="flex items-center">
                 <div
@@ -236,6 +288,7 @@ const Header: React.FC = () => {
               </div>
             )}
 
+            {/* Time In/Out Button */}
             <button
               onClick={handleTimeToggle}
               className={`flex items-center w-25 gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
@@ -252,6 +305,7 @@ const Header: React.FC = () => {
               <span>{isTimedIn ? "Time Out" : "Time In"}</span>
             </button>
 
+            {/* Logout Button */}
             <button
               onClick={handleLogout}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"

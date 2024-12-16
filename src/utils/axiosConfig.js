@@ -1,3 +1,5 @@
+// src/utils/axiosConfig.ts
+
 import axios from "axios";
 
 // Determine backend URL
@@ -16,6 +18,7 @@ const axiosInstance = axios.create({
   },
 });
 
+// Request Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     console.log(`Sending request to: ${config.url}`);

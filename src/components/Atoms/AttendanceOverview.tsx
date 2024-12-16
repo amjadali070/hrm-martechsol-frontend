@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
+import axiosInstance from "../../utils/axiosConfig";
 
 interface TimeLog {
   _id: string;
@@ -84,12 +85,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
 
       setLoading(true);
       try {
-        const { data } = await axios.get(
-          `${backendUrl}/api/time-log/${user_Id}`,
+        const { data } = await axiosInstance.get(
+          `${backendUrl}/api/time-log/user/${user._id}`,
           {
             withCredentials: true,
             params: {
-              limit: 3, // Explicitly limit to 3 records
+              limit: 3,
             },
           }
         );

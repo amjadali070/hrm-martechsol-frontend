@@ -63,6 +63,7 @@ const AllWorkAnniversaries: React.FC = () => {
     "Associate Vice President",
     "Vice President",
     "Senior Vice President",
+    "President",
   ];
 
   useEffect(() => {

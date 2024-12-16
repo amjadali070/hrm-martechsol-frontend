@@ -65,6 +65,7 @@ const additionalShiftTimings = [
   "7:00 PM - 3:30 AM",
   "8:00 PM - 4:30 AM",
   "9:00 PM - 5:30 AM",
+  "2:00 AM - 10:30 AM",
 ];
 
 interface PersonalDetailsProps {

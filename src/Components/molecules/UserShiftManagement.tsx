@@ -44,6 +44,7 @@ const jobTitleOptions = [
   "Associate Vice President",
   "Vice President",
   "Senior Vice President",
+  "President",
 ];
 
 const additionalShiftTimings = [
