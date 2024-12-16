@@ -189,15 +189,6 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
           alt="Profile"
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
-        <button
-          onClick={() => {
-            fileInputRef.current?.click();
-          }}
-          className="absolute bottom-0 right-0 bg-black text-white border-4 border-white rounded-full p-2 hover:bg-zinc-700 transition-all"
-          aria-label="Edit Profile Picture"
-        >
-          <FaUserEdit size={20} />
-        </button>
 
         <input
           type="file"

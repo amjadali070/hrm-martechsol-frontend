@@ -20,6 +20,7 @@ import { IconType } from "react-icons/lib";
 interface SubMenuItem {
   label: string;
   path: string;
+  visibleTo?: string[];
 }
 
 interface MenuItem {
@@ -36,35 +37,57 @@ const menuItems: MenuItem[] = [
     icon: PiNetworkFill,
     label: "Ecosystems",
     path: "/organization",
-    visibleTo: ["HR", "SuperAdmin"],
+    visibleTo: ["HR", "manager", "SuperAdmin"], // Included "manager"
     subItems: [
-      {
-        label: "Employee Management",
-        path: "/organization/employee-management",
-      },
-      { label: "Payroll Management", path: "/organization/payroll-management" },
-      { label: "Leave Management", path: "/organization/leave-management" },
       {
         label: "Attendance Management",
         path: "/organization/attendance-management",
+        visibleTo: ["HR", "manager", "SuperAdmin"],
       },
-      { label: "Ticket Management", path: "/organization/ticket-management" },
-      { label: "Holiday Management", path: "/organization/holiday-management" },
+      {
+        label: "Employee Management",
+        path: "/organization/employee-management",
+        visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
+        label: "Payroll Management",
+        path: "/organization/payroll-management",
+        visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
+        label: "Leave Management",
+        path: "/organization/leave-management",
+        visibleTo: ["manager", "SuperAdmin"],
+      },
+      {
+        label: "Ticket Management",
+        path: "/organization/ticket-management",
+        visibleTo: ["HR", "manager", "SuperAdmin"],
+      },
+      {
+        label: "Holiday Management",
+        path: "/organization/holiday-management",
+        visibleTo: ["HR", "SuperAdmin"],
+      },
       {
         label: "User Shift Management",
         path: "/organization/user-shift-management",
+        visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
         label: "Notice Management",
         path: "/organization/notice-management",
+        visibleTo: ["HR", "SuperAdmin"],
       },
       {
         label: "Forms Management",
         path: "/organization/forms-management",
+        visibleTo: ["HR", "SuperAdmin"],
       },
       {
         label: "Vehical Management",
         path: "/organization/vehical-management",
+        visibleTo: ["HR", "SuperAdmin"],
       },
     ],
   },
@@ -152,6 +175,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         <FaBars size={24} />
       </button>
 
+      {/* Sidebar */}
       <div
         className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white rounded-none transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -185,7 +209,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                             : "border border-solid border-white border-opacity-10 mt-2 mb-2"
                         } rounded-md hover:bg-sky-600 transition-colors duration-200`}
                       >
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2">
                           <Icon size={20} />
                           <span className="text-md">{item.label}</span>
                         </div>
@@ -200,7 +224,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                     ) : (
                       <Link to={item.path}>
                         <div
-                          className={`flex items-center gap-6 px-4 py-3 mb-2 mt-2 ${
+                          className={`flex items-center gap-2 px-4 py-3 mb-2 mt-2 ${
                             isActive
                               ? "bg-sky-500"
                               : "border border-solid border-white border-opacity-10"
@@ -214,21 +238,28 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                   </div>
 
                   {item.subItems && openMenus[item.label] && (
-                    <div className="ml-12 mt-2 mb-2 flex flex-col space-y-2">
-                      {item.subItems.map((subItem, subIndex) => {
-                        const isSubActive = location.pathname === subItem.path;
-                        return (
-                          <Link to={subItem.path} key={subIndex}>
-                            <div
-                              className={`flex items-center gap-4 px-4 py-2 rounded-md ${
-                                isSubActive ? "bg-sky-400" : "bg-transparent"
-                              } hover:bg-sky-500 transition-colors duration-200`}
-                            >
-                              <span className="text-sm">{subItem.label}</span>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                    <div className="ml-8 mt-2 mb-2 flex flex-col space-y-2">
+                      {item.subItems
+                        .filter(
+                          (subItem) =>
+                            !subItem.visibleTo ||
+                            subItem.visibleTo.includes(role)
+                        )
+                        .map((subItem, subIndex) => {
+                          const isSubActive =
+                            location.pathname === subItem.path;
+                          return (
+                            <Link to={subItem.path} key={subIndex}>
+                              <div
+                                className={`flex items-center gap-4 px-4 py-2 rounded-md ${
+                                  isSubActive ? "bg-sky-400" : "bg-transparent"
+                                } hover:bg-sky-500 transition-colors duration-200`}
+                              >
+                                <span className="text-sm">{subItem.label}</span>
+                              </div>
+                            </Link>
+                          );
+                        })}
                     </div>
                   )}
                 </div>

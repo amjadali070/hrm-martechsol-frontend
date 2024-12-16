@@ -52,6 +52,7 @@ const AllWorkAnniversaries: React.FC = () => {
     "Brand Development",
     "Corporate Communication",
   ];
+
   const jobTitleOptions = [
     "Executive",
     "Senior Executive",
@@ -64,6 +65,8 @@ const AllWorkAnniversaries: React.FC = () => {
     "Vice President",
     "Senior Vice President",
     "President",
+    "Head of Department",
+    "Lead Generation",
   ];
 
   useEffect(() => {

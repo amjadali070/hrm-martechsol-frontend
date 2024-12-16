@@ -86,7 +86,7 @@ const UserSalaryUpdater: React.FC<UserSalaryUpdaterProps> = ({
               <input
                 type="number"
                 name="medicalAllowance"
-                value={formData.medicalAllowance} // No need for empty string check
+                value={formData.medicalAllowance}
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
@@ -101,7 +101,7 @@ const UserSalaryUpdater: React.FC<UserSalaryUpdaterProps> = ({
               <input
                 type="number"
                 name="mobileAllowance"
-                value={formData.mobileAllowance} // No need for empty string check
+                value={formData.mobileAllowance}
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
@@ -116,7 +116,7 @@ const UserSalaryUpdater: React.FC<UserSalaryUpdaterProps> = ({
               <input
                 type="number"
                 name="fuelAllowance"
-                value={formData.fuelAllowance} // No need for empty string check
+                value={formData.fuelAllowance}
                 onChange={handleChange}
                 disabled={!isEditing}
                 className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${

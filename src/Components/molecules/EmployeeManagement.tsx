@@ -50,14 +50,17 @@ const EmployeeManagement: React.FC = () => {
           `${backendUrl}/api/users/getAllUsers`,
           {
             withCredentials: true,
+            // Remove pagination parameters to fetch all employees
             params: {
-              page: currentPage,
-              limit: itemsPerPage,
+              // Include other filters if the backend supports them
               department:
                 departmentFilter !== "All" ? departmentFilter : undefined,
               jobTitle: jobTitleFilter !== "All" ? jobTitleFilter : undefined,
               jobType: jobTypeFilter !== "All" ? jobTypeFilter : undefined,
               gender: genderFilter !== "All" ? genderFilter : undefined,
+              // Add searchTerm and monthFilter if backend supports them
+              search: searchTerm || undefined,
+              month: monthFilter !== "All" ? monthFilter : undefined,
             },
           }
         );
@@ -76,17 +79,18 @@ const EmployeeManagement: React.FC = () => {
 
     fetchEmployees();
   }, [
-    currentPage,
-    itemsPerPage,
+    // Remove dependencies related to client-side pagination
     departmentFilter,
     jobTitleFilter,
     jobTypeFilter,
     genderFilter,
+    // searchTerm,
+    // monthFilter,
     backendUrl,
   ]);
 
   useEffect(() => {
-    let updatedEmployees = employees;
+    let updatedEmployees = [...employees]; // Create a copy to avoid mutating state
 
     if (departmentFilter !== "All") {
       updatedEmployees = updatedEmployees.filter(
@@ -130,6 +134,7 @@ const EmployeeManagement: React.FC = () => {
     }
 
     setFilteredEmployees(updatedEmployees);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [
     employees,
     departmentFilter,
@@ -543,7 +548,10 @@ const EmployeeManagement: React.FC = () => {
           <select
             className="text-sm border border-gray-300 rounded-md"
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1); // Reset to first page when items per page changes
+            }}
           >
             {[5, 10, 20].map((option) => (
               <option key={option} value={option}>
@@ -569,11 +577,11 @@ const EmployeeManagement: React.FC = () => {
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              currentPage === totalPages || totalPages === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next

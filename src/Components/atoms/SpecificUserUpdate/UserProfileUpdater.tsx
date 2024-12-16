@@ -6,6 +6,7 @@ import Tab from "./Tab";
 import { toast } from "react-toastify";
 import UserSalaryUpdater from "./UserSalaryUpdater";
 import UserProfileDetails from "./UserProfileDetails";
+import { FaSpinner } from "react-icons/fa";
 
 interface Education {
   institute?: string;
@@ -336,7 +337,11 @@ const UserProfileUpdater: React.FC = () => {
   };
 
   if (!employee) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex p-20 flex-col items-center">
+        <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
+      </div>
+    );
   }
 
   return (

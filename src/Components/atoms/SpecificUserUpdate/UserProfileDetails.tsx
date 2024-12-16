@@ -521,7 +521,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {userProfile.salaryDetails?.basicSalary
-                        ? `$${userProfile.salaryDetails.basicSalary.toLocaleString()}`
+                        ? `PKR ${userProfile.salaryDetails.basicSalary.toLocaleString()}`
                         : "0"}
                     </td>
                   </tr>
@@ -532,7 +532,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {userProfile.salaryDetails?.medicalAllowance
-                        ? `$${userProfile.salaryDetails.medicalAllowance.toLocaleString()}`
+                        ? `PKR ${userProfile.salaryDetails.medicalAllowance.toLocaleString()}`
                         : "0"}
                     </td>
                   </tr>
@@ -543,7 +543,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {userProfile.salaryDetails?.mobileAllowance
-                        ? `$${userProfile.salaryDetails.mobileAllowance.toLocaleString()}`
+                        ? `PKR ${userProfile.salaryDetails.mobileAllowance.toLocaleString()}`
                         : "0"}
                     </td>
                   </tr>
@@ -553,7 +553,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                     </td>
                     <td className="px-6 py-4 text-gray-700">
                       {userProfile.salaryDetails?.fuelAllowance
-                        ? `$${userProfile.salaryDetails.fuelAllowance.toLocaleString()}`
+                        ? `PKR ${userProfile.salaryDetails.fuelAllowance.toLocaleString()}`
                         : "0"}
                     </td>
                   </tr>

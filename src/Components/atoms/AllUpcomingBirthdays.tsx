@@ -44,6 +44,8 @@ const AllUpcomingBirthdays: React.FC = () => {
     "Vice President",
     "Senior Vice President",
     "President",
+    "Head of Department",
+    "Lead Generation",
   ];
 
   const departmentOptions = [
