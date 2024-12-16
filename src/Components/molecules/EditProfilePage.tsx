@@ -44,7 +44,7 @@ const EditProfilePage: React.FC = () => {
         shiftTimings: user.personalDetails?.shiftTimings || "N/A",
         jobStatus: user.personalDetails?.jobStatus || "Probation",
         gender: user.personalDetails?.gender || "N/A",
-        dateOfBirth: user.personalDetails?.dateOfBirth || "N/A",
+        dateOfBirth: user.personalDetails?.dateOfBirth || "",
       });
     }
   }, [user]);
