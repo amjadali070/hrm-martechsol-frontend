@@ -14,7 +14,6 @@ interface Ticket {
   subject: string;
   message: string;
   status: "Open" | "Closed";
-  // Add other properties if needed
 }
 
 const AdminTicket: React.FC = () => {
@@ -109,7 +108,8 @@ const AdminTicket: React.FC = () => {
       const newTicket: Ticket = response.data.adminTicket;
 
       if (newTicket) {
-        setTickets([newTicket, ...tickets]);
+        // Update tickets state immediately with the new ticket
+        setTickets((prevTickets) => [newTicket, ...prevTickets]);
         setFormData({ subject: "", message: "" });
         toast.success("Admin Ticket submitted successfully!");
       } else {

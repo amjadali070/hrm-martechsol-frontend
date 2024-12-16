@@ -193,6 +193,7 @@ const AttendanceTicket: React.FC = () => {
         }
       );
 
+      // Update attendance list immediately with the new ticket
       setAttendanceList((prevList) => [
         response.data.attendanceTicket,
         ...prevList,

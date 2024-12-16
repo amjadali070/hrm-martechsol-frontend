@@ -23,22 +23,19 @@ const HRTicket: React.FC = () => {
   });
 
   const [tickets, setTickets] = useState<Ticket[]>([]);
+  const [errors, setErrors] = useState<{ subject?: string; message?: string }>(
+    {}
+  );
   const [filteredStatus, setFilteredStatus] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
-  const [errors, setErrors] = useState<{ subject?: string; message?: string }>(
-    {}
-  );
   const [notFound, setNotFound] = useState<boolean>(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
   const userId = user.user?._id;
-
-  const categories = ["Leave Request", "Salary Issue", "Grievance", "Other"];
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -110,13 +107,11 @@ const HRTicket: React.FC = () => {
       );
 
       const newTicket = response.data.hrTicket;
-      setSubmitSuccess(true);
-      setTickets([newTicket, ...tickets]);
+      setTickets((prevTickets) => [newTicket, ...prevTickets]);
       setFormData({ subject: "", message: "" });
       toast.success("HR Ticket submitted successfully!");
     } catch (error) {
       console.error("Error submitting ticket:", error);
-      setSubmitSuccess(false);
       toast.error("Failed to submit HR ticket.");
     }
   };
@@ -237,7 +232,6 @@ const HRTicket: React.FC = () => {
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Date
                 </th>
-
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
                   Subject
                 </th>
@@ -258,7 +252,6 @@ const HRTicket: React.FC = () => {
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {formatDate(ticket.date)}
                   </td>
-
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {ticket.subject}
                   </td>
