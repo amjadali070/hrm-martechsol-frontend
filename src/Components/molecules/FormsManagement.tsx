@@ -158,6 +158,7 @@ const FormsManagement: React.FC = () => {
 
   return (
     <div className="w-full p-6 bg-white rounded-lg">
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">Forms Managment</h2>
       <div className="mb-4">
         <input
           type="text"
@@ -221,7 +222,6 @@ const FormsManagement: React.FC = () => {
               <col style={{ width: "15%" }} />
               <col style={{ width: "20%" }} />
               <col style={{ width: "15%" }} />
-              <col style={{ width: "25%" }} />
               <col style={{ width: "10%" }} />
               <col style={{ width: "10%" }} />
             </colgroup>
@@ -239,9 +239,9 @@ const FormsManagement: React.FC = () => {
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                   Subject
                 </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
+                {/* <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                   Message
-                </th>
+                </th> */}
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                   Status
                 </th>
@@ -267,19 +267,19 @@ const FormsManagement: React.FC = () => {
                       {index + 1}
                     </td>
                     <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.user.name}
+                      {form.user?.name || "Anonymous"}
                     </td>
                     <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.user.personalDetails.abbreviatedJobTitle}
+                      {form.user?.personalDetails?.abbreviatedJobTitle || "N/A"}
                     </td>
                     <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                       {form.subject}
                     </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-normal">
+                    {/* <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-normal">
                       <div
                         dangerouslySetInnerHTML={{ __html: form.message }}
                       ></div>
-                    </td>
+                    </td> */}
                     <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
                       {form.status.charAt(0).toUpperCase() +
                         form.status.slice(1)}
@@ -345,27 +345,15 @@ const FormsManagement: React.FC = () => {
       </div>
 
       {selectedForm && isModalOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-          onClick={closeModal}
-        >
-          <div
-            className="bg-white w-11/12 md:w-3/4 lg:w-1/2 p-6 rounded-lg relative"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h2 className="text-2xl font-semibold mb-4">
-              <strong>
-                {selectedForm.formType.charAt(0).toUpperCase() +
-                  selectedForm.formType.slice(1)}{" "}
-                Form
-              </strong>
-            </h2>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white w-11/12 md:w-3/4 lg:w-1/2 p-6 rounded-lg relative">
+            {/* ... */}
             <div className="mb-4">
-              <strong>Name:</strong> {selectedForm.user.name}
+              <strong>Name:</strong> {selectedForm.user?.name || "Anonymous"}
             </div>
             <div className="mb-4">
               <strong>Job Title:</strong>{" "}
-              {selectedForm.user.personalDetails.abbreviatedJobTitle}
+              {selectedForm.user?.personalDetails?.abbreviatedJobTitle || "N/A"}
             </div>
             <div className="mb-4">
               <strong>Subject:</strong> {selectedForm.subject}

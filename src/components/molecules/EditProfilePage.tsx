@@ -36,7 +36,7 @@ const EditProfilePage: React.FC = () => {
       setEmployee({
         name: user.name,
         department: user.personalDetails?.department || "N/A",
-        jobCategory: user.personalDetails?.jobCategory || "N/A",
+        jobCategory: user.personalDetails?.jobCategory || "",
         jobTitle: user.personalDetails?.jobTitle || "N/A",
         jobType: user.personalDetails?.jobType || "N/A",
         profilePicture:

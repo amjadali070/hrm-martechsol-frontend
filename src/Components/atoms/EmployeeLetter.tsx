@@ -4,29 +4,37 @@ import { FaSpinner } from "react-icons/fa"; // Loading spinner icon
 import EmploymentLetterPDF, {
   EmploymentCertificateProps,
 } from "../../html/EmploymentLetterPDF";
+import useUser from "../../hooks/useUser"; // Import the useUser hook
 
 const EmployeeLetter: React.FC = () => {
   const [formData, setFormData] = useState<
     EmploymentCertificateProps["data"] | null
   >(null);
-  const [loading, setLoading] = useState(true);
+
+  const { user, loading: userLoading } = useUser();
 
   useEffect(() => {
-    setTimeout(() => {
-      setFormData({
-        date: new Date().toLocaleDateString("en-GB"),
-        employeeName: "John Doe",
-        companyName: "MartechSol",
-        jobTitle: "Senior Software Engineer",
-        startDate: "January 2022",
-        signatoryName: "Jane Smith",
-        signatoryTitle: "HR Manager",
-      });
-      setLoading(false);
-    }, 1000);
-  }, []);
+    if (!userLoading && user) {
+      // Format the dates to 'en-GB' locale (dd/MM/yyyy)
+      const formattedDate = new Date().toLocaleDateString("en-GB");
 
-  if (loading) {
+      const formattedStartDate = new Date(
+        user.personalDetails?.joiningDate || ""
+      ).toLocaleDateString("en-GB");
+
+      setFormData({
+        date: formattedDate,
+        employeeName: user.name || "",
+        companyName: "MartechSol Pvt. Ltd.",
+        jobTitle: user.personalDetails?.fullJobTitle || "",
+        startDate: formattedStartDate,
+        signatoryName: "Mirza Waqas Baig",
+        signatoryTitle: "Chief Executive Officer",
+      });
+    }
+  }, [userLoading, user]);
+
+  if (userLoading || !formData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <FaSpinner

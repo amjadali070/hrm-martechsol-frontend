@@ -4,30 +4,37 @@ import { FaSpinner } from "react-icons/fa";
 import ExperienceLetterPDF, {
   ExperienceLetterProps,
 } from "../../html/ExperienceLetterPDF";
+import useUser from "../../hooks/useUser";
 
 const ExperienceLetter: React.FC = () => {
   const [formData, setFormData] = useState<
     ExperienceLetterProps["data"] | null
   >(null);
-  const [loading, setLoading] = useState(true);
+
+  const { user, loading: userLoading } = useUser();
 
   useEffect(() => {
-    setTimeout(() => {
-      setFormData({
-        date: new Date().toLocaleDateString("en-GB"),
-        employeeName: "John Doe",
-        companyName: "MartechSol",
-        jobTitle: "Software Engineer",
-        startDate: "2022-01-01",
-        endDate: "2024-11-26",
-        signatoryName: "Jane Smith",
-        signatoryTitle: "HR Manager",
-      });
-      setLoading(false);
-    }, 1000); // Simulate network delay
-  }, []);
+    if (!userLoading && user) {
+      const formattedDate = new Date().toLocaleDateString("en-GB");
+      const formattedJoiningDate = new Date(
+        user.personalDetails?.joiningDate || ""
+      ).toLocaleDateString("en-GB");
+      const formattedEndDate = new Date().toLocaleDateString("en-GB");
 
-  if (loading) {
+      setFormData({
+        date: formattedDate,
+        employeeName: user.name || "",
+        companyName: "MartechSol Pvt. Ltd.",
+        jobTitle: user.personalDetails?.fullJobTitle || "",
+        startDate: formattedJoiningDate,
+        endDate: formattedEndDate,
+        signatoryName: "Mirza Waqas Baig",
+        signatoryTitle: "Chief Executive Officer",
+      });
+    }
+  }, [userLoading, user]);
+
+  if (userLoading || !formData) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
         <FaSpinner

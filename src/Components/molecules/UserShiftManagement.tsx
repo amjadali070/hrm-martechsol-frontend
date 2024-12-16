@@ -1,27 +1,65 @@
+// UserShiftManagement.tsx
+
 import React, { useEffect, useState } from "react";
-import { FaFilter, FaSearch, FaSpinner, FaInbox } from "react-icons/fa"; // Import necessary icons
+import { FaFilter, FaSearch, FaSpinner, FaInbox } from "react-icons/fa";
 import axios from "axios";
+import { toast } from "react-toastify";
 
 interface UserShiftData {
-  id: string;
+  _id: string;
   name: string;
   department: string;
   jobTitle: string;
-  shiftTimings?: string; // Updated to match the API response
+  shiftTimings?: string;
 }
 
-const departmentOptions = ["HR", "Engineering", "Sales", "Marketing"];
-const jobTitleOptions = ["Manager", "Developer", "Analyst", "Designer"];
+const departmentOptions = [
+  "Account Management",
+  "Project Management",
+  "Content Production",
+  "Book Marketing",
+  "Design Production",
+  "SEO",
+  "Creative Media",
+  "Web Development",
+  "Paid Advertising",
+  "Software Production",
+  "IT & Networking",
+  "Human Resource",
+  "Training & Development",
+  "Admin",
+  "Finance",
+  "Brand Development",
+  "Corporate Communication",
+];
 
-// Define additional shift timings
+const jobTitleOptions = [
+  "Executive",
+  "Senior Executive",
+  "Assistant Manager",
+  "Associate Manager",
+  "Manager",
+  "Senior Manager",
+  "Assistant Vice President",
+  "Associate Vice President",
+  "Vice President",
+  "Senior Vice President",
+];
+
 const additionalShiftTimings = [
-  "9:00 AM - 5:00 PM",
-  "10:00 AM - 6:00 PM",
-  "12:00 PM - 8:00 PM",
-  "3:00 PM - 11:00 PM",
-  "4:00 PM - 12:00 AM",
+  "9:00 AM - 5:30 PM",
+  "10:00 AM - 6:30 PM",
+  "11:00 AM - 7:30 PM",
+  "12:00 PM - 8:30 PM",
+  "1:00 PM - 9:30 PM",
+  "2:00 PM - 10:30 PM",
+  "3:00 PM - 11:30 PM",
+  "4:00 PM - 12:30 AM",
+  "5:00 PM - 1:30 AM",
   "6:00 PM - 2:30 AM",
-  "9:30 PM - 6:00 AM",
+  "7:00 PM - 3:30 AM",
+  "8:00 PM - 4:30 AM",
+  "9:00 PM - 5:30 AM",
 ];
 
 const UserShiftManagement: React.FC = () => {
@@ -41,16 +79,18 @@ const UserShiftManagement: React.FC = () => {
     { label: string; timing: string }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const [updating, setUpdating] = useState<boolean>(false);
+  const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUserShifts = async () => {
       setLoading(true);
       try {
         const response = await axios.get(
-          `${backendUrl}/api/users/getAllUsers`,
-          { withCredentials: true }
+          `${backendUrl}/api/users/getAllUserShifts`,
+          {
+            withCredentials: true,
+          }
         );
         setData(response.data.users);
 
@@ -66,14 +106,15 @@ const UserShiftManagement: React.FC = () => {
           timing: shift,
         }));
         setShiftOptions(mappedShifts);
-      } catch (error) {
-        console.error("Error fetching users:", error);
+      } catch (error: any) {
+        console.error("Error fetching user shifts:", error);
+        toast.error("Failed to fetch user shift timings.");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchUserShifts();
   }, [backendUrl]);
 
   const handleFilterChange = (
@@ -89,16 +130,16 @@ const UserShiftManagement: React.FC = () => {
 
   const handleUpdate = async (id: string) => {
     if (editedShifts[id]) {
-      setUpdating(true); // Set updating to true while updating
+      const payload = { userId: id, shiftTimings: editedShifts[id] };
+      console.log("Updating shift with payload:", payload); // Debugging
+      setUpdating((prev) => ({ ...prev, [id]: true })); // Set updating to true for this user
       try {
-        await axios.put(
-          `${backendUrl}/api/users/shift`,
-          { userId: id, shiftTimings: editedShifts[id] },
-          { withCredentials: true }
-        );
+        await axios.put(`${backendUrl}/api/users/shift`, payload, {
+          withCredentials: true,
+        });
         setData((prev) =>
           prev.map((item) =>
-            item.id === id ? { ...item, shiftTimings: editedShifts[id] } : item
+            item._id === id ? { ...item, shiftTimings: editedShifts[id] } : item
           )
         );
         setEditedShifts((prev) => {
@@ -106,10 +147,14 @@ const UserShiftManagement: React.FC = () => {
           delete updated[id];
           return updated;
         });
-      } catch (error) {
+        toast.success("Shift timings updated successfully!");
+      } catch (error: any) {
         console.error("Error updating shift:", error);
+        toast.error(
+          error.response?.data?.message || "Failed to update shift timings."
+        );
       } finally {
-        setUpdating(false); // Set updating to false after updating
+        setUpdating((prev) => ({ ...prev, [id]: false })); // Set updating to false for this user
       }
     }
   };
@@ -236,13 +281,14 @@ const UserShiftManagement: React.FC = () => {
                       className="text-blue-500 mb-4 animate-spin"
                       size={30}
                     />
+                    <span>Loading...</span>
                   </div>
                 </td>
               </tr>
             ) : currentData.length > 0 ? (
               currentData.map((user, index) => (
                 <tr
-                  key={user.id}
+                  key={user._id}
                   className="border-t border-gray-200 hover:bg-gray-50"
                 >
                   <td className="px-4 py-2 text-sm text-gray-600">
@@ -259,12 +305,17 @@ const UserShiftManagement: React.FC = () => {
                   </td>
                   <td className="px-4 py-2">
                     <select
-                      value={editedShifts[user.id] || user.shiftTimings || ""}
+                      value={editedShifts[user._id] || user.shiftTimings || ""}
                       onChange={(e) =>
-                        handleShiftChange(user.id, e.target.value)
+                        handleShiftChange(user._id, e.target.value)
                       }
                       className="border border-gray-300 rounded-lg p-1 focus:ring-2 focus:ring-purple-500"
                     >
+                      <option value="" disabled>
+                        {user.shiftTimings
+                          ? "Select Shift"
+                          : `Select shift for ${user.name}`}
+                      </option>
                       {shiftOptions.map((shift) => (
                         <option key={shift.timing} value={shift.timing}>
                           {shift.label}
@@ -273,13 +324,13 @@ const UserShiftManagement: React.FC = () => {
                     </select>
                   </td>
                   <td className="px-2 py-2">
-                    {editedShifts[user.id] ? (
+                    {editedShifts[user._id] ? (
                       <button
-                        onClick={() => handleUpdate(user.id)}
+                        onClick={() => handleUpdate(user._id)}
                         className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:ring-2 focus:ring-blue-500"
-                        disabled={updating}
+                        disabled={updating[user._id]}
                       >
-                        {updating ? (
+                        {updating[user._id] ? (
                           <FaSpinner className="animate-spin" size={16} />
                         ) : (
                           "Update"
@@ -287,7 +338,7 @@ const UserShiftManagement: React.FC = () => {
                       </button>
                     ) : (
                       <span className="text-sm text-gray-500 ml-3">
-                        Updated
+                        {user.shiftTimings ? "Updated" : "No Shift Assigned"}
                       </span>
                     )}
                   </td>
@@ -307,6 +358,7 @@ const UserShiftManagement: React.FC = () => {
         </table>
       </div>
 
+      {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-2">Show:</span>
@@ -338,15 +390,15 @@ const UserShiftManagement: React.FC = () => {
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+            Page {currentPage} of {totalPages || 1}
           </span>
           <button
             className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
+              currentPage === totalPages || totalPages === 0
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                 : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }

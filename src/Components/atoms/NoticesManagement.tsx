@@ -382,7 +382,7 @@ const NoticesManagement: React.FC = () => {
                   required
                 />
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="block mb-2">Date</label>
                 <input
                   type="date"
@@ -395,7 +395,7 @@ const NoticesManagement: React.FC = () => {
                   className="w-full border p-2 rounded"
                   required
                 />
-              </div>
+              </div> */}
 
               <div className="mb-4">
                 <label className="block mb-2">Message</label>

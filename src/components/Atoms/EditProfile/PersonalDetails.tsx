@@ -51,6 +51,22 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Corporate Communication": [],
 };
 
+const additionalShiftTimings = [
+  "9:00 AM - 5:30 PM",
+  "10:00 AM - 6:30 PM",
+  "11:00 AM - 7:30 PM",
+  "12:00 PM - 8:30 PM",
+  "1:00 PM - 9:30 PM",
+  "2:00 PM - 10:30 PM",
+  "3:00 PM - 11:30 PM",
+  "4:00 PM - 12:30 AM",
+  "5:00 PM - 1:30 AM",
+  "6:00 PM - 2:30 AM",
+  "7:00 PM - 3:30 AM",
+  "8:00 PM - 4:30 AM",
+  "9:00 PM - 5:30 AM",
+];
+
 interface PersonalDetailsProps {
   employee: {
     name: string;
@@ -381,14 +397,19 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
             {isEditing ? (
-              <input
-                type="text"
+              <select
                 name="shiftTimings"
                 value={editedEmployee.shiftTimings}
-                placeholder={employee.shiftTimings || "Shift Timings"}
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
-              />
+              >
+                <option value="">Select Shift Timings</option>
+                {additionalShiftTimings.map((timing) => (
+                  <option key={timing} value={timing}>
+                    {timing}
+                  </option>
+                ))}
+              </select>
             ) : (
               <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
                 {employee.shiftTimings}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   FaFilter,
   FaSearch,
@@ -47,9 +47,13 @@ const TrackApplication: React.FC = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
   const userId = user.user?._id;
-  console.log(userId);
+
+  const hasFetched = useRef(false);
 
   useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+
     const fetchLeaveApplications = async () => {
       setLoading(true);
       setError("");
