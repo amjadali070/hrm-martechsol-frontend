@@ -106,9 +106,8 @@ const NetworkTicket: React.FC = () => {
         },
         { withCredentials: true }
       );
-
-      // Update tickets state immediately with the new ticket
-      setTickets((prevTickets) => [response.data.ticket, ...prevTickets]);
+      setSubmitSuccess(true);
+      setTickets([response.data.ticket, ...tickets]);
       setFormData({ subject: "", message: "" });
       toast.success("Ticket submitted successfully!");
     } catch (error) {

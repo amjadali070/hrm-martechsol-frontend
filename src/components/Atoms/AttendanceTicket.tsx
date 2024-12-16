@@ -193,12 +193,17 @@ const AttendanceTicket: React.FC = () => {
         }
       );
 
-      // Update attendance list immediately with the new ticket
-      setAttendanceList((prevList) => [
-        response.data.attendanceTicket,
-        ...prevList,
-      ]);
-      setCurrentPage(1); // Reset to the first page to show the new ticket
+      // Assuming the response contains the newly created attendance ticket
+      const newTicket: AttendanceRecord = response.data.attendanceTicket;
+
+      // Update the attendance list by adding the new ticket at the top
+      setAttendanceList((prevList) => [newTicket, ...prevList]);
+
+      // Set notFound to false since there's at least one ticket now
+      setNotFound(false);
+
+      // Reset to the first page to show the new ticket
+      setCurrentPage(1);
 
       // Reset form data
       setFormData({
@@ -209,6 +214,7 @@ const AttendanceTicket: React.FC = () => {
         file: null,
         workLocation: "",
       });
+
       toast.success("Attendance ticket submitted successfully!");
     } catch (error: any) {
       console.error("Error submitting ticket:", error);

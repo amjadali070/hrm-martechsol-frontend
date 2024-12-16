@@ -29,6 +29,7 @@ const AdminTicket: React.FC = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
@@ -95,6 +96,8 @@ const AdminTicket: React.FC = () => {
       return;
     }
 
+    setIsSubmitting(true);
+
     try {
       const response = await axios.post(
         `${backendUrl}/api/admin-tickets`,
@@ -105,16 +108,28 @@ const AdminTicket: React.FC = () => {
         { withCredentials: true }
       );
 
-      const newTicket: Ticket = response.data.adminTicket;
+      // Create a new ticket object with the response data
+      const newTicket: Ticket = {
+        ...response.data.ticket,
+        status: "Open", // Ensure new tickets are marked as Open
+        date: new Date().toISOString(), // Use current date if not provided
+      };
 
-      if (newTicket) {
-        // Update tickets state immediately with the new ticket
-        setTickets((prevTickets) => [newTicket, ...prevTickets]);
-        setFormData({ subject: "", message: "" });
-        toast.success("Admin Ticket submitted successfully!");
-      } else {
-        throw new Error("Invalid ticket data");
+      // Update tickets state
+      setTickets((prevTickets) => [newTicket, ...prevTickets]);
+
+      // Reset form
+      setFormData({ subject: "", message: "" });
+
+      // Reset not found state if it was true
+      setNotFound(false);
+
+      // If current page would be affected by new ticket, reset to first page
+      if (filteredStatus === "All" || filteredStatus === "Open") {
+        setCurrentPage(1);
       }
+
+      toast.success("Admin Ticket submitted successfully!");
     } catch (error: any) {
       console.error("Error submitting ticket:", error);
       if (
@@ -126,6 +141,8 @@ const AdminTicket: React.FC = () => {
       } else {
         toast.error("Failed to submit Admin ticket.");
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -185,9 +202,12 @@ const AdminTicket: React.FC = () => {
 
         <button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all w-auto font-semibold mt-12"
+          disabled={isSubmitting}
+          className={`px-6 py-2 text-white rounded-full hover:bg-blue-700 transition-all w-auto font-semibold mt-12 ${
+            isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600"
+          }`}
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
 
@@ -339,7 +359,6 @@ const AdminTicket: React.FC = () => {
           </button>
         </div>
       </div>
-
       {selectedTicket && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 w-full max-w-lg relative">

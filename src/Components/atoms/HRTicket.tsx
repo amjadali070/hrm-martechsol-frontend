@@ -9,7 +9,8 @@ import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 
 interface Ticket {
-  id: number;
+  _id?: string;
+  id?: number;
   date: string;
   subject: string;
   message: string;
@@ -32,6 +33,7 @@ const HRTicket: React.FC = () => {
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
@@ -49,11 +51,23 @@ const HRTicket: React.FC = () => {
             withCredentials: true,
           }
         );
-        setTickets(response.data);
-        setNotFound(response.data.length === 0);
+        const sanitizedTickets = (response.data || []).map(
+          (ticket: Partial<Ticket>) => ({
+            _id: ticket._id,
+            id: ticket._id || ticket.id || Date.now(),
+            date: ticket.date || new Date().toISOString(),
+            subject: ticket.subject || "Untitled Ticket",
+            message: ticket.message || "",
+            status: ticket.status || "Open",
+          })
+        );
+
+        setTickets(sanitizedTickets);
+        setNotFound(sanitizedTickets.length === 0);
       } catch (error) {
         console.error("Error fetching tickets:", error);
         setNotFound(true);
+        setTickets([]);
       } finally {
         setLoading(false);
       }
@@ -97,6 +111,7 @@ const HRTicket: React.FC = () => {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
+      setIsSubmitting(true);
       const response = await axios.post(
         `${backendUrl}/api/hr-tickets`,
         {
@@ -106,13 +121,23 @@ const HRTicket: React.FC = () => {
         { withCredentials: true }
       );
 
-      const newTicket = response.data.hrTicket;
+      const newTicket: Ticket = {
+        ...response.data.hrTicket,
+        id: response.data.hrTicket._id,
+      };
       setTickets((prevTickets) => [newTicket, ...prevTickets]);
+
       setFormData({ subject: "", message: "" });
       toast.success("HR Ticket submitted successfully!");
+
+      setCurrentPage(1);
+      setFilteredStatus("All");
+      setNotFound(false);
     } catch (error) {
       console.error("Error submitting ticket:", error);
       toast.error("Failed to submit HR ticket.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -174,9 +199,14 @@ const HRTicket: React.FC = () => {
 
         <button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all w-auto font-semibold mt-12"
+          disabled={isSubmitting}
+          className={`px-6 py-2 text-white rounded-full transition-all w-auto font-semibold mt-12 ${
+            isSubmitting
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-600 hover:bg-blue-700"
+          }`}
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </form>
 
@@ -215,7 +245,7 @@ const HRTicket: React.FC = () => {
             <FaInbox size={30} className="text-gray-400 mb-4" />
             <span className="text-lg font-medium">No tickets available</span>
           </div>
-        ) : paginatedTickets.length > 0 ? (
+        ) : paginatedTickets && paginatedTickets.length > 0 ? (
           <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
             <colgroup>
               <col style={{ width: "5%" }} />
@@ -245,15 +275,15 @@ const HRTicket: React.FC = () => {
             </thead>
             <tbody>
               {paginatedTickets.map((ticket, index) => (
-                <tr key={ticket.id}>
+                <tr key={ticket.id || index}>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {formatDate(ticket.date)}
+                    {formatDate(ticket.date || new Date().toISOString())}
                   </td>
                   <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.subject}
+                    {ticket.subject || "Untitled Ticket"}
                   </td>
                   <td
                     className={`text-sm px-4 py-2 border text-center ${
@@ -262,7 +292,7 @@ const HRTicket: React.FC = () => {
                         : "text-red-600"
                     }`}
                   >
-                    {ticket.status}
+                    {ticket.status || "Unknown"}
                   </td>
                   <td
                     className="text-sm px-4 py-2 border text-blue-600 cursor-pointer hover:underline text-center"
