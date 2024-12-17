@@ -37,12 +37,12 @@ const menuItems: MenuItem[] = [
     icon: PiNetworkFill,
     label: "Ecosystems",
     path: "/organization",
-    visibleTo: ["HR", "manager", "SuperAdmin"], // Included "manager"
+    visibleTo: ["HR", "manager", "SuperAdmin"],
     subItems: [
       {
         label: "Attendance Management",
         path: "/organization/attendance-management",
-        visibleTo: ["HR", "manager", "SuperAdmin"],
+        visibleTo: ["manager", "SuperAdmin"],
       },
       {
         label: "Employee Management",
@@ -75,6 +75,11 @@ const menuItems: MenuItem[] = [
         visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
+        label: "Team Management",
+        path: "/organization/team-management",
+        visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
         label: "Notice Management",
         path: "/organization/notice-management",
         visibleTo: ["HR", "SuperAdmin"],
@@ -88,6 +93,11 @@ const menuItems: MenuItem[] = [
         label: "Vehical Management",
         path: "/organization/vehical-management",
         visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
+        label: "User Passwords",
+        path: "/organization/user-passwords",
+        visibleTo: ["SuperAdmin"],
       },
     ],
   },
@@ -175,7 +185,6 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
         <FaBars size={24} />
       </button>
 
-      {/* Sidebar */}
       <div
         className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white rounded-none transition-transform duration-300 ease-in-out ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"

@@ -132,6 +132,8 @@ const UserProfileUpdater: React.FC = () => {
     "Vice President",
     "Senior Vice President",
     "President",
+    "Head of Department",
+    "Lead Generation",
   ]);
 
   const tabs = ["View Data", "Edit Data"];

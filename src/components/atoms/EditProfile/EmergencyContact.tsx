@@ -1,13 +1,13 @@
-import React, { useState} from 'react';
-import { FaEdit } from 'react-icons/fa';
+import React, { useState } from "react";
+import { FaEdit } from "react-icons/fa";
 interface EmergencyContactProps {
-    name1: string;
-    relation1: string;
-    contactNumber1: string;
-    name2: string;
-    relation2: string;
-    contactNumber2: string;
-  
+  name1: string;
+  relation1: string;
+  contactNumber1: string;
+  name2: string;
+  relation2: string;
+  contactNumber2: string;
+
   onUpdate: (updatedContacts: {
     name1: string;
     relation1: string;
@@ -24,15 +24,16 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
   contactNumber1,
   name2,
   relation2,
-  contactNumber2, 
-  onUpdate }) => {
+  contactNumber2,
+  onUpdate,
+}) => {
   const [formData, setFormData] = useState({
     name1,
     relation1,
     contactNumber1,
     name2,
     relation2,
-    contactNumber2, 
+    contactNumber2,
   });
   const [isEditing, setIsEditing] = useState(false);
 
@@ -70,38 +71,44 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
         <div className="mb-6 mt-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Name 1</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Name 1
+              </label>
               <input
                 type="text"
                 value={formData.name1}
-                onChange={(e) => handleChange(e, 'name1')}
+                onChange={(e) => handleChange(e, "name1")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number 1</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Contact Number 1
+              </label>
               <input
                 type="text"
                 value={formData.contactNumber1}
-                onChange={(e) => handleChange(e, 'contactNumber1')}
+                onChange={(e) => handleChange(e, "contactNumber1")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Relation 1</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Relation 1
+              </label>
               <input
                 type="text"
                 value={formData.relation1}
-                onChange={(e) => handleChange(e, 'relation1')}
+                onChange={(e) => handleChange(e, "relation1")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>
@@ -111,38 +118,44 @@ const EmergencyContact: React.FC<EmergencyContactProps> = ({
         <div className="mb-6 mt-10">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Name 2</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Name 2
+              </label>
               <input
                 type="text"
                 value={formData.name2}
-                onChange={(e) => handleChange(e, 'name2')}
+                onChange={(e) => handleChange(e, "name2")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Contact Number 2</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Contact Number 2
+              </label>
               <input
                 type="text"
                 value={formData.contactNumber2}
-                onChange={(e) => handleChange(e, 'contactNumber2')}
+                onChange={(e) => handleChange(e, "contactNumber2")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Relation 2</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Relation 2
+              </label>
               <input
                 type="text"
                 value={formData.relation2}
-                onChange={(e) => handleChange(e, 'relation2')}
+                onChange={(e) => handleChange(e, "relation2")}
                 disabled={!isEditing}
                 className={`w-full p-4 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? 'cursor-not-allowed' : ''
+                  !isEditing ? "cursor-not-allowed" : ""
                 }`}
               />
             </div>

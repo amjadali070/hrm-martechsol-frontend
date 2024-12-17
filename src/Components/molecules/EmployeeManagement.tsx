@@ -84,8 +84,8 @@ const EmployeeManagement: React.FC = () => {
     jobTitleFilter,
     jobTypeFilter,
     genderFilter,
-    // searchTerm,
-    // monthFilter,
+    searchTerm,
+    monthFilter,
     backendUrl,
   ]);
 

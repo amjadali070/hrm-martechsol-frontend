@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { FaEdit, FaUserEdit } from "react-icons/fa";
+import { FaEdit } from "react-icons/fa";
 
 const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Account Management": [

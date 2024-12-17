@@ -164,14 +164,11 @@ const ViewAttendance: React.FC = () => {
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
       {loading ? (
-        // Loading State
         <div className="p-20 flex flex-col items-center justify-center">
           <FaSpinner className="text-blue-500 mb-4 animate-spin" size={30} />
-          <span className="text-gray-600">Loading attendance data...</span>
         </div>
       ) : (
         <>
-          {/* Status Indicators */}
           <div className="mt-2 flex justify-center mb-8">
             <div className="w-full">
               <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">

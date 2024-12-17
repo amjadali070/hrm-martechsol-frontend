@@ -180,7 +180,6 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  // Calculate the data to display on the current page
   const paginatedData = filteredAttendanceData.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
@@ -191,7 +190,6 @@ const AttendanceManagement: React.FC = () => {
       {loading && (
         <div className="p-20 flex flex-col items-center justify-center">
           <FaSpinner className="text-blue-500 mb-4 animate-spin" size={30} />
-          <span className="text-gray-600">Loading attendance data...</span>
         </div>
       )}
 

@@ -49,6 +49,7 @@ import AllUpcomingBirthdays from "./Components/atoms/AllUpcomingBirthdays";
 import VehicleManagement from "./Components/molecules/VehicleManagement";
 import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
 import AttendanceManagement from "./Components/molecules/AttendanceManagement";
+import TeamManagement from "./Components/molecules/TeamManagement";
 
 const App: React.FC = () => {
   return (
@@ -166,6 +167,10 @@ const App: React.FC = () => {
                   element={<AttendanceManagement />}
                 />
                 <Route
+                  path="/organization/team-management"
+                  element={<TeamManagement />}
+                />
+                <Route
                   path="/all-anniversaries"
                   element={<AllWorkAnniversaries />}
                 />
@@ -181,7 +186,7 @@ const App: React.FC = () => {
                   path="/letters/experience-letter"
                   element={<ExperienceLetter />}
                 />
-                {/* <Route path="/edit-profile/:id" element={<EditProfilePage />} /> */}
+
                 <Route
                   path="/edit-profile/:id"
                   element={<UserProfileUpdater />}
