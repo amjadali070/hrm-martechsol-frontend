@@ -1,3 +1,5 @@
+// components/LeaveManagement.tsx
+
 import React, { useState, useEffect } from "react";
 import {
   FaFilter,
@@ -11,17 +13,23 @@ import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
 import { formatDate } from "../../utils/formatDate";
+import useUser from "../../hooks/useUser";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-const fetchLeaveRequests = async () => {
+const fetchLeaveRequests = async (userRole: string) => {
   try {
-    const { data } = await axios.get(`${backendUrl}/api/leave-applications`, {
+    const endpoint =
+      userRole === "manager" || userRole === "SuperAdmin"
+        ? `${backendUrl}/api/leave-applications/assigned`
+        : `${backendUrl}/api/leave-applications`; // Regular users fetch their own
+    const { data } = await axios.get(endpoint, {
       withCredentials: true,
     });
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
+    toast.error("Failed to fetch leave requests.");
     return [];
   }
 };
@@ -37,6 +45,7 @@ const approveLeaveRequest = async (id: string, comments?: string) => {
     return data;
   } catch (error) {
     console.error("Error approving leave request", error);
+    toast.error("Failed to approve leave request.");
     throw error;
   }
 };
@@ -52,11 +61,13 @@ const rejectLeaveRequest = async (id: string, comments?: string) => {
     return data;
   } catch (error) {
     console.error("Error rejecting leave request", error);
+    toast.error("Failed to reject leave request.");
     throw error;
   }
 };
 
 const LeaveManagement: React.FC = () => {
+  const { user } = useUser();
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [approvedRequests, setApprovedRequests] = useState<LeaveRequest[]>([]);
   const [rejectedRequests, setRejectedRequests] = useState<LeaveRequest[]>([]);
@@ -82,10 +93,13 @@ const LeaveManagement: React.FC = () => {
 
   useEffect(() => {
     const loadLeaveRequests = async () => {
+      if (!user) {
+        return;
+      }
       try {
         setIsLoading(true);
 
-        const requests = await fetchLeaveRequests();
+        const requests = await fetchLeaveRequests(user.role);
         const pendingRequests = requests.filter(
           (req: LeaveRequest) => req.status === "Pending"
         );
@@ -107,7 +121,7 @@ const LeaveManagement: React.FC = () => {
     };
 
     loadLeaveRequests();
-  }, []);
+  }, [user]);
 
   const handleConfirmAction = async () => {
     if (selectedRequest && modalType) {
@@ -169,6 +183,8 @@ const LeaveManagement: React.FC = () => {
       case "rejected":
         request = rejectedRequests.find((req) => req._id === id);
         break;
+      default:
+        request = undefined;
     }
 
     if (request && request.handoverDocument) {
@@ -280,7 +296,9 @@ const LeaveManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Pending Leave Requests */}
       <div className="overflow-x-auto mb-6">
+        <h2 className="text-xl font-bold mb-4">Pending Leaves</h2>
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-purple-900">
             <tr>
@@ -430,8 +448,9 @@ const LeaveManagement: React.FC = () => {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold mb-4">Approved Leaves</h2>
+      {/* Approved Leave Requests */}
       <div className="overflow-x-auto mb-6">
+        <h2 className="text-xl font-bold mb-4">Approved Leaves</h2>
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-green-600">
             <tr>
@@ -462,7 +481,7 @@ const LeaveManagement: React.FC = () => {
               paginatedApprovedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {index + 1}
+                    {index + 1 + (approvedPage - 1) * itemsPerPage}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800">
                     {request.user.name}
@@ -573,8 +592,9 @@ const LeaveManagement: React.FC = () => {
         </div>
       </div>
 
-      <h2 className="text-xl font-bold mb-4">Rejected Leaves</h2>
+      {/* Rejected Leave Requests */}
       <div className="overflow-x-auto">
+        <h2 className="text-xl font-bold mb-4">Rejected Leaves</h2>
         <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
           <thead className="bg-red-600">
             <tr>
@@ -605,7 +625,7 @@ const LeaveManagement: React.FC = () => {
               paginatedRejectedRequests.map((request, index) => (
                 <tr key={request._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {index + 1}
+                    {index + 1 + (rejectedPage - 1) * itemsPerPage}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800">
                     {request.user.name}
@@ -716,12 +736,13 @@ const LeaveManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* View PDF Modal */}
       {modalType === "viewPDF" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-[80%] h-[80%] relative">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-[120px] text-white z-10"
+              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
             >
               <FaTimes size={24} />
             </button>
@@ -734,9 +755,16 @@ const LeaveManagement: React.FC = () => {
         </div>
       )}
 
+      {/* Approve/Reject/Edit Modal */}
       {modalType && selectedRequest && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg">
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-lg relative">
+            <button
+              onClick={closeModal}
+              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
+            >
+              <FaTimes size={24} />
+            </button>
             <h2 className="text-lg font-bold mb-4">
               {modalType === "approve"
                 ? "Approve Leave Request"
@@ -789,13 +817,24 @@ const LeaveManagement: React.FC = () => {
                   Leave Type
                 </label>
                 <select
-                  value={newLeaveType}
+                  value={newLeaveType || selectedRequest.leaveType}
                   onChange={(e) => setNewLeaveType(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg p-2 mb-4"
                 >
-                  <option value="Sick Leave">Sick Leave</option>
+                  <option value="">Select Leave Type</option>
                   <option value="Casual Leave">Casual Leave</option>
+                  <option value="Sick Leave">Sick Leave</option>
                   <option value="Annual Leave">Annual Leave</option>
+                  <option value="Maternity Leave">Maternity Leave</option>
+                  <option value="Paternity Leave">Paternity Leave</option>
+                  <option value="Bereavement Leave">Bereavement Leave</option>
+                  <option value="Hajj Leave">Hajj Leave</option>
+                  <option value="Unauthorized Leaves">
+                    Unauthorized Leaves
+                  </option>
+                  <option value="Unapproved Absence Without Pay">
+                    Unapproved Absence Without Pay
+                  </option>
                 </select>
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -845,7 +884,7 @@ const LeaveManagement: React.FC = () => {
                 </label>
                 <input
                   type="date"
-                  value={selectedRequest.returnToWork}
+                  value={formatDate(selectedRequest.returnToWork)}
                   onChange={(e) =>
                     setSelectedRequest((prev) =>
                       prev ? { ...prev, returnToWork: e.target.value } : null
@@ -874,6 +913,7 @@ const LeaveManagement: React.FC = () => {
         </div>
       )}
 
+      {/* Edit Leave Request Modal */}
       {editModalOpen && selectedRequest && (
         <EditLeaveRequestModal
           selectedRequest={selectedRequest}

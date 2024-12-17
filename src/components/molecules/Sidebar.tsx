@@ -77,7 +77,7 @@ const menuItems: MenuItem[] = [
       {
         label: "Team Management",
         path: "/organization/team-management",
-        visibleTo: ["HR", "SuperAdmin"],
+        visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
         label: "Notice Management",

@@ -20,7 +20,7 @@ interface User {
 }
 
 interface AttendanceTicket {
-  id: string;
+  _id: string;
   date: string;
   user: User;
   status: AttendanceTicketStatus;

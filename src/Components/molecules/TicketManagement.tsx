@@ -159,7 +159,9 @@ const TicketManagement: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="w-full flex flex-col items-center">
+        <div className="w-full flex flex-col items-start">
+          {" "}
+          {/* Change items-center to items-start */}
           {selectedTicketType === "Attendance" && (
             <AttendanceTicketManagement />
           )}

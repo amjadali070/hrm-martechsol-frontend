@@ -6,7 +6,7 @@ import DocumentViewerModal from "../atoms/DocumentViewerModal";
 import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 
 interface AttendanceTicket {
-  id: string;
+  _id: string; // Change 'id' to '_id'
   date: string;
   timeIn: string;
   timeOut: string;
@@ -53,11 +53,12 @@ const AttendanceTicketManagement: React.FC = () => {
       try {
         setLoading(true);
         const response = await axios.get(
-          `${backendUrl}/api/attendance-tickets`,
+          `${backendUrl}/api/attendance-tickets/assigned`,
           {
             withCredentials: true,
           }
         );
+
         setAttendanceTickets(response.data);
         setNotFound(response.data.length === 0);
       } catch (error) {
@@ -106,13 +107,16 @@ const AttendanceTicketManagement: React.FC = () => {
 
       setAttendanceTickets((prev) =>
         prev.map((ticket) =>
-          ticket.id === id
+          ticket._id === id
             ? { ...ticket, status: response.data.ticket.status }
             : ticket
         )
       );
-    } catch (error) {
+    } catch (error: any) {
+      // Use 'any' or a proper type
       console.error("Error updating attendance ticket status:", error);
+      // Optionally, display an error message to the user
+      alert(error.response?.data?.message || "An error occurred.");
     }
   };
 
@@ -268,7 +272,7 @@ const AttendanceTicketManagement: React.FC = () => {
               </tr>
             ) : currentTickets.length > 0 ? (
               currentTickets.map((ticket, index) => (
-                <tr key={ticket.id} className="hover:bg-gray-100">
+                <tr key={ticket._id} className="hover:bg-gray-100">
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
@@ -298,13 +302,13 @@ const AttendanceTicketManagement: React.FC = () => {
                     {ticket.status === "Open" && (
                       <>
                         <button
-                          onClick={() => handleAction(ticket.id, "approve")}
+                          onClick={() => handleAction(ticket._id, "approve")} // Use _id here
                           className="px-1.5 py-0.5 text-xs text-white bg-green-600 rounded-full hover:bg-green-700"
                         >
                           Approve
                         </button>
                         <button
-                          onClick={() => handleAction(ticket.id, "reject")}
+                          onClick={() => handleAction(ticket._id, "reject")} // Use _id here
                           className="px-1.5 py-0.5 text-xs text-white bg-red-600 rounded-full hover:bg-red-700"
                         >
                           Reject
