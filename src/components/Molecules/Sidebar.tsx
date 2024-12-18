@@ -90,8 +90,8 @@ const menuItems: MenuItem[] = [
         visibleTo: ["SuperAdmin"],
       },
       {
-        label: "Vehical Management",
-        path: "/organization/vehical-management",
+        label: "Vehicle Management",
+        path: "/organization/vehicle-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {

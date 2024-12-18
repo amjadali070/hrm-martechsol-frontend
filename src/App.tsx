@@ -160,7 +160,7 @@ const App: React.FC = () => {
                   element={<FormsManagement />}
                 />
                 <Route
-                  path="/organization/vehical-management"
+                  path="/organization/vehicle-management"
                   element={<VehicleManagement />}
                 />
                 <Route
