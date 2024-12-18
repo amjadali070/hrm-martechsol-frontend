@@ -31,6 +31,7 @@ const departmentOptions = [
   "Finance",
   "Brand Development",
   "Corporate Communication",
+  "Lead Generation",
 ];
 
 const jobTitleOptions = [
@@ -46,7 +47,7 @@ const jobTitleOptions = [
   "Senior Vice President",
   "President",
   "Head of Department",
-  "Lead Generation",
+  "Head Of Project Management",
 ];
 
 const additionalShiftTimings = [
@@ -284,7 +285,6 @@ const UserShiftManagement: React.FC = () => {
                       className="text-blue-500 mb-4 animate-spin"
                       size={30}
                     />
-                    <span>Loading...</span>
                   </div>
                 </td>
               </tr>

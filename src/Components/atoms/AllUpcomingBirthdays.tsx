@@ -19,6 +19,7 @@ interface User {
     department: string;
     jobTitle: string;
   };
+  nextBirthday: string;
 }
 
 const AllUpcomingBirthdays: React.FC = () => {
@@ -45,7 +46,7 @@ const AllUpcomingBirthdays: React.FC = () => {
     "Senior Vice President",
     "President",
     "Head of Department",
-    "Lead Generation",
+    "Head Of Project Management",
   ];
 
   const departmentOptions = [
@@ -66,6 +67,7 @@ const AllUpcomingBirthdays: React.FC = () => {
     "Finance",
     "Brand Development",
     "Corporate Communication",
+    "Lead Generation",
   ];
 
   useEffect(() => {
@@ -74,7 +76,9 @@ const AllUpcomingBirthdays: React.FC = () => {
       try {
         const { data } = await axios.get(
           `${backendUrl}/api/users/upcoming-birthdays`,
-          { withCredentials: true }
+          {
+            withCredentials: true,
+          }
         );
 
         if (data.upcomingBirthdays) {
@@ -225,7 +229,6 @@ const AllUpcomingBirthdays: React.FC = () => {
         <div className="flex flex-col items-center">
           <FaInbox size={30} className="text-gray-400 mb-4" />
           <span className="text-lg font-medium">
-            {" "}
             No upcoming birthdays found.
           </span>
         </div>

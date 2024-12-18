@@ -60,8 +60,10 @@ interface ApiResponse {
 
 const AttendanceManagement: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
-  const [filteredAttendanceData, setFilteredAttendanceData] = useState<Attendance[]>([]);
-  
+  const [filteredAttendanceData, setFilteredAttendanceData] = useState<
+    Attendance[]
+  >([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
@@ -89,7 +91,7 @@ const AttendanceManagement: React.FC = () => {
     "Senior Vice President",
     "President",
     "Head of Department",
-    "Lead Generation",
+    "Head Of Project Management",
   ];
 
   const debouncedSearchName = useDebounce(searchName, 300);
@@ -100,23 +102,23 @@ const AttendanceManagement: React.FC = () => {
       setLoading(false);
       return;
     }
-  
+
     setLoading(true);
     try {
       if (!user_Id) {
         throw new Error("User not found");
       }
-  
+
       const params: Record<string, any> = {};
-  
+
       if (fromDate) params.startDate = fromDate;
       if (toDate) params.endDate = toDate;
       if (typeFilter && typeFilter !== "All") params.types = typeFilter;
-  
+
       // Pagination parameters
       params.page = 1; // Always fetch from the first page when primary filters change
       params.limit = 1000; // Fetch a large number to handle frontend pagination
-  
+
       const { data } = await axiosInstance.get<ApiResponse>(
         `${backendUrl}/api/attendance`,
         {
@@ -124,7 +126,7 @@ const AttendanceManagement: React.FC = () => {
         }
       );
       let fetchedData = data.attendances || []; // Changed from data.timeLogs to data.attendances
-  
+
       setAttendanceData(fetchedData);
     } catch (error: any) {
       const errorMessage =
@@ -135,8 +137,6 @@ const AttendanceManagement: React.FC = () => {
       setLoading(false);
     }
   }, [backendUrl, user_Id, fromDate, toDate, typeFilter]);
-  
-  
 
   // Fetch attendance data when primary filters change
   useEffect(() => {
@@ -177,10 +177,12 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  const paginatedData = filteredAttendanceData ? filteredAttendanceData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  ) : [];
+  const paginatedData = filteredAttendanceData
+    ? filteredAttendanceData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
 
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
@@ -322,9 +324,8 @@ const AttendanceManagement: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-  {paginatedData && paginatedData.length > 0 ? (
-    paginatedData.map((record) => (
-
+                {paginatedData && paginatedData.length > 0 ? (
+                  paginatedData.map((record) => (
                     <tr key={record._id} className="hover:bg-gray-50">
                       <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {record.user.name}
@@ -362,23 +363,22 @@ const AttendanceManagement: React.FC = () => {
                       </td>
                     </tr>
                   ))
-                  ) : (
-                    <tr>
-                      <td
-                        className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
-                        colSpan={6}
-                      >
-                        <div className="flex flex-col items-center justify-center">
-                          <FaInbox size={30} className="text-gray-400 mb-2" />
-                          <span className="text-md font-medium">
-                            No records found.
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  </tbody>
-          
+                ) : (
+                  <tr>
+                    <td
+                      className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
+                      colSpan={6}
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <FaInbox size={30} className="text-gray-400 mb-2" />
+                        <span className="text-md font-medium">
+                          No records found.
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
 
