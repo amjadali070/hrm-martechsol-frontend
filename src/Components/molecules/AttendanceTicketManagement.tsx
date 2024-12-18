@@ -16,7 +16,9 @@ interface AttendanceTicket {
   user: {
     id: string;
     name: string;
-    abbreviatedJobTitle: string;
+    personalDetails: {
+      abbreviatedJobTitle: string;
+    };
   };
   workLocation: "Remote" | "On-site";
   comments: string;
@@ -287,7 +289,7 @@ const AttendanceTicketManagement: React.FC = () => {
                     {ticket.user.name}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.user.abbreviatedJobTitle}
+                    {ticket.user.personalDetails.abbreviatedJobTitle}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {formatTime(ticket.timeIn)}
