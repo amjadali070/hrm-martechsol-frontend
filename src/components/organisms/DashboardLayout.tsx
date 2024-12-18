@@ -1,5 +1,3 @@
-// DashboardLayout.tsx
-
 import React, { useContext } from "react";
 import { useNavigate } from "react-router";
 import profilePlaceHolder from "../../assets/placeholder.png";
@@ -12,13 +10,28 @@ import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
 import { AuthContext } from "../organisms/AuthContext"; // Import AuthContext
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
+import { FaSpinner } from "react-icons/fa";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useContext(AuthContext); // Use AuthContext
+  const { user } = useContext(AuthContext);
+
+  if (!user) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="flex flex-col items-center justify-center mt-20 mb-20">
+          <FaSpinner
+            size={30}
+            className="animate-spin text-blue-600 mb-2"
+            aria-hidden="true"
+          />
+        </div>
+      </div>
+    );
+  }
 
   const authorizedRoles = ["HR", "SuperAdmin"];
-  const isAuthorized = authorizedRoles.includes(user?.role || "");
+  const isAuthorized = authorizedRoles.includes(user.role || "");
 
   const actions = [
     {
@@ -53,10 +66,10 @@ const DashboardLayout: React.FC = () => {
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
       <ProfileCard
-        name={user?.name || "N/A"}
-        jobTitle={user?.personalDetails?.abbreviatedJobTitle || "N/A"}
-        imageSrc={user?.personalDetails?.profilePicture || profilePlaceHolder}
-        userShift={user?.personalDetails?.shiftTimings || "N/A"}
+        name={user.name}
+        jobTitle={user.personalDetails?.abbreviatedJobTitle || "N/A"}
+        imageSrc={user.personalDetails?.profilePicture || profilePlaceHolder}
+        userShift={user.personalDetails?.shiftTimings || "N/A"}
       />
 
       <QuickActions actions={actions} />
