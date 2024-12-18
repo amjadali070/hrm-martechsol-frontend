@@ -50,6 +50,7 @@ import VehicleManagement from "./Components/molecules/VehicleManagement";
 import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
 import AttendanceManagement from "./Components/molecules/AttendanceManagement";
 import TeamManagement from "./Components/molecules/TeamManagement";
+import AutoRefresh from "./Components/organisms/utoRefresh";
 
 const App: React.FC = () => {
   return (
@@ -204,6 +205,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
           <ToastContainer position="top-center" />
+          <AutoRefresh intervalInMinutes={10} />
         </BrowserRouter>
       </div>
     </AuthProvider>

@@ -1,4 +1,6 @@
-import React from "react";
+// DashboardLayout.tsx
+
+import React, { useContext } from "react";
 import { useNavigate } from "react-router";
 import profilePlaceHolder from "../../assets/placeholder.png";
 import Announcements from "../atoms/Announcements";
@@ -7,16 +9,15 @@ import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
-import useUser from "../../hooks/useUser";
+import { AuthContext } from "../organisms/AuthContext"; // Import AuthContext
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
-  const { user } = useUser();
+  const { user } = useContext(AuthContext); // Use AuthContext
 
   const authorizedRoles = ["HR", "SuperAdmin"];
-
   const isAuthorized = authorizedRoles.includes(user?.role || "");
 
   const actions = [

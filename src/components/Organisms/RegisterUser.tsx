@@ -61,7 +61,7 @@ const RegisterUser: React.FC = () => {
         _id: string;
         name: string;
         email: string;
-        role: string;
+        role: "normal" | "HR" | "manager" | "SuperAdmin";
       }
 
       const { data } = await axiosInstance.post<UserResponse>(
