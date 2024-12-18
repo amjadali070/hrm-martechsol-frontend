@@ -1,5 +1,3 @@
-// src/components/Header.tsx
-
 import React, { useState, useEffect, useRef } from "react";
 import MarTechLogo from "../../assets/LogoMartechSol.png";
 import { IoNotificationsSharp } from "react-icons/io5";
@@ -15,13 +13,13 @@ import axiosInstance from "../../utils/axiosConfig";
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
   const [timer, setTimer] = useState(0);
+  const [timeStatusChecked, setTimeStatusChecked] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { user, loading } = useUser();
   const { notifications, unreadCount, markAsRead, fetchNotifications } =
     useNotifications(user?._id);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   /**
@@ -57,7 +55,6 @@ const Header: React.FC = () => {
 
   /**
    * Checks the current time log status of the user.
-   * Determines if the user is currently timed in and starts the timer accordingly.
    */
   const checkTimeLogStatus = async () => {
     if (!user?._id) return;
@@ -68,7 +65,6 @@ const Header: React.FC = () => {
       const endDate = new Date();
       endDate.setHours(23, 59, 59, 999);
 
-      // Updated API endpoint to match backend routes
       const response = await axiosInstance.get(
         `${backendUrl}/api/attendance/user/${user._id}`,
         {
@@ -76,11 +72,11 @@ const Header: React.FC = () => {
             startDate: startDate.toISOString(),
             endDate: endDate.toISOString(),
           },
-          withCredentials: true, // Ensures cookies are sent with the request
+          withCredentials: true,
         }
       );
 
-      const todayLogs = response.data; // Assuming the backend returns an array of TimeLogs
+      const todayLogs = response.data;
       const activeLog = todayLogs.find(
         (log: { timeOut: string | null }) => !log.timeOut
       );
@@ -95,18 +91,25 @@ const Header: React.FC = () => {
           : 0;
         startTimer(elapsedTime);
       }
+
+      // Mark that we've checked the time status
+      setTimeStatusChecked(true);
     } catch (error: any) {
       console.error("Error checking time log status:", error);
-      // Display error message based on backend response
       const errorMessage =
         error.response?.data?.message || "Failed to retrieve time log status";
       toast.error(errorMessage);
+      setTimeStatusChecked(true);
     }
   };
 
   useEffect(() => {
-    if (!loading) {
+    if (!loading && user) {
       checkTimeLogStatus();
+    } else if (!loading && !user) {
+      // If user is not fetched (null) after loading,
+      // mark time status as checked so we don't wait indefinitely.
+      setTimeStatusChecked(true);
     }
 
     return () => {
@@ -119,7 +122,6 @@ const Header: React.FC = () => {
 
   /**
    * Handles toggling between Time In and Time Out.
-   * Updates the UI and starts/stops the timer accordingly.
    */
   const handleTimeToggle = async () => {
     if (!user?._id) {
@@ -129,7 +131,6 @@ const Header: React.FC = () => {
 
     try {
       if (isTimedIn) {
-        // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
           `${backendUrl}/api/attendance/time-out`,
           { userId: user._id },
@@ -144,7 +145,6 @@ const Header: React.FC = () => {
           toast.warning("Successfully Timed Out.");
         }
       } else {
-        // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
           `${backendUrl}/api/attendance/time-in`,
           { userId: user._id },
@@ -158,7 +158,6 @@ const Header: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error logging time:", error);
-      // Display error message based on backend response
       const errorMessage =
         error.response?.data?.message ||
         "An error occurred while trying to clock in/out.";
@@ -168,7 +167,6 @@ const Header: React.FC = () => {
 
   /**
    * Handles logging out the user.
-   * Clears the session and redirects to the login page.
    */
   const handleLogout = async () => {
     try {
@@ -181,7 +179,6 @@ const Header: React.FC = () => {
       toast.success("Logged out successfully.");
     } catch (error: any) {
       console.error("Logout failed:", error);
-      // Display error message based on backend response
       const errorMessage =
         error.response?.data?.message || "Logout failed. Please try again.";
       toast.error(errorMessage);
@@ -215,104 +212,121 @@ const Header: React.FC = () => {
               className="h-6 w-auto sm:h-5 md:h-10"
             />
           </div>
-          {/* Action Buttons */}
+
           <div className="flex flex-wrap gap-1 justify-end items-center md:flex-nowrap md:space-x-3">
             {/* Notification Button */}
-            <button
-              onClick={handleOpenModal}
-              className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
-              aria-label="Notifications"
-            >
-              <IoNotificationsSharp size={20} />
-              {unreadCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
-                  {unreadCount}
-                </span>
-              )}
-            </button>
-            {/* Notification Modal */}
-            <NotificationModal
-              isOpen={isModalOpen}
-              onClose={handleCloseModal}
-              notifications={notifications}
-              markAsRead={async (notificationId: string) => {
-                await markAsRead(notificationId);
-                await fetchNotifications();
-              }}
-            />
-
-            {/* Timer Display when Timed In */}
-            {isTimedIn && (
-              <div className="flex items-center">
-                <div
-                  style={{
-                    position: "relative",
-                    width: "100%",
-                    maxWidth: "200px",
-                    height: "7px",
-                    backgroundColor: "#22C55E",
-                    borderRadius: "9999px",
-                    overflow: "hidden",
-                  }}
+            {!loading && user && (
+              <>
+                <button
+                  onClick={handleOpenModal}
+                  className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
+                  aria-label="Notifications"
                 >
-                  <div
-                    style={{
-                      position: "absolute",
-                      left: 0,
-                      top: 0,
-                      height: "100%",
-                      width: `${((timer % 3600) / 3600) * 100}%`,
-                      background: "#22C55E",
-                      transition: "width 0.5s ease-in-out",
-                    }}
-                  ></div>
-                </div>
-
-                <div
-                  style={{
-                    background: "#22C55E",
-                    color: "white",
-                    borderRadius: "9999px",
-                    padding: "5px 16px",
-                    fontFamily: "'Roboto Mono', monospace",
-                    fontSize: "1.25rem",
-                    fontWeight: "bold",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    animation: "pulse 1.5s infinite",
+                  <IoNotificationsSharp size={20} />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationModal
+                  isOpen={isModalOpen}
+                  onClose={handleCloseModal}
+                  notifications={notifications}
+                  markAsRead={async (notificationId: string) => {
+                    await markAsRead(notificationId);
+                    await fetchNotifications();
                   }}
-                >
-                  {formatTime(timer)}
-                </div>
-              </div>
+                />
+              </>
             )}
 
-            {/* Time In/Out Button */}
-            <button
-              onClick={handleTimeToggle}
-              className={`flex items-center w-25 gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
-                isTimedIn
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
-            >
-              {isTimedIn ? (
-                <MdOutlineTimerOff size={18} />
-              ) : (
-                <MdOutlineMoreTime size={18} />
-              )}
-              <span>{isTimedIn ? "Time Out" : "Time In"}</span>
-            </button>
+            {/* Render timer and time buttons only after time status is checked */}
+            {!loading && user && timeStatusChecked && (
+              <>
+                {/* Timer Display when Timed In */}
+                {isTimedIn && (
+                  <div className="flex items-center">
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        maxWidth: "200px",
+                        height: "7px",
+                        backgroundColor: "#22C55E",
+                        borderRadius: "9999px",
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          height: "100%",
+                          width: `${((timer % 3600) / 3600) * 100}%`,
+                          background: "#22C55E",
+                          transition: "width 0.5s ease-in-out",
+                        }}
+                      ></div>
+                    </div>
+
+                    <div
+                      style={{
+                        background: "#22C55E",
+                        color: "white",
+                        borderRadius: "9999px",
+                        padding: "5px 16px",
+                        fontFamily: "'Roboto Mono', monospace",
+                        fontSize: "1.25rem",
+                        fontWeight: "bold",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        animation: "pulse 1.5s infinite",
+                      }}
+                    >
+                      {formatTime(timer)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Time In/Out Button */}
+                <button
+                  onClick={handleTimeToggle}
+                  className={`flex items-center w-25 gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
+                    isTimedIn
+                      ? "bg-red-600 hover:bg-red-700"
+                      : "bg-green-600 hover:bg-green-700"
+                  }`}
+                >
+                  {isTimedIn ? (
+                    <>
+                      <MdOutlineTimerOff size={18} />
+                      <span>Time Out</span>
+                    </>
+                  ) : (
+                    <>
+                      <MdOutlineMoreTime size={18} />
+                      <span>Time In</span>
+                    </>
+                  )}
+                </button>
+              </>
+            )}
 
             {/* Logout Button */}
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"
-            >
-              <RiLogoutCircleRLine size={18} />
-              <span>Log Out</span>
-            </button>
+            {!loading && user && (
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"
+              >
+                <RiLogoutCircleRLine size={18} />
+                <span>Log Out</span>
+              </button>
+            )}
+
+            {loading && <div className="text-gray-500"></div>}
           </div>
         </div>
       </div>

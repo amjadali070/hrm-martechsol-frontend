@@ -50,7 +50,7 @@ import VehicleManagement from "./Components/molecules/VehicleManagement";
 import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
 import AttendanceManagement from "./Components/molecules/AttendanceManagement";
 import TeamManagement from "./Components/molecules/TeamManagement";
-import AutoRefresh from "./Components/organisms/utoRefresh";
+import AutoRefresh from "./Components/organisms/AutoRefresh";
 
 const App: React.FC = () => {
   return (
