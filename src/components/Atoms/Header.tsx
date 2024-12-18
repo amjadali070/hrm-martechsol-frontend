@@ -70,7 +70,7 @@ const Header: React.FC = () => {
 
       // Updated API endpoint to match backend routes
       const response = await axiosInstance.get(
-        `${backendUrl}/api/time-log/user/${user._id}`,
+        `${backendUrl}/api/attendance/user/${user._id}`,
         {
           params: {
             startDate: startDate.toISOString(),
@@ -131,7 +131,7 @@ const Header: React.FC = () => {
       if (isTimedIn) {
         // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
-          `${backendUrl}/api/time-log/time-out`,
+          `${backendUrl}/api/attendance/time-out`,
           { userId: user._id },
           { withCredentials: true }
         );
@@ -146,7 +146,7 @@ const Header: React.FC = () => {
       } else {
         // Updated API endpoint to match backend routes
         const response = await axiosInstance.post(
-          `${backendUrl}/api/time-log/time-in`,
+          `${backendUrl}/api/attendance/time-in`,
           { userId: user._id },
           { withCredentials: true }
         );
