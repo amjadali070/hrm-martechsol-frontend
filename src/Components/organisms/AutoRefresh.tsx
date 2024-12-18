@@ -1,5 +1,3 @@
-// Enhanced AutoRefresh.tsx
-
 import React, { useEffect, useState } from "react";
 
 interface AutoRefreshProps {
@@ -42,14 +40,14 @@ const AutoRefresh: React.FC<AutoRefreshProps> = ({
   if (!showWarning) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded shadow-lg">
-      <p>Your session will refresh in {timeLeft} seconds.</p>
+    <div className="">
+      {/* <p>Your session will refresh in {timeLeft} seconds.</p>
       <button
         onClick={() => window.location.reload()}
         className="mt-2 bg-yellow-500 text-white px-3 py-1 rounded"
       >
         Refresh Now
-      </button>
+      </button> */}
     </div>
   );
 };
