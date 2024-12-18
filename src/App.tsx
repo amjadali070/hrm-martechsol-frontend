@@ -205,7 +205,7 @@ const App: React.FC = () => {
             </Route>
           </Routes>
           <ToastContainer position="top-center" />
-          <AutoRefresh intervalInMinutes={1} />
+          <AutoRefresh intervalInMinutes={30} />
         </BrowserRouter>
       </div>
     </AuthProvider>

@@ -4,6 +4,8 @@ import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
 import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
+import { toast } from "react-toastify";
+import { formatTime } from "../../utils/formateTime";
 
 interface AttendanceTicket {
   _id: string; // Change 'id' to '_id'
@@ -52,7 +54,7 @@ const AttendanceTicketManagement: React.FC = () => {
     const fetchAttendanceTickets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
+        const response = await axios.get<AttendanceTicket[]>(
           `${backendUrl}/api/attendance-tickets/assigned`,
           {
             withCredentials: true,
@@ -101,7 +103,7 @@ const AttendanceTicketManagement: React.FC = () => {
     try {
       const response = await axios.put(
         `${backendUrl}/api/attendance-tickets/${id}/status`,
-        { status: action === "approve" ? "Closed" : "Rejected" },
+        { status: action === "approve" ? "Approved" : "Rejected" },
         { withCredentials: true }
       );
 
@@ -112,11 +114,13 @@ const AttendanceTicketManagement: React.FC = () => {
             : ticket
         )
       );
+
+      toast.success(
+        `Ticket ${action === "approve" ? "approved" : "rejected"} successfully.`
+      );
     } catch (error: any) {
-      // Use 'any' or a proper type
       console.error("Error updating attendance ticket status:", error);
-      // Optionally, display an error message to the user
-      alert(error.response?.data?.message || "An error occurred.");
+      toast.error(error.response?.data?.message || "An error occurred.");
     }
   };
 
@@ -286,10 +290,10 @@ const AttendanceTicketManagement: React.FC = () => {
                     {ticket.user.abbreviatedJobTitle}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.timeIn}
+                    {formatTime(ticket.timeIn)}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.timeOut}
+                    {formatTime(ticket.timeOut)}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.totalTime}
@@ -302,20 +306,19 @@ const AttendanceTicketManagement: React.FC = () => {
                     {ticket.status === "Open" && (
                       <>
                         <button
-                          onClick={() => handleAction(ticket._id, "approve")} // Use _id here
+                          onClick={() => handleAction(ticket._id, "approve")}
                           className="px-1.5 py-0.5 text-xs text-white bg-green-600 rounded-full hover:bg-green-700"
                         >
                           Approve
                         </button>
                         <button
-                          onClick={() => handleAction(ticket._id, "reject")} // Use _id here
+                          onClick={() => handleAction(ticket._id, "reject")}
                           className="px-1.5 py-0.5 text-xs text-white bg-red-600 rounded-full hover:bg-red-700"
                         >
                           Reject
                         </button>
                       </>
                     )}
-
                     {ticket.status !== "Open" && (
                       <span
                         className={`text-xs mr-2 ${
