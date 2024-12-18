@@ -86,7 +86,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       setLoading(true);
       try {
         const { data } = await axiosInstance.get(
-          `${backendUrl}/api/time-log/user/${user._id}`,
+          `${backendUrl}/api/attendance/user/${user._id}`,
           {
             withCredentials: true,
             params: {
@@ -94,7 +94,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             },
           }
         );
-        // Ensure only 3 records are shown
         setAttendanceRecords(data.slice(0, 3));
       } catch (error) {
         console.error("Error fetching attendance:", error);
