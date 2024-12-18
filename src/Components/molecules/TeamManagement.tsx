@@ -42,11 +42,15 @@ const TeamManagement: React.FC = () => {
   const [viewModal, setViewModal] = useState<{
     isOpen: boolean;
     managerId?: string;
-  }>({ isOpen: false });
+  }>({
+    isOpen: false,
+  });
   const [assignModal, setAssignModal] = useState<{
     isOpen: boolean;
     managerId?: string;
-  }>({ isOpen: false });
+  }>({
+    isOpen: false,
+  });
   const [loading, setLoading] = useState<boolean>(true);
   const [userLoading, setUserLoading] = useState<boolean>(true);
   const [assignedUsers, setAssignedUsers] = useState<TeamMember[]>([]);
@@ -129,9 +133,17 @@ const TeamManagement: React.FC = () => {
           withCredentials: true,
         }
       );
-      setAssignedUsers(response.data || []);
+
+      if (Array.isArray(response.data) && response.data.length > 0) {
+        setAssignedUsers(response.data);
+      } else {
+        // If no data or empty array returned
+        setAssignedUsers([]);
+      }
     } catch (error) {
       console.error("Error fetching assigned users:", error);
+      // If an error occurs or no assigned members found, clear previous data
+      setAssignedUsers([]);
     } finally {
       setViewLoading(false);
     }
