@@ -40,9 +40,12 @@ const NetworkTicketManagement: React.FC = () => {
     const fetchNetworkTickets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${backendUrl}/api/network-tickets/`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${backendUrl}/api/network-tickets/all`,
+          {
+            withCredentials: true,
+          }
+        );
         setNetworkTickets(response.data);
         setNotFound(response.data.length === 0);
       } catch (error) {

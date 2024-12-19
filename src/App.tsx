@@ -50,6 +50,8 @@ import VehicleManagement from "./Components/molecules/VehicleManagement";
 import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
 import AttendanceManagement from "./Components/molecules/AttendanceManagement";
 import TeamManagement from "./Components/molecules/TeamManagement";
+import CreateNotice from "./Components/atoms/notices/CreateNotice";
+import AttendanceManager from "./Components/atoms/AttendanceManager";
 
 const App: React.FC = () => {
   return (
@@ -199,6 +201,13 @@ const App: React.FC = () => {
                   path="/notification-detail"
                   element={<NotificationDetailPage />}
                 />
+                <Route path="/notices/create" element={<CreateNotice />} />
+
+                <Route
+                  path="/organization/attendance-manager"
+                  element={<AttendanceManager />}
+                />
+
                 <Route path="*" element={<NotFound />} />
               </Route>
             </Route>

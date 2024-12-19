@@ -37,7 +37,7 @@ const menuItems: MenuItem[] = [
     icon: PiNetworkFill,
     label: "Ecosystems",
     path: "/organization",
-    visibleTo: ["HR", "manager", "SuperAdmin"],
+    visibleTo: ["HR", "manager", "SuperAdmin", "test"],
     subItems: [
       {
         label: "Attendance Management",
@@ -94,10 +94,15 @@ const menuItems: MenuItem[] = [
         path: "/organization/vehicle-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
+      // {
+      //   label: "User Passwords",
+      //   path: "/organization/user-passwords",
+      //   visibleTo: ["SuperAdmin"],
+      // },
       {
-        label: "User Passwords",
-        path: "/organization/user-passwords",
-        visibleTo: ["SuperAdmin"],
+        label: "Attendance Manager",
+        path: "/organization/attendance-manager",
+        visibleTo: ["test"],
       },
     ],
   },

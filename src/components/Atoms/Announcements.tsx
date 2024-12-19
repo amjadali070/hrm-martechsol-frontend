@@ -81,7 +81,7 @@ const Announcements: React.FC = () => {
     setHighlightedId(null);
   };
 
-  const handleViewAll = () => navigate("/announcements");
+  const handleViewAll = () => navigate("/notifications");
 
   if (error) {
     return (
@@ -164,9 +164,12 @@ const Announcements: React.FC = () => {
             <p className="mb-4 text-gray-700">
               <strong>Date:</strong> {formatDate(selectedAnnouncement.date)}
             </p>
-            <p className="mb-4 text-gray-700">
-              <strong>Message:</strong> {selectedAnnouncement.paragraph}
-            </p>
+            <div
+              className="mb-4 text-gray-700"
+              dangerouslySetInnerHTML={{
+                __html: selectedAnnouncement.paragraph,
+              }}
+            />
           </div>
         </div>
       )}

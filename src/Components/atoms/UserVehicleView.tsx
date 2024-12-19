@@ -75,14 +75,14 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
             />
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center p-6">
             <FaInbox size={30} className="text-gray-400 mb-4" />
             <span className="text-lg font-medium">
               No vehicles assigned to you.
             </span>
           </div>
         ) : vehicles.length === 0 ? (
-          <div className="flex flex-col items-center">
+          <div className="flex flex-col items-center p-6">
             <FaInbox size={30} className="text-gray-400 mb-4" />
             <span className="text-lg font-medium">
               No vehicles assigned to you.

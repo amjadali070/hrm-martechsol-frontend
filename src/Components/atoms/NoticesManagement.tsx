@@ -7,6 +7,10 @@ import {
 } from "react-icons/io";
 import { formatDate } from "../../utils/formatDate";
 import { FaInbox, FaSpinner } from "react-icons/fa";
+import { truncateComment } from "../../utils/truncateComment";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import { Link } from "react-router-dom";
 
 interface Notice {
   _id?: string;
@@ -104,7 +108,6 @@ const NoticesManagement: React.FC = () => {
       }
 
       setIsModalOpen(false);
-      setSelectedNotice(null);
     } catch (err) {
       setError("Failed to save notice");
       console.error(err);
@@ -181,12 +184,14 @@ const NoticesManagement: React.FC = () => {
     <div className="w-full p-6 bg-white rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Notices Management</h2>
-        <button
-          onClick={() => openModal("create")}
-          className="flex items-center bg-green-600 text-white px-3 py-2 rounded-full hover:bg-green-700"
-        >
-          <IoIosAdd size={20} className="mr-1" /> Create Notice
-        </button>
+        <div className="flex justify-between items-center mb-4">
+          <Link
+            to="/notices/create"
+            className="flex items-center bg-green-600 text-white px-3 py-2 rounded-full hover:bg-green-700"
+          >
+            <IoIosAdd size={20} className="mr-1" /> Create Notice
+          </Link>
+        </div>
       </div>
 
       {notices.length === 0 ? (
@@ -258,7 +263,7 @@ const NoticesManagement: React.FC = () => {
                           {formatDate(notice.date)}
                         </td>
                         <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                          {notice.subject}
+                          {truncateComment(notice.subject)}
                         </td>
                         <td
                           className={`text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center ${
@@ -280,9 +285,15 @@ const NoticesManagement: React.FC = () => {
                               title="Toggle Status"
                             >
                               {notice.status === "Read" ? (
-                                <IoIosCheckmarkCircle className="text-green-600" />
+                                <IoIosCheckmarkCircle
+                                  size={25}
+                                  className="text-green-600"
+                                />
                               ) : (
-                                <IoIosCloseCircle className="text-blue-600" />
+                                <IoIosCloseCircle
+                                  size={25}
+                                  className="text-blue-600"
+                                />
                               )}
                             </button>
                           </div>
@@ -291,13 +302,13 @@ const NoticesManagement: React.FC = () => {
                           <div className="flex justify-center space-x-2">
                             <button
                               onClick={() => openModal("edit", notice)}
-                              className="px-1.5 py-0.5 text-xs text-white bg-blue-600 rounded-full hover:bg-blue-700"
+                              className="px-3 py-1.5 text-white bg-blue-600 rounded-full hover:bg-blue-700"
                             >
                               Edit
                             </button>
                             <button
                               onClick={() => handleDeleteNotice(notice._id!)}
-                              className="px-1.5 py-0.5 text-xs text-white bg-red-600 rounded-full hover:bg-red-700"
+                              className="px-3 py-1.5 text-white bg-red-600 rounded-full hover:bg-red-700"
                             >
                               Delete
                             </button>
@@ -360,10 +371,10 @@ const NoticesManagement: React.FC = () => {
         </>
       )}
 
-      {/* Modal remains the same */}
+      {/* Modal with ReactQuill */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl">
             <h2 className="text-xl font-bold mb-4">
               {modalMode === "create" ? "Create New Notice" : "Edit Notice"}
             </h2>
@@ -382,34 +393,39 @@ const NoticesManagement: React.FC = () => {
                   required
                 />
               </div>
-              {/* <div className="mb-4">
-                <label className="block mb-2">Date</label>
-                <input
-                  type="date"
-                  value={selectedNotice?.date || ""}
-                  onChange={(e) =>
-                    setSelectedNotice((prev) =>
-                      prev ? { ...prev, date: e.target.value } : null
-                    )
-                  }
-                  className="w-full border p-2 rounded"
-                  required
-                />
-              </div> */}
 
               <div className="mb-4">
                 <label className="block mb-2">Message</label>
-                <textarea
+                <ReactQuill
+                  theme="snow"
                   value={selectedNotice?.paragraph || ""}
-                  onChange={(e) =>
+                  onChange={(content: string) =>
                     setSelectedNotice((prev) =>
-                      prev ? { ...prev, paragraph: e.target.value } : null
+                      prev ? { ...prev, paragraph: content } : null
                     )
                   }
-                  className="w-full border p-2 rounded"
-                  rows={4}
-                  required
-                ></textarea>
+                  className="h-40"
+                  modules={{
+                    toolbar: [
+                      [{ header: [1, 2, 3, false] }],
+                      ["bold", "italic", "underline", "strike"],
+                      [{ list: "ordered" }, { list: "bullet" }],
+                      ["link", "image"],
+                      ["clean"],
+                    ],
+                  }}
+                  formats={[
+                    "header",
+                    "bold",
+                    "italic",
+                    "underline",
+                    "strike",
+                    "list",
+                    "bullet",
+                    "link",
+                    "image",
+                  ]}
+                />
               </div>
               <div className="flex justify-end space-x-2">
                 <button

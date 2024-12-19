@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { formatDate } from "../../utils/formatDate";
 import { FaSpinner } from "react-icons/fa";
+import { truncateComment } from "../../utils/truncateComment";
 
 interface AttendanceRecord {
   _id: string;
@@ -28,6 +29,7 @@ const AttendanceTicketOverview: React.FC = () => {
 
       try {
         setLoading(true);
+        // Fetch only the top 3 most recent attendance tickets
         const response = await axios.get<AttendanceRecord[]>(
           `${backendUrl}/api/attendance-tickets/user/${userId}?limit=3`,
           {
@@ -35,7 +37,9 @@ const AttendanceTicketOverview: React.FC = () => {
           }
         );
 
-        setAttendanceTickets(response.data);
+        // Set state with only top 3 records
+        const tickets = response.data.slice(0, 3);
+        setAttendanceTickets(tickets);
       } catch (error) {
         console.error("Error fetching recent attendance tickets:", error);
       } finally {
@@ -111,7 +115,7 @@ const AttendanceTicketOverview: React.FC = () => {
                         {formatDate(ticket.date)}
                       </td>
                       <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
-                        {ticket.comments || "No Comments"}
+                        {truncateComment(ticket.comments)}
                       </td>
                       <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
                         <span

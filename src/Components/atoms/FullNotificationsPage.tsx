@@ -182,7 +182,7 @@ const FullNotificationsPage: React.FC = () => {
                       {new Date(notification.timestamp).toLocaleString()}
                     </span>
                   </div>
-                  <p className="text-gray-700">{notification.message}</p>
+                  {/* <p className="text-gray-700">{notification.message}</p> */}
                   <div className="flex space-x-2 mt-2">
                     <button
                       onClick={(e) => {
