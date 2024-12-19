@@ -22,6 +22,9 @@ interface Form {
   createdAt: string;
 }
 
+// External flag to track if forms have been fetched
+let hasFetchedForms = false;
+
 const FormsManagement: React.FC = () => {
   const { user, loading: userLoading } = useUser();
   const [forms, setForms] = useState<Form[]>([]);
@@ -35,7 +38,7 @@ const FormsManagement: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalForms, setTotalForms] = useState<number>(0);
   const [searchTerm, setSearchTerm] = useState<string>("");
-  const [itemsPerPage, setItemsPerPage] = useState<number>(10); // State for items per page
+  const [itemsPerPage, setItemsPerPage] = useState<number>(10);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedForm, setSelectedForm] = useState<Form | null>(null);
@@ -58,18 +61,16 @@ const FormsManagement: React.FC = () => {
           params: {
             formType: activeTab.toLowerCase(),
             page: currentPage,
-            limit: itemsPerPage, // Use itemsPerPage for pagination
+            limit: itemsPerPage,
             search: searchTerm,
           },
           withCredentials: true,
         });
 
-        console.log("Active Tab:", activeTab);
-        console.log("Forms data:", response.data);
-
         setForms(response.data);
-        setTotalForms(response.data.length); // Update this based on actual total from API if available
-        setTotalPages(Math.ceil(totalForms / itemsPerPage)); // Calculate total pages
+        const fetchedCount = response.data.length;
+        setTotalForms(fetchedCount);
+        setTotalPages(Math.ceil(fetchedCount / itemsPerPage));
       } catch (err) {
         console.error("Error fetching forms:", err);
         if (axios.isAxiosError(err) && err.response) {
@@ -83,16 +84,12 @@ const FormsManagement: React.FC = () => {
       }
     };
 
-    fetchForms();
-  }, [
-    backendUrl,
-    activeTab,
-    user,
-    currentPage,
-    searchTerm,
-    itemsPerPage,
-    totalForms,
-  ]);
+    // Prevent double fetching in Strict Mode by using an external flag
+    if (!hasFetchedForms) {
+      fetchForms();
+      hasFetchedForms = true;
+    }
+  }, [backendUrl, activeTab, user, currentPage, searchTerm, itemsPerPage]);
 
   const openModal = (form: Form) => {
     setSelectedForm(form);
@@ -156,9 +153,15 @@ const FormsManagement: React.FC = () => {
     setCurrentPage((prev) => (prev < totalPages ? prev + 1 : prev));
   };
 
+  const filteredForms = forms.filter(
+    (form) => form.formType.toLowerCase() === activeTab.toLowerCase()
+  );
+
   return (
     <div className="w-full p-6 bg-white rounded-lg">
-      <h2 className="text-2xl font-bold text-gray-800 mb-4">Forms Managment</h2>
+      <h2 className="text-2xl font-bold text-gray-800 mb-4">
+        Forms Management
+      </h2>
       <div className="mb-4">
         <input
           type="text"
@@ -179,6 +182,8 @@ const FormsManagement: React.FC = () => {
           onClick={() => {
             setActiveTab("Feedback");
             setCurrentPage(1);
+            // Reset the external flag when tab changes
+            hasFetchedForms = false;
           }}
         >
           Feedback Forms
@@ -192,6 +197,8 @@ const FormsManagement: React.FC = () => {
           onClick={() => {
             setActiveTab("Suggestion");
             setCurrentPage(1);
+            // Reset the external flag when tab changes
+            hasFetchedForms = false;
           }}
         >
           Suggestion Forms
@@ -199,10 +206,18 @@ const FormsManagement: React.FC = () => {
       </div>
 
       {error ? (
-        <div className="text-red-600 text-center">{error}</div>
-      ) : forms.filter(
-          (form) => form.formType.toLowerCase() === activeTab.toLowerCase()
-        ).length === 0 ? (
+        <div className="text-center py-10">
+          <div className="flex flex-col items-center justify-center">
+            <FaInbox size={30} className="text-gray-400 mb-2" />
+            <span className="text-md font-medium">
+              No {activeTab} Forms Available
+            </span>
+          </div>
+          <p className="text-gray-500 text-sm mt-2">
+            There are no {activeTab.toLowerCase()} forms submitted yet.
+          </p>
+        </div>
+      ) : filteredForms.length === 0 ? (
         <div className="text-center py-10">
           <div className="flex flex-col items-center justify-center">
             <FaInbox size={30} className="text-gray-400 mb-2" />
@@ -239,9 +254,6 @@ const FormsManagement: React.FC = () => {
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                   Subject
                 </th>
-                {/* <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                  Message
-                </th> */}
                 <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
                   Status
                 </th>
@@ -251,49 +263,38 @@ const FormsManagement: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {forms
-                .filter(
-                  (form) =>
-                    form.formType.toLowerCase() === activeTab.toLowerCase()
-                )
-                .map((form, index) => (
-                  <tr
-                    key={form._id}
-                    className={`border-b ${
-                      form.status === "unread" ? "bg-blue-50" : ""
-                    }`}
-                  >
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {index + 1}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.user?.name || "Anonymous"}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.user?.personalDetails?.abbreviatedJobTitle || "N/A"}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.subject}
-                    </td>
-                    {/* <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-normal">
-                      <div
-                        dangerouslySetInnerHTML={{ __html: form.message }}
-                      ></div>
-                    </td> */}
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      {form.status.charAt(0).toUpperCase() +
-                        form.status.slice(1)}
-                    </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
-                      <button
-                        className="text-blue-600 hover:text-blue-800 font-medium"
-                        onClick={() => openModal(form)}
-                      >
-                        View
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+              {filteredForms.map((form, index) => (
+                <tr
+                  key={form._id}
+                  className={`border-b ${
+                    form.status === "unread" ? "bg-blue-50" : ""
+                  }`}
+                >
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    {index + 1}
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    {form.user?.name || "Anonymous"}
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    {form.user?.personalDetails?.abbreviatedJobTitle || "N/A"}
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    {form.subject}
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
+                  </td>
+                  <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center">
+                    <button
+                      className="text-blue-600 hover:text-blue-800 font-medium"
+                      onClick={() => openModal(form)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -306,7 +307,12 @@ const FormsManagement: React.FC = () => {
           <select
             className="text-sm border border-gray-300 rounded-md"
             value={itemsPerPage}
-            onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1);
+              // Reset the external flag when items per page changes
+              hasFetchedForms = false;
+            }}
           >
             {[5, 10, 20].map((option) => (
               <option key={option} value={option}>
@@ -347,7 +353,6 @@ const FormsManagement: React.FC = () => {
       {selectedForm && isModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white w-11/12 md:w-3/4 lg:w-1/2 p-6 rounded-lg relative">
-            {/* ... */}
             <div className="mb-4">
               <strong>Name:</strong> {selectedForm.user?.name || "Anonymous"}
             </div>

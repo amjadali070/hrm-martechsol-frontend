@@ -22,14 +22,14 @@ const fetchLeaveRequests = async (userRole: string) => {
     const endpoint =
       userRole === "manager" || userRole === "SuperAdmin"
         ? `${backendUrl}/api/leave-applications/assigned`
-        : `${backendUrl}/api/leave-applications`; // Regular users fetch their own
+        : `${backendUrl}/api/leave-applications`;
     const { data } = await axios.get(endpoint, {
       withCredentials: true,
     });
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
-    toast.error("Failed to fetch leave requests.");
+    // toast.error("Failed to fetch leave requests.");
     return [];
   }
 };

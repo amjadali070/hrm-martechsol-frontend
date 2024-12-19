@@ -72,7 +72,7 @@ const ViewAttendance: React.FC = () => {
         }
 
         const { data } = await axiosInstance.get(
-          `${backendUrl}/api/time-log/user/${user._id}`,
+          `${backendUrl}/api/attendance/user/${user._id}`,
           {
             params: {
               startDate: fromDate || undefined,

@@ -42,7 +42,7 @@ const menuItems: MenuItem[] = [
       {
         label: "Attendance Management",
         path: "/organization/attendance-management",
-        visibleTo: ["manager", "SuperAdmin"],
+        visibleTo: ["manager", "SuperAdmin", "HR"],
       },
       {
         label: "Employee Management",
@@ -87,11 +87,11 @@ const menuItems: MenuItem[] = [
       {
         label: "Forms Management",
         path: "/organization/forms-management",
-        visibleTo: ["HR", "SuperAdmin"],
+        visibleTo: ["SuperAdmin"],
       },
       {
-        label: "Vehical Management",
-        path: "/organization/vehical-management",
+        label: "Vehicle Management",
+        path: "/organization/vehicle-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {

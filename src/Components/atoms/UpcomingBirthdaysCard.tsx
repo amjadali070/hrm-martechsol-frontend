@@ -10,12 +10,14 @@ interface User {
     dateOfBirth: string;
     abbreviatedJobTitle: string;
   };
+  nextBirthday: string; // Added for clarity, though it's returned by the API
 }
 
 const UpcomingBirthdaysCard: React.FC = () => {
   const [birthdays, setBirthdays] = useState<User[]>([]);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchBirthdays = async () => {
       try {
@@ -39,6 +41,9 @@ const UpcomingBirthdaysCard: React.FC = () => {
     fetchBirthdays();
   }, [backendUrl]);
 
+  // Show only top 5 upcoming birthdays
+  const topFiveBirthdays = birthdays.slice(0, 5);
+
   return (
     <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full bg-white rounded-xl p-6">
       <div className="flex items-center justify-between">
@@ -46,7 +51,7 @@ const UpcomingBirthdaysCard: React.FC = () => {
           Upcoming Birthdays
         </h2>
         <button
-          aria-label="View all work anniversaries"
+          aria-label="View all upcoming birthdays"
           onClick={() => navigate("/all-upcoming-birthdays")}
           className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
         >
@@ -54,14 +59,14 @@ const UpcomingBirthdaysCard: React.FC = () => {
         </button>
       </div>
 
-      {birthdays.length === 0 && (
+      {topFiveBirthdays.length === 0 && (
         <p className="text-sm text-gray-600 mt-4 text-center">
           No upcoming birthdays.
         </p>
       )}
 
       <ul className="divide-y divide-gray-200">
-        {birthdays.map((user) => {
+        {topFiveBirthdays.map((user) => {
           const dateOfBirth = new Date(user.personalDetails.dateOfBirth);
           const options: Intl.DateTimeFormatOptions = {
             month: "long",
@@ -92,7 +97,7 @@ const UpcomingBirthdaysCard: React.FC = () => {
               </div>
 
               <div className="ml-auto flex items-center text-sm sm:text-lg font-semibold text-black">
-                <span className="font-bold"> {birthdayDate} </span>
+                <span className="font-bold">{birthdayDate}</span>
               </div>
             </li>
           );

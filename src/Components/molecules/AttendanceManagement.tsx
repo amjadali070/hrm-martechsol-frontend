@@ -30,6 +30,13 @@ const statusColors: Record<string, string> = {
   "Public Holiday": "bg-sky-700",
 };
 
+const formatDuration = (seconds: number) => {
+  if (!seconds) return "N/A";
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  return `${hours}h ${minutes}m`;
+};
+
 interface User {
   _id: string;
   name: string;
@@ -55,13 +62,15 @@ interface ApiResponse {
   totalPages: number;
   currentPage: number;
   pageSize: number;
-  attendances: Attendance[]; // Changed from timeLogs to attendances
+  attendances: Attendance[];
 }
 
 const AttendanceManagement: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
-  const [filteredAttendanceData, setFilteredAttendanceData] = useState<Attendance[]>([]);
-  
+  const [filteredAttendanceData, setFilteredAttendanceData] = useState<
+    Attendance[]
+  >([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
@@ -89,7 +98,7 @@ const AttendanceManagement: React.FC = () => {
     "Senior Vice President",
     "President",
     "Head of Department",
-    "Lead Generation",
+    "Head Of Project Management",
   ];
 
   const debouncedSearchName = useDebounce(searchName, 300);
@@ -100,31 +109,30 @@ const AttendanceManagement: React.FC = () => {
       setLoading(false);
       return;
     }
-  
+
     setLoading(true);
     try {
       if (!user_Id) {
         throw new Error("User not found");
       }
-  
+
       const params: Record<string, any> = {};
-  
+
       if (fromDate) params.startDate = fromDate;
       if (toDate) params.endDate = toDate;
       if (typeFilter && typeFilter !== "All") params.types = typeFilter;
-  
-      // Pagination parameters
-      params.page = 1; // Always fetch from the first page when primary filters change
-      params.limit = 1000; // Fetch a large number to handle frontend pagination
-  
+
+      params.page = 1;
+      params.limit = 1000;
+
       const { data } = await axiosInstance.get<ApiResponse>(
         `${backendUrl}/api/attendance`,
         {
           params,
         }
       );
-      let fetchedData = data.attendances || []; // Changed from data.timeLogs to data.attendances
-  
+      let fetchedData = data.attendances || [];
+
       setAttendanceData(fetchedData);
     } catch (error: any) {
       const errorMessage =
@@ -135,28 +143,22 @@ const AttendanceManagement: React.FC = () => {
       setLoading(false);
     }
   }, [backendUrl, user_Id, fromDate, toDate, typeFilter]);
-  
-  
 
-  // Fetch attendance data when primary filters change
   useEffect(() => {
     if (!userLoading && user_Id) {
       fetchAttendance();
     }
   }, [user_Id, fromDate, toDate, typeFilter, fetchAttendance, userLoading]);
 
-  // Apply secondary filters (jobTitleFilter and debouncedSearchName) when attendanceData or filters change
   useEffect(() => {
     let filteredData = attendanceData;
 
-    // Apply Job Title Filter
     if (jobTitleFilter !== "All") {
       filteredData = filteredData.filter(
         (log) => log.user.personalDetails?.jobTitle === jobTitleFilter
       );
     }
 
-    // Apply Search Name Filter
     if (debouncedSearchName.trim() !== "") {
       const searchLower = debouncedSearchName.toLowerCase();
       filteredData = filteredData.filter((log) =>
@@ -166,7 +168,7 @@ const AttendanceManagement: React.FC = () => {
 
     setFilteredAttendanceData(filteredData);
     setTotalPages(Math.ceil(filteredData.length / itemsPerPage));
-    setCurrentPage(1); // Reset to first page after filtering
+    setCurrentPage(1);
   }, [attendanceData, jobTitleFilter, debouncedSearchName, itemsPerPage]);
 
   const handlePrevious = () => {
@@ -177,10 +179,12 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  const paginatedData = filteredAttendanceData ? filteredAttendanceData.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  ) : [];
+  const paginatedData = filteredAttendanceData
+    ? filteredAttendanceData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+      )
+    : [];
 
   return (
     <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
@@ -196,9 +200,7 @@ const AttendanceManagement: React.FC = () => {
             Attendance Management
           </h2>
 
-          {/* Filters Container */}
           <div className="flex flex-wrap gap-4 mb-6">
-            {/* From Date Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
               <input
@@ -206,14 +208,12 @@ const AttendanceManagement: React.FC = () => {
                 value={fromDate}
                 onChange={(e) => {
                   setFromDate(e.target.value);
-                  // setCurrentPage(1); // Removed because currentPage is managed in filtering useEffect
                 }}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
                 placeholder="FROM"
               />
             </div>
 
-            {/* To Date Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
               <input
@@ -227,7 +227,6 @@ const AttendanceManagement: React.FC = () => {
               />
             </div>
 
-            {/* Type Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
               <select
@@ -247,7 +246,6 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* Search Name Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaSearch className="text-gray-400 mr-3 flex-shrink-0" />
               <input
@@ -255,14 +253,12 @@ const AttendanceManagement: React.FC = () => {
                 value={searchName}
                 onChange={(e) => {
                   setSearchName(e.target.value);
-                  // setCurrentPage(1); // Removed because currentPage is managed in filtering useEffect
                 }}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
                 placeholder="Search Name"
               />
             </div>
 
-            {/* Job Title Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
               <select
@@ -270,7 +266,6 @@ const AttendanceManagement: React.FC = () => {
                 value={jobTitleFilter}
                 onChange={(e) => {
                   setJobTitleFilter(e.target.value);
-                  // setCurrentPage(1); // Removed because currentPage is managed in filtering useEffect
                 }}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
               >
@@ -288,16 +283,16 @@ const AttendanceManagement: React.FC = () => {
             </div>
           </div>
 
-          {/* Attendance Table */}
           <div className="overflow-x-auto">
             <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
               <colgroup>
                 <col style={{ width: "20%" }} />
-                <col style={{ width: "25%" }} />
+                <col style={{ width: "20%" }} />
                 <col style={{ width: "10%" }} />
                 <col style={{ width: "10%" }} />
                 <col style={{ width: "10%" }} />
-                <col style={{ width: "25%" }} />
+                <col style={{ width: "10%" }} />
+                <col style={{ width: "20%" }} />
               </colgroup>
               <thead>
                 <tr>
@@ -317,14 +312,16 @@ const AttendanceManagement: React.FC = () => {
                     Time Out
                   </th>
                   <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                    Total Time
+                  </th>
+                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
                     Type
                   </th>
                 </tr>
               </thead>
               <tbody>
-  {paginatedData && paginatedData.length > 0 ? (
-    paginatedData.map((record) => (
-
+                {paginatedData && paginatedData.length > 0 ? (
+                  paginatedData.map((record) => (
                     <tr key={record._id} className="hover:bg-gray-50">
                       <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
                         {record.user.name}
@@ -351,6 +348,9 @@ const AttendanceManagement: React.FC = () => {
                             })
                           : "N/A"}
                       </td>
+                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                        {formatDuration(record.duration)}
+                      </td>
                       <td className="py-2 px-2 border border-gray-200 text-center">
                         <span
                           className={`inline-block px-3 py-1 text-sm font-medium rounded-full text-white ${
@@ -360,31 +360,29 @@ const AttendanceManagement: React.FC = () => {
                           {record.type}
                         </span>
                       </td>
+                     
                     </tr>
                   ))
-                  ) : (
-                    <tr>
-                      <td
-                        className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
-                        colSpan={6}
-                      >
-                        <div className="flex flex-col items-center justify-center">
-                          <FaInbox size={30} className="text-gray-400 mb-2" />
-                          <span className="text-md font-medium">
-                            No records found.
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                  </tbody>
-          
+                ) : (
+                  <tr>
+                    <td
+                      className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
+                      colSpan={7}
+                    >
+                      <div className="flex flex-col items-center justify-center">
+                        <FaInbox size={30} className="text-gray-400 mb-2" />
+                        <span className="text-md font-medium">
+                          No records found.
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
             </table>
           </div>
 
-          {/* Pagination */}
           <div className="flex justify-between items-center mt-4">
-            {/* Items Per Page Selector */}
             <div className="flex items-center">
               <span className="text-sm text-gray-700 mr-2">Show:</span>
               <select
@@ -392,7 +390,6 @@ const AttendanceManagement: React.FC = () => {
                 value={itemsPerPage}
                 onChange={(e) => {
                   setItemsPerPage(parseInt(e.target.value));
-                  // setCurrentPage(1); // Handled in filtering useEffect
                 }}
               >
                 {[5, 10, 20].map((option) => (
@@ -403,7 +400,6 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* Pagination Controls */}
             <div className="flex items-center space-x-4">
               <button
                 className={`px-3 py-1 text-sm rounded-full ${
