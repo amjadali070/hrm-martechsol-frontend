@@ -98,14 +98,8 @@ const UserShiftManagement: React.FC = () => {
         );
         setData(response.data.users);
 
-        const uniqueShifts = Array.from(
-          new Set(
-            response.data.users.map((user: UserShiftData) => user.shiftTimings)
-          )
-        ) as string[];
-
-        const allShiftTimings = [...uniqueShifts, ...additionalShiftTimings];
-        const mappedShifts = allShiftTimings.map((shift: string) => ({
+        // Use only additionalShiftTimings for shift options
+        const mappedShifts = additionalShiftTimings.map((shift: string) => ({
           label: shift,
           timing: shift,
         }));
