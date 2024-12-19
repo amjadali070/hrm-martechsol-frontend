@@ -125,17 +125,16 @@ const VehicleManagement: React.FC = () => {
 
   return (
     <div className="bg-white p-6 rounded-lg">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-        Vehicle Management
-      </h1>
-
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-green-600 text-white rounded-full flex items-center space-x-2 hover:bg-green-700"
-      >
-        <FaCar className="w-5 h-5" />
-        <span>Add Vehicle</span>
-      </button>
+     <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800">Vehicle Management</h1>
+        <button
+          onClick={openAddModal}
+          className="mt-4 md:mt-0 px-4 py-2 bg-green-600 text-white rounded-full flex items-center space-x-2 hover:bg-green-700 transition duration-200"
+        >
+          <FaCar className="w-5 h-5" />
+          <span>Add Vehicle</span>
+        </button>
+      </div>
 
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-20 mb-20">
