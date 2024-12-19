@@ -1,3 +1,5 @@
+// components/AttendanceTicket.tsx
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
@@ -5,8 +7,10 @@ import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
 import DocumentViewerModal from "./DocumentViewerModal";
+import { formatTime } from "../../utils/formateTime";
 
 interface User {
+  _id: string;
   name: string;
   abbreviatedJobTitle: string;
 }
@@ -14,13 +18,13 @@ interface User {
 interface AttendanceRecord {
   _id: string;
   date: string;
-  timeIn: string;
-  timeOut: string;
+  timeIn?: string; // Made optional
+  timeOut?: string; // Made optional
   totalTime: string;
   comments: string;
   file?: string;
   fileName?: string;
-  status: "Open" | "Closed" | "Rejected";
+  status: "Open" | "Approved" | "Rejected"; // Updated statuses
   workLocation: string;
   user: User;
 }
@@ -169,8 +173,11 @@ const AttendanceTicket: React.FC = () => {
 
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("date", selectedDate.toISOString());
-    formDataToSubmit.append("timeIn", timeIn);
-    formDataToSubmit.append("timeOut", timeOut);
+
+    // **Updated Lines: Send ISO Strings for timeIn and timeOut**
+    formDataToSubmit.append("timeIn", timeInDate.toISOString());
+    formDataToSubmit.append("timeOut", timeOutDate.toISOString());
+
     formDataToSubmit.append("totalTime", totalTimeStr);
     formDataToSubmit.append("comments", comments || "");
     formDataToSubmit.append("workLocation", workLocation);
@@ -238,13 +245,6 @@ const AttendanceTicket: React.FC = () => {
   const tdClass =
     "text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center";
 
-  const formatTime = (time: string) => {
-    const [hour, minute] = time.split(":").map(Number);
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const formattedHour = hour % 12 === 0 ? 12 : hour % 12;
-    return `${formattedHour}:${minute.toString().padStart(2, "0")} ${ampm}`;
-  };
-
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
       <h2 className="text-2xl md:text-3xl font-bold text-center mt-2 mb-3 text-black">
@@ -280,6 +280,7 @@ const AttendanceTicket: React.FC = () => {
               <option value="">Select Work Location</option>
               <option value="Remote">Remote</option>
               <option value="On-site">On-site</option>
+              <option value="Hybrid">Hybrid</option> {/* Added Hybrid option */}
             </select>
           </div>
           <div>
@@ -359,7 +360,7 @@ const AttendanceTicket: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Statuses</option>
-            <option value="Pending">Pending</option>
+            <option value="Open">Open</option> {/* Changed to 'Open' */}
             <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>
           </select>
@@ -433,11 +434,11 @@ const AttendanceTicket: React.FC = () => {
                   </td>
                   <td
                     className={`${tdClass} ${
-                      record.status === "Closed"
+                      record.status === "Rejected"
+                        ? "text-red-600"
+                        : record.status === "Approved"
                         ? "text-green-600"
-                        : record.status === "Open"
-                        ? "text-yellow-600"
-                        : "text-red-600"
+                        : "text-yellow-600"
                     }`}
                   >
                     {record.status}

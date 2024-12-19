@@ -1,12 +1,14 @@
+// VehicleManagement.tsx
+
 import React, { useState, useEffect } from "react";
-import { AiOutlineUpload, AiOutlineEye } from "react-icons/ai";
-import { FaCar } from "react-icons/fa";
+import { AiOutlineUpload, AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
+import { FaCar, FaInbox, FaSpinner } from "react-icons/fa";
 import AddVehicleModal from "./AddVehicleModal";
 import AssignVehicleModal from "./AssignVehicleModal";
 import UpdateVehicleModal from "./UpdateVehicleModal";
-import UpdateAssignmentModal from "./UpdateAssignmentModal";
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosConfig";
+import ConfirmDialog from "../atoms/ConfirmDialog";
 
 interface AssignedTo {
   _id: string;
@@ -35,11 +37,13 @@ const VehicleManagement: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
-  const [isUpdateAssignmentModalOpen, setIsUpdateAssignmentModalOpen] =
-    useState<boolean>(false);
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+  // Optional: States for deletion confirmation
+  const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
+  const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
 
   const fetchVehicles = async () => {
     setLoading(true);
@@ -87,39 +91,66 @@ const VehicleManagement: React.FC = () => {
     setIsUpdateModalOpen(false);
   };
 
-  const handleDeleteVehicle = async (vehicleId: string) => {
-    if (!window.confirm("Are you sure you want to delete this vehicle?"))
-      return;
+  // Optional: Handlers for confirmation dialog
+  const openConfirmDialog = (vehicleId: string) => {
+    setVehicleToDelete(vehicleId);
+    setIsConfirmOpen(true);
+  };
+
+  const closeConfirmDialog = () => {
+    setVehicleToDelete(null);
+    setIsConfirmOpen(false);
+  };
+
+  // Implement the delete functionality
+  const handleDeleteVehicle = async () => {
+    if (!vehicleToDelete) return;
+
+    setLoading(true);
     try {
-      await axiosInstance.delete(`${backendUrl}apis/vehicles/${vehicleId}`);
-      setVehicles(vehicles.filter((v) => v._id !== vehicleId));
-      toast.success("Vehicle deleted successfully.");
+      const response = await axiosInstance.delete(
+        `${backendUrl}/api/vehicles/${vehicleToDelete}`
+      );
+      toast.success(response.data.message || "Vehicle deleted successfully");
+      // Refresh the vehicle list
+      fetchVehicles();
     } catch (err: any) {
       console.error("Error deleting vehicle:", err);
       toast.error(err.response?.data?.message || "Failed to delete vehicle.");
+    } finally {
+      setLoading(false);
+      closeConfirmDialog();
     }
   };
 
   return (
     <div className="bg-white p-6 rounded-lg">
-      <h1 className="text-2xl font-semibold text-gray-800 mb-6">
-        Vehicle Management
-      </h1>
-
-      <button
-        onClick={openAddModal}
-        className="mb-4 px-4 py-2 bg-green-600 text-white rounded-full flex items-center space-x-2 hover:bg-green-700"
-      >
-        <FaCar className="w-5 h-5" />
-        <span>Add Vehicle</span>
-      </button>
+     <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+        <h1 className="text-2xl font-semibold text-gray-800">Vehicle Management</h1>
+        <button
+          onClick={openAddModal}
+          className="mt-4 md:mt-0 px-4 py-2 bg-green-600 text-white rounded-full flex items-center space-x-2 hover:bg-green-700 transition duration-200"
+        >
+          <FaCar className="w-5 h-5" />
+          <span>Add Vehicle</span>
+        </button>
+      </div>
 
       {loading ? (
-        <p>Loading vehicles...</p>
+        <div className="flex flex-col items-center justify-center mt-20 mb-20">
+          <FaSpinner
+            size={30}
+            className="animate-spin text-blue-600 mb-2"
+            aria-hidden="true"
+          />
+        </div>
       ) : error ? (
         <p className="text-red-500">{error}</p>
       ) : vehicles.length === 0 ? (
-        <p>No vehicles found.</p>
+        <div className="flex flex-col items-center">
+          <FaInbox size={30} className="text-gray-400 mb-4" />
+          <span className="text-lg font-medium">No vehicles found.</span>
+        </div>
       ) : (
         <div className="space-y-4">
           {vehicles.map((vehicle) => (
@@ -171,10 +202,10 @@ const VehicleManagement: React.FC = () => {
                   <span>View</span>
                 </button>
                 <button
-                  onClick={() => handleDeleteVehicle(vehicle._id)}
+                  onClick={() => openConfirmDialog(vehicle._id)}
                   className="flex items-center space-x-1 px-3 py-1 bg-red-600 text-white text-sm font-medium rounded-full hover:bg-red-700"
                 >
-                  <AiOutlineUpload className="w-4 h-4" />
+                  <AiOutlineDelete className="w-4 h-4" />
                   <span>Delete</span>
                 </button>
               </div>
@@ -202,13 +233,17 @@ const VehicleManagement: React.FC = () => {
             vehicle={selectedVehicle}
             onUpdate={fetchVehicles}
           />
-          {/* <UpdateAssignmentModal
-            isOpen={isUpdateAssignmentModalOpen}
-            onClose={closeUpdateAssignmentModal}
-            vehicle={selectedVehicle}
-            onUpdateAssignment={fetchVehicles}
-          /> */}
         </>
+      )}
+
+      {isConfirmOpen && (
+        <ConfirmDialog
+          title="Delete Vehicle"
+          message="Are you sure you want to delete this vehicle? This action cannot be undone."
+          onConfirm={handleDeleteVehicle}
+          onCancel={closeConfirmDialog}
+          loading={loading}
+        />
       )}
     </div>
   );

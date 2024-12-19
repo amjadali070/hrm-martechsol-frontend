@@ -124,13 +124,13 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
         `${backendUrl}/api/vehicles/${vehicle._id}`,
         formData,
         {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
           withCredentials: true,
         }
       );
-      toast.success("Vehicle updated successfully.", {
-        position: "top-right",
-        autoClose: 3000,
-      });
+      toast.success("Vehicle updated successfully.");
       onUpdate();
       setIsEditing(false);
       setVehiclePicture(null);

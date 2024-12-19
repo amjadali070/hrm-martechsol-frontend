@@ -40,7 +40,7 @@ const ProfileInfo: React.FC<ProfileInfoProps> = ({
       <div className="flex flex-col text-white">
         <h1 className="text-3xl font-bold sm:text-4xl">{name}</h1>
         <h2 className="mt-2 text-xl sm:text-xl">{jobTitle}</h2>
-        <span className="ml-1 mt-2 text-sm text-white">Shift: {userShift}</span>
+        <span className="mt-2 text-sm text-white">Shift: {userShift}</span>
       </div>
     </div>
   );

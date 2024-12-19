@@ -9,25 +9,26 @@ import {
   FaCheckCircle,
   FaTimesCircle,
 } from "react-icons/fa";
+import { formatDate } from "../../utils/formatDate";
+import { formatTime } from "../../utils/formateTime";
 
 export type AttendanceTicketStatus = "Open" | "Closed" | "Rejected";
 
-interface User {
-  id: string;
-  name: string;
-  abbreviatedJobTitle?: string;
-  email?: string;
-}
-
 interface AttendanceTicket {
-  _id: string;
+  _id: string; // Change 'id' to '_id'
   date: string;
-  user: User;
-  status: AttendanceTicketStatus;
   timeIn: string;
   timeOut: string;
   totalTime: string;
-  workLocation: string;
+  user: {
+    id: string;
+    name: string;
+    personalDetails: {
+      abbreviatedJobTitle: string;
+    };
+  };
+  workLocation: "Remote" | "On-site";
+  status: "Open" | "Closed" | "Rejected";
   comments?: string;
   file?: string;
 }
@@ -65,27 +66,6 @@ const AttendanceTicketDetailModal: React.FC<
           label: "Pending",
         };
     }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
-  };
-
-  const formatTime = (timeString: string) => {
-    const date = new Date(`1970-01-01T${timeString}`);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
   };
 
   const {
@@ -144,7 +124,7 @@ const AttendanceTicketDetailModal: React.FC<
                   {user?.name || "Unknown"}
                 </p>
                 <p className="text-sm text-gray-600 bg-white rounded px-2 py-1 inline-block mt-1">
-                  {user?.abbreviatedJobTitle || "N/A"}
+                  {user.personalDetails.abbreviatedJobTitle || "N/A"}
                 </p>
               </div>
             </div>
