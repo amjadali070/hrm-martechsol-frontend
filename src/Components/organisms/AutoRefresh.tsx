@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 interface AutoRefreshProps {
   intervalInMinutes: number;
-  warningTimeInMinutes?: number; // Time before refresh to warn the user
+  warningTimeInMinutes?: number;
 }
 
 const AutoRefresh: React.FC<AutoRefreshProps> = ({

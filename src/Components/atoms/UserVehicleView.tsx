@@ -60,36 +60,38 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
   }, [backendUrl, userId]);
 
   return (
-    <div className="bg-white rounded-lg">
-      <h1 className="text-2xl font-semibold text-gray-800 p-4">
-        My Assigned Vehicles
-      </h1>
+    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
+      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
+        <h1 className="text-2xl font-semibold text-gray-800 p-4">
+          My Assigned Vehicles
+        </h1>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center mt-20 mb-20">
-          <FaSpinner
-            size={30}
-            className="animate-spin text-blue-600 mb-2"
-            aria-hidden="true"
-          />
-        </div>
-      ) : error ? (
-        <p className="text-red-500">{error}</p>
-      ) : vehicles.length === 0 ? (
-        <div className="flex flex-col items-center">
-          <FaInbox size={30} className="text-gray-400 mb-4" />
-          <span className="text-lg font-medium">
-            No vehicles assigned to you.
-          </span>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {vehicles.map((vehicle) => (
-            <VehicleCard key={vehicle._id} vehicle={vehicle} />
-          ))}
-        </div>
-      )}
-    </div>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center mt-25 mb-25">
+            <FaSpinner
+              size={30}
+              className="animate-spin text-blue-600 mb-2"
+              aria-hidden="true"
+            />
+          </div>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : vehicles.length === 0 ? (
+          <div className="flex flex-col items-center">
+            <FaInbox size={30} className="text-gray-400 mb-4" />
+            <span className="text-lg font-medium">
+              No vehicles assigned to you.
+            </span>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {vehicles.map((vehicle) => (
+              <VehicleCard key={vehicle._id} vehicle={vehicle} />
+            ))}
+          </div>
+        )}
+      </div>
+    </section>
   );
 };
 
