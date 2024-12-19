@@ -50,7 +50,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
       } catch (err: any) {
         console.error("Error fetching user vehicles:", err);
         setError(err.response?.data?.message || "Failed to fetch vehicles.");
-        toast.error(err.response?.data?.message || "Failed to fetch vehicles.");
+        // toast.error(err.response?.data?.message || "Failed to fetch vehicles.");
       } finally {
         setLoading(false);
       }
@@ -75,7 +75,12 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
             />
           </div>
         ) : error ? (
-          <p className="text-red-500">{error}</p>
+          <div className="flex flex-col items-center">
+            <FaInbox size={30} className="text-gray-400 mb-4" />
+            <span className="text-lg font-medium">
+              No vehicles assigned to you.
+            </span>
+          </div>
         ) : vehicles.length === 0 ? (
           <div className="flex flex-col items-center">
             <FaInbox size={30} className="text-gray-400 mb-4" />
