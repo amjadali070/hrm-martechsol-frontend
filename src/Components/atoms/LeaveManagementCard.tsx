@@ -28,7 +28,7 @@ const fetchLeaveRequests = async (
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
-    toast.error("Failed to fetch leave requests.");
+    // toast.error("Failed to fetch leave requests.");
     return [];
   }
 };
