@@ -32,6 +32,7 @@ const departmentOptions = [
   "Brand Development",
   "Corporate Communication",
   "Lead Generation",
+  "Administration",
 ];
 
 const jobTitleOptions = [
@@ -48,6 +49,7 @@ const jobTitleOptions = [
   "President",
   "Head of Department",
   "Head Of Project Management",
+  "Chief Executive Officer",
 ];
 
 const additionalShiftTimings = [

@@ -98,6 +98,7 @@ const AttendanceManagement: React.FC = () => {
     "President",
     "Head of Department",
     "Head Of Project Management",
+    "Chief Executive Officer",
   ];
 
   const debouncedSearchName = useDebounce(searchName, 300);

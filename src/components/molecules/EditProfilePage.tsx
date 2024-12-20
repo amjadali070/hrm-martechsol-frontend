@@ -368,6 +368,7 @@ const EditProfilePage: React.FC = () => {
               "Finance",
               "Brand Development",
               "Corporate Communication",
+              "Lead Generation",
             ]}
             jobTitles={[
               "Executive",
@@ -382,7 +383,6 @@ const EditProfilePage: React.FC = () => {
               "Senior Vice President",
               "President",
               "Head of Department",
-              "Lead Generation",
             ]}
             // jobCategories={[
             //   'Digital Marketing', 'Book Marketing', 'Software Application',

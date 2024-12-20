@@ -91,7 +91,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
       role="dialog"
       aria-labelledby="ticket-details-title"
     >
-      <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] shadow-2xl overflow-hidden transform transition-all duration-300 ease-in-out">
+      <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-in-out">
         <div className="bg-blue-600 p-4 flex justify-between items-center text-white">
           <h2
             id="ticket-details-title"

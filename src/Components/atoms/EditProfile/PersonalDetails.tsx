@@ -50,6 +50,7 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   Finance: [],
   "Brand Development": ["Digital Marketing", "Book Marketing"],
   "Corporate Communication": [],
+  "Lead Generation": ["Digital Marketing", "Book Marketing"],
 };
 
 const additionalShiftTimings = [

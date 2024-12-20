@@ -119,6 +119,7 @@ const UserProfileUpdater: React.FC = () => {
     "Brand Development",
     "Corporate Communication",
     "Lead Generation",
+    "Administration",
   ]);
 
   const [jobTitles] = useState<string[]>([
@@ -134,6 +135,8 @@ const UserProfileUpdater: React.FC = () => {
     "Senior Vice President",
     "President",
     "Head of Department",
+    "Head Of Project Management",
+    "Chief Executive Officer",
   ]);
 
   const tabs = ["View Data", "Edit Data"];

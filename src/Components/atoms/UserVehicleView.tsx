@@ -80,14 +80,14 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         {loading ? (
           <div
             className="flex justify-center items-center"
-            style={{ height: "200px" }}
+            style={{ height: "207px" }}
           >
             <FaSpinner className="text-blue-500 animate-spin" size={30} />
           </div>
         ) : error ? (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "200px" }}
+            style={{ height: "207px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium text-red-500">{error}</span>
@@ -101,7 +101,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         ) : (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "200px" }}
+            style={{ height: "207px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">

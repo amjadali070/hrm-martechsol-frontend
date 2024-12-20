@@ -47,6 +47,7 @@ const AllUpcomingBirthdays: React.FC = () => {
     "President",
     "Head of Department",
     "Head Of Project Management",
+    "Chief Executive Officer",
   ];
 
   const departmentOptions = [
@@ -68,6 +69,7 @@ const AllUpcomingBirthdays: React.FC = () => {
     "Brand Development",
     "Corporate Communication",
     "Lead Generation",
+    "Administration",
   ];
 
   useEffect(() => {

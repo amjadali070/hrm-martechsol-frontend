@@ -315,7 +315,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
 
   return (
     <section className="flex flex-col w-full p-4">
-      <div className="flex flex-col bg-white shadow-md rounded-xl p-6">
+      <div className="flex flex-col bg-white rounded-xl p-6">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-800">
