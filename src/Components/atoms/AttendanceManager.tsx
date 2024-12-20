@@ -1,17 +1,13 @@
-// src/components/AttendanceManager.tsx
-
 import React, { useState, useEffect, FormEvent, useMemo } from "react";
 import { FaSpinner, FaEdit, FaTrash } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
-import Modal from "./Modal"; // Use Modal consistently
 import { AttendanceType, TimeLog } from "../../types/attendance";
 import BulkAttendanceForm from "./BulkAttendanceForm";
 import SupportingModal from "./SupportingModal";
 
 interface AttendanceManagerProps {}
 
-// Assuming TimeLog now includes a userName field
 interface TimeLogExtended extends TimeLog {
   userName: string;
 }
@@ -30,7 +26,7 @@ const statusColors: Record<AttendanceType, string> = {
   "Maternity Leave": "bg-fuchsia-100 text-fuchsia-800",
   "Paternity Leave": "bg-teal-100 text-teal-800",
   "Bereavement Leave": "bg-slate-100 text-slate-800",
-  "Unapproved Absence Without Pay": "bg-red-200 text-red-900",
+  "Unauthorized Leave": "bg-red-200 text-red-900",
   "Public Holiday": "bg-sky-100 text-sky-800",
 };
 
@@ -623,9 +619,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                 <option value="Maternity Leave">Maternity Leave</option>
                 <option value="Paternity Leave">Paternity Leave</option>
                 <option value="Bereavement Leave">Bereavement Leave</option>
-                <option value="Unapproved Absence Without Pay">
-                  Unapproved Absence Without Pay
-                </option>
+                <option value="Unauthorized Leave">Unauthorized Leave</option>
                 <option value="Public Holiday">Public Holiday</option>
               </select>
             </div>

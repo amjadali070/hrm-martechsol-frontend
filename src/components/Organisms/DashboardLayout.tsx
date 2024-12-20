@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router";
-import profilePlaceHolder from "../../assets/placeholder.png";
+import profilePlaceholder from "../../assets/placeholder.png";
 import Announcements from "../atoms/Announcements";
 import AttendanceOverview from "../atoms/AttendanceOverview";
 import LeaveOverview from "../atoms/LeaveOverview";
@@ -72,7 +72,7 @@ const DashboardLayout: React.FC = () => {
       <ProfileCard
         name={user.name}
         jobTitle={user.personalDetails?.abbreviatedJobTitle || "N/A"}
-        imageSrc={user.personalDetails?.profilePicture || profilePlaceHolder}
+        imageSrc={user.personalDetails?.profilePicture || profilePlaceholder}
         userShift={user.personalDetails?.shiftTimings || "N/A"}
       />
 

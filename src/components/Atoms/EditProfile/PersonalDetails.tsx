@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { FaEdit, FaUserEdit } from "react-icons/fa";
+import profilePlaceholder from "../../../assets/placeholder.png";
 
 const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Account Management": [
@@ -194,10 +195,11 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
       <div className="relative border-[7px] border-blue-600 rounded-full">
         <img
-          src={employee.profilePicture}
+          src={employee.profilePicture || profilePlaceholder}
           alt="Profile"
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
+
         <button
           onClick={() => {
             fileInputRef.current?.click();

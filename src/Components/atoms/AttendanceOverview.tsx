@@ -24,7 +24,7 @@ interface TimeLog {
     | "Maternity Leave"
     | "Paternity Leave"
     | "Bereavement Leave"
-    | "Unapproved Absence Without Pay"
+    | "Unauthorized Leave"
     | "Public Holiday";
 }
 
@@ -46,14 +46,8 @@ const statusColors: Record<string, string> = {
   "Maternity Leave": "bg-fuchsia-100 text-fuchsia-800",
   "Paternity Leave": "bg-teal-100 text-teal-800",
   "Bereavement Leave": "bg-slate-100 text-slate-800",
-  "Absence Without Pay": "bg-red-200 text-red-900",
+  "Unauthorized Leave": "bg-red-200 text-red-900",
   "Public Holiday": "bg-sky-100 text-sky-800",
-};
-
-const formatDuration = (seconds: number) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  return `${hours}h ${minutes}m`;
 };
 
 const getDayOfWeek = (dateString: string) => {

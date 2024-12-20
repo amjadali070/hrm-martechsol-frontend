@@ -289,9 +289,9 @@ const LeaveManagement: React.FC = () => {
             <option value="Bereavement Leave">Bereavement Leave</option>
             <option value="Hajj Leave">Hajj Leave</option>
             <option value="Unauthorized Leaves">Unauthorized Leaves</option>
-            <option value="Unapproved Absence Without Pay">
+            {/* <option value="Unapproved Absence Without Pay">
               Unapproved Absence Without Pay
-            </option>
+            </option> */}
           </select>
         </div>
       </div>
@@ -832,9 +832,9 @@ const LeaveManagement: React.FC = () => {
                   <option value="Unauthorized Leaves">
                     Unauthorized Leaves
                   </option>
-                  <option value="Unapproved Absence Without Pay">
+                  {/* <option value="Unapproved Absence Without Pay">
                     Unapproved Absence Without Pay
-                  </option>
+                  </option> */}
                 </select>
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">
