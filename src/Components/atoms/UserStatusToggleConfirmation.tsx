@@ -48,7 +48,7 @@ const UserStatusToggleConfirmation: React.FC<UserStatusToggleProps> = ({
         >
           <span
             className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full 
-              shadow-md transform transition-transform duration-300 
+              transform transition-transform duration-300 
               ${currentStatus ? "translate-x-[110%]" : "translate-x-0"}`}
           />
         </button>

@@ -53,6 +53,7 @@ const AddNewEmployee: React.FC = () => {
     "Brand Development": ["Digital Marketing", "Book Marketing"],
     "Corporate Communication": [],
     "Lead Generation": ["Digital Marketing", "Book Marketing"],
+    Administration: [],
   };
 
   const jobTitles = [
@@ -69,6 +70,7 @@ const AddNewEmployee: React.FC = () => {
     "President",
     "Head of Department",
     "Head Of Project Management",
+    "Cheif Executive Officer",
   ];
 
   const [formData, setFormData] = useState({

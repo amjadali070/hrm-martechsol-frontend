@@ -379,6 +379,7 @@ const EmployeeManagement: React.FC = () => {
               "President",
               "Head Of Project Management",
               "Head of Depaeartment",
+              "Chief Executive Officer",
             ].map((title) => (
               <option key={title} value={title}>
                 {title}

@@ -1,5 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router";
+import profilePlaceholder from "../../assets/placeholder.png";
 
 interface ProfileImageProps {
   src: string;
@@ -22,9 +23,13 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
   return (
     <div className="flex justify-center object-cover w-1/5 max-md:w-24 max-sm:w-1/3">
       <img
-        src={src}
+        src={src || profilePlaceholder}
         alt="Profile"
         className="rounded-full object-cover border-[6px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
+        onError={(e) => {
+          console.error("Failed to load image:", src);
+          e.currentTarget.src = profilePlaceholder;
+        }}
       />
     </div>
   );

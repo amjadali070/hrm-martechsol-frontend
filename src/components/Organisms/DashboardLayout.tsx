@@ -1,6 +1,6 @@
 import React, { useContext } from "react";
 import { useNavigate } from "react-router";
-import profilePlaceHolder from "../../assets/placeholder.png";
+import profilePlaceholder from "../../assets/placeholder.png";
 import Announcements from "../atoms/Announcements";
 import AttendanceOverview from "../atoms/AttendanceOverview";
 import LeaveOverview from "../atoms/LeaveOverview";
@@ -17,6 +17,7 @@ import LeaveManagementCard from "../atoms/LeaveManagementCard";
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
 
   if (!user) {
     return (
@@ -34,6 +35,13 @@ const DashboardLayout: React.FC = () => {
 
   const authorizedRoles = ["HR", "SuperAdmin"];
   const isAuthorized = authorizedRoles.includes(user.role || "");
+
+  const processPath = (path?: string) =>
+    path
+      ? `${backendUrl.replace(/\/+$/, "")}/${path
+          .replace(/\\+/g, "/")
+          .replace(/^\/+/, "")}`
+      : null;
 
   const actions = [
     {
@@ -72,7 +80,10 @@ const DashboardLayout: React.FC = () => {
       <ProfileCard
         name={user.name}
         jobTitle={user.personalDetails?.abbreviatedJobTitle || "N/A"}
-        imageSrc={user.personalDetails?.profilePicture || profilePlaceHolder}
+        imageSrc={
+          processPath(user.personalDetails?.profilePicture) ||
+          profilePlaceholder
+        }
         userShift={user.personalDetails?.shiftTimings || "N/A"}
       />
 

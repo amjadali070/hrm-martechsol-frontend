@@ -14,7 +14,7 @@ export type AttendanceType =
   | "Maternity Leave"
   | "Paternity Leave"
   | "Bereavement Leave"
-  | "Unapproved Absence Without Pay"
+  | "Unauthorized Leave"
   | "Public Holiday";
 
 export interface TimeLog {

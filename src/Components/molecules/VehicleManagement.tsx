@@ -41,7 +41,6 @@ const VehicleManagement: React.FC = () => {
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  // Optional: States for deletion confirmation
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
 
@@ -69,7 +68,6 @@ const VehicleManagement: React.FC = () => {
     fetchVehicles();
   }, []);
 
-  // Handlers to open modals
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
 
@@ -91,7 +89,6 @@ const VehicleManagement: React.FC = () => {
     setIsUpdateModalOpen(false);
   };
 
-  // Optional: Handlers for confirmation dialog
   const openConfirmDialog = (vehicleId: string) => {
     setVehicleToDelete(vehicleId);
     setIsConfirmOpen(true);

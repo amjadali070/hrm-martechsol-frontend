@@ -121,12 +121,17 @@ const useUser = () => {
   const fetchUserProfile = useCallback(async () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
+      if (!backendUrl) throw new Error("Backend URL is not defined");
       const response = await axios.get(`${backendUrl}/api/users/profile`, {
         withCredentials: true,
       });
 
       const processPath = (path?: string) =>
-        path ? `${backendUrl}/${path.replace(/\\/g, "/")}` : null;
+        path
+          ? `${backendUrl.replace(/\/+$/, "")}/${path
+              .replace(/\\+/g, "/")
+              .replace(/^\/+/, "")}`
+          : null;
 
       const processDocumentPaths = (documents?: string[]) =>
         documents?.map(processPath);
@@ -165,7 +170,7 @@ const useUser = () => {
             ? Number(edu.yearOfCompletion)
             : undefined,
         })),
-        salaryDetails: response.data.salaryDetails, // Include salaryDetails here
+        salaryDetails: response.data.salaryDetails,
       };
 
       setUser(userData);

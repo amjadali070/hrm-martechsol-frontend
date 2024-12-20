@@ -88,9 +88,14 @@ const EditLeaveRequestModal: React.FC<{
               className="mt-1 block w-full border border-gray-300 rounded-md py-2 px-3"
               required
             >
-              <option value="Sick Leave">Sick Leave</option>
               <option value="Casual Leave">Casual Leave</option>
+              <option value="Sick Leave">Sick Leave</option>
               <option value="Annual Leave">Annual Leave</option>
+              <option value="Maternity Leave">Maternity Leave</option>
+              <option value="Paternity Leave">Paternity Leave</option>
+              <option value="Bereavement Leave">Bereavement Leave</option>
+              <option value="Hajj Leave">Hajj Leave</option>
+              <option value="Unauthorized Leaves">Unauthorized Leaves</option>
             </select>
           </div>
 

@@ -26,7 +26,7 @@ const statusColors: Record<string, string> = {
   "Maternity Leave": "bg-fuchsia-800",
   "Paternity Leave": "bg-teal-600",
   "Bereavement Leave": "bg-slate-700",
-  "Absence Without Pay": "bg-red-900",
+  "Unauthorized Leave": "bg-red-900",
   "Public Holiday": "bg-sky-700",
 };
 
@@ -98,6 +98,7 @@ const AttendanceManagement: React.FC = () => {
     "President",
     "Head of Department",
     "Head Of Project Management",
+    "Chief Executive Officer",
   ];
 
   const debouncedSearchName = useDebounce(searchName, 300);
