@@ -11,6 +11,8 @@ import { AuthContext } from "../organisms/AuthContext"; // Import AuthContext
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 import { FaSpinner } from "react-icons/fa";
+import UserVehicleView from "../atoms/UserVehicleView";
+import LeaveManagementCard from "../atoms/LeaveManagementCard";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -62,7 +64,9 @@ const DashboardLayout: React.FC = () => {
   ];
 
   const handleViewAllAttendance = () => navigate("/attendance/view");
-
+  const handleViewAll = () => {
+    navigate("/organization/leave-management");
+  };
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
       <ProfileCard
@@ -83,6 +87,10 @@ const DashboardLayout: React.FC = () => {
         <div className="flex flex-col md:flex-row gap-3 mt-3">
           <AttendanceOverview onViewAll={handleViewAllAttendance} />
           <AttendanceTicketOverview />
+        </div>
+        <div className="flex flex-col md:flex-row gap-3 mt-3">
+          <UserVehicleView userId={user._id} />
+          <LeaveManagementCard onViewAll={handleViewAll} />
         </div>
 
         {isAuthorized && (

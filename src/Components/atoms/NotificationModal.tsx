@@ -93,7 +93,6 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   }, [isOpen]);
 
-  // Debugging: Log notifications to verify they are received correctly
   useEffect(() => {
     if (isOpen) {
       console.log("Notifications received in modal:", notifications);
@@ -223,9 +222,9 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
                         {new Date(notification.timestamp).toLocaleString()}
                       </span>
                     </div>
-                    <p className="text-sm text-gray-300 mt-1">
+                    {/* <p className="text-sm text-gray-300 mt-1">
                       {notification.message}
-                    </p>
+                    </p> */}
                   </div>
                 </div>
               ))

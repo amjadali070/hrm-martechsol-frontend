@@ -38,7 +38,8 @@ const HRTicketManagement: React.FC = () => {
     const fetchHRTickets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${backendUrl}/api/hr-tickets`, {
+
+        const response = await axios.get(`${backendUrl}/api/hr-tickets/all`, {
           withCredentials: true,
         });
         setHRTickets(response.data);
@@ -357,7 +358,7 @@ const HRTicketManagement: React.FC = () => {
             className={`px-3 py-1 text-sm rounded-full ${
               currentPage === totalPages
                 ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-bule-700"
+                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
             onClick={handleNext}
             disabled={currentPage === totalPages}

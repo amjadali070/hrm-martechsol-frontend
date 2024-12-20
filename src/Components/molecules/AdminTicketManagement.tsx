@@ -40,9 +40,12 @@ const AdminTicketManagement: React.FC = () => {
     const fetchAdminTickets = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`${backendUrl}/api/admin-tickets`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${backendUrl}/api/admin-tickets/all`,
+          {
+            withCredentials: true,
+          }
+        );
         setAdminTickets(response.data);
         setNotFound(response.data.length === 0);
       } catch (error) {

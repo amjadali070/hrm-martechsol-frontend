@@ -11,6 +11,7 @@ const NotificationDetail: React.FC = () => {
   const navigate = useNavigate();
   const state = location.state as LocationState;
   const notification = state?.notification;
+  const sanitizedMessage = notification ? notification.message : "";
 
   if (!notification) {
     navigate("/notifications");
@@ -21,16 +22,19 @@ const NotificationDetail: React.FC = () => {
     <div className="container mx-auto px-4 py-8">
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 text-blue-500 hover:underline"
+        className="mb-4 text-blue-500 hover:underline flex items-center"
       >
         &larr; Back
       </button>
       <div className="p-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold mb-2">{notification.title}</h1>
-        <p className="text-gray-600 mb-4">
+        <h1 className="text-3xl font-bold mb-4">{notification.title}</h1>
+        <p className="text-gray-600 mb-6">
           {new Date(notification.timestamp).toLocaleString()}
         </p>
-        <p className="text-gray-800">{notification.message}</p>
+        <div
+          className="text-gray-800 space-y-4"
+          dangerouslySetInnerHTML={{ __html: sanitizedMessage }}
+        ></div>
       </div>
     </div>
   );

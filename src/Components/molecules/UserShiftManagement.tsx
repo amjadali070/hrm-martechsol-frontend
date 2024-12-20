@@ -61,11 +61,11 @@ const additionalShiftTimings = [
   "4:00 PM - 12:30 AM",
   "5:00 PM - 1:30 AM",
   "6:00 PM - 2:30 AM",
+  "6:30 PM - 3:00 AM",
   "7:00 PM - 3:30 AM",
   "8:00 PM - 4:30 AM",
   "9:00 PM - 5:30 AM",
 ];
-
 const UserShiftManagement: React.FC = () => {
   const [data, setData] = useState<UserShiftData[]>([]);
   const [filters, setFilters] = useState({
@@ -98,14 +98,8 @@ const UserShiftManagement: React.FC = () => {
         );
         setData(response.data.users);
 
-        const uniqueShifts = Array.from(
-          new Set(
-            response.data.users.map((user: UserShiftData) => user.shiftTimings)
-          )
-        ) as string[];
-
-        const allShiftTimings = [...uniqueShifts, ...additionalShiftTimings];
-        const mappedShifts = allShiftTimings.map((shift: string) => ({
+        // Use only additionalShiftTimings for shift options
+        const mappedShifts = additionalShiftTimings.map((shift: string) => ({
           label: shift,
           timing: shift,
         }));

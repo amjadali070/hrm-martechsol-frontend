@@ -8,6 +8,7 @@ import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
 import DocumentViewerModal from "./DocumentViewerModal";
 import { formatTime } from "../../utils/formateTime";
+import { truncateComment } from "../../utils/truncateComment";
 
 interface User {
   _id: string;
@@ -415,8 +416,11 @@ const AttendanceTicket: React.FC = () => {
                   <td className={tdClass}>{formatTime(record.timeIn)}</td>
                   <td className={tdClass}>{formatTime(record.timeOut)}</td>
                   <td className={tdClass}>{record.totalTime}</td>
-                  <td className={`${tdClass} text-blue-600 cursor-pointer`}>
-                    {record.comments || "No Comments"}
+                  <td
+                    className={`${tdClass} text-blue-600 cursor-pointer`}
+                    title={record.comments || "No Comments"} // Full comment on hover
+                  >
+                    {truncateComment(record.comments)}
                   </td>
                   <td className={tdClass}>
                     {record.file ? (
