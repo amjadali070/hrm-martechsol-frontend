@@ -2,7 +2,6 @@ import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import AavailableLeaves from "./Components/atoms/AavailableLeaves";
 import AdminTicket from "./Components/atoms/AdminTicket";
 import AttendanceTicket from "./Components/atoms/AttendanceTicket";
 import BlogDetails from "./Components/atoms/BlogDetails";
@@ -52,6 +51,7 @@ import AttendanceManagement from "./Components/molecules/AttendanceManagement";
 import TeamManagement from "./Components/molecules/TeamManagement";
 import CreateNotice from "./Components/atoms/notices/CreateNotice";
 import AttendanceManager from "./Components/atoms/AttendanceManager";
+import LeavesAvailable from "./Components/atoms/LeavesAvailable";
 
 const App: React.FC = () => {
   return (
@@ -82,7 +82,7 @@ const App: React.FC = () => {
                 <Route path="/payroll/view" element={<PayrollView />} />
                 <Route
                   path="/payroll/available-leaves"
-                  element={<AavailableLeaves />}
+                  element={<LeavesAvailable />}
                 />
                 <Route
                   path="/payroll/provident-fund"
