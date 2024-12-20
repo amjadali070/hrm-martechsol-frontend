@@ -122,69 +122,56 @@ const useUser = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
       if (!backendUrl) throw new Error("Backend URL is not defined");
-
       const response = await axios.get(`${backendUrl}/api/users/profile`, {
         withCredentials: true,
       });
 
-      // Helper function to construct the full backend URL for uploads
-      const constructBackendUrl = (path?: string) => {
-        if (!path) return null;
+      const processPath = (path?: string) =>
+        path
+          ? `${backendUrl.replace(/\/+$/, "")}/${path
+              .replace(/\\+/g, "/")
+              .replace(/^\/+/, "")}`
+          : null;
 
-        // Convert backslashes to forward slashes and remove any leading/trailing slashes
-        const normalizedPath = path
-          .replace(/\\/g, "/")
-          .replace(/^\/+|\/+$/g, "");
-
-        // Extract the path after "uploads" if it exists
-        const uploadPath = normalizedPath.includes("uploads/")
-          ? normalizedPath.split("uploads/")[1]
-          : normalizedPath;
-
-        // Construct the complete backend URL
-        return `${backendUrl}/uploads/${uploadPath}`;
-      };
+      const processDocumentPaths = (documents?: string[]) =>
+        documents?.map(processPath);
 
       const userData: User = {
         ...response.data,
         personalDetails: {
           ...response.data.personalDetails,
-          profilePicture: response.data.personalDetails?.profilePicture
-            ? constructBackendUrl(response.data.personalDetails.profilePicture)
-            : null,
+          profilePicture:
+            processPath(response.data.personalDetails?.profilePicture) ||
+            profilePlaceholder,
+        },
+        resume: {
+          resume: processPath(response.data.resume),
         },
         documents: {
-          ...response.data.documents,
-          NIC: constructBackendUrl(response.data.documents?.NIC),
-          experienceLetter: constructBackendUrl(
+          NIC: processPath(response.data.documents?.NIC),
+          experienceLetter: processPath(
             response.data.documents?.experienceLetter
           ),
-          salarySlip: constructBackendUrl(response.data.documents?.salarySlip),
-          academicDocuments: constructBackendUrl(
+          salarySlip: processPath(response.data.documents?.salarySlip),
+          academicDocuments: processPath(
             response.data.documents?.academicDocuments
           ),
-          NDA: constructBackendUrl(response.data.documents?.NDA),
-          educationalDocuments:
-            response.data.documents?.educationalDocuments?.map(
-              constructBackendUrl
-            ) || [],
-          professionalDocuments:
-            response.data.documents?.professionalDocuments?.map(
-              constructBackendUrl
-            ) || [],
+          NDA: processPath(response.data.documents?.NDA),
+          educationalDocuments: processDocumentPaths(
+            response.data.documents?.educationalDocuments
+          ),
+          professionalDocuments: processDocumentPaths(
+            response.data.documents?.professionalDocuments
+          ),
         },
+        education: response.data.education?.map((edu: Education) => ({
+          ...edu,
+          yearOfCompletion: edu.yearOfCompletion
+            ? Number(edu.yearOfCompletion)
+            : undefined,
+        })),
+        salaryDetails: response.data.salaryDetails,
       };
-
-      // Debug logs
-      console.log("Backend URL:", backendUrl);
-      console.log(
-        "Original profile picture path:",
-        response.data.personalDetails?.profilePicture
-      );
-      console.log(
-        "Constructed profile picture URL:",
-        userData.personalDetails?.profilePicture
-      );
 
       setUser(userData);
       setLoading(false);

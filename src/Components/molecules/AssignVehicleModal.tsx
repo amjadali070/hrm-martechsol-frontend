@@ -105,7 +105,7 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-auto transform transition-all duration-300 ease-in-out">
+      <div className="bg-white rounded-2xl w-full max-w-2xl mx-auto transform transition-all duration-300 ease-in-out">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-2xl flex items-center">
           <FaCar className="mr-3 w-8 h-8" />
@@ -184,7 +184,7 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
             className={`px-6 py-2 text-white rounded-full flex items-center transition duration-200 ${
               loading
                 ? "bg-gray-400 cursor-not-allowed"
-                : "bg-blue-600 hover:bg-blue-700 hover:shadow-lg"
+                : "bg-blue-600 hover:bg-blue-700"
             }`}
           >
             {loading ? (

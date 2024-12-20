@@ -1,4 +1,4 @@
-const MAX_WORDS = 4;
+const MAX_WORDS = 3;
 export const truncateComment = (comment: string) => {
   if (!comment) return "No Comments";
   const words = comment.trim().split(" ");

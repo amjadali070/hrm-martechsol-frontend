@@ -26,7 +26,7 @@ const NotificationDetail: React.FC = () => {
       >
         &larr; Back
       </button>
-      <div className="p-6 bg-white rounded-lg shadow-md">
+      <div className="p-6 bg-white rounded-lg">
         <h1 className="text-3xl font-bold mb-4">{notification.title}</h1>
         <p className="text-gray-600 mb-6">
           {new Date(notification.timestamp).toLocaleString()}
