@@ -7,7 +7,7 @@ import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
-import { AuthContext } from "../organisms/AuthContext"; // Import AuthContext
+import { AuthContext } from "./AuthContext"; // Import AuthContext
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 import { FaSpinner } from "react-icons/fa";
