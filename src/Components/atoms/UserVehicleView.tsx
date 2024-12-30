@@ -52,14 +52,14 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
       } catch (err: any) {
         console.error("Error fetching user vehicles:", err);
         setError(err.response?.data?.message || "Failed to fetch vehicles.");
-        toast.error("Failed to fetch vehicles.");
+        // toast.error("Failed to fetch vehicles.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserVehicles();
-  }, [backendUrl, userId]);
+  }, [userId]);
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
