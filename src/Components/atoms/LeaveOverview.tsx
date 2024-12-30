@@ -64,8 +64,6 @@ const LeaveOverview: React.FC = () => {
           };
         });
 
-        console.log("Updated Leave Balances:", updatedBalances);
-
         setLeaveBalances(updatedBalances);
       } catch (error) {
         console.error("Error fetching leave data:", error);

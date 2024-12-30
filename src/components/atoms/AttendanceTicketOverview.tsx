@@ -121,10 +121,10 @@ const AttendanceTicketOverview: React.FC = () => {
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             ticket.status === "Closed"
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-red-100 text-red-800"
                               : ticket.status === "Open"
                               ? "bg-yellow-100 text-yellow-800"
-                              : "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
                           }`}
                         >
                           {ticket.status}
