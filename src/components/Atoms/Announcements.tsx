@@ -151,7 +151,7 @@ const Announcements: React.FC = () => {
 
       {selectedAnnouncement && (
         <div className="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-lg relative">
+          <div className="bg-white p-6 rounded-lg w-full max-w-2xl relative">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 text-blue-600 hover:text-blue-500 transition duration-200"
@@ -165,7 +165,7 @@ const Announcements: React.FC = () => {
               <strong>Date:</strong> {formatDate(selectedAnnouncement.date)}
             </p>
             <div
-              className="mb-4 text-gray-700"
+              className="mb-4 text-gray-700 max-h-60 overflow-y-auto"
               dangerouslySetInnerHTML={{
                 __html: selectedAnnouncement.paragraph,
               }}

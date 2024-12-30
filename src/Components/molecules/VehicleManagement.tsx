@@ -58,7 +58,6 @@ const VehicleManagement: React.FC = () => {
     } catch (err: any) {
       console.error("Error fetching vehicles:", err);
       setError(err.response?.data?.message || "Failed to fetch vehicles.");
-      toast.error(err.response?.data?.message || "Failed to fetch vehicles.");
     } finally {
       setLoading(false);
     }

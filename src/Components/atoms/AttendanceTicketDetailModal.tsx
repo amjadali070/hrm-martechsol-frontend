@@ -12,7 +12,11 @@ import {
 import { formatDate } from "../../utils/formatDate";
 import { formatTime } from "../../utils/formateTime";
 
-export type AttendanceTicketStatus = "Open" | "Closed" | "Rejected";
+export type AttendanceTicketStatus =
+  | "Open"
+  | "Closed"
+  | "Rejected"
+  | "Approved";
 
 interface AttendanceTicket {
   _id: string; // Change 'id' to '_id'
@@ -28,9 +32,9 @@ interface AttendanceTicket {
     };
   };
   workLocation: "Remote" | "On-site";
-  status: "Open" | "Closed" | "Rejected";
-  comments?: string;
-  file?: string;
+  comments: string;
+  file: string | undefined;
+  status: "Open" | "Closed" | "Rejected" | "Approved"; // Added "Approved"
 }
 
 interface AttendanceTicketDetailModalProps {
@@ -48,6 +52,12 @@ const AttendanceTicketDetailModal: React.FC<
   const getStatusConfig = (status: AttendanceTicketStatus) => {
     switch (status) {
       case "Closed":
+        return {
+          color: "bg-green-50 text-green-800 border-green-200",
+          icon: <FaCheckCircle className="text-green-600 mr-2" />,
+          label: "Approved",
+        };
+      case "Approved": // Handle "Approved" explicitly
         return {
           color: "bg-green-50 text-green-800 border-green-200",
           icon: <FaCheckCircle className="text-green-600 mr-2" />,

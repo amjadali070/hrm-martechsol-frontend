@@ -92,7 +92,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
       aria-labelledby="ticket-details-title"
     >
       <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-hidden transform transition-all duration-300 ease-in-out">
-        <div className="bg-blue-600 p-4 flex justify-between items-center text-white">
+        <div className="bg-purple-900 p-4 flex justify-between items-center text-white">
           <h2
             id="ticket-details-title"
             className="text-2xl font-bold flex items-center"
@@ -108,7 +108,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
+        <div className="p-6 space-y-6 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center space-x-4">
               <FaCalendar className="text-blue-500 text-2xl" />
@@ -166,7 +166,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
               Message
             </h3>
             <div
-              className="text-gray-700"
+              className="text-gray-700 max-h-40 overflow-y-auto"
               dangerouslySetInnerHTML={{ __html: message }}
             />
           </div>

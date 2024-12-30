@@ -52,14 +52,13 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
       } catch (err: any) {
         console.error("Error fetching user vehicles:", err);
         setError(err.response?.data?.message || "Failed to fetch vehicles.");
-        toast.error("Failed to fetch vehicles.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchUserVehicles();
-  }, [backendUrl, userId]);
+  }, [userId]);
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
@@ -101,7 +100,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         ) : (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "207px" }}
+            style={{ height: "251px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">

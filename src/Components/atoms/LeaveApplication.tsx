@@ -1,3 +1,5 @@
+// components/LeaveApplication.tsx
+
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Like from "../../assets/like.png";
@@ -24,6 +26,12 @@ const LeaveApplication: React.FC = () => {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
+  const [leaveBalances, setLeaveBalances] = useState<{
+    sick?: number;
+    casual?: number;
+    annual?: number;
+  }>({});
+  const [jobStatus, setJobStatus] = useState<string>("");
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -43,6 +51,28 @@ const LeaveApplication: React.FC = () => {
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split("T")[0];
   }
+
+  useEffect(() => {
+    // Fetch user details to get leave balances and job status
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/users/profile`, {
+          withCredentials: true,
+        });
+        const user = response.data;
+        setLeaveBalances(user.leaves || {});
+        setJobStatus(user.personalDetails.jobStatus || "");
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        toast.error("Failed to fetch user details.", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      }
+    };
+
+    fetchUserDetails();
+  }, [backendUrl]);
 
   useEffect(() => {
     if (endDate) {
@@ -127,6 +157,24 @@ const LeaveApplication: React.FC = () => {
       newErrors.handoverFile = "Medical document is required for Sick Leave.";
     }
 
+    // Check leave balance for regular leaves
+    const REGULAR_LEAVE_TYPES = ["Sick Leave", "Casual Leave", "Annual Leave"];
+    if (REGULAR_LEAVE_TYPES.includes(leaveType)) {
+      const leaveKey = leaveType.split(" ")[0].toLowerCase() as
+        | "sick"
+        | "casual"
+        | "annual";
+      const availableLeaves = leaveBalances[leaveKey] || 0;
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = end.getTime() - start.getTime();
+      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
+      if (availableLeaves < diffDays) {
+        newErrors.leaveType = `Insufficient ${leaveType}. Available: ${availableLeaves} days.`;
+      }
+    }
+
     setErrors(newErrors);
 
     return Object.keys(newErrors).length === 0;
@@ -146,13 +194,13 @@ const LeaveApplication: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
-      toast.error("Please fix the errors in the form.", {
-        position: "top-center",
-        autoClose: 3000,
-      });
-      return;
-    }
+    // if (!validateForm()) {
+    //   // toast.error("Please fix the errors in the form.", {
+    //   //   position: "top-center",
+    //   //   autoClose: 3000,
+    //   // });
+    //   return;
+    // }
 
     setIsSubmitting(true);
 
@@ -176,6 +224,14 @@ const LeaveApplication: React.FC = () => {
 
       setShowSuccess(true);
       handleReset();
+
+      // Refresh leave balances
+      const response = await axios.get(`${backendUrl}/api/users/profile`, {
+        withCredentials: true,
+      });
+      const user = response.data;
+      setLeaveBalances(user.leaves || {});
+      setJobStatus(user.personalDetails.jobStatus || "");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMsg =
@@ -235,11 +291,14 @@ const LeaveApplication: React.FC = () => {
             <option value="Casual Leave">Casual Leave</option>
             <option value="Sick Leave">Sick Leave</option>
             <option value="Annual Leave">Annual Leave</option>
-            {/* <option value="Maternity Leave">Maternity Leave</option> */}
+            <option value="Maternity Leave">Maternity Leave</option>
             <option value="Paternity Leave">Paternity Leave</option>
+            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+            <option value="Unapproved Absence Without Pay">
+              Unapproved Absence Without Pay
+            </option>
+            <option value="Hajj Leave">Hajj Leave</option>
             <option value="Bereavement Leave">Bereavement Leave</option>
-            {/* <option value="Hajj Leave">Hajj Leave</option>
-            <option value="Unauthorized Leaves">Unauthorized Leaves</option> */}
           </select>
           {errors.leaveType && (
             <p className="mt-1 text-sm text-red-600" id="leaveType-error">
@@ -248,7 +307,9 @@ const LeaveApplication: React.FC = () => {
           )}
         </div>
 
+        {/* Start and End Dates */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Start Date */}
           <div>
             <label
               htmlFor="startDate"
@@ -276,6 +337,8 @@ const LeaveApplication: React.FC = () => {
               </p>
             )}
           </div>
+
+          {/* End Date */}
           <div>
             <label
               htmlFor="endDate"
@@ -303,7 +366,9 @@ const LeaveApplication: React.FC = () => {
           </div>
         </div>
 
+        {/* Last Day to Work and Return to Work */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Last Day to Work */}
           <div>
             <label
               htmlFor="lastDayToWork"
@@ -332,6 +397,7 @@ const LeaveApplication: React.FC = () => {
             )}
           </div>
 
+          {/* Return to Work */}
           <div>
             <label
               htmlFor="returnToWork"
@@ -361,6 +427,7 @@ const LeaveApplication: React.FC = () => {
           </div>
         </div>
 
+        {/* Reason for Leave */}
         <div>
           <label
             htmlFor="reason"
@@ -388,6 +455,7 @@ const LeaveApplication: React.FC = () => {
           )}
         </div>
 
+        {/* Attach Document */}
         <div>
           <label
             htmlFor="handoverFile"
@@ -430,6 +498,19 @@ const LeaveApplication: React.FC = () => {
           )}
         </div>
 
+        {/* Display Leave Balances
+        {["Sick Leave", "Casual Leave", "Annual Leave"].includes(leaveType) && (
+          <div className="p-4 bg-gray-100 rounded-lg">
+            <h3 className="text-lg font-semibold mb-2">Leave Balances:</h3>
+            <ul className="list-disc list-inside">
+              <li>Sick Leaves: {leaveBalances.sick || 0} / 8</li>
+              <li>Casual Leaves: {leaveBalances.casual || 0} / 10</li>
+              <li>Annual Leaves: {leaveBalances.annual || 0} / 14</li>
+            </ul>
+          </div>
+        )} */}
+
+        {/* Submit and Reset Buttons */}
         <div className="flex justify-start space-x-4">
           <button
             type="submit"
@@ -476,6 +557,7 @@ const LeaveApplication: React.FC = () => {
         </div>
       </form>
 
+      {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg text-center w-96">
@@ -488,7 +570,7 @@ const LeaveApplication: React.FC = () => {
               Great Job!
             </h3>
             <p className="text-gray-700 mb-4">
-              Your leave application would be reviewed by the admin.
+              Your leave application has been submitted successfully.
             </p>
             <button
               onClick={closeSuccessModal}
