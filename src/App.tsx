@@ -54,6 +54,7 @@ import PrivateRoute from "./Components/organisms/PrivateRoute";
 import RegisterUser from "./Components/organisms/RegisterUser";
 import UserPasswordManager from "./Components/atoms/UserPasswordManager";
 import TrainingRoom from "./Components/molecules/TrainingRoom";
+import ViewHolidays from "./Components/atoms/ViewHolidays";
 
 const App: React.FC = () => {
   return (
@@ -81,6 +82,10 @@ const App: React.FC = () => {
                   element={<TrackApplication />}
                 />
                 <Route path="/attendance/view" element={<ViewAttendance />} />
+                <Route
+                  path="/attendance/view-holidays"
+                  element={<ViewHolidays />}
+                />
                 <Route path="/payroll/view" element={<PayrollView />} />
                 <Route
                   path="/payroll/available-leaves"

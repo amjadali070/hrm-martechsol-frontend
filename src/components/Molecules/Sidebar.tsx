@@ -126,7 +126,13 @@ const menuItems: MenuItem[] = [
     icon: FaUserCheck,
     label: "Attendance",
     path: "/attendance",
-    subItems: [{ label: "View Attendance", path: "/attendance/view" }],
+    subItems: [
+      { label: "View Attendance", path: "/attendance/view" },
+      {
+        label: "View Holidays",
+        path: "/attendance/view-holidays",
+      },
+    ],
   },
   {
     icon: RiCashFill,
