@@ -162,7 +162,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
         ) : (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "200px" }}
+            style={{ height: "251px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">
