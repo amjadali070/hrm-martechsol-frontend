@@ -161,7 +161,7 @@ const menuItems: MenuItem[] = [
 
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
   { icon: FaBlog, label: "Blog", path: "/blog" },
-  { icon: FaChalkboardTeacher, label: "Training Room", path: "/training" },
+  { icon: FaChalkboardTeacher, label: "Training Room", path: "/training-room" },
 ];
 
 interface SidebarProps {

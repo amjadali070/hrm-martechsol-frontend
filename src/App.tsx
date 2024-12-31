@@ -53,6 +53,7 @@ import MainLayout from "./Components/organisms/MainLayout";
 import PrivateRoute from "./Components/organisms/PrivateRoute";
 import RegisterUser from "./Components/organisms/RegisterUser";
 import UserPasswordManager from "./Components/atoms/UserPasswordManager";
+import TrainingRoom from "./Components/molecules/TrainingRoom";
 
 const App: React.FC = () => {
   return (
@@ -213,6 +214,8 @@ const App: React.FC = () => {
                   path="/admin/password-manager"
                   element={<UserPasswordManager />}
                 />
+
+                <Route path="/training-room" element={<TrainingRoom />} />
 
                 <Route path="*" element={<NotFound />} />
               </Route>
