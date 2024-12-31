@@ -20,11 +20,11 @@ const fetchLeaveRequests = async (
       userRole === "manager" || userRole === "SuperAdmin"
         ? `${backendUrl}/api/leave-applications/assigned`
         : `${backendUrl}/api/leave-applications`;
-    console.log(`Fetching leave requests from: ${endpoint}`);
+
     const { data } = await axiosInstance.get(endpoint, {
       withCredentials: true,
     });
-    console.log("Fetched leave requests:", data);
+
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
@@ -47,12 +47,9 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
   useEffect(() => {
     const loadRecentLeaveRequests = async () => {
       if (!user || !user.role) {
-        // User is not loaded yet; do not alter isLoading
-        console.log("User or user.role is undefined. Awaiting user data.");
         return;
       }
       try {
-        console.log("Fetching leave requests for role:", user.role);
         setIsLoading(true);
         const requests = await fetchLeaveRequests(user.role);
 
@@ -62,11 +59,10 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
         );
         // Get top 5
         const top5 = sortedRequests.slice(0, 5);
-        console.log("Top 5 leave requests:", top5);
+
         setRecentLeaveRequests(top5);
       } catch (error) {
-        console.log("Error loading recent leave requests:", error);
-        toast.error("Error loading recent leave requests.");
+        // toast.error("Error loading recent leave requests.");
       } finally {
         setIsLoading(false);
       }

@@ -19,7 +19,7 @@ const ProvidentFund: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [dataFetched, setDataFetched] = useState<boolean>(false);
   const user = useUser();
-  console.log(user);
+
   const userId = user.user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 

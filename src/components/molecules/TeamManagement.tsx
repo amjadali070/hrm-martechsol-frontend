@@ -169,7 +169,6 @@ const TeamManagement: React.FC = () => {
         { withCredentials: true }
       );
 
-      console.log(response.data.message);
       toast.success("Team members assigned successfully!"); // Toast notification
       closeModals();
     } catch (error) {
@@ -179,13 +178,11 @@ const TeamManagement: React.FC = () => {
 
   const handleUnassign = async (userId: string, managerId: string) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `${backendUrl}/api/users/unassign`,
         { userId },
         { withCredentials: true }
       );
-
-      console.log(response.data.message);
       toast.success("Team member unassigned successfully!"); // Toast notification
       setAssignedUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (error) {

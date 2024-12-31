@@ -95,7 +95,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      console.log("Notifications received in modal:", notifications);
+
     }
   }, [isOpen, notifications]);
 

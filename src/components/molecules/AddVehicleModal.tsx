@@ -42,7 +42,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         return;
       }
       setVehiclePicture(file);
-      console.log("Selected vehiclePicture:", file);
     }
   };
 
@@ -70,7 +69,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
         }
       }
       setVehicleDocuments(files);
-      console.log("Selected vehicleDocuments:", files);
     }
   };
 
@@ -95,15 +93,6 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
       Array.from(vehicleDocuments).forEach((file) => {
         formData.append("vehicleDocuments", file);
       });
-    }
-
-    // Debug: Log FormData entries
-    for (let [key, value] of formData.entries()) {
-      if (value instanceof File) {
-        console.log(`${key}: ${value.name}`);
-      } else {
-        console.log(`${key}: ${value}`);
-      }
     }
 
     try {

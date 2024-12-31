@@ -54,7 +54,6 @@ const VehicleManagement: React.FC = () => {
       });
       setVehicles(response.data.vehicles);
       setError(null);
-      console.log("Fetched Vehicles:", response.data.vehicles);
     } catch (err: any) {
       console.error("Error fetching vehicles:", err);
       setError(err.response?.data?.message || "Failed to fetch vehicles.");

@@ -68,7 +68,6 @@ const EmployeeManagement: React.FC = () => {
         const { users } = response.data;
         setEmployees(users);
         setFilteredEmployees(users);
-        console.log("Fetched Employees:", users); // Debugging line
       } catch (error: any) {
         console.error("Error fetching employee data:", error);
         toast.error("Failed to fetch employee data.");

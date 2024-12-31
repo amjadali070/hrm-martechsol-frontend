@@ -76,7 +76,6 @@ const AttendanceTicket: React.FC = () => {
             withCredentials: true,
           }
         );
-        console.log("Fetched Tickets:", response.data);
 
         setAttendanceList(response.data);
         setNotFound(response.data.length === 0);

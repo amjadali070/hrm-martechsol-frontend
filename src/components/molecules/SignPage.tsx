@@ -54,7 +54,6 @@ const SiginPage: React.FC = () => {
   };
 
   const handleForgotPassword = () => {
-    console.log("Navigating to Forgot Password Page");
     navigate("/forgot-password");
   };
 

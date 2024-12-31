@@ -26,11 +26,7 @@ const LeaveApplication: React.FC = () => {
   }>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
-  const [leaveBalances, setLeaveBalances] = useState<{
-    sick?: number;
-    casual?: number;
-    annual?: number;
-  }>({});
+  const [userLeases, setUserLeaves] = useState<any>({});
   const [jobStatus, setJobStatus] = useState<string>("");
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -53,28 +49,6 @@ const LeaveApplication: React.FC = () => {
   }
 
   useEffect(() => {
-    // Fetch user details to get leave balances and job status
-    const fetchUserDetails = async () => {
-      try {
-        const response = await axios.get(`${backendUrl}/api/users/profile`, {
-          withCredentials: true,
-        });
-        const user = response.data;
-        setLeaveBalances(user.leaves || {});
-        setJobStatus(user.personalDetails.jobStatus || "");
-      } catch (error) {
-        console.error("Error fetching user details:", error);
-        toast.error("Failed to fetch user details.", {
-          position: "top-center",
-          autoClose: 3000,
-        });
-      }
-    };
-
-    fetchUserDetails();
-  }, [backendUrl]);
-
-  useEffect(() => {
     if (endDate) {
       const end = new Date(endDate);
       end.setDate(end.getDate() + 1);
@@ -89,6 +63,27 @@ const LeaveApplication: React.FC = () => {
       setLastDayToWork(lastDay.toISOString().split("T")[0]);
     }
   }, [startDate]);
+
+  useEffect(() => {
+    // Fetch user details to get leave balances and job status
+    const fetchUserDetails = async () => {
+      try {
+        const response = await axios.get(`${backendUrl}/api/users/profile`, {
+          withCredentials: true,
+        });
+        setUserLeaves(response.data.leaves);
+        setJobStatus(response.data.personalDetails.jobStatus);
+      } catch (error) {
+        console.error("Error fetching user details:", error);
+        toast.error("Failed to fetch user details.", {
+          position: "top-center",
+          autoClose: 3000,
+        });
+      }
+    };
+
+    fetchUserDetails();
+  }, [backendUrl]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
@@ -157,21 +152,17 @@ const LeaveApplication: React.FC = () => {
       newErrors.handoverFile = "Medical document is required for Sick Leave.";
     }
 
-    // Check leave balance for regular leaves
-    const REGULAR_LEAVE_TYPES = ["Sick Leave", "Casual Leave", "Annual Leave"];
-    if (REGULAR_LEAVE_TYPES.includes(leaveType)) {
-      const leaveKey = leaveType.split(" ")[0].toLowerCase() as
-        | "sick"
-        | "casual"
-        | "annual";
-      const availableLeaves = leaveBalances[leaveKey] || 0;
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffTime = end.getTime() - start.getTime();
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+    // Additional Validation: Check leave balance for standard leaves
+    const standardLeaves = ["Sick Leave", "Casual Leave", "Annual Leave"];
+    if (standardLeaves.includes(leaveType) && jobStatus !== "Permanent") {
+      newErrors.leaveType =
+        "Probationary employees cannot apply for standard leaves.";
+    }
 
-      if (availableLeaves < diffDays) {
-        newErrors.leaveType = `Insufficient ${leaveType}. Available: ${availableLeaves} days.`;
+    if (standardLeaves.includes(leaveType)) {
+      const leaveKey = leaveType.toLowerCase().replace(" ", "");
+      if (userLeases[leaveKey] === 0) {
+        newErrors.leaveType = `You have exhausted your ${leaveType}.`;
       }
     }
 
@@ -194,13 +185,21 @@ const LeaveApplication: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // if (!validateForm()) {
-    //   // toast.error("Please fix the errors in the form.", {
-    //   //   position: "top-center",
-    //   //   autoClose: 3000,
-    //   // });
-    //   return;
-    // }
+    if (standardLeaves.includes(leaveType) && jobStatus === "Probation") {
+      toast.error("Probationary employees cannot apply for standard leaves.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      return;
+    }
+
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+      return;
+    }
 
     setIsSubmitting(true);
 
@@ -224,14 +223,6 @@ const LeaveApplication: React.FC = () => {
 
       setShowSuccess(true);
       handleReset();
-
-      // Refresh leave balances
-      const response = await axios.get(`${backendUrl}/api/users/profile`, {
-        withCredentials: true,
-      });
-      const user = response.data;
-      setLeaveBalances(user.leaves || {});
-      setJobStatus(user.personalDetails.jobStatus || "");
     } catch (error) {
       if (axios.isAxiosError(error)) {
         const errorMsg =
@@ -256,6 +247,8 @@ const LeaveApplication: React.FC = () => {
     setShowSuccess(false);
   };
 
+  const standardLeaves = ["Sick Leave", "Casual Leave", "Annual Leave"];
+
   return (
     <div className="w-full md:p-8 bg-white rounded-lg mb-8">
       <h2 className="text-3xl font-bold text-center mb-4 text-purple-900">
@@ -264,6 +257,7 @@ const LeaveApplication: React.FC = () => {
       <p className="text-center mb-6 text-gray-600">
         Fill in the required fields below to apply for leave.
       </p>
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div>
           <label
@@ -498,19 +492,6 @@ const LeaveApplication: React.FC = () => {
           )}
         </div>
 
-        {/* Display Leave Balances
-        {["Sick Leave", "Casual Leave", "Annual Leave"].includes(leaveType) && (
-          <div className="p-4 bg-gray-100 rounded-lg">
-            <h3 className="text-lg font-semibold mb-2">Leave Balances:</h3>
-            <ul className="list-disc list-inside">
-              <li>Sick Leaves: {leaveBalances.sick || 0} / 8</li>
-              <li>Casual Leaves: {leaveBalances.casual || 0} / 10</li>
-              <li>Annual Leaves: {leaveBalances.annual || 0} / 14</li>
-            </ul>
-          </div>
-        )} */}
-
-        {/* Submit and Reset Buttons */}
         <div className="flex justify-start space-x-4">
           <button
             type="submit"
@@ -557,7 +538,6 @@ const LeaveApplication: React.FC = () => {
         </div>
       </form>
 
-      {/* Success Modal */}
       {showSuccess && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white p-6 rounded-lg text-center w-96">
@@ -570,7 +550,7 @@ const LeaveApplication: React.FC = () => {
               Great Job!
             </h3>
             <p className="text-gray-700 mb-4">
-              Your leave application has been submitted successfully.
+              Your leave application would be reviewed by the admin.
             </p>
             <button
               onClick={closeSuccessModal}

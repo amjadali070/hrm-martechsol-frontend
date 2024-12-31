@@ -48,7 +48,6 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         });
         setVehicles(response.data.vehicles);
         setError(null);
-        console.log("Fetched User Vehicles:", response.data.vehicles);
       } catch (err: any) {
         console.error("Error fetching user vehicles:", err);
         setError(err.response?.data?.message || "Failed to fetch vehicles.");

@@ -102,8 +102,6 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
         }
       );
 
-      console.log("Attendance data:", response.data); // Debugging line
-
       // Ensure attendances is an array
       const attendances: TimeLogExtended[] = Array.isArray(response.data)
         ? response.data

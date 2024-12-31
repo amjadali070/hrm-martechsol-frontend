@@ -131,7 +131,7 @@ const UserShiftManagement: React.FC = () => {
   const handleUpdate = async (id: string) => {
     if (editedShifts[id]) {
       const payload = { userId: id, shiftTimings: editedShifts[id] };
-      console.log("Updating shift with payload:", payload); // Debugging
+
       setUpdating((prev) => ({ ...prev, [id]: true })); // Set updating to true for this user
       try {
         await axios.put(`${backendUrl}/api/users/shift`, payload, {
