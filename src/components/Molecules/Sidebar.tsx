@@ -100,6 +100,11 @@ const menuItems: MenuItem[] = [
       //   visibleTo: ["SuperAdmin"],
       // },
       {
+        label: "Password",
+        path: "/admin/password-manager",
+        visibleTo: ["SuperAdmin"],
+      },
+      {
         label: "Attendance Manager",
         path: "/organization/attendance-manager",
         visibleTo: ["test"],
@@ -153,6 +158,7 @@ const menuItems: MenuItem[] = [
       { label: "Experience Letter", path: "/letters/experience-letter" },
     ],
   },
+
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
   { icon: FaBlog, label: "Blog", path: "/blog" },
   { icon: FaChalkboardTeacher, label: "Training Room", path: "/training" },

@@ -52,6 +52,7 @@ import DashboardLayout from "./Components/organisms/DashboardLayout";
 import MainLayout from "./Components/organisms/MainLayout";
 import PrivateRoute from "./Components/organisms/PrivateRoute";
 import RegisterUser from "./Components/organisms/RegisterUser";
+import UserPasswordManager from "./Components/atoms/UserPasswordManager";
 
 const App: React.FC = () => {
   return (
@@ -206,6 +207,11 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/attendance-manager"
                   element={<AttendanceManager />}
+                />
+
+                <Route
+                  path="/admin/password-manager"
+                  element={<UserPasswordManager />}
                 />
 
                 <Route path="*" element={<NotFound />} />
