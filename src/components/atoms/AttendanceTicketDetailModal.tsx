@@ -10,7 +10,10 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
-import { formatTime } from "../../utils/formateTime";
+import {
+  formatAttendenceTicketTime,
+  formatTime,
+} from "../../utils/formateTime";
 
 export type AttendanceTicketStatus =
   | "Open"
@@ -148,7 +151,7 @@ const AttendanceTicketDetailModal: React.FC<
                       Time In:{" "}
                     </span>
                     <span className="font-semibold text-gray-800">
-                      {formatTime(timeIn)}
+                      {formatAttendenceTicketTime(timeIn)}
                     </span>
                   </p>
                   <p className="text-gray-500 uppercase ml-3">
@@ -156,7 +159,7 @@ const AttendanceTicketDetailModal: React.FC<
                       Time Out:{" "}
                     </span>
                     <span className="font-semibold text-gray-800">
-                      {formatTime(timeOut)}
+                      {formatAttendenceTicketTime(timeOut)}
                     </span>
                   </p>
                 </div>

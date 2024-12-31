@@ -13,3 +13,27 @@ export const formatTime = (time?: string) => {
 
   return `${formattedHour}:${formattedMinute} ${ampm}`;
 };
+
+export const formatAttendenceTicketTime = (time: string): string => {
+  if (!time || typeof time !== "string") return "Invalid Time";
+
+  const [hourStr, minuteStr] = time.split(":");
+  const hour = parseInt(hourStr, 10);
+  const minute = parseInt(minuteStr, 10);
+
+  if (
+    isNaN(hour) ||
+    isNaN(minute) ||
+    hour < 0 ||
+    hour > 23 ||
+    minute < 0 ||
+    minute > 59
+  ) {
+    return "Invalid Time";
+  }
+
+  const date = new Date();
+  date.setHours(hour, minute, 0, 0);
+
+  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};

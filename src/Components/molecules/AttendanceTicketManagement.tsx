@@ -5,10 +5,12 @@ import { formatDate } from "../../utils/formatDate";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
 import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 import { toast } from "react-toastify";
-import { formatTime } from "../../utils/formateTime";
+import EditAttendanceModal from "../atoms/EditAttendanceModal"; // Import the updated modal
+import useUser from "../../hooks/useUser"; // Adjust the path as necessary
+import { formatAttendenceTicketTime } from "../../utils/formateTime";
 
 interface AttendanceTicket {
-  _id: string; // Change 'id' to '_id'
+  _id: string;
   date: string;
   timeIn: string;
   timeOut: string;
@@ -23,10 +25,11 @@ interface AttendanceTicket {
   workLocation: "Remote" | "On-site";
   comments: string;
   file: string | undefined;
-  status: "Open" | "Closed" | "Rejected";
+  status: "Open" | "Approved" | "Rejected";
 }
 
 const AttendanceTicketManagement: React.FC = () => {
+  const { user, loading: userLoading } = useUser(); // Fetch user data
   const [attendanceTickets, setAttendanceTickets] = useState<
     AttendanceTicket[]
   >([]);
@@ -50,6 +53,11 @@ const AttendanceTicketManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
 
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal
+  const [ticketToEdit, setTicketToEdit] = useState<AttendanceTicket | null>(
+    null
+  ); // Selected ticket to edit
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
@@ -68,6 +76,7 @@ const AttendanceTicketManagement: React.FC = () => {
       } catch (error) {
         console.error("Error fetching attendance tickets:", error);
         setNotFound(true);
+        toast.error("Failed to fetch attendance tickets.");
       } finally {
         setLoading(false);
       }
@@ -126,6 +135,7 @@ const AttendanceTicketManagement: React.FC = () => {
     }
   };
 
+  // Open and Close Modals
   const openModal = (ticket: AttendanceTicket) => {
     setSelectedTicket(ticket);
     setIsModalOpen(true);
@@ -137,7 +147,7 @@ const AttendanceTicketManagement: React.FC = () => {
   };
 
   const openViewer = (filePath: string, fileName: string) => {
-    const fileType = filePath.split(".").pop();
+    const fileType = filePath.split(".").pop()?.toLowerCase();
     const fullUrl = `${backendUrl}${filePath}`;
     setSelectedFileUrl(fullUrl);
     setSelectedFileName(fileName);
@@ -150,6 +160,44 @@ const AttendanceTicketManagement: React.FC = () => {
     setSelectedFileUrl(null);
     setSelectedFileName(null);
     setSelectedFileType(null);
+  };
+
+  const openEditModal = (ticket: AttendanceTicket) => {
+    setTicketToEdit(ticket);
+    setIsEditModalOpen(true);
+  };
+
+  const closeEditModal = () => {
+    setIsEditModalOpen(false);
+    setTicketToEdit(null);
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh the attendance tickets or update state accordingly
+    const fetchAttendanceTickets = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get<AttendanceTicket[]>(
+          `${backendUrl}/api/attendance-tickets/assigned`,
+          {
+            withCredentials: true,
+          }
+        );
+
+        setAttendanceTickets(response.data);
+        setNotFound(response.data.length === 0);
+        toast.success("Attendance ticket updated successfully.");
+      } catch (error) {
+        console.error("Error fetching attendance tickets:", error);
+        setNotFound(true);
+        toast.error("Failed to fetch attendance tickets.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAttendanceTickets();
+    closeEditModal();
   };
 
   return (
@@ -222,7 +270,7 @@ const AttendanceTicketManagement: React.FC = () => {
             className="w-full border-none focus:outline-none text-sm text-gray-600"
           >
             <option value="All">All Status</option>
-            <option value="Pending">Pending</option>
+            <option value="Open">Open</option>
             <option value="Approved">Approved</option>
             <option value="Rejected">Rejected</option>
           </select>
@@ -256,7 +304,7 @@ const AttendanceTicketManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaSpinner
                       size={30}
@@ -267,7 +315,7 @@ const AttendanceTicketManagement: React.FC = () => {
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={30} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">
@@ -292,10 +340,10 @@ const AttendanceTicketManagement: React.FC = () => {
                     {ticket.user.personalDetails.abbreviatedJobTitle}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {formatTime(ticket.timeIn)}
+                    {formatAttendenceTicketTime(ticket.timeIn)}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {formatTime(ticket.timeOut)}
+                    {formatAttendenceTicketTime(ticket.timeOut)}
                   </td>
                   <td className="px-3 py-2 text-sm text-gray-800 text-center">
                     {ticket.totalTime}
@@ -339,12 +387,25 @@ const AttendanceTicketManagement: React.FC = () => {
                     >
                       View
                     </button>
+
+                    {/* Conditionally render "Edit" button */}
+                    {ticket.status === "Open" &&
+                      user &&
+                      (ticket.user.id === user._id ||
+                        user.role === "SuperAdmin") && (
+                        <button
+                          onClick={() => openEditModal(ticket)}
+                          className="px-1.5 py-0.5 text-xs text-white bg-yellow-600 rounded-full hover:bg-yellow-700"
+                        >
+                          Edit
+                        </button>
+                      )}
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={11} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-8 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={30} className="text-gray-400 mb-2" />
                     <span className="text-md font-medium">
@@ -405,6 +466,7 @@ const AttendanceTicketManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Attendance Ticket Detail Modal */}
       <AttendanceTicketDetailModal
         isOpen={isModalOpen}
         ticket={selectedTicket}
@@ -412,12 +474,21 @@ const AttendanceTicketManagement: React.FC = () => {
         onOpenFile={openViewer}
       />
 
+      {/* Document Viewer Modal */}
       <DocumentViewerModal
         isOpen={isViewerOpen}
         onClose={closeViewer}
         fileUrl={selectedFileUrl || ""}
         fileName={selectedFileName || ""}
         fileType={selectedFileType || "image"}
+      />
+
+      {/* Edit Attendance Modal */}
+      <EditAttendanceModal
+        isOpen={isEditModalOpen}
+        onClose={closeEditModal}
+        ticket={ticketToEdit}
+        onSuccess={handleEditSuccess}
       />
     </div>
   );
