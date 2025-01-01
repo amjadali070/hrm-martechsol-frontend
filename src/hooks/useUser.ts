@@ -33,15 +33,6 @@ interface ContactDetails {
   currentAddress: string;
   permanentCity: string;
   permanentAddress: string;
-  onUpdate: (details: {
-    phoneNumber1: string;
-    phoneNumber2?: string;
-    email: string;
-    currentCity: string;
-    currentAddress: string;
-    permanentCity: string;
-    permanentAddress: string;
-  }) => void;
 }
 
 interface Education {
@@ -99,7 +90,7 @@ interface User {
   contactDetails?: ContactDetails;
   education?: Education[];
   emergencyContacts?: EmergencyContact[];
-  resume?: Resume;
+  resume?: string; // Changed from Resume to string
   documents?: Documents;
   bankAccountDetails?: BankAccountDetails;
   companyEmail?: string;
@@ -126,12 +117,16 @@ const useUser = () => {
         withCredentials: true,
       });
 
-      const processPath = (path?: string) =>
-        path
-          ? `${backendUrl.replace(/\/+$/, "")}/${path
+      const isFullURL = (url: string) => /^https?:\/\//i.test(url);
+
+      const processPath = (path?: string) => {
+        if (!path) return null;
+        return isFullURL(path)
+          ? path
+          : `${backendUrl.replace(/\/+$/, "")}/${path
               .replace(/\\+/g, "/")
-              .replace(/^\/+/, "")}`
-          : null;
+              .replace(/^\/+/, "")}`;
+      };
 
       const processDocumentPaths = (documents?: string[]) =>
         documents?.map(processPath);
@@ -144,9 +139,7 @@ const useUser = () => {
             processPath(response.data.personalDetails?.profilePicture) ||
             profilePlaceholder,
         },
-        resume: {
-          resume: processPath(response.data.resume),
-        },
+        resume: processPath(response.data.resume), // Updated line
         documents: {
           NIC: processPath(response.data.documents?.NIC),
           experienceLetter: processPath(

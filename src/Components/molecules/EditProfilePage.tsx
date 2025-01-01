@@ -442,7 +442,7 @@ const EditProfilePage: React.FC = () => {
       case "Resume":
         return (
           <Resume
-            resumeUrl={user?.resume?.resume || null}
+            resumeUrl={user?.resume || null} // Updated line
             onUpdate={handleResumeUpdate}
           />
         );

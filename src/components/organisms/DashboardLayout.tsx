@@ -36,12 +36,17 @@ const DashboardLayout: React.FC = () => {
   const authorizedRoles = ["HR", "SuperAdmin"];
   const isAuthorized = authorizedRoles.includes(user.role || "");
 
-  const processPath = (path?: string) =>
-    path
-      ? `${backendUrl.replace(/\/+$/, "")}/${path
-          .replace(/\\+/g, "/")
-          .replace(/^\/+/, "")}`
-      : null;
+  const processPath = (path?: string) => {
+    if (!path) return null;
+    // Check if the path is an absolute URL
+    if (/^(http|https):\/\/[^ "]+$/.test(path)) {
+      return path;
+    }
+    // Otherwise, prepend the backendUrl
+    return `${backendUrl.replace(/\/+$/, "")}/${path
+      .replace(/\\+/g, "/")
+      .replace(/^\/+/, "")}`;
+  };
 
   const actions = [
     {
@@ -75,6 +80,7 @@ const DashboardLayout: React.FC = () => {
   const handleViewAll = () => {
     navigate("/organization/leave-management");
   };
+
   return (
     <div className="flex flex-col space-y-5 md:space-y-10">
       <ProfileCard
