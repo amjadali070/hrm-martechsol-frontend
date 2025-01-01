@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
 import DocumentViewerModal from "./DocumentViewerModal";
-import { formatTime } from "../../utils/formateTime";
+import { formatAttendenceTicketTime } from "../../utils/formateTime";
 import { truncateComment } from "../../utils/truncateComment";
 
 interface User {
@@ -19,13 +19,13 @@ interface User {
 interface AttendanceRecord {
   _id: string;
   date: string;
-  timeIn?: string; // Made optional
-  timeOut?: string; // Made optional
+  timeIn: string;
+  timeOut: string;
   totalTime: string;
   comments: string;
   file?: string;
   fileName?: string;
-  status: "Open" | "Approved" | "Rejected"; // Updated statuses
+  status: "Open" | "Approved" | "Rejected";
   workLocation: string;
   user: User;
 }
@@ -169,14 +169,17 @@ const AttendanceTicket: React.FC = () => {
       (totalTimeMs % (1000 * 60 * 60)) / (1000 * 60)
     );
 
-    const totalTimeStr = `${totalHours}h ${totalMinutes}m`;
+    // Format totalTime as "HH:MM" for consistency
+    const totalTimeStr = `${totalHours
+      .toString()
+      .padStart(2, "0")}:${totalMinutes.toString().padStart(2, "0")}`;
 
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("date", selectedDate.toISOString());
 
-    // **Updated Lines: Send ISO Strings for timeIn and timeOut**
-    formDataToSubmit.append("timeIn", timeInDate.toISOString());
-    formDataToSubmit.append("timeOut", timeOutDate.toISOString());
+    // **Updated Lines: Send "HH:MM" strings instead of ISO strings**
+    formDataToSubmit.append("timeIn", timeIn);
+    formDataToSubmit.append("timeOut", timeOut);
 
     formDataToSubmit.append("totalTime", totalTimeStr);
     formDataToSubmit.append("comments", comments || "");
@@ -412,8 +415,12 @@ const AttendanceTicket: React.FC = () => {
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
                   <td className={tdClass}>{formatDate(record.date)}</td>
-                  <td className={tdClass}>{formatTime(record.timeIn)}</td>
-                  <td className={tdClass}>{formatTime(record.timeOut)}</td>
+                  <td className={tdClass}>
+                    {formatAttendenceTicketTime(record.timeIn)}
+                  </td>
+                  <td className={tdClass}>
+                    {formatAttendenceTicketTime(record.timeOut)}
+                  </td>
                   <td className={tdClass}>{record.totalTime}</td>
                   <td
                     className={`${tdClass} text-blue-600 cursor-pointer`}

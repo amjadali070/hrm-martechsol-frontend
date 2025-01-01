@@ -76,7 +76,6 @@ const AttendanceTicketManagement: React.FC = () => {
       } catch (error) {
         console.error("Error fetching attendance tickets:", error);
         setNotFound(true);
-        toast.error("Failed to fetch attendance tickets.");
       } finally {
         setLoading(false);
       }
@@ -190,7 +189,6 @@ const AttendanceTicketManagement: React.FC = () => {
       } catch (error) {
         console.error("Error fetching attendance tickets:", error);
         setNotFound(true);
-        toast.error("Failed to fetch attendance tickets.");
       } finally {
         setLoading(false);
       }
