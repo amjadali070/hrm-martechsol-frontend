@@ -1,3 +1,5 @@
+// Header.tsx
+
 import React, { useState, useEffect, useRef } from "react";
 import MarTechLogo from "../../assets/LogoMartechSol.png";
 import { IoNotificationsSharp } from "react-icons/io5";
@@ -54,33 +56,18 @@ const Header: React.FC = () => {
   };
 
   /**
-   * Checks the current time log status of the user.
+   * Checks the current active attendance status of the user.
    */
-  const checkTimeLogStatus = async () => {
+  const checkActiveAttendance = async () => {
     if (!user?._id) return;
 
     try {
-      const startDate = new Date();
-      startDate.setHours(0, 0, 0, 0);
-      const endDate = new Date();
-      endDate.setHours(23, 59, 59, 999);
-
       const response = await axiosInstance.get(
-        `${backendUrl}/api/attendance/user/${user._id}`,
-        {
-          params: {
-            startDate: startDate.toISOString(),
-            endDate: endDate.toISOString(),
-          },
-          withCredentials: true,
-        }
+        `${backendUrl}/api/attendance/user/${user._id}/active`,
+        { withCredentials: true }
       );
 
-      const todayLogs = response.data;
-      const activeLog = todayLogs.find(
-        (log: { timeOut: string | null }) => !log.timeOut
-      );
-
+      const activeLog = response.data;
       if (activeLog) {
         setIsTimedIn(true);
         const elapsedTime = activeLog.timeIn
@@ -91,21 +78,23 @@ const Header: React.FC = () => {
           : 0;
         startTimer(elapsedTime);
       }
-
-      // Mark that we've checked the time status
-      setTimeStatusChecked(true);
     } catch (error: any) {
-      console.error("Error checking time log status:", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to retrieve time log status";
-      toast.error(errorMessage);
+      if (error.response?.status !== 404) {
+        console.error("Error fetching active attendance:", error);
+        const errorMessage =
+          error.response?.data?.message ||
+          "Failed to retrieve active attendance status";
+        toast.error(errorMessage);
+      }
+      setIsTimedIn(false);
+    } finally {
       setTimeStatusChecked(true);
     }
   };
 
   useEffect(() => {
     if (!loading && user) {
-      checkTimeLogStatus();
+      checkActiveAttendance();
     } else if (!loading && !user) {
       // If user is not fetched (null) after loading,
       // mark time status as checked so we don't wait indefinitely.
