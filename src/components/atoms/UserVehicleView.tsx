@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import VehicleCard from "./VehicleCard";
 import axiosInstance from "../../utils/axiosConfig";
 import { FaInbox, FaSpinner } from "react-icons/fa";
-import { toast } from "react-toastify";
 
 interface AssignedTo {
   _id: string;
@@ -28,7 +27,7 @@ interface UserVehicleViewProps {
   userId: string;
 }
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL;
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
 
 const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
@@ -57,7 +56,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
     };
 
     fetchUserVehicles();
-  }, [userId]);
+  }, [userId, backendUrl]);
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
@@ -66,13 +65,6 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
           <h2 className="text-2xl font-bold text-black">
             My Assigned Vehicles
           </h2>
-          {/* If you want a "View All" button similar to LeaveManagementCard, uncomment below */}
-          {/* <button
-            onClick={onViewAll}
-            className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
-          >
-            View All
-          </button> */}
         </div>
 
         {loading ? (

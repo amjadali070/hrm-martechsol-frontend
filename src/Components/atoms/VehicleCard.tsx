@@ -25,39 +25,15 @@ interface VehicleCardProps {
 }
 
 const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
-
-  const formatImagePath = (path: string): string => {
-    let formattedPath = path.replace(/\\/g, "/");
-    if (!formattedPath.startsWith("/")) {
-      formattedPath = `/${formattedPath}`;
-    }
-    return formattedPath;
-  };
-
-  const formatDocumentPath = (path: string): string => {
-    let formattedPath = path.replace(/\\/g, "/");
-    if (!formattedPath.startsWith("/")) {
-      formattedPath = `/${formattedPath}`;
-    }
-    return formattedPath;
-  };
-
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
-  const imageUrl = vehicle.vehiclePicture
-    ? `${backendUrl}${formatImagePath(vehicle.vehiclePicture)}`
-    : null;
+  const imageUrl = vehicle.vehiclePicture;
 
-  const handleDownload = (documentPath: string) => {
-    const formattedPath = formatDocumentPath(documentPath);
-    const downloadUrl = `${backendUrl}${formattedPath}`;
+  const handleDownload = (documentUrl: string) => {
     const link = document.createElement("a");
-    link.href = downloadUrl;
-    const filename = formattedPath.substring(
-      formattedPath.lastIndexOf("/") + 1
-    );
+    link.href = documentUrl;
+    const filename = documentUrl.substring(documentUrl.lastIndexOf("/") + 1);
     link.download = filename;
     document.body.appendChild(link);
     link.click();
@@ -86,13 +62,10 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                   className={`w-full h-full object-cover ${
                     isLoading ? "hidden" : "block"
                   }`}
-                  onLoad={() => {
-                    setIsLoading(false);
-                  }}
-                  onError={(e) => {
+                  onLoad={() => setIsLoading(false)}
+                  onError={() => {
                     setHasError(true);
                     setIsLoading(false);
-                    e.currentTarget.src = "/images/default-vehicle.jpg";
                   }}
                 />
               </>
@@ -115,22 +88,20 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             {vehicle.vehicleDocuments.length > 0 && (
               <div className="mt-auto">
                 <ul className="space-y-2">
-                  {vehicle.vehicleDocuments.map((doc, index) => {
-                    return (
-                      <li key={index} className="flex items-center">
-                        <button
-                          onClick={() => handleDownload(doc)}
-                          className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
-                          aria-label={`Download document ${doc.substring(
-                            doc.lastIndexOf("/") + 1
-                          )}`}
-                        >
-                          <FaDownload size={20} className="mr-2" />
-                          Download Document
-                        </button>
-                      </li>
-                    );
-                  })}
+                  {vehicle.vehicleDocuments.map((doc, index) => (
+                    <li key={index} className="flex items-center">
+                      <button
+                        onClick={() => handleDownload(doc)}
+                        className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+                        aria-label={`Download document ${doc.substring(
+                          doc.lastIndexOf("/") + 1
+                        )}`}
+                      >
+                        <FaDownload size={20} className="mr-2" />
+                        Download Document
+                      </button>
+                    </li>
+                  ))}
                 </ul>
               </div>
             )}
