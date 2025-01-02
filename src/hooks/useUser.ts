@@ -70,10 +70,6 @@ interface Documents {
   professionalDocuments?: string[];
 }
 
-interface Resume {
-  resume?: string;
-}
-
 interface PaymentDetails {
   cardHolderName?: string;
   cardNumber?: string;

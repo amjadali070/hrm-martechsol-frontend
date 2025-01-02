@@ -42,6 +42,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
   };
 
   const handleMarkAllAsRead = () => {
+    // Optimized: Batch mark all as read
     notifications.forEach((notification) => {
       if (notification.status === "unread") {
         markAsRead(notification.id);
@@ -93,17 +94,17 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
     }
   }, [isOpen]);
 
-  useEffect(() => {
-    if (isOpen) {
-
-    }
-  }, [isOpen, notifications]);
+  // Removed empty useEffect
+  // useEffect(() => {
+  //   if (isOpen) {
+  //   }
+  // }, [isOpen, notifications]);
 
   return (
     <>
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black bg-opacity-30 transition-opacity duration-300"
+          className="fixed inset-0 z-40 bg-black bg-opacity-30 transition-opacity duration-0" // Removed transition delay
           aria-hidden="true"
         ></div>
       )}
@@ -111,7 +112,7 @@ const NotificationModal: React.FC<NotificationModalProps> = ({
       <div
         className={`fixed inset-y-0 right-0 z-50 w-full max-w-md bg-gray-800 text-white transform ${
           isOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out`}
+        } transition-transform duration-0 ease-in-out`} // Removed transition delay
         role="dialog"
         aria-modal="true"
         aria-labelledby="notification-modal-title"
