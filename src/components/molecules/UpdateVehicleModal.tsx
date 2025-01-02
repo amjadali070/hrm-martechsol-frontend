@@ -1,3 +1,5 @@
+// src/components/UpdateVehicleModal.tsx
+
 import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import {
@@ -9,9 +11,11 @@ import {
   FaCloudUploadAlt,
   FaFileImage,
   FaFilePdf,
+  FaFileWord,
 } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosConfig";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
+import { getFullUrl } from "../../utils/urlUtils";
 
 interface UpdateVehicleModalProps {
   isOpen: boolean;
@@ -26,7 +30,7 @@ interface Vehicle {
   model: string;
   registrationNo: string;
   vehiclePicture: string | null;
-  vehicleDocuments: string[];
+  vehicleDocuments: (string | null)[]; // Allowing nulls
 }
 
 const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
@@ -47,14 +51,9 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
   );
   const [uploading, setUploading] = useState<boolean>(false);
   const [preview, setPreview] = useState<string | null>(
-    vehicle.vehiclePicture
-      ? `${(axiosInstance.defaults.baseURL ?? "").replace("/api", "")}/${
-          vehicle.vehiclePicture
-        }`
-      : null
+    getFullUrl(vehicle.vehiclePicture)
   );
 
-  // State for Document Viewer Modal
   const [isDocumentViewerOpen, setIsDocumentViewerOpen] =
     useState<boolean>(false);
   const [selectedDocument, setSelectedDocument] = useState<{
@@ -71,13 +70,7 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
     setMake(vehicle.make);
     setModel(vehicle.model);
     setRegistrationNo(vehicle.registrationNo);
-    setPreview(
-      vehicle.vehiclePicture
-        ? `${(axiosInstance.defaults.baseURL ?? "").replace("/api", "")}/${
-            vehicle.vehiclePicture
-          }`
-        : null
-    );
+    setPreview(getFullUrl(vehicle.vehiclePicture));
     setVehiclePicture(null);
     setVehicleDocuments(null);
     if (pictureInputRef.current) {
@@ -180,16 +173,17 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
     }
   };
 
-  const handleDocumentClick = (doc: string) => {
-    const fileUrl = `${(axiosInstance.defaults.baseURL ?? "").replace(
-      "/api",
-      ""
-    )}/${doc}`;
-    const fileName = doc.split("/").pop() || "Document";
+  const handleDocumentClick = (docUrl: string) => {
+    const fullDocUrl = getFullUrl(docUrl);
+    if (!fullDocUrl) {
+      toast.error("Invalid document URL.");
+      return;
+    }
+    const fileName = fullDocUrl.split("/").pop() || "Document";
     const fileType = fileName.toLowerCase().endsWith(".pdf") ? "pdf" : "image";
 
     setSelectedDocument({
-      url: fileUrl,
+      url: fullDocUrl,
       name: fileName,
       type: fileType,
     });
@@ -219,14 +213,7 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
                     setMake(vehicle.make);
                     setModel(vehicle.model);
                     setRegistrationNo(vehicle.registrationNo);
-                    setPreview(
-                      vehicle.vehiclePicture
-                        ? `${(axiosInstance.defaults.baseURL ?? "").replace(
-                            "/api",
-                            ""
-                          )}/${vehicle.vehiclePicture}`
-                        : null
-                    );
+                    setPreview(getFullUrl(vehicle.vehiclePicture));
                     setVehiclePicture(null);
                     setVehicleDocuments(null);
                     if (pictureInputRef.current) {
@@ -390,27 +377,53 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
               <div className="space-y-2">
                 {vehicle.vehicleDocuments.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {vehicle.vehicleDocuments.map((doc, idx) => (
-                      <div
-                        key={idx}
-                        className="flex items-center bg-blue-50 p-3 rounded-lg cursor-pointer hover:bg-blue-100 transition"
-                        onClick={() => handleDocumentClick(doc)}
-                        title={`View Document ${idx + 1}`}
-                      >
-                        {doc.toLowerCase().endsWith(".pdf") ? (
-                          <FaFilePdf className="text-red-500 mr-2 w-5 h-5" />
-                        ) : (
-                          <FaFileImage className="text-blue-500 mr-2 w-5 h-5" />
-                        )}
-                        <span className="text-blue-700 hover:underline text-sm truncate flex-1">
-                          {`Document ${idx + 1}`}
-                        </span>
-                        <FaEye className="text-gray-500 ml-2 w-4 h-4" />
-                      </div>
-                    ))}
+                    {vehicle.vehicleDocuments.map((doc, idx) => {
+                      if (!doc) {
+                        // Handle null or undefined document URLs
+                        return (
+                          <div
+                            key={idx}
+                            className="flex items-center space-x-2 bg-red-100 p-3 rounded-lg"
+                          >
+                            <FaFilePdf className="text-gray-500 w-5 h-5" />
+                            <span className="text-gray-500">
+                              Invalid Document
+                            </span>
+                          </div>
+                        );
+                      }
+
+                      const fullDocUrl = getFullUrl(doc);
+                      const fileName = fullDocUrl
+                        ? fullDocUrl.split("/").pop() || `Document ${idx + 1}`
+                        : `Document ${idx + 1}`;
+                      const isPDF = fileName.toLowerCase().endsWith(".pdf");
+                      const icon = isPDF ? (
+                        <FaFilePdf className="text-red-500 w-5 h-5" />
+                      ) : (
+                        <FaFileWord className="text-blue-500 w-5 h-5" />
+                      );
+
+                      return (
+                        <div
+                          key={idx}
+                          className="flex items-center space-x-2 bg-blue-50 p-3 rounded-lg cursor-pointer hover:bg-blue-100 transition"
+                          onClick={() => handleDocumentClick(doc)}
+                          title={`View Document ${idx + 1}`}
+                        >
+                          {icon}
+                          <span className="text-blue-600 hover:underline text-sm truncate flex-1">
+                            {fileName}
+                          </span>
+                          <FaEye className="text-gray-500 ml-2 w-4 h-4" />
+                        </div>
+                      );
+                    })}
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic">No documents uploaded</p>
+                  <p className="text-sm text-gray-500 italic">
+                    No documents uploaded
+                  </p>
                 )}
               </div>
               {isEditing && (
