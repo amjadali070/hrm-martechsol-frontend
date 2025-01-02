@@ -188,10 +188,7 @@ const LeaveManagement: React.FC = () => {
     }
 
     if (request && request.handoverDocument) {
-      const fullPdfUrl = `${backendUrl}/${request.handoverDocument.replace(
-        /\\/g,
-        "/"
-      )}`;
+      const fullPdfUrl = `${request.handoverDocument.replace(/\\/g, "/")}`;
 
       setSelectedPdfUrl(fullPdfUrl);
       setModalType("viewPDF");
