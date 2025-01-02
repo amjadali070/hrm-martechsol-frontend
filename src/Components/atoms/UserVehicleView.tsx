@@ -60,7 +60,10 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
-      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
+      <div
+        className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl"
+        style={{ height: "251px" }}
+      >
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h2 className="text-2xl font-bold text-black">
             My Assigned Vehicles
