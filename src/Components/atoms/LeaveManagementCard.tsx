@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaInbox, FaFilePdf, FaTimes } from "react-icons/fa";
-import { toast } from "react-toastify";
+import { FaSpinner, FaInbox, FaTimes } from "react-icons/fa";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
@@ -58,7 +57,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
             new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
         );
         // Get top 5
-        const top5 = sortedRequests.slice(0, 5);
+        const top5 = sortedRequests.slice(0, 3);
 
         setRecentLeaveRequests(top5);
       } catch (error) {
@@ -80,7 +79,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
     <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
       <div
         className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl"
-        style={{ height: "251px" }}
+        style={{ height: "280px" }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h2 className="text-2xl font-bold text-black">
@@ -104,7 +103,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
             <FaSpinner className="text-blue-500 animate-spin" size={30} />
           </div>
         ) : recentLeaveRequests.length > 0 ? (
-          <div className="overflow-x-auto">
+          <div className="overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-purple-900">
                 <tr>
@@ -161,7 +160,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
         ) : (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "251px" }}
+            style={{ height: "280px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">

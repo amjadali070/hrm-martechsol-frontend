@@ -62,7 +62,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
       <div
         className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl"
-        style={{ height: "251px" }}
+        style={{ height: "280px" }}
       >
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
           <h2 className="text-2xl font-bold text-black">
@@ -94,7 +94,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         ) : (
           <div
             className="flex flex-col items-center justify-center"
-            style={{ height: "251px" }}
+            style={{ height: "280px" }}
           >
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">
