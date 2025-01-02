@@ -11,6 +11,16 @@ import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
 import useDebounce from "../../hooks/useDebounce";
+import {
+  startOfDay,
+  endOfDay,
+  startOfYesterday,
+  endOfYesterday,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 
 const statusColors: Record<string, string> = {
   Present: "bg-green-500",
@@ -43,6 +53,7 @@ interface User {
   email: string;
   personalDetails?: {
     jobTitle: string;
+    shiftTimings?: string; // Adjust based on your actual data structure
   };
 }
 
@@ -76,6 +87,7 @@ const AttendanceManagement: React.FC = () => {
   const user_Id = user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  const [dateRange, setDateRange] = useState<string>("Today"); // New state for date range
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -108,10 +120,65 @@ const AttendanceManagement: React.FC = () => {
   const [groupedAttendanceData, setGroupedAttendanceData] = useState<
     Record<string, Attendance[]>
   >({});
+  const getDateRange = (range: string) => {
+    const today = new Date();
+    let start: Date | null = null;
+    let end: Date | null = null;
+
+    switch (range) {
+      case "Today": {
+        const currentDate = today.toISOString().split("T")[0];
+        start = end = new Date(currentDate);
+        break;
+      }
+      case "Yesterday": {
+        const yesterday = new Date(today);
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayDate = yesterday.toISOString().split("T")[0];
+        start = end = new Date(yesterdayDate);
+        break;
+      }
+      case "This Week":
+        start = startOfWeek(today, { weekStartsOn: 1 });
+        end = endOfWeek(today, { weekStartsOn: 1 });
+        break;
+      case "This Month": {
+        // Get first day of current month
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        // Get last day of current month
+        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        break;
+      }
+      default:
+        start = null;
+        end = null;
+    }
+
+    // Format dates for API - ensures we get YYYY-MM-DD format consistently
+    const formatDate = (date: Date | null) => {
+      if (!date) return "";
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      return `${year}-${month}-${day}`;
+    };
+
+    return {
+      startDate: formatDate(start),
+      endDate: formatDate(end),
+    };
+  };
+
+  useEffect(() => {
+    if (dateRange !== "Custom") {
+      const { startDate, endDate } = getDateRange(dateRange);
+      setFromDate(startDate);
+      setToDate(endDate);
+    }
+  }, [dateRange]);
 
   const fetchAttendance = useCallback(async () => {
     if (!backendUrl) {
-      toast.error("Backend URL is not defined.");
       setLoading(false);
       return;
     }
@@ -128,8 +195,11 @@ const AttendanceManagement: React.FC = () => {
       if (toDate) params.endDate = toDate;
       if (typeFilter && typeFilter !== "All") params.types = typeFilter;
 
+      // Reset pagination to first page on new fetch
       params.page = 1;
       params.limit = 1000;
+
+      console.log("Fetching attendance with params:", params);
 
       const { data } = await axiosInstance.get<ApiResponse>(
         `${backendUrl}/api/attendance`,
@@ -253,32 +323,71 @@ const AttendanceManagement: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-4 mb-6">
+            {/* Search Name */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+              <FaSearch className="text-gray-400 mr-3 flex-shrink-0" />
               <input
-                type="date"
-                value={fromDate}
+                type="text"
+                value={searchName}
                 onChange={(e) => {
-                  setFromDate(e.target.value);
+                  setSearchName(e.target.value);
                 }}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
-                placeholder="FROM"
+                placeholder="Search Name"
               />
             </div>
 
+            {/* Date Range Selector */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => {
-                  setToDate(e.target.value);
-                }}
+              <select
+                id="dateRange"
+                value={dateRange}
+                onChange={(e) => setDateRange(e.target.value)}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
-                placeholder="TO"
-              />
+              >
+                <option value="Today">Today</option>
+                <option value="All">All Dates</option>
+                <option value="Yesterday">Yesterday</option>
+                <option value="This Week">This Week</option>
+                <option value="This Month">This Month</option>
+                <option value="Custom">Custom</option>
+              </select>
             </div>
 
+            {/* From Date - Only enabled if Custom is selected */}
+            {dateRange === "Custom" && (
+              <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
+                <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                  }}
+                  className="w-full border-none focus:outline-none text-sm text-gray-600"
+                  placeholder="FROM"
+                />
+              </div>
+            )}
+
+            {/* To Date - Only enabled if Custom is selected */}
+            {dateRange === "Custom" && (
+              <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
+                <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                  }}
+                  className="w-full border-none focus:outline-none text-sm text-gray-600"
+                  placeholder="TO"
+                />
+              </div>
+            )}
+
+            {/* Type Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
               <select
@@ -298,19 +407,7 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaSearch className="text-gray-400 mr-3 flex-shrink-0" />
-              <input
-                type="text"
-                value={searchName}
-                onChange={(e) => {
-                  setSearchName(e.target.value);
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
-                placeholder="Search Name"
-              />
-            </div>
-
+            {/* Job Title Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
               <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
               <select
