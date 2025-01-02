@@ -10,10 +10,7 @@ import {
   FaTimesCircle,
 } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
-import {
-  formatAttendenceTicketTime,
-  formatTime,
-} from "../../utils/formateTime";
+import { formatAttendenceTicketTime } from "../../utils/formateTime";
 
 export type AttendanceTicketStatus =
   | "Open"
@@ -215,7 +212,7 @@ const AttendanceTicketDetailModal: React.FC<
             {file && (
               <button
                 onClick={() =>
-                  onOpenFile(`/${file}`, file.split("\\").pop() || "")
+                  file && onOpenFile(file, file.split("/").pop() || "")
                 }
                 className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-full text-sm transition-colors flex items-center"
               >

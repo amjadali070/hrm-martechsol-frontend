@@ -145,12 +145,15 @@ const AttendanceTicketManagement: React.FC = () => {
     setSelectedTicket(null);
   };
 
-  const openViewer = (filePath: string, fileName: string) => {
-    const fileType = filePath.split(".").pop()?.toLowerCase();
-    const fullUrl = `${backendUrl}${filePath}`;
-    setSelectedFileUrl(fullUrl);
-    setSelectedFileName(fileName);
-    setSelectedFileType(fileType === "pdf" ? "pdf" : "image");
+  const openViewer = (fileUrl: string, fileName: string) => {
+    if (!fileUrl) return; // Ensure the file URL exists
+
+    const fileType = fileUrl.split(".").pop()?.toLowerCase(); // Extract file extension
+    const fileNameFromUrl = fileUrl.split("/").pop(); // Extract file name from URL
+
+    setSelectedFileUrl(fileUrl); // Set the full file URL
+    setSelectedFileName(fileName || fileNameFromUrl || "Unknown File"); // Use the provided fileName or fallback
+    setSelectedFileType(fileType === "pdf" ? "pdf" : "image"); // Determine file type
     setIsViewerOpen(true);
   };
 
