@@ -24,5 +24,5 @@ export interface TimeLog {
   timeOut: string | null;
   duration: number;
   type: AttendanceType;
-  remarks?: string; // Added remarks field
+  remarks?: string;
 }

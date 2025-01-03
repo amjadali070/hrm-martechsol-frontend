@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { FaSpinner } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
