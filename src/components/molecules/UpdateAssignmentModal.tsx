@@ -81,7 +81,6 @@ const UpdateAssignmentModal: React.FC<UpdateAssignmentModalProps> = ({
     } catch (err: any) {
       console.error("Error reassigning vehicle:", err);
       setError(err.response?.data?.message || "Failed to reassign vehicle.");
-      toast.error(err.response?.data?.message || "Failed to reassign vehicle.");
     } finally {
       setLoading(false);
     }

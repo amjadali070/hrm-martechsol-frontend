@@ -130,7 +130,6 @@ const AttendanceTicketManagement: React.FC = () => {
       );
     } catch (error: any) {
       console.error("Error updating attendance ticket status:", error);
-      toast.error(error.response?.data?.message || "An error occurred.");
     }
   };
 

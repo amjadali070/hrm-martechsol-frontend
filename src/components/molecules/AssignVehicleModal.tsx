@@ -65,7 +65,6 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
     } catch (err: any) {
       console.error("Error fetching users:", err);
       setError(err.response?.data?.message || "Failed to fetch users.");
-      toast.error("Failed to fetch users.");
     }
   };
 
@@ -94,8 +93,6 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
       onClose();
     } catch (err: any) {
       console.error("Error assigning vehicle:", err);
-      setError(err.response?.data?.message || "Failed to assign vehicle.");
-      toast.error(err.response?.data?.message || "Failed to assign vehicle.");
     } finally {
       setLoading(false);
     }

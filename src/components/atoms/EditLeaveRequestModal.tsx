@@ -66,9 +66,6 @@ const EditLeaveRequestModal: React.FC<{
       closeModal();
     } catch (error: any) {
       console.error("Error updating leave request", error);
-      toast.error(
-        error.response?.data?.message || "Failed to update leave request"
-      );
     }
   };
 

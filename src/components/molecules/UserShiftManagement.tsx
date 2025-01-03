@@ -158,9 +158,6 @@ const UserShiftManagement: React.FC = () => {
         toast.success("Shift timings updated successfully!");
       } catch (error: any) {
         console.error("Error updating shift:", error);
-        toast.error(
-          error.response?.data?.message || "Failed to update shift timings."
-        );
       } finally {
         setUpdating((prev) => ({ ...prev, [id]: false }));
       }

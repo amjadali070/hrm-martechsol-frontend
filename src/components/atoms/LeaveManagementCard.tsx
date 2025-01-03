@@ -27,7 +27,7 @@ const fetchLeaveRequests = async (
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
-    // toast.error("Failed to fetch leave requests.");
+
     return [];
   }
 };
@@ -61,7 +61,6 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
 
         setRecentLeaveRequests(top5);
       } catch (error) {
-        // toast.error("Error loading recent leave requests.");
       } finally {
         setIsLoading(false);
       }

@@ -43,7 +43,6 @@ const useNotifications = (userId: string | undefined) => {
       setUnreadCount(unread);
     } catch (error) {
       console.error("Error fetching notifications:", error);
-      toast.error("Failed to retrieve notifications");
     } finally {
       setIsLoading(false);
     }

@@ -37,12 +37,6 @@ const UserPasswordManager: React.FC = () => {
         setUsers(response.data.users);
       } catch (err: any) {
         console.error("Error fetching users:", err);
-        setError(
-          err.response?.data?.message || "Failed to fetch users. Try again."
-        );
-        toast.error(
-          err.response?.data?.message || "Failed to fetch users. Try again."
-        );
       } finally {
         setLoading(false);
       }
@@ -75,9 +69,6 @@ const UserPasswordManager: React.FC = () => {
       closeResetModal();
     } catch (err: any) {
       console.error("Error resetting password:", err);
-      toast.error(
-        err.response?.data?.message || "Failed to reset password. Try again."
-      );
     }
   };
 

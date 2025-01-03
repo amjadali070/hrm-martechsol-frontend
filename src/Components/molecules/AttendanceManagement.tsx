@@ -222,9 +222,6 @@ const AttendanceManagement: React.FC = () => {
 
       setAttendanceData(fetchedData);
     } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch attendance data.";
-      toast.error(errorMessage);
       console.error("Error fetching attendance:", error);
     } finally {
       setLoading(false);

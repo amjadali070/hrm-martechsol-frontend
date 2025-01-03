@@ -75,10 +75,6 @@ const LeaveApplication: React.FC = () => {
         setJobStatus(response.data.personalDetails.jobStatus);
       } catch (error) {
         console.error("Error fetching user details:", error);
-        toast.error("Failed to fetch user details.", {
-          position: "top-center",
-          autoClose: 3000,
-        });
       }
     };
 
@@ -194,7 +190,7 @@ const LeaveApplication: React.FC = () => {
     }
 
     if (!validateForm()) {
-      toast.error("Please fix the errors in the form.", {
+      toast.error("Please fill all felds in the form.", {
         position: "top-center",
         autoClose: 3000,
       });

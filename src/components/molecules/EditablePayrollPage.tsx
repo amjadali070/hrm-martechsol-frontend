@@ -147,9 +147,6 @@ const EditablePayrollPage: React.FC = () => {
       navigate("/organization/payroll-management");
     } catch (err: any) {
       console.error("Error updating payroll:", err);
-      toast.error(
-        err.response?.data?.message || err.message || "Failed to update payroll"
-      );
     }
   };
 

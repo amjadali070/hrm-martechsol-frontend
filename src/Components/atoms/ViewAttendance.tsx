@@ -84,10 +84,6 @@ const ViewAttendance: React.FC = () => {
         setAttendanceData(data);
         setFilteredData(data);
       } catch (error: any) {
-        // Display error message to the user
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch attendance data.";
-        toast.error(errorMessage);
         console.error("Error fetching attendance:", error);
       } finally {
         setLoading(false);

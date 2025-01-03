@@ -228,9 +228,6 @@ const AttendanceTicket: React.FC = () => {
       toast.success("Attendance ticket submitted successfully!");
     } catch (error: any) {
       console.error("Error submitting ticket:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to submit attendance ticket."
-      );
     } finally {
       setLoading(false);
     }

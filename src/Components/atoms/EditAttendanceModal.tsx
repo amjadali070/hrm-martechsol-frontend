@@ -104,7 +104,7 @@ const EditAttendanceModal: React.FC<Props> = ({
     const timeFormatRegex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
     if (!timeFormatRegex.test(timeIn) || !timeFormatRegex.test(timeOut)) {
       setError("Time In and Time Out must be in HH:MM format.");
-      toast.error("Time In and Time Out must be in HH:MM format.");
+
       return;
     }
 
@@ -153,9 +153,6 @@ const EditAttendanceModal: React.FC<Props> = ({
     } catch (error: any) {
       console.error("Error updating attendance ticket:", error);
       setError(
-        error.response?.data?.message || "Failed to update attendance ticket."
-      );
-      toast.error(
         error.response?.data?.message || "Failed to update attendance ticket."
       );
     } finally {

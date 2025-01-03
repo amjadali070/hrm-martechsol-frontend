@@ -118,7 +118,6 @@ const PayrollManagement: React.FC = () => {
         setUsers(response.data.users);
       } catch (error: any) {
         console.error("Error fetching users:", error);
-        toast.error(error.response?.data?.message || "Error fetching users");
       } finally {
         setUserLoading(false);
       }
@@ -210,7 +209,6 @@ const PayrollManagement: React.FC = () => {
       setPayrollData(refreshedPayrolls.data);
     } catch (error: any) {
       console.error("Error generating payroll:", error);
-      toast.error(error.response?.data?.message || "Error generating payroll");
     } finally {
       setGenerateLoading(false);
     }
@@ -231,9 +229,6 @@ const PayrollManagement: React.FC = () => {
       setUserPayrolls(response.data);
     } catch (error: any) {
       console.error("Error fetching user payrolls:", error);
-      toast.error(
-        error.response?.data?.message || "Error fetching user payrolls"
-      );
     } finally {
       setUserLoading(false);
     }
@@ -256,7 +251,6 @@ const PayrollManagement: React.FC = () => {
       setPayrollData(refreshedPayrolls.data);
     } catch (error: any) {
       console.error("Error updating payroll:", error);
-      toast.error(error.response?.data?.message || "Error updating payroll");
     } finally {
       setLoading(false);
     }

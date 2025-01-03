@@ -58,7 +58,7 @@ const ViewHolidays: React.FC = () => {
       } catch (error: any) {
         const errorMessage =
           error.response?.data?.message || "Failed to fetch holidays.";
-        // toast.error(errorMessage);
+
         console.error("Error fetching holidays:", error, errorMessage);
       } finally {
         setLoading(false);
@@ -300,7 +300,10 @@ const ViewHolidays: React.FC = () => {
                 ) : (
                   // No Records Found
                   <tr>
-                    <td colSpan={7} className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    <td
+                      colSpan={7}
+                      className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
+                    >
                       <div className="flex flex-col items-center justify-center">
                         <FaInbox size={30} className="text-gray-400 mb-2" />
                         <span className="text-md font-medium">

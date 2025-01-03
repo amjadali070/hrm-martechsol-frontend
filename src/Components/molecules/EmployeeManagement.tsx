@@ -70,7 +70,6 @@ const EmployeeManagement: React.FC = () => {
         setFilteredEmployees(users);
       } catch (error: any) {
         console.error("Error fetching employee data:", error);
-        toast.error("Failed to fetch employee data.");
       } finally {
         setIsLoading(false);
       }
@@ -264,9 +263,6 @@ const EmployeeManagement: React.FC = () => {
       );
     } catch (error: any) {
       console.error("Error updating user status:", error);
-      toast.error(
-        error.response?.data.message || "Failed to update user status."
-      );
     }
   };
 

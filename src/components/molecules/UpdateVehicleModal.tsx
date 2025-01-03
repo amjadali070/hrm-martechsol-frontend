@@ -146,13 +146,6 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
       }
     } catch (error: any) {
       console.error("Error updating vehicle:", error);
-      toast.error(
-        error.response?.data?.message || "Failed to update vehicle.",
-        {
-          position: "top-right",
-          autoClose: 3000,
-        }
-      );
     } finally {
       setUploading(false);
     }

@@ -98,9 +98,6 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
       await onSave(editableData);
     } catch (err: any) {
       console.error("Error saving payroll:", err);
-      toast.error(
-        err.response?.data?.message || err.message || "Failed to save payroll"
-      );
     } finally {
       setLoading(false);
     }
