@@ -65,7 +65,6 @@ interface Employee {
   dateOfBirth: string;
   jobStatus: string;
   joiningDate: string;
-  // ... include other necessary fields
 }
 
 interface PersonalDetailsUpdaterProps {
@@ -140,7 +139,6 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
     }
   };
 
-  // Updated to handle async function
   const handleUpdate = async () => {
     await onUpdate(editedEmployee);
     setIsEditing(false);

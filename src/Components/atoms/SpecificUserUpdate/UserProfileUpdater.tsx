@@ -72,21 +72,6 @@ interface ContactDetails {
   permanentAddress: string;
 }
 
-interface PersonalDetails {
-  department: string;
-  jobTitle: string;
-  jobCategory: string;
-  jobType: string;
-  profilePicture: string;
-  shiftTimings: string; // Combined field
-  gender: string;
-  dateOfBirth: string;
-  jobStatus: string;
-  joiningDate: string;
-  shiftStartTime?: string;
-  shiftEndTime?: string;
-}
-
 interface Employee {
   name: string;
   department: string;
@@ -94,7 +79,7 @@ interface Employee {
   jobCategory: string;
   jobType: string;
   profilePicture: string;
-  shiftTimings: string; // Combined field
+  shiftTimings: string;
   gender: string;
   dateOfBirth: string;
   jobStatus: string;
