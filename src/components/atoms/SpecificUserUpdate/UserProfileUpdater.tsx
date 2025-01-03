@@ -1,3 +1,5 @@
+// UserProfileUpdater.tsx
+
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
@@ -8,6 +10,7 @@ import UserSalaryUpdater from "./UserSalaryUpdater";
 import UserProfileDetails from "./UserProfileDetails";
 import { FaSpinner } from "react-icons/fa";
 
+// Define interfaces for better type safety
 interface Education {
   institute?: string;
   degree?: string;
@@ -52,6 +55,38 @@ interface PaymentDetails {
   cvv?: string;
 }
 
+interface SalaryDetails {
+  basicSalary: number;
+  medicalAllowance: number;
+  mobileAllowance: number;
+  fuelAllowance: number;
+}
+
+interface ContactDetails {
+  phoneNumber1: string;
+  phoneNumber2?: string;
+  email: string;
+  currentCity: string;
+  currentAddress: string;
+  permanentCity: string;
+  permanentAddress: string;
+}
+
+interface PersonalDetails {
+  department: string;
+  jobTitle: string;
+  jobCategory: string;
+  jobType: string;
+  profilePicture: string;
+  shiftTimings: string; // Combined field
+  gender: string;
+  dateOfBirth: string;
+  jobStatus: string;
+  joiningDate: string;
+  shiftStartTime?: string;
+  shiftEndTime?: string;
+}
+
 interface Employee {
   name: string;
   department: string;
@@ -59,26 +94,13 @@ interface Employee {
   jobCategory: string;
   jobType: string;
   profilePicture: string;
-  shiftTimings: string;
+  shiftTimings: string; // Combined field
   gender: string;
   dateOfBirth: string;
   jobStatus: string;
   joiningDate: string;
-  salaryDetails: {
-    basicSalary: number;
-    medicalAllowance: number;
-    mobileAllowance: number;
-    fuelAllowance: number;
-  };
-  contactDetails: {
-    phoneNumber1: string;
-    phoneNumber2?: string;
-    email: string;
-    currentCity: string;
-    currentAddress: string;
-    permanentCity: string;
-    permanentAddress: string;
-  };
+  salaryDetails: SalaryDetails;
+  contactDetails: ContactDetails;
   education?: Education[];
   emergencyContacts?: EmergencyContact[];
   resume?: Resume;
@@ -95,8 +117,9 @@ const UserProfileUpdater: React.FC = () => {
   const { id = "" } = useParams<{ id: string }>();
   const [employee, setEmployee] = useState<Employee | null>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  const [activeTab, setActiveTab] = useState("View Data");
-  const [activeEditSubTab, setActiveEditSubTab] = useState("Personal Details");
+  const [activeTab, setActiveTab] = useState<string>("View Data");
+  const [activeEditSubTab, setActiveEditSubTab] =
+    useState<string>("Personal Details");
 
   const editSubTabs = ["Personal Details", "Salary Details"];
 
@@ -149,14 +172,18 @@ const UserProfileUpdater: React.FC = () => {
         );
         const data = response.data;
 
-        const mappedEmployee = {
+        const mappedEmployee: Employee = {
           name: data.name,
           department: data.personalDetails?.department || "",
           jobTitle: data.personalDetails?.jobTitle || "",
           jobCategory: data.personalDetails?.jobCategory || "",
           jobType: data.personalDetails?.jobType || "",
           profilePicture: data.personalDetails?.profilePicture || "",
-          shiftTimings: data.personalDetails?.shiftTimings || "",
+          shiftTimings:
+            data.personalDetails?.shiftStartTime &&
+            data.personalDetails?.shiftEndTime
+              ? `${data.personalDetails.shiftStartTime} - ${data.personalDetails.shiftEndTime}`
+              : "",
           gender: data.personalDetails?.gender || "",
           dateOfBirth: data.personalDetails?.dateOfBirth
             ? new Date(data.personalDetails.dateOfBirth)
@@ -232,13 +259,41 @@ const UserProfileUpdater: React.FC = () => {
     }
   };
 
+  // Define a specific type for updated details
+  interface UpdatedDetails {
+    name: string;
+    department: string;
+    jobTitle: string;
+    jobCategory: string;
+    jobType: string;
+    shiftTimings: string;
+    gender: string;
+    dateOfBirth: string;
+    jobStatus: string;
+    joiningDate: string;
+    // Add other fields as necessary
+  }
+
   const handleUpdateEmployeeDetails = async (
-    updatedDetails: any // Define a specific type if needed
+    updatedDetails: UpdatedDetails
   ) => {
     try {
+      // Extract shiftTimings and split into start and end times
+      const { shiftTimings, ...rest } = updatedDetails;
+      let shiftStartTime = "";
+      let shiftEndTime = "";
+
+      if (shiftTimings) {
+        const timings = shiftTimings.split(" - ");
+        shiftStartTime = timings[0].trim();
+        shiftEndTime = timings[1]?.trim() || "";
+      }
+
       const payload = {
         personalDetails: {
-          ...updatedDetails,
+          ...rest,
+          shiftStartTime,
+          shiftEndTime,
         },
       };
 
@@ -248,9 +303,11 @@ const UserProfileUpdater: React.FC = () => {
       );
 
       const updatedData = response.data.user;
-      const mappedEmployee = {
+
+      const mappedEmployee: Employee = {
         ...employee!,
         ...updatedData.personalDetails,
+        shiftTimings: `${updatedData.personalDetails.shiftStartTime} - ${updatedData.personalDetails.shiftEndTime}`,
         salaryDetails: employee?.salaryDetails,
       };
 
@@ -298,8 +355,8 @@ const UserProfileUpdater: React.FC = () => {
           <PersonalDetailsUpdater
             userId={id}
             employee={employee!}
-            departments={departments} // Pass departments
-            jobTitles={jobTitles} // Pass jobTitles
+            departments={departments}
+            jobTitles={jobTitles}
             onProfilePictureChange={handleProfilePictureChange}
             isEditable={true}
             onUpdate={handleUpdateEmployeeDetails}
@@ -324,7 +381,7 @@ const UserProfileUpdater: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case "View Data":
-        return <UserProfileDetails userProfile={employee!} />;
+        return employee ? <UserProfileDetails userProfile={employee} /> : null;
       case "Edit Data":
         return (
           <div>

@@ -10,7 +10,8 @@ interface UserShiftData {
   name: string;
   department: string;
   jobTitle: string;
-  shiftTimings?: string;
+  shiftStartTime?: string; // e.g., "9:00 AM"
+  shiftEndTime?: string; // e.g., "5:30 PM"
 }
 
 const departmentOptions = [
@@ -53,21 +54,22 @@ const jobTitleOptions = [
 ];
 
 const additionalShiftTimings = [
-  "9:00 AM - 5:30 PM",
-  "10:00 AM - 6:30 PM",
-  "11:00 AM - 7:30 PM",
-  "12:00 PM - 8:30 PM",
-  "1:00 PM - 9:30 PM",
-  "2:00 PM - 10:30 PM",
-  "3:00 PM - 11:30 PM",
-  "4:00 PM - 12:30 AM",
-  "5:00 PM - 1:30 AM",
-  "6:00 PM - 2:30 AM",
-  "6:30 PM - 3:00 AM",
-  "7:00 PM - 3:30 AM",
-  "8:00 PM - 4:30 AM",
-  "9:00 PM - 5:30 AM",
+  { label: "9:00 AM - 5:30 PM", start: "9:00 AM", end: "5:30 PM" },
+  { label: "10:00 AM - 6:30 PM", start: "10:00 AM", end: "6:30 PM" },
+  { label: "11:00 AM - 7:30 PM", start: "11:00 AM", end: "7:30 PM" },
+  { label: "12:00 PM - 8:30 PM", start: "12:00 PM", end: "8:30 PM" },
+  { label: "1:00 PM - 9:30 PM", start: "1:00 PM", end: "9:30 PM" },
+  { label: "2:00 PM - 10:30 PM", start: "2:00 PM", end: "10:30 PM" },
+  { label: "3:00 PM - 11:30 PM", start: "3:00 PM", end: "11:30 PM" },
+  { label: "4:00 PM - 12:30 AM", start: "4:00 PM", end: "12:30 AM" },
+  { label: "5:00 PM - 1:30 AM", start: "5:00 PM", end: "1:30 AM" },
+  { label: "6:00 PM - 2:30 AM", start: "6:00 PM", end: "2:30 AM" },
+  { label: "6:30 PM - 3:00 AM", start: "6:30 PM", end: "3:00 AM" },
+  { label: "7:00 PM - 3:30 AM", start: "7:00 PM", end: "3:30 AM" },
+  { label: "8:00 PM - 4:30 AM", start: "8:00 PM", end: "4:30 AM" },
+  { label: "9:00 PM - 5:30 AM", start: "9:00 PM", end: "5:30 AM" },
 ];
+
 const UserShiftManagement: React.FC = () => {
   const [data, setData] = useState<UserShiftData[]>([]);
   const [filters, setFilters] = useState({
@@ -82,7 +84,7 @@ const UserShiftManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(5);
   const [shiftOptions, setShiftOptions] = useState<
-    { label: string; timing: string }[]
+    { label: string; start: string; end: string }[]
   >([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
@@ -98,14 +100,13 @@ const UserShiftManagement: React.FC = () => {
             withCredentials: true,
           }
         );
-        setData(response.data.users);
 
-        // Use only additionalShiftTimings for shift options
-        const mappedShifts = additionalShiftTimings.map((shift: string) => ({
-          label: shift,
-          timing: shift,
-        }));
-        setShiftOptions(mappedShifts);
+        const users: UserShiftData[] = response.data.users;
+
+        setData(users);
+
+        // Shift options are already correctly formatted
+        setShiftOptions(additionalShiftTimings);
       } catch (error: any) {
         console.error("Error fetching user shifts:", error);
         toast.error("Failed to fetch user shift timings.");
@@ -124,22 +125,29 @@ const UserShiftManagement: React.FC = () => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleShiftChange = (id: string, newShift: string) => {
-    setEditedShifts((prev) => ({ ...prev, [id]: newShift }));
+  const handleShiftChange = (
+    id: string,
+    shift: { start: string; end: string }
+  ) => {
+    setEditedShifts((prev) => ({
+      ...prev,
+      [id]: `${shift.start} - ${shift.end}`,
+    }));
   };
 
   const handleUpdate = async (id: string) => {
     if (editedShifts[id]) {
-      const payload = { userId: id, shiftTimings: editedShifts[id] };
+      const [shiftStartTime, shiftEndTime] = editedShifts[id].split(" - ");
+      const payload = { userId: id, shiftStartTime, shiftEndTime };
 
-      setUpdating((prev) => ({ ...prev, [id]: true })); // Set updating to true for this user
+      setUpdating((prev) => ({ ...prev, [id]: true }));
       try {
         await axios.put(`${backendUrl}/api/users/shift`, payload, {
           withCredentials: true,
         });
         setData((prev) =>
           prev.map((item) =>
-            item._id === id ? { ...item, shiftTimings: editedShifts[id] } : item
+            item._id === id ? { ...item, shiftStartTime, shiftEndTime } : item
           )
         );
         setEditedShifts((prev) => {
@@ -154,7 +162,7 @@ const UserShiftManagement: React.FC = () => {
           error.response?.data?.message || "Failed to update shift timings."
         );
       } finally {
-        setUpdating((prev) => ({ ...prev, [id]: false })); // Set updating to false for this user
+        setUpdating((prev) => ({ ...prev, [id]: false }));
       }
     }
   };
@@ -168,7 +176,8 @@ const UserShiftManagement: React.FC = () => {
     const matchesJobTitle =
       !filters.jobTitle || user.jobTitle === filters.jobTitle;
     const matchesShift =
-      !filters.shiftTimings || user.shiftTimings === filters.shiftTimings;
+      !filters.shiftTimings ||
+      `${user.shiftStartTime} - ${user.shiftEndTime}` === filters.shiftTimings;
 
     return (
       matchesSearch && matchesDepartment && matchesJobTitle && matchesShift
@@ -242,7 +251,7 @@ const UserShiftManagement: React.FC = () => {
           >
             <option value="">Filter by Shift</option>
             {shiftOptions.map((shiftTimings) => (
-              <option key={shiftTimings.timing} value={shiftTimings.timing}>
+              <option key={shiftTimings.label} value={shiftTimings.label}>
                 {shiftTimings.label}
               </option>
             ))}
@@ -304,19 +313,33 @@ const UserShiftManagement: React.FC = () => {
                   </td>
                   <td className="px-4 py-2">
                     <select
-                      value={editedShifts[user._id] || user.shiftTimings || ""}
-                      onChange={(e) =>
-                        handleShiftChange(user._id, e.target.value)
+                      value={
+                        editedShifts[user._id] ||
+                        (user.shiftStartTime && user.shiftEndTime
+                          ? `${user.shiftStartTime} - ${user.shiftEndTime}`
+                          : "")
                       }
+                      onChange={(e) => {
+                        const selectedLabel = e.target.value;
+                        const selectedShift = shiftOptions.find(
+                          (shift) => shift.label === selectedLabel
+                        );
+                        if (selectedShift) {
+                          handleShiftChange(user._id, {
+                            start: selectedShift.start,
+                            end: selectedShift.end,
+                          });
+                        }
+                      }}
                       className="border border-gray-300 rounded-lg p-1 focus:ring-2 focus:ring-purple-500"
                     >
                       <option value="" disabled>
-                        {user.shiftTimings
+                        {user.shiftStartTime && user.shiftEndTime
                           ? "Select Shift"
                           : `Select shift for ${user.name}`}
                       </option>
                       {shiftOptions.map((shift) => (
-                        <option key={shift.timing} value={shift.timing}>
+                        <option key={shift.label} value={shift.label}>
                           {shift.label}
                         </option>
                       ))}
@@ -337,7 +360,9 @@ const UserShiftManagement: React.FC = () => {
                       </button>
                     ) : (
                       <span className="text-sm text-gray-500 ml-3">
-                        {user.shiftTimings ? "Updated" : "No Shift Assigned"}
+                        {user.shiftStartTime && user.shiftEndTime
+                          ? "Updated"
+                          : "No Shift Assigned"}
                       </span>
                     )}
                   </td>

@@ -1,3 +1,5 @@
+// EditProfilePage.tsx
+
 import React, { useEffect, useState } from "react";
 import profilePlaceHolder from "../../assets/placeholder.png";
 import BankAccountDetails from "../atoms/EditProfile/BankAccountDetails";
@@ -25,7 +27,8 @@ const EditProfilePage: React.FC = () => {
     jobCategory: "",
     jobType: "",
     profilePicture: "",
-    shiftTimings: "",
+    shiftStartTime: "",
+    shiftEndTime: "",
     jobStatus: "",
     gender: "",
     dateOfBirth: "",
@@ -41,7 +44,8 @@ const EditProfilePage: React.FC = () => {
         jobType: user.personalDetails?.jobType || "N/A",
         profilePicture:
           user.personalDetails?.profilePicture || profilePlaceHolder,
-        shiftTimings: user.personalDetails?.shiftTimings || "N/A",
+        shiftStartTime: user.personalDetails?.shiftStartTime || "",
+        shiftEndTime: user.personalDetails?.shiftEndTime || "",
         jobStatus: user.personalDetails?.jobStatus || "Probation",
         gender: user.personalDetails?.gender || "N/A",
         dateOfBirth: user.personalDetails?.dateOfBirth || "",
@@ -59,7 +63,8 @@ const EditProfilePage: React.FC = () => {
         jobTitle,
         jobCategory,
         jobType,
-        shiftTimings,
+        shiftStartTime,
+        shiftEndTime,
         jobStatus,
         gender,
         dateOfBirth,
@@ -71,7 +76,8 @@ const EditProfilePage: React.FC = () => {
         jobTitle,
         jobCategory,
         jobType,
-        shiftTimings,
+        shiftStartTime,
+        shiftEndTime,
         jobStatus,
         gender,
         dateOfBirth,
@@ -97,13 +103,15 @@ const EditProfilePage: React.FC = () => {
         jobTitle: data.jobTitle,
         jobCategory: data.jobCategory,
         jobType: data.jobType,
-        shiftTimings: data.shiftTimings,
+        shiftStartTime: data.shiftStartTime,
+        shiftEndTime: data.shiftEndTime,
         jobStatus: data.jobStatus,
         gender: data.gender,
         dateOfBirth: data.dateOfBirth,
       }));
 
       toast.success("Personal details updated successfully");
+      await refetchUser();
     } catch (error) {
       toast.error("Failed to update personal details");
       console.error("Update error:", error);
@@ -159,6 +167,7 @@ const EditProfilePage: React.FC = () => {
       );
 
       toast.success("Contact details updated successfully");
+      await refetchUser();
     } catch (error) {
       toast.error("Failed to update contact details");
     }
@@ -182,6 +191,7 @@ const EditProfilePage: React.FC = () => {
       await axios.put(`${backendUrl}/api/users/education`, details, config);
 
       toast.success("Education details updated successfully");
+      await refetchUser();
     } catch (error) {
       toast.error("Failed to update Education details");
     }
@@ -210,8 +220,9 @@ const EditProfilePage: React.FC = () => {
       );
 
       toast.success("Emergency details updated successfully");
+      await refetchUser();
     } catch (error) {
-      toast.error("Both Contacts are required");
+      toast.error("Failed to update Emergency details");
     }
   };
 
@@ -237,7 +248,7 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const handleUpdateBankDetails = async (contacts: {
+  const handleUpdateBankDetails = async (details: {
     bankName: string;
     branchName: string;
     accountTitle: string;
@@ -252,11 +263,40 @@ const EditProfilePage: React.FC = () => {
         withCredentials: true,
       };
 
-      await axios.put(`${backendUrl}/api/users/bank-details`, contacts, config);
+      await axios.put(`${backendUrl}/api/users/bank-details`, details, config);
 
-      toast.success("Emergency details updated successfully");
+      toast.success("Bank account details updated successfully");
+      await refetchUser();
     } catch (error) {
-      toast.error("Both Contacts are required");
+      toast.error("Failed to update bank account details");
+    }
+  };
+
+  const handleUpdateSalaryDetails = async (details: {
+    basicSalary: number;
+    medicalAllowance: number;
+    mobileAllowance: number;
+    fuelAllowance: number;
+  }) => {
+    try {
+      const config = {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      };
+
+      await axios.put(
+        `${backendUrl}/api/users/salary-details`,
+        details,
+        config
+      );
+
+      toast.success("Salary details updated successfully");
+      await refetchUser();
+    } catch (error) {
+      toast.error("Failed to update salary details");
+      console.error("Update error:", error);
     }
   };
 
@@ -316,34 +356,6 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const handleUpdateSalaryDetails = async (details: {
-    basicSalary: number;
-    medicalAllowance: number;
-    mobileAllowance: number;
-    fuelAllowance: number;
-  }) => {
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(
-        `${backendUrl}/api/users/salary-details`,
-        details,
-        config
-      );
-
-      toast.success("Salary details updated successfully");
-      await refetchUser();
-    } catch (error) {
-      toast.error("Failed to update salary details");
-      console.error("Update error:", error);
-    }
-  };
-
   const renderContent = () => {
     switch (selectedMenu) {
       case "Personal Details":
@@ -384,17 +396,6 @@ const EditProfilePage: React.FC = () => {
               "President",
               "Head of Department",
             ]}
-            // jobCategories={[
-            //   'Digital Marketing', 'Book Marketing', 'Software Application',
-            //   'Mobile Application', 'SEO Content', 'Technical Content',
-            //   'Book Formatting & Publishing', 'Book Editing', 'Graphic Design',
-            //   'Web Design', 'UI/UX Design', 'Infographic', '2D Animation',
-            //   'Illustrator', '3D Animation', 'VoiceOver', 'CMS Development',
-            //   'Frontend Development', 'Backend Development', 'Social Media Marketing',
-            //   'SMS Marketing', 'Software Development', 'Game Development',
-            //   'Android Development', 'iOS Development', 'Digital Marketing',
-            //   'Social Media Marketing'
-            // ]}
             onProfilePictureChange={handleProfilePictureChange}
             isEditable={user?.role === "HR" || user?.role === "SuperAdmin"}
             onUpdate={handleUpdatePersonalDetails}
@@ -470,6 +471,7 @@ const EditProfilePage: React.FC = () => {
             medicalAllowance={user?.salaryDetails?.medicalAllowance || 0}
             mobileAllowance={user?.salaryDetails?.mobileAllowance || 0}
             fuelAllowance={user?.salaryDetails?.fuelAllowance || 0}
+            onUpdate={handleUpdateSalaryDetails} // Now valid
           />
         );
       case "Update Password":

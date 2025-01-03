@@ -1,3 +1,5 @@
+// PersonalDetailsUpdater.tsx
+
 import React, { useRef, useState } from "react";
 import { FaEdit } from "react-icons/fa";
 
@@ -50,6 +52,7 @@ const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Brand Development": ["Digital Marketing", "Book Marketing"],
   "Corporate Communication": [],
 };
+
 interface Employee {
   name: string;
   department: string;
@@ -61,27 +64,18 @@ interface Employee {
   gender: string;
   dateOfBirth: string;
   jobStatus: string;
+  joiningDate: string;
+  // ... include other necessary fields
 }
 
 interface PersonalDetailsUpdaterProps {
   userId: string;
-  employee: {
-    name: string;
-    department: string;
-    jobTitle: string;
-    jobCategory: string;
-    jobType: string;
-    profilePicture: string;
-    shiftTimings: string;
-    gender: string;
-    dateOfBirth: string;
-    jobStatus: string;
-  };
+  employee: Employee;
   departments: string[];
   jobTitles: string[];
   onProfilePictureChange: (file: File) => void;
   isEditable: boolean;
-  onUpdate: (updatedEmployee: Employee) => void;
+  onUpdate: (updatedEmployee: Employee) => Promise<void>;
 }
 
 const additionalShiftTimings = [
@@ -114,6 +108,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [editedEmployee, setEditedEmployee] = useState(employee);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
   const handleEditClick = () => {
     if (isEditable) {
       setIsEditing(true);
@@ -145,8 +140,9 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
     }
   };
 
-  const handleUpdate = () => {
-    onUpdate(editedEmployee);
+  // Updated to handle async function
+  const handleUpdate = async () => {
+    await onUpdate(editedEmployee);
     setIsEditing(false);
   };
 
@@ -202,6 +198,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
 
       <div className="mt-10 w-full max-w-3xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Employee Name Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Employee Name</p>
             {isEditing ? (
@@ -220,6 +217,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
             )}
           </div>
 
+          {/* Job Title Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Title</p>
             {isEditing ? (
@@ -243,6 +241,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
             )}
           </div>
 
+          {/* Department Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
             {isEditing ? (
@@ -266,6 +265,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
             )}
           </div>
 
+          {/* Job Category Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Category</p>
             {isEditing ? (
@@ -317,7 +317,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
             )}
           </div>
 
-          {/* Job Status Field - New addition */}
+          {/* Job Status Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Status</p>
             {isEditing ? (
@@ -378,6 +378,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
             )}
           </div>
 
+          {/* Shift Timings Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
             {isEditing ? (

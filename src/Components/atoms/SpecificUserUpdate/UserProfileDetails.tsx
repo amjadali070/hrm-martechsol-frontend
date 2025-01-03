@@ -1,3 +1,5 @@
+// UserProfileDetails.tsx
+
 import React, { useState } from "react";
 import {
   FaUser,
@@ -378,9 +380,8 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                   {userProfile.emergencyContacts &&
                   userProfile.emergencyContacts.length > 0 ? (
                     userProfile.emergencyContacts.map((contact, index) => (
-                      <>
+                      <React.Fragment key={index}>
                         <tr
-                          key={index}
                           className={`border-b ${
                             index % 2 === 0 ? "bg-gray-50" : "bg-white"
                           } hover:bg-gray-100 transition duration-200`}
@@ -396,7 +397,6 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                           </td>
                         </tr>
                         <tr
-                          key={index}
                           className={`border-b ${
                             index % 2 === 0 ? "bg-gray-50" : "bg-white"
                           } hover:bg-gray-100 transition duration-200`}
@@ -411,7 +411,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
                             {contact.contactNumber2 || "N/A"}
                           </td>
                         </tr>
-                      </>
+                      </React.Fragment>
                     ))
                   ) : (
                     <tr>
@@ -569,7 +569,7 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
 
   return (
     <div className="bg-white flex rounded-lg">
-      <aside className=" bg-white rounded-lg hidden md:block">
+      <aside className="bg-white rounded-lg hidden md:block">
         <div className="p-4">
           <nav className="flex flex-col space-y-5">
             {tabs.map((tab) => (
@@ -593,15 +593,6 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
 
       <div className="flex-1 p-4">
         <div className="bg-white rounded-2xl">
-          {/* <div className="flex flex-col items-center mb-1">
-            <h1 className="text-4xl font-bold text-gray-800">
-              {userProfile.name}
-            </h1>
-            <p className="text-gray-600 text-lg mt-2">
-              {userProfile.jobTitle} &bull; {userProfile.department}
-            </p>
-          </div> */}
-
           <div className="mb-4 md:hidden">
             <nav className="flex flex-wrap gap-2 justify-center">
               {tabs.map((tab) => (

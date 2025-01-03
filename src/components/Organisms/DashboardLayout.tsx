@@ -1,3 +1,5 @@
+// DashboardLayout.tsx
+
 import React, { useContext } from "react";
 import { useNavigate } from "react-router";
 import profilePlaceholder from "../../assets/placeholder.png";
@@ -18,7 +20,7 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
-
+  console.log("user", user);
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -90,7 +92,8 @@ const DashboardLayout: React.FC = () => {
           processPath(user.personalDetails?.profilePicture) ||
           profilePlaceholder
         }
-        userShift={user.personalDetails?.shiftTimings || "N/A"}
+        shiftStartTime={user.personalDetails?.shiftStartTime || "N/A"}
+        shiftEndTime={user.personalDetails?.shiftEndTime || "N/A"}
       />
 
       <QuickActions actions={actions} />

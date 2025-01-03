@@ -1,3 +1,5 @@
+// ProfileCard.tsx
+
 import React from "react";
 import { useNavigate } from "react-router";
 import profilePlaceholder from "../../assets/placeholder.png";
@@ -10,13 +12,15 @@ interface ProfileCardProps {
   name: string;
   jobTitle: string;
   imageSrc: string;
-  userShift: string;
+  shiftStartTime?: string;
+  shiftEndTime?: string;
 }
 
 interface ProfileInfoProps {
   name: string;
   jobTitle: string;
-  userShift: string;
+  shiftStartTime?: string;
+  shiftEndTime?: string;
 }
 
 const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
@@ -38,14 +42,22 @@ const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
 const ProfileInfo: React.FC<ProfileInfoProps> = ({
   name,
   jobTitle,
-  userShift,
+  shiftStartTime,
+  shiftEndTime,
 }) => {
+  const formatShift = () => {
+    if (shiftStartTime && shiftEndTime) {
+      return `${shiftStartTime} - ${shiftEndTime}`;
+    }
+    return "N/A";
+  };
+
   return (
     <div className="flex flex-col ml-5 w-4/5 max-md:ml-0 max-md:w-full">
       <div className="flex flex-col text-white">
         <h1 className="text-3xl font-bold sm:text-4xl">{name}</h1>
         <h2 className="mt-2 text-xl sm:text-xl">{jobTitle}</h2>
-        <span className="mt-2 text-sm text-white">Shift: {userShift}</span>
+        <span className="mt-2 text-sm text-white">Shift: {formatShift()}</span>
       </div>
     </div>
   );
@@ -55,7 +67,8 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   name,
   jobTitle,
   imageSrc,
-  userShift,
+  shiftStartTime,
+  shiftEndTime,
 }) => {
   const navigate = useNavigate();
 
@@ -67,7 +80,12 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     <section className="flex flex-col md:flex-row items-center justify-between gap-6 px-6 py-8 bg-sky-500 rounded-[28px] max-w-full">
       <div className="flex flex-col md:flex-row items-center w-full">
         <ProfileImage src={imageSrc} />
-        <ProfileInfo name={name} jobTitle={jobTitle} userShift={userShift} />
+        <ProfileInfo
+          name={name}
+          jobTitle={jobTitle}
+          shiftStartTime={shiftStartTime}
+          shiftEndTime={shiftEndTime}
+        />
       </div>
       <button
         onClick={handleEditProfile}

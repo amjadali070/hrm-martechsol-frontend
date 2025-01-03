@@ -1,4 +1,6 @@
-import React, { useRef, useState } from "react";
+// PersonalDetails.tsx
+
+import React, { useRef, useState, useEffect } from "react";
 import { FaEdit, FaUserEdit } from "react-icons/fa";
 import profilePlaceholder from "../../../assets/placeholder.png";
 
@@ -78,7 +80,8 @@ interface PersonalDetailsProps {
     jobCategory: string;
     jobType: string;
     profilePicture: string;
-    shiftTimings: string;
+    shiftStartTime: string;
+    shiftEndTime: string;
     gender: string;
     dateOfBirth: string;
     jobStatus: string;
@@ -94,7 +97,8 @@ interface PersonalDetailsProps {
     jobCategory: string;
     jobType: string;
     profilePicture: string;
-    shiftTimings: string;
+    shiftStartTime: string;
+    shiftEndTime: string;
     gender: string;
     dateOfBirth: string;
     jobStatus: string;
@@ -117,6 +121,15 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
       ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
       : "",
   });
+
+  useEffect(() => {
+    setEditedEmployee({
+      ...employee,
+      dateOfBirth: employee.dateOfBirth
+        ? new Date(employee.dateOfBirth).toISOString().split("T")[0]
+        : "",
+    });
+  }, [employee]);
 
   const handleEditClick = () => {
     if (isEditable) {
@@ -146,6 +159,14 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
         ...prev,
         [name]: value,
         jobCategory: "",
+      }));
+    } else if (name === "shift") {
+      // Parse the selected shift timing into start and end times
+      const [start, end] = value.split(" - ");
+      setEditedEmployee((prev) => ({
+        ...prev,
+        shiftStartTime: start || "",
+        shiftEndTime: end || "",
       }));
     } else {
       setEditedEmployee((prev) => ({
@@ -201,15 +222,17 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
 
-        <button
-          onClick={() => {
-            fileInputRef.current?.click();
-          }}
-          className="absolute bottom-0 right-0 bg-black text-white border-4 border-white rounded-full p-2 hover:bg-zinc-700 transition-all"
-          aria-label="Edit Profile Picture"
-        >
-          <FaUserEdit size={20} />
-        </button>
+        {isEditable && (
+          <button
+            onClick={() => {
+              fileInputRef.current?.click();
+            }}
+            className="absolute bottom-0 right-0 bg-black text-white border-4 border-white rounded-full p-2 hover:bg-zinc-700 transition-all"
+            aria-label="Edit Profile Picture"
+          >
+            <FaUserEdit size={20} />
+          </button>
+        )}
 
         <input
           type="file"
@@ -222,6 +245,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
 
       <div className="mt-10 w-full max-w-3xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Employee Name */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Employee Name</p>
             {isEditing ? (
@@ -240,6 +264,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
 
+          {/* Job Title */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Title</p>
             {isEditing ? (
@@ -262,6 +287,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
+
           {/* Department Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Department</p>
@@ -337,7 +363,8 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </h2>
             )}
           </div>
-          {/* Job Status Field - New addition */}
+
+          {/* Job Status Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Job Status</p>
             {isEditing ? (
@@ -398,12 +425,17 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
             )}
           </div>
 
+          {/* Shift Timings Field */}
           <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
             <p className="text-sm font-medium text-gray-500">Shift Timings</p>
             {isEditing ? (
               <select
-                name="shiftTimings"
-                value={editedEmployee.shiftTimings}
+                name="shift"
+                value={
+                  editedEmployee.shiftStartTime && editedEmployee.shiftEndTime
+                    ? `${editedEmployee.shiftStartTime} - ${editedEmployee.shiftEndTime}`
+                    : ""
+                }
                 onChange={handleInputChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
               >
@@ -416,7 +448,9 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
               </select>
             ) : (
               <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
-                {employee.shiftTimings}
+                {employee.shiftStartTime && employee.shiftEndTime
+                  ? `${employee.shiftStartTime} - ${employee.shiftEndTime}`
+                  : "N/A"}
               </h2>
             )}
           </div>

@@ -1,3 +1,5 @@
+// useUser.ts
+
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router";
@@ -12,7 +14,8 @@ interface PersonalDetails {
   abbreviatedJobTitle?: string;
   joiningDate: string;
   jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
-  shiftTimings?: string;
+  shiftStartTime?: string; // Made optional
+  shiftEndTime?: string; // Made optional
   jobStatus: string;
   gender: string;
   dateOfBirth: string;
@@ -109,12 +112,16 @@ const useUser = () => {
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
       if (!backendUrl) throw new Error("Backend URL is not defined");
+
+      // Fetch user profile from backend
       const response = await axios.get(`${backendUrl}/api/users/profile`, {
         withCredentials: true,
       });
 
+      // Helper function to determine if a URL is absolute
       const isFullURL = (url: string) => /^https?:\/\//i.test(url);
 
+      // Process file paths to absolute URLs if necessary
       const processPath = (path?: string) => {
         if (!path) return null;
         return isFullURL(path)
@@ -124,8 +131,23 @@ const useUser = () => {
               .replace(/^\/+/, "")}`;
       };
 
+      // Process array of document paths
       const processDocumentPaths = (documents?: string[]) =>
         documents?.map(processPath);
+
+      // Handle combined shiftTimings if backend hasn't split them
+      let shiftStartTime: string | undefined = undefined;
+      let shiftEndTime: string | undefined = undefined;
+
+      if (response.data.personalDetails?.shiftTimings) {
+        const [start, end] =
+          response.data.personalDetails.shiftTimings.split(" - ");
+        shiftStartTime = start?.trim();
+        shiftEndTime = end?.trim();
+      } else {
+        shiftStartTime = response.data.personalDetails?.shiftStartTime;
+        shiftEndTime = response.data.personalDetails?.shiftEndTime;
+      }
 
       const userData: User = {
         ...response.data,
@@ -134,8 +156,10 @@ const useUser = () => {
           profilePicture:
             processPath(response.data.personalDetails?.profilePicture) ||
             profilePlaceholder,
+          shiftStartTime: shiftStartTime || undefined,
+          shiftEndTime: shiftEndTime || undefined,
         },
-        resume: processPath(response.data.resume), // Updated line
+        resume: processPath(response.data.resume),
         documents: {
           NIC: processPath(response.data.documents?.NIC),
           experienceLetter: processPath(
@@ -161,6 +185,8 @@ const useUser = () => {
         })),
         salaryDetails: response.data.salaryDetails,
       };
+
+      console.log("Processed user data:", userData); // Debugging log
 
       setUser(userData);
       setLoading(false);

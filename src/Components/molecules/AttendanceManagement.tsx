@@ -53,7 +53,7 @@ interface User {
   email: string;
   personalDetails?: {
     jobTitle: string;
-    shiftTimings?: string; // Adjust based on your actual data structure
+    shiftTimings?: string;
   };
 }
 
