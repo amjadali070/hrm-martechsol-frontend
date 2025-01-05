@@ -100,7 +100,7 @@ const menuItems: MenuItem[] = [
       //   visibleTo: ["SuperAdmin"],
       // },
       {
-        label: "Password Manager",
+        label: "Password",
         path: "/admin/password-manager",
         visibleTo: ["SuperAdmin"],
       },
