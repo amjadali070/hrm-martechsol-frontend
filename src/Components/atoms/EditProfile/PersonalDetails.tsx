@@ -222,7 +222,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
 
-        {isEditable && (
+        {
           <button
             onClick={() => {
               fileInputRef.current?.click();
@@ -232,7 +232,7 @@ const PersonalDetails: React.FC<PersonalDetailsProps> = ({
           >
             <FaUserEdit size={20} />
           </button>
-        )}
+        }
 
         <input
           type="file"
