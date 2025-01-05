@@ -92,9 +92,9 @@ const MainLayout: React.FC = () => {
             d="M4 12a8 8 0 018-8v8H4z"
           ></path>
         </svg>
-        <span className="ml-3 text-purple-600 font-semibold text-lg">
+        {/* <span className="ml-3 text-purple-600 font-semibold text-lg">
           Loading...
-        </span>
+        </span> */}
       </div>
     );
   }
