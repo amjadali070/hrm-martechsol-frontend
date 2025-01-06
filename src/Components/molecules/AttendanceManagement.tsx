@@ -7,6 +7,7 @@ import {
   FaSpinner,
   FaSearch,
 } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Added for pagination icons
 import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
@@ -45,6 +46,23 @@ const formatDuration = (seconds: number) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   return `${hours}h ${minutes}m`;
+};
+
+// Helper function to get the day of the week
+const getDayOfWeek = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = { weekday: "long" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+};
+
+// Helper function to format date with weekday (if needed elsewhere)
+const formatDateWithWeekday = (dateString: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  };
+  return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
 interface User {
@@ -119,6 +137,10 @@ const AttendanceManagement: React.FC = () => {
   const [groupedAttendanceData, setGroupedAttendanceData] = useState<
     Record<string, Attendance[]>
   >({});
+
+  // New State for Type Summary
+  const [typeSummary, setTypeSummary] = useState<Record<string, number>>({});
+
   const getDateRange = (range: string) => {
     const today = new Date();
     let start: Date | null = null;
@@ -146,6 +168,11 @@ const AttendanceManagement: React.FC = () => {
         start = new Date(today.getFullYear(), today.getMonth(), 1);
         // Get last day of current month
         end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        break;
+      }
+      case "All": {
+        start = null;
+        end = null;
         break;
       }
       default:
@@ -223,6 +250,7 @@ const AttendanceManagement: React.FC = () => {
       setAttendanceData(fetchedData);
     } catch (error: any) {
       console.error("Error fetching attendance:", error);
+      toast.error("Failed to fetch attendance data.");
     } finally {
       setLoading(false);
     }
@@ -257,11 +285,11 @@ const AttendanceManagement: React.FC = () => {
   useEffect(() => {
     const grouped: Record<string, Attendance[]> = {};
     filteredAttendanceData.forEach((record) => {
-      const date = new Date(record.createdAt).toLocaleDateString();
-      if (!grouped[date]) {
-        grouped[date] = [];
+      const dateKey = new Date(record.createdAt).toISOString().split("T")[0]; // Use YYYY-MM-DD as key
+      if (!grouped[dateKey]) {
+        grouped[dateKey] = [];
       }
-      grouped[date].push(record);
+      grouped[dateKey].push(record);
     });
 
     // Sort the unique dates descending
@@ -284,6 +312,19 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage(1); // Reset to first page whenever filters change
   }, [filteredAttendanceData]);
 
+  // Compute Type Summary
+  useEffect(() => {
+    const summary: Record<string, number> = {};
+    filteredAttendanceData.forEach((record) => {
+      if (summary[record.type]) {
+        summary[record.type]++;
+      } else {
+        summary[record.type] = 1;
+      }
+    });
+    setTypeSummary(summary);
+  }, [filteredAttendanceData]);
+
   const handlePrevious = () => {
     setCurrentPage((prev) => Math.max(prev - 1, 1));
   };
@@ -293,54 +334,59 @@ const AttendanceManagement: React.FC = () => {
   };
 
   // Get records for the current page's date
-  const currentDate = uniqueDates[currentPage - 1];
-  const paginatedData = currentDate ? groupedAttendanceData[currentDate] : [];
+  const currentDateKey = uniqueDates[currentPage - 1];
+  const currentDateDisplay = currentDateKey
+    ? formatDateWithWeekday(currentDateKey)
+    : "";
+  const currentDayDisplay = currentDateKey ? getDayOfWeek(currentDateKey) : "";
+  const paginatedData = currentDateKey
+    ? groupedAttendanceData[currentDateKey]
+    : [];
 
   return (
-    <div className="w-full p-4 sm:p-6 bg-white rounded-lg mb-8">
+    <div className="w-full p-6 bg-gray-50 rounded-lg mb-8">
       {loading && (
-        <div className="p-20 flex flex-col items-center justify-center">
-          <FaSpinner className="text-blue-500 mb-4 animate-spin" size={30} />
+        <div className="flex flex-col items-center justify-center min-h-[300px]">
+          <FaSpinner className="text-blue-500 mb-4 animate-spin" size={40} />
         </div>
       )}
 
       {!loading && (
         <>
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-black">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+            <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
               Attendance Management
             </h2>
 
-            {currentDate && (
-              <div className="text-lg font-semibold">
-                Records for: {currentDate}
+            {currentDateDisplay && currentDayDisplay && (
+              <div className="text-md font-medium text-gray-700">
+                <span className="font-semibold">Date: </span>
+                {currentDateDisplay}
               </div>
             )}
           </div>
 
-          <div className="flex flex-wrap gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
             {/* Search Name */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaSearch className="text-gray-400 mr-3 flex-shrink-0" />
+            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+              <FaSearch className="text-gray-400 mr-3" />
               <input
                 type="text"
                 value={searchName}
-                onChange={(e) => {
-                  setSearchName(e.target.value);
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
-                placeholder="Search Name"
+                onChange={(e) => setSearchName(e.target.value)}
+                className="w-full focus:outline-none text-sm text-gray-600"
+                placeholder="Search by name"
               />
             </div>
 
             {/* Date Range Selector */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+              <FaCalendarAlt className="text-gray-400 mr-3" />
               <select
                 id="dateRange"
                 value={dateRange}
                 onChange={(e) => setDateRange(e.target.value)}
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
+                className="w-full focus:outline-none text-sm text-gray-600"
               >
                 <option value="Today">Today</option>
                 <option value="All">All Dates</option>
@@ -353,15 +399,13 @@ const AttendanceManagement: React.FC = () => {
 
             {/* From Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
-              <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-                <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+                <FaCalendarAlt className="text-gray-400 mr-3" />
                 <input
                   type="date"
                   value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                  }}
-                  className="w-full border-none focus:outline-none text-sm text-gray-600"
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full focus:outline-none text-sm text-gray-600"
                   placeholder="FROM"
                 />
               </div>
@@ -369,30 +413,26 @@ const AttendanceManagement: React.FC = () => {
 
             {/* To Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
-              <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-                <FaCalendarAlt className="text-gray-400 mr-3 flex-shrink-0" />
+              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+                <FaCalendarAlt className="text-gray-400 mr-3" />
                 <input
                   type="date"
                   value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                  }}
-                  className="w-full border-none focus:outline-none text-sm text-gray-600"
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full focus:outline-none text-sm text-gray-600"
                   placeholder="TO"
                 />
               </div>
             )}
 
             {/* Type Filter */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
+            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+              <FaFilter className="text-gray-400 mr-3" />
               <select
                 id="typeFilter"
                 value={typeFilter}
-                onChange={(e) => {
-                  setTypeFilter(e.target.value);
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
+                onChange={(e) => setTypeFilter(e.target.value)}
+                className="w-full focus:outline-none text-sm text-gray-600"
               >
                 <option value="All">All Types</option>
                 {Object.keys(statusColors).map((type) => (
@@ -404,15 +444,13 @@ const AttendanceManagement: React.FC = () => {
             </div>
 
             {/* Job Title Filter */}
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-1 min-w-[150px]">
-              <FaFilter className="text-gray-400 mr-3 flex-shrink-0" />
+            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+              <FaFilter className="text-gray-400 mr-3" />
               <select
                 id="jobTitleFilter"
                 value={jobTitleFilter}
-                onChange={(e) => {
-                  setJobTitleFilter(e.target.value);
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
+                onChange={(e) => setJobTitleFilter(e.target.value)}
+                className="w-full focus:outline-none text-sm text-gray-600"
               >
                 <option value="All">All Job Titles</option>
                 {jobTitleOptions.length > 0 ? (
@@ -429,37 +467,31 @@ const AttendanceManagement: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-              <colgroup>
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "20%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "10%" }} />
-                <col style={{ width: "20%" }} />
-              </colgroup>
-              <thead>
+            <table className="w-full table-auto bg-white rounded-lg overflow-hidden">
+              <thead className="bg-purple-900">
                 <tr>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Name
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Job Title
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
+                    Day
+                  </th>
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Date
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Time In
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Time Out
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Total Time
                   </th>
-                  <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase border border-gray-200">
+                  <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Type
                   </th>
                 </tr>
@@ -467,17 +499,30 @@ const AttendanceManagement: React.FC = () => {
               <tbody>
                 {paginatedData && paginatedData.length > 0 ? (
                   paginatedData.map((record) => (
-                    <tr key={record._id} className="hover:bg-gray-50">
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                    <tr
+                      key={record._id}
+                      className="hover:bg-gray-100 transition-colors text-center"
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-700">
                         {record.user.name}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700">
                         {record.user.personalDetails?.jobTitle || "N/A"}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                        {new Date(record.createdAt).toLocaleDateString()}
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {getDayOfWeek(record.createdAt)}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {new Date(record.createdAt).toLocaleDateString(
+                          undefined,
+                          {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          }
+                        )}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
                         {record.timeIn
                           ? new Date(record.timeIn).toLocaleTimeString([], {
                               hour: "2-digit",
@@ -485,7 +530,7 @@ const AttendanceManagement: React.FC = () => {
                             })
                           : "N/A"}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700">
                         {record.timeOut
                           ? new Date(record.timeOut).toLocaleTimeString([], {
                               hour: "2-digit",
@@ -493,12 +538,12 @@ const AttendanceManagement: React.FC = () => {
                             })
                           : "N/A"}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700">
                         {formatDuration(record.duration)}
                       </td>
-                      <td className="py-2 px-2 border border-gray-200 text-center">
+                      <td className="py-3 px-4">
                         <span
-                          className={`inline-block px-3 py-1 text-sm font-medium rounded-full text-white ${
+                          className={`inline-block px-3 py-1 text-xs font-medium rounded-full text-white ${
                             statusColors[record.type] || "bg-gray-400"
                           }`}
                         >
@@ -510,12 +555,12 @@ const AttendanceManagement: React.FC = () => {
                 ) : (
                   <tr>
                     <td
-                      className="py-4 px-2 text-sm text-gray-700 border border-gray-200 text-center"
-                      colSpan={7}
+                      className="py-6 px-4 text-center text-gray-500"
+                      colSpan={8}
                     >
                       <div className="flex flex-col items-center justify-center">
-                        <FaInbox size={30} className="text-gray-400 mb-2" />
-                        <span className="text-md font-medium">
+                        <FaInbox size={40} className="text-gray-400 mb-4" />
+                        <span className="text-lg font-medium">
                           No records found.
                         </span>
                       </div>
@@ -528,33 +573,52 @@ const AttendanceManagement: React.FC = () => {
 
           {/* Pagination Controls */}
           {uniqueDates.length > 0 && (
-            <div className="flex justify-between items-center mt-4">
-              <div className="flex items-center space-x-4">
-                <button
-                  className={`px-3 py-1 text-sm rounded-full ${
-                    currentPage === 1
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-gray-200 text-black hover:bg-gray-300"
-                  }`}
-                  disabled={currentPage === 1}
-                  onClick={handlePrevious}
-                >
-                  Previous
-                </button>
-                <span className="text-sm text-gray-700">
-                  Page {currentPage} of {totalPages}
-                </span>
-                <button
-                  className={`px-3 py-1 text-sm rounded-full ${
-                    currentPage === totalPages || totalPages === 0
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-blue-600 text-white hover:bg-blue-700"
-                  }`}
-                  disabled={currentPage === totalPages || totalPages === 0}
-                  onClick={handleNext}
-                >
-                  Next
-                </button>
+            <div className="flex justify-center items-center mt-6 space-x-4">
+              <button
+                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+                  currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+                }`}
+                disabled={currentPage === 1}
+                onClick={handlePrevious}
+              >
+                <FiChevronLeft className="mr-2" />
+                Previous
+              </button>
+              <span className="text-sm text-gray-700">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button
+                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+                  currentPage === totalPages || totalPages === 0
+                    ? "cursor-not-allowed opacity-50"
+                    : ""
+                }`}
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={handleNext}
+              >
+                Next
+                <FiChevronRight className="ml-2" />
+              </button>
+            </div>
+          )}
+
+          {/* Summary Section */}
+          {Object.keys(typeSummary).length > 0 && (
+            <div className="rounded-lg">
+              <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                Summary
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {Object.entries(typeSummary).map(([type, count]) => (
+                  <span
+                    key={type}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white ${
+                      statusColors[type] || "bg-gray-400"
+                    }`}
+                  >
+                    {type}: {count}
+                  </span>
+                ))}
               </div>
             </div>
           )}
