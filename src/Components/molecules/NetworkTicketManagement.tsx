@@ -243,9 +243,9 @@ const NetworkTicketManagement: React.FC = () => {
                   <div className="flex flex-col items-center justify-center">
                     <FaSpinner
                       size={40}
-                      className="text-purple-500 animate-spin mb-4"
+                      className="animate-spin text-blue-600 mb-2"
+                      aria-hidden="true"
                     />
-                    <span className="text-lg">Loading Network Tickets...</span>
                   </div>
                 </td>
               </tr>
