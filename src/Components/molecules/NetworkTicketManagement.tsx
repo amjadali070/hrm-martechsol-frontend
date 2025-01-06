@@ -12,6 +12,7 @@ import {
 import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
 import { toast } from "react-toastify";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 export interface NetworkTicket {
   id: string;
@@ -128,16 +129,16 @@ const NetworkTicketManagement: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-xl shadow-lg">
-      <h2 className="text-3xl font-semibold mb-6 text-center text-purple-800">
+    <div className="w-full p-6 bg-gray-50 rounded-xl">
+      <h2 className="text-3xl font-semibold mb-6 text-center">
         Network Tickets Management
       </h2>
 
       {/* Filters Section */}
       <div className="grid gap-6 mb-6 sm:grid-cols-1 md:grid-cols-3">
         {/* From Date */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300 shadow-sm">
-          <FaCalendarAlt className="text-purple-500 mr-3" />
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
           <input
             type="text"
             value={
@@ -166,8 +167,8 @@ const NetworkTicketManagement: React.FC = () => {
         </div>
 
         {/* To Date */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300 shadow-sm">
-          <FaCalendarAlt className="text-purple-500 mr-3" />
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
           <input
             type="text"
             value={
@@ -196,8 +197,8 @@ const NetworkTicketManagement: React.FC = () => {
         </div>
 
         {/* Status Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300 shadow-sm">
-          <FaFilter className="text-purple-500 mr-3" />
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaFilter className="text-black mr-3" />
           <select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
@@ -213,8 +214,8 @@ const NetworkTicketManagement: React.FC = () => {
 
       {/* Tickets Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg overflow-hidden shadow-md">
-          <thead className="bg-purple-700 sticky top-0">
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead className="bg-purple-900 sticky top-0">
             <tr>
               {[
                 "S.No",
@@ -375,29 +376,29 @@ const NetworkTicketManagement: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <button
-            className={`flex items-center px-4 py-2 text-sm rounded-full transition-colors ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-purple-500 text-white hover:bg-purple-600"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
           >
+            <FiChevronLeft className="mr-2" />
             Previous
           </button>
           <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            className={`flex items-center px-4 py-2 text-sm rounded-full transition-colors ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-purple-500 text-white hover:bg-purple-600"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === totalPages || totalPages === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next
+            <FiChevronRight className="ml-2" />
           </button>
         </div>
       </div>
