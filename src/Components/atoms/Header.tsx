@@ -68,7 +68,8 @@ const Header: React.FC = () => {
       );
 
       const activeLog = response.data;
-      if (activeLog) {
+      if (activeLog && activeLog.type !== "Absent") {
+        // Additional check
         setIsTimedIn(true);
         const elapsedTime = activeLog.timeIn
           ? Math.floor(
@@ -77,6 +78,8 @@ const Header: React.FC = () => {
             )
           : 0;
         startTimer(elapsedTime);
+      } else {
+        setIsTimedIn(false);
       }
     } catch (error: any) {
       if (error.response?.status !== 404) {
