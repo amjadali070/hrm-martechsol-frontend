@@ -7,8 +7,6 @@ import {
   FaSearch,
   FaSpinner,
   FaTimes,
-  FaPlus,
-  FaFileExport,
   FaEdit,
   FaCheckCircle,
   FaTimesCircle,
@@ -16,13 +14,13 @@ import {
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";
+import { MdPending } from "react-icons/md";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
-import UserStatusToggleConfirmation from "../atoms/UserStatusToggleConfirmation";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -289,7 +287,7 @@ const LeaveManagement: React.FC = () => {
 
       <div className="flex space-x-4 mb-4">
         {[
-          { name: "Open", key: "open", icon: <FaBriefcase /> },
+          { name: "Open", key: "open", icon: <MdPending /> },
           { name: "Approved", key: "approved", icon: <FaCheckCircle /> },
           { name: "Rejected", key: "rejected", icon: <FaTimesCircle /> },
         ].map((tab) => (
