@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+// src/components/EmployeeManagement.tsx
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
@@ -10,6 +11,13 @@ import {
   FaUsers,
   FaUserTag,
   FaSpinner,
+  FaPlus,
+  FaFileExport,
+  FaEdit,
+  FaToggleOn,
+  FaToggleOff,
+  FaChevronRight,
+  FaChevronLeft,
 } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify"; // Import toast for notifications
@@ -33,10 +41,10 @@ const EmployeeManagement: React.FC = () => {
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("All");
   const [jobTitleFilter, setJobTitleFilter] = useState<string>("All");
-  const [genderFilter, setGenderFilter] = useState<string>("All");
+  const [genderFilter, setGenderFilter] = useState<string>("All");  
   const [monthFilter, setMonthFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
 
@@ -70,6 +78,7 @@ const EmployeeManagement: React.FC = () => {
         setFilteredEmployees(users);
       } catch (error: any) {
         console.error("Error fetching employee data:", error);
+        toast.error("Failed to fetch employee data.");
       } finally {
         setIsLoading(false);
       }
@@ -157,7 +166,7 @@ const EmployeeManagement: React.FC = () => {
 
   const handleExportData = async () => {
     if (filteredEmployees.length === 0) {
-      alert("No employees to export.");
+      toast.warning("No employees to export.");
       return;
     }
 
@@ -166,12 +175,12 @@ const EmployeeManagement: React.FC = () => {
 
     worksheet.columns = [
       { header: "S.No", key: "sno", width: 10 },
-      { header: "Name", key: "name", width: 20 },
+      { header: "Name", key: "name", width: 25 },
       { header: "Department", key: "department", width: 20 },
       { header: "Job Title", key: "jobTitle", width: 25 },
-      { header: "Joining Date", key: "joiningDate", width: 15 },
+      { header: "Joining Date", key: "joiningDate", width: 20 },
       { header: "Job Type", key: "jobType", width: 15 },
-      { header: "Gender", key: "gender", width: 15 },
+      { header: "Gender", key: "gender", width: 10 },
       { header: "Status", key: "status", width: 15 }, // New Column for Status
     ];
 
@@ -195,11 +204,18 @@ const EmployeeManagement: React.FC = () => {
       });
     });
 
+    // Styling Headers
+    worksheet.getRow(1).font = { bold: true };
+    worksheet.columns.forEach((column) => {
+      column.alignment = { vertical: "middle", horizontal: "center" };
+    });
+
     const buffer = await workbook.xlsx.writeBuffer();
     const blob = new Blob([buffer], {
       type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     });
     saveAs(blob, "AllEmployeesData.xlsx");
+    toast.success("Employee data exported successfully!");
   };
 
   const handlePrevious = () => {
@@ -234,7 +250,9 @@ const EmployeeManagement: React.FC = () => {
   const monthOptions = [
     "All",
     ...years.flatMap((year) =>
-      months.map((month, index) => `${year}-${index + 1}`)
+      months.map(
+        (month, index) => `${year}-${String(index + 1).padStart(2, "0")}`
+      )
     ),
   ];
 
@@ -263,51 +281,56 @@ const EmployeeManagement: React.FC = () => {
       );
     } catch (error: any) {
       console.error("Error updating user status:", error);
+      toast.error("Failed to update user status.");
     }
   };
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
+    <div className="w-full p-6 bg-gray-100 rounded-lg">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
           Employee Management
         </h2>
-        <div className="flex gap-4">
+        <div className="flex space-x-4">
           <button
-            className="px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-500"
+            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             onClick={handleAddNewEmployee}
           >
+            <FaPlus className="mr-2" />
             Add New Employee
           </button>
           <button
-            className="px-4 py-2 text-white bg-green-600 rounded-lg hover:bg-green-700"
+            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             onClick={handleExportData}
           >
-            Export Employee Data
+            <FaFileExport className="mr-2" />
+            Export Data
           </button>
         </div>
       </div>
 
-      <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
+      {/* Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2 mb-4">
         {/* Search Input */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full focus:outline-none text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
 
         {/* Department Filter */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaUsers className="text-gray-400 mr-2" />
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Departments</option>
             <option value="Account Management">Account Management</option>
@@ -335,12 +358,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Job Type Filter */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaBriefcase className="text-gray-400 mr-2" />
           <select
             value={jobTypeFilter}
             onChange={(e) => setJobTypeFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Job Types</option>
             <option value="Full-Time">Full-Time</option>
@@ -352,12 +375,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Job Title Filter */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaUserTag className="text-gray-400 mr-2" />
           <select
             value={jobTitleFilter}
             onChange={(e) => setJobTitleFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Job Titles</option>
             {[
@@ -373,7 +396,7 @@ const EmployeeManagement: React.FC = () => {
               "Senior Vice President",
               "President",
               "Head Of Project Management",
-              "Head of Depaeartment",
+              "Head of Department",
               "Chief Executive Officer",
             ].map((title) => (
               <option key={title} value={title}>
@@ -384,12 +407,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Gender Filter */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaUsers className="text-gray-400 mr-2" />
           <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Genders</option>
             <option value="Male">Male</option>
@@ -398,18 +421,17 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        {/* Joining Month Filter */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaCalendarAlt className="text-gray-400 mr-2" />
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             {monthOptions.map((option) => (
               <option key={option} value={option}>
                 {option === "All"
-                  ? "By Month"
+                  ? "All Months"
                   : `${months[parseInt(option.split("-")[1], 10) - 1]} ${
                       option.split("-")[0]
                     }`}
@@ -421,34 +443,34 @@ const EmployeeManagement: React.FC = () => {
 
       {/* Employees Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300 rounded-lg">
+        <table className="min-w-full bg-white rounded-lg">
           <thead>
-            <tr className="bg-purple-900">
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+            <tr className="bg-purple-900 text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tl-lg">
                 S.No
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
-                Name(s)
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                Name
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Department
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Job Title
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Joining Date
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Job Type
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Gender
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
                 Status
               </th>
-              <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
                 Actions
               </th>
             </tr>
@@ -456,20 +478,23 @@ const EmployeeManagement: React.FC = () => {
           <tbody>
             {currentEmployees.length > 0 ? (
               currentEmployees.map((employee, index) => (
-                <tr key={employee._id} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                <tr
+                  key={employee._id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {employee.name}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {employee.department}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {employee.jobTitle}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {new Date(employee.joiningDate).toLocaleDateString(
                       "en-US",
                       {
@@ -479,28 +504,29 @@ const EmployeeManagement: React.FC = () => {
                       }
                     )}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {employee.jobType}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {employee.gender}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm">
                     {employee.isActive ? (
-                      <span className="px-2 py-1 text-xs font-semibold text-green-800 bg-green-200 rounded-full">
+                      <span className="inline-flex items-center px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-medium">
                         Active
                       </span>
                     ) : (
-                      <span className="px-2 py-1 text-xs font-semibold text-red-800 bg-red-200 rounded-full">
+                      <span className="inline-flex items-center px-3 py-1 bg-red-200 text-red-800 rounded-full text-xs font-medium">
                         Deactivated
                       </span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
+                  <td className="py-3 px-4 text-sm flex space-x-2">
                     <button
-                      className="px-3 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600"
+                      className="flex items-center px-3 py-1 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition-colors"
                       onClick={() => handleEditClick(employee)}
                     >
+                      <FaEdit className="mr-1" />
                       Edit
                     </button>
 
@@ -516,74 +542,76 @@ const EmployeeManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                {isLoading ? (
-                  <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td className="py-8 px-4 text-center text-gray-500" colSpan={9}>
+                  {isLoading ? (
                     <div className="flex flex-col items-center">
                       <FaSpinner
-                        size={30}
+                        size={40}
                         className="text-blue-500 mb-4 animate-spin"
                       />
                     </div>
-                  </td>
-                ) : (
-                  <td colSpan={9} className="text-center py-8 text-gray-500">
+                  ) : (
                     <div className="flex flex-col items-center">
-                      <FaInbox size={30} className="text-gray-400 mb-4" />
+                      <FaInbox size={40} className="text-gray-400 mb-4" />
                       <span className="text-lg font-medium">
                         No Employees Found.
                       </span>
                     </div>
-                  </td>
-                )}
+                  )}
+                </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-6">
+        {/* Items Per Page */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-700">Show:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md"
+            className="text-sm border border-gray-300 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
               setCurrentPage(1); // Reset to first page when items per page changes
             }}
           >
-            {[5, 10, 20].map((option) => (
+            {[20, 10, 5].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-4">
+
+        {/* Pagination Buttons */}
+        <div className="flex items-center space-x-2">
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
+            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
           >
+            <FaChevronLeft className="mr-1" />
             Previous
           </button>
           <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
+            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
               currentPage === totalPages || totalPages === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+                ? "cursor-not-allowed opacity-50"
+                : ""
             }`}
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next
+            <FaChevronRight className="ml-1" />
           </button>
         </div>
       </div>

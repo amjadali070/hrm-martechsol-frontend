@@ -366,7 +366,7 @@ const AttendanceManagement: React.FC = () => {
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
             {/* Search Name */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaSearch className="text-gray-400 mr-3" />
