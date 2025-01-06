@@ -7,6 +7,14 @@ import {
   FaSearch,
   FaSpinner,
   FaTimes,
+  FaPlus,
+  FaFileExport,
+  FaEdit,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaBriefcase,
+  FaChevronLeft,
+  FaChevronRight,
 } from "react-icons/fa";
 import axios from "axios";
 import { toast } from "react-toastify";
@@ -14,9 +22,11 @@ import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
+import UserStatusToggleConfirmation from "../atoms/UserStatusToggleConfirmation";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+// Fetch Leave Requests based on User Role
 const fetchLeaveRequests = async (userRole: string) => {
   try {
     const endpoint =
@@ -29,11 +39,11 @@ const fetchLeaveRequests = async (userRole: string) => {
     return data;
   } catch (error) {
     console.error("Error fetching leave requests", error);
-
     return [];
   }
 };
 
+// Approve Leave Request
 const approveLeaveRequest = async (id: string, comments?: string) => {
   try {
     const { data } = await axios.patch(
@@ -43,13 +53,14 @@ const approveLeaveRequest = async (id: string, comments?: string) => {
     );
     toast.success("Leave request approved successfully");
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error approving leave request", error);
     toast.error("Failed to approve leave request.");
     throw error;
   }
 };
 
+// Reject Leave Request
 const rejectLeaveRequest = async (id: string, comments?: string) => {
   try {
     const { data } = await axios.patch(
@@ -59,7 +70,7 @@ const rejectLeaveRequest = async (id: string, comments?: string) => {
     );
     toast.warning("Leave request rejected successfully");
     return data;
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error rejecting leave request", error);
     toast.error("Failed to reject leave request.");
     throw error;
@@ -75,9 +86,10 @@ const LeaveManagement: React.FC = () => {
     name: "",
     leaveType: "All",
   });
+  const [activeTab, setActiveTab] = useState<"open" | "approved" | "rejected">(
+    "open"
+  );
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [approvedPage, setApprovedPage] = useState<number>(1);
-  const [rejectedPage, setRejectedPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [modalType, setModalType] = useState<
     "approve" | "reject" | "edit" | "viewPDF" | null
@@ -86,11 +98,11 @@ const LeaveManagement: React.FC = () => {
     null
   );
   const [comment, setComment] = useState<string>("");
-  const [newLeaveType, setNewLeaveType] = useState<string>("");
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
+  // Fetch Leave Requests on Component Mount or User Role Change
   useEffect(() => {
     const loadLeaveRequests = async () => {
       if (!user) {
@@ -98,7 +110,6 @@ const LeaveManagement: React.FC = () => {
       }
       try {
         setIsLoading(true);
-
         const requests = await fetchLeaveRequests(user.role);
         const pendingRequests = requests.filter(
           (req: LeaveRequest) => req.status === "Pending"
@@ -123,6 +134,7 @@ const LeaveManagement: React.FC = () => {
     loadLeaveRequests();
   }, [user]);
 
+  // Handle Approve/Reject Actions
   const handleConfirmAction = async () => {
     if (selectedRequest && modalType) {
       try {
@@ -152,6 +164,7 @@ const LeaveManagement: React.FC = () => {
     }
   };
 
+  // Handle Pagination
   const handlePagination = (
     data: LeaveRequest[],
     page: number,
@@ -162,19 +175,21 @@ const LeaveManagement: React.FC = () => {
     return data.slice(indexOfFirstItem, indexOfLastItem);
   };
 
+  // Handle Approve/Reject Button Click
   const handleApproveReject = (id: string, type: "approve" | "reject") => {
     setModalType(type);
     setSelectedRequest(leaveRequests.find((req) => req._id === id) || null);
   };
 
+  // Handle View File (PDF)
   const handleViewFile = (
     id: string,
-    dataSource: "pending" | "approved" | "rejected"
+    dataSource: "open" | "approved" | "rejected"
   ) => {
     let request: LeaveRequest | undefined;
 
     switch (dataSource) {
-      case "pending":
+      case "open":
         request = leaveRequests.find((req) => req._id === id);
         break;
       case "approved":
@@ -197,6 +212,7 @@ const LeaveManagement: React.FC = () => {
     }
   };
 
+  // Handle Edit Leave Request
   const handleEdit = (id: string | undefined) => {
     if (!id) {
       toast.error("Invalid request ID");
@@ -209,73 +225,114 @@ const LeaveManagement: React.FC = () => {
     setEditModalOpen(true);
   };
 
+  // Update Leave Requests After Edit
   const updateLeaveRequestsAfterEdit = (updatedRequest: LeaveRequest) => {
     setLeaveRequests((prev) =>
       prev.map((req) => (req._id === updatedRequest._id ? updatedRequest : req))
     );
   };
 
+  // Close Modal
   const closeModal = () => {
     setModalType(null);
     setSelectedRequest(null);
     setComment("");
-    setNewLeaveType("");
     setSelectedPdfUrl("");
   };
 
-  const filteredRequests = leaveRequests.filter(
-    (request) =>
-      (filters.name === "" ||
-        (request.user.name ?? "")
-          .toLowerCase()
-          .includes(filters.name.toLowerCase())) &&
-      (filters.leaveType === "All" || request.leaveType === filters.leaveType)
-  );
+  // Apply Filters to Current Tab's Data
+  const getFilteredRequests = (): LeaveRequest[] => {
+    let data: LeaveRequest[] = [];
 
-  const paginatedLeaveRequests = handlePagination(
-    filteredRequests,
+    switch (activeTab) {
+      case "open":
+        data = leaveRequests;
+        break;
+      case "approved":
+        data = approvedRequests;
+        break;
+      case "rejected":
+        data = rejectedRequests;
+        break;
+      default:
+        data = leaveRequests;
+    }
+
+    return data.filter(
+      (request) =>
+        (filters.name === "" ||
+          (request.user.name ?? "")
+            .toLowerCase()
+            .includes(filters.name.toLowerCase())) &&
+        (filters.leaveType === "All" || request.leaveType === filters.leaveType)
+    );
+  };
+
+  // Get Paginated Data Based on Active Tab
+  const paginatedData = handlePagination(
+    getFilteredRequests(),
     currentPage,
     itemsPerPage
   );
-  const paginatedApprovedRequests = handlePagination(
-    approvedRequests,
-    approvedPage,
-    itemsPerPage
-  );
-  const paginatedRejectedRequests = handlePagination(
-    rejectedRequests,
-    rejectedPage,
-    itemsPerPage
-  );
 
-  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
-  const totalApprovedPages = Math.ceil(approvedRequests.length / itemsPerPage);
-  const totalRejectedPages = Math.ceil(rejectedRequests.length / itemsPerPage);
+  // Calculate Total Pages for Active Tab
+  const totalPages = Math.ceil(getFilteredRequests().length / itemsPerPage);
 
   return (
-    <div className="w-full p-4 bg-white rounded-lg">
-      <h1 className="text-2xl font-bold mb-4">Leave Management</h1>
+    <div className="w-full p-6 bg-gray-100 rounded-lg">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+        <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
+          Leave Management
+        </h2>
+      </div>
 
-      <div className="flex flex-wrap gap-4 mb-4 w-[50%]">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
+      <div className="flex space-x-4 mb-4">
+        {[
+          { name: "Open", key: "open", icon: <FaBriefcase /> },
+          { name: "Approved", key: "approved", icon: <FaCheckCircle /> },
+          { name: "Rejected", key: "rejected", icon: <FaTimesCircle /> },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => {
+              setActiveTab(tab.key as "open" | "approved" | "rejected");
+              setCurrentPage(1);
+            }}
+            className={`flex items-center px-4 py-2 border rounded-lg transition-colors ${
+              activeTab === tab.key
+                ? "bg-blue-600 text-white"
+                : "bg-white text-gray-700 hover:bg-gray-200"
+            }`}
+          >
+            {tab.icon}
+            <span className="ml-2">{tab.name}</span>
+          </button>
+        ))}
+      </div>
+      {/* Filters */}
+      <div className="flex flex-wrap items-center gap-4 mb-4">
+        {/* Search Input */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300 flex-grow min-w-[200px]">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
-            placeholder="Search by name"
+            placeholder="Search by name..."
             value={filters.name}
             onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full focus:outline-none text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[250px]">
+        {/* Leave Type Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300 flex-grow min-w-[200px]">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filters.leaveType}
             onChange={(e) =>
               setFilters({ ...filters, leaveType: e.target.value })
             }
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Leave Types</option>
             <option value="Casual Leave">Casual Leave</option>
@@ -286,97 +343,162 @@ const LeaveManagement: React.FC = () => {
             <option value="Bereavement Leave">Bereavement Leave</option>
             <option value="Hajj Leave">Hajj Leave</option>
             <option value="Unauthorized Leaves">Unauthorized Leaves</option>
-            {/* <option value="Unapproved Absence Without Pay">
-              Unapproved Absence Without Pay
-            </option> */}
           </select>
         </div>
       </div>
 
-      {/* Pending Leave Requests */}
-      <div className="overflow-x-auto mb-6">
-        <h2 className="text-xl font-bold mb-4">Pending Leaves</h2>
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-          <thead className="bg-purple-900">
-            <tr>
-              {[
-                "S.No",
-                "Name",
-                "Leave Type",
-                "From",
-                "To",
-                "Reason",
-                "File",
-                "Actions",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className={`px-3 py-2 text-sm font-medium text-white ${
-                    header === "Actions" ? "text-center" : "text-left"
-                  } ${header === "S.No" ? "text-center" : ""}`}
-                >
-                  {header}
+      {/* Leave Requests Table */}
+      <div className="overflow-x-auto">
+        <table className="min-w-full bg-white rounded-lg">
+          <thead>
+            <tr className="bg-purple-900 text-white">
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tl-lg">
+                S.No
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                Name
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                Leave Type
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                From
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                To
+              </th>
+              {activeTab === "approved" || activeTab === "rejected" ? (
+                <>
+                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                    Last Day at Work
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                    Return to Work
+                  </th>
+                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                    Total Days
+                  </th>
+                </>
+              ) : null}
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                Reason
+              </th>
+              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+                File
+              </th>
+              {activeTab === "open" ? (
+                <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
+                  Actions
                 </th>
-              ))}
+              ) : activeTab === "approved" || activeTab === "rejected" ? (
+                <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
+                  Comments
+                </th>
+              ) : null}
             </tr>
           </thead>
 
           <tbody>
-            {paginatedLeaveRequests.length > 0 ? (
-              paginatedLeaveRequests.map((request, index) => (
-                <tr key={request._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+            {paginatedData.length > 0 ? (
+              paginatedData.map((request, index) => (
+                <tr
+                  key={request._id}
+                  className="hover:bg-gray-50 transition-colors"
+                >
+                  <td className="py-3 px-4 text-sm text-gray-700 text-center">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {request.user.name}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {request.leaveType}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {formatDate(request.startDate)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {formatDate(request.endDate)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
+                  {activeTab === "approved" || activeTab === "rejected" ? (
+                    <>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {formatDate(request.lastDayToWork)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {formatDate(request.returnToWork)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {request.totalDays}
+                      </td>
+                    </>
+                  ) : null}
+                  <td className="py-3 px-4 text-sm text-gray-700">
                     {request.reason}
                   </td>
                   <td
-                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
-                    onClick={() => handleViewFile(request._id, "pending")}
+                    className="py-3 px-4 text-sm text-blue-600 cursor-pointer"
+                    onClick={() =>
+                      handleViewFile(
+                        request._id,
+                        activeTab === "open"
+                          ? "open"
+                          : activeTab === "approved"
+                          ? "approved"
+                          : "rejected"
+                      )
+                    }
                   >
-                    {request.handoverDocument ? "View" : "No file"}
+                    {request.handoverDocument ? "View" : "No File"}
                   </td>
-                  <td className="px-3 py-2 text-sm text-center">
-                    <button
-                      onClick={() => handleEdit(request._id)}
-                      className="px-2 py-1 text-white bg-orange-500 rounded-full hover:bg-orange-600 mr-2"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() =>
-                        handleApproveReject(request._id, "approve")
-                      }
-                      className="px-2 py-1 text-white bg-green-500 rounded-full hover:bg-green-600 mr-2"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleApproveReject(request._id, "reject")}
-                      className="px-2 py-1 text-white bg-red-500 rounded-full hover:bg-red-600"
-                    >
-                      Reject
-                    </button>
-                  </td>
+                  {activeTab === "open" ? (
+                    <td className="py-3 px-4 text-sm flex justify-center space-x-2">
+                      <button
+                        onClick={() => handleEdit(request._id)}
+                        className="flex items-center px-3 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
+                      >
+                        <FaEdit className="mr-1" />
+                        Edit
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleApproveReject(request._id, "approve")
+                        }
+                        className="flex items-center px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
+                      >
+                        <FaCheckCircle className="mr-1" />
+                        Approve
+                      </button>
+                      <button
+                        onClick={() =>
+                          handleApproveReject(request._id, "reject")
+                        }
+                        className="flex items-center px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
+                      >
+                        <FaTimesCircle className="mr-1" />
+                        Reject
+                      </button>
+                    </td>
+                  ) : activeTab === "approved" || activeTab === "rejected" ? (
+                    <td className="py-3 px-4 text-sm text-gray-700">
+                      {request.comments || "N/A"}
+                    </td>
+                  ) : null}
                 </tr>
               ))
             ) : (
               <tr>
                 {isLoading ? (
-                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                  <td
+                    className="py-8 px-4 text-center text-gray-500"
+                    colSpan={
+                      activeTab === "open"
+                        ? 10
+                        : activeTab === "approved" || activeTab === "rejected"
+                        ? 12
+                        : 10
+                    }
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <FaSpinner
                         size={30}
@@ -385,7 +507,16 @@ const LeaveManagement: React.FC = () => {
                     </div>
                   </td>
                 ) : (
-                  <td colSpan={8} className="text-center py-8 text-gray-500">
+                  <td
+                    className="py-8 px-4 text-center text-gray-500"
+                    colSpan={
+                      activeTab === "open"
+                        ? 10
+                        : activeTab === "approved" || activeTab === "rejected"
+                        ? 12
+                        : 10
+                    }
+                  >
                     <div className="flex flex-col items-center justify-center">
                       <FaInbox size={30} className="text-gray-400 mb-2" />
                       <span className="text-md font-medium">
@@ -398,345 +529,66 @@ const LeaveManagement: React.FC = () => {
             )}
           </tbody>
         </table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={currentPage === 1}
-              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === totalPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={currentPage === totalPages}
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-              }
-            >
-              Next
-            </button>
-          </div>
-        </div>
       </div>
 
-      {/* Approved Leave Requests */}
-      <div className="overflow-x-auto mb-6">
-        <h2 className="text-xl font-bold mb-4">Approved Leaves</h2>
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-          <thead className="bg-green-600">
-            <tr>
-              {[
-                "S.No",
-                "Name",
-                "Leave Type",
-                "From",
-                "To",
-                "Last Day at Work",
-                "Return to Work",
-                "Total Days",
-                "File",
-                "Reason",
-                "Comments",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-3 py-2 text-sm font-medium text-white text-left"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedApprovedRequests.length > 0 ? (
-              paginatedApprovedRequests.map((request, index) => (
-                <tr key={request._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {index + 1 + (approvedPage - 1) * itemsPerPage}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.user.name}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.leaveType}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.startDate)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.endDate)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.lastDayToWork)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.returnToWork)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.totalDays}
-                  </td>
-                  <td
-                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
-                    onClick={() => handleViewFile(request._id, "approved")}
-                  >
-                    {request.handoverDocument ? "View" : "No file"}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.reason}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.comments}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                {isLoading ? (
-                  <td colSpan={11} className="text-center py-8 text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <FaSpinner
-                        size={30}
-                        className="text-blue-500 mb-2 animate-spin"
-                      />
-                    </div>
-                  </td>
-                ) : (
-                  <td colSpan={11} className="text-center py-8 text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={30} className="text-gray-400 mb-2" />
-                      <span className="text-md font-medium">
-                        No Approved Leaves Found.
-                      </span>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                approvedPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={approvedPage === 1}
-              onClick={() => setApprovedPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {approvedPage} of {totalApprovedPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                approvedPage === totalApprovedPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={approvedPage === totalApprovedPages}
-              onClick={() =>
-                setApprovedPage((prev) =>
-                  Math.min(prev + 1, totalApprovedPages)
-                )
-              }
-            >
-              Next
-            </button>
-          </div>
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-6">
+        {/* Items Per Page */}
+        <div className="flex items-center space-x-2">
+          <span className="text-sm text-gray-700">Show:</span>
+          <select
+            className="text-sm border border-gray-300 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1); // Reset to first page when items per page changes
+            }}
+          >
+            {[5, 10, 20].map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </div>
-      </div>
 
-      {/* Rejected Leave Requests */}
-      <div className="overflow-x-auto">
-        <h2 className="text-xl font-bold mb-4">Rejected Leaves</h2>
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-          <thead className="bg-red-600">
-            <tr>
-              {[
-                "S.No",
-                "Name",
-                "Leave Type",
-                "From",
-                "To",
-                "Last Day at Work",
-                "Return to Work",
-                "Total Days",
-                "File",
-                "Reason",
-                "Comments",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-3 py-2 text-sm font-medium text-white text-left"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {paginatedRejectedRequests.length > 0 ? (
-              paginatedRejectedRequests.map((request, index) => (
-                <tr key={request._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {index + 1 + (rejectedPage - 1) * itemsPerPage}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.user.name}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.leaveType}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.startDate)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.endDate)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.lastDayToWork)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {formatDate(request.returnToWork)}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.totalDays}
-                  </td>
-                  <td
-                    className="px-3 py-2 text-sm text-blue-600 cursor-pointer"
-                    onClick={() => handleViewFile(request._id, "rejected")}
-                  >
-                    {request.handoverDocument ? "View" : "No file"}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.reason}
-                  </td>
-                  <td className="px-3 py-2 text-sm text-gray-800">
-                    {request.comments}
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                {isLoading ? (
-                  <td colSpan={11} className="text-center py-8 text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <FaSpinner
-                        size={30}
-                        className="text-blue-500 mb-2 animate-spin"
-                      />
-                    </div>
-                  </td>
-                ) : (
-                  <td colSpan={11} className="text-center py-8 text-gray-500">
-                    <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={30} className="text-gray-400 mb-2" />
-                      <span className="text-md font-medium">
-                        No Rejected Leaves Found.
-                      </span>
-                    </div>
-                  </td>
-                )}
-              </tr>
-            )}
-          </tbody>
-        </table>
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => setItemsPerPage(parseInt(e.target.value))}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                rejectedPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={rejectedPage === 1}
-              onClick={() => setRejectedPage((prev) => Math.max(prev - 1, 1))}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {rejectedPage} of {totalRejectedPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                rejectedPage === totalRejectedPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={rejectedPage === totalRejectedPages}
-              onClick={() =>
-                setRejectedPage((prev) =>
-                  Math.min(prev + 1, totalRejectedPages)
-                )
-              }
-            >
-              Next
-            </button>
-          </div>
+        {/* Pagination Buttons */}
+        <div className="flex items-center space-x-2">
+          <button
+            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+            }`}
+            disabled={currentPage === 1}
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+          >
+            <FaChevronLeft className="mr-1" />
+            Previous
+          </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
+          <button
+            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === totalPages || totalPages === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
+            }`}
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+            }
+          >
+            {" "}
+            Next
+            <FaChevronRight className="ml-1" />
+          </button>
         </div>
       </div>
 
       {/* View PDF Modal */}
       {modalType === "viewPDF" && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-[80%] h-[80%] relative">
+          <div className="bg-white rounded-lg w-[90%] h-[90%] relative">
             <button
               onClick={closeModal}
               className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
@@ -786,17 +638,21 @@ const LeaveManagement: React.FC = () => {
                   <p className="text-sm text-gray-700">
                     <strong>To:</strong> {formatDate(selectedRequest.endDate)}
                   </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Last Day at Work:</strong>{" "}
-                    {formatDate(selectedRequest.lastDayToWork)}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Return to Work:</strong>{" "}
-                    {formatDate(selectedRequest.returnToWork)}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Total Days:</strong> {selectedRequest.totalDays}
-                  </p>
+                  {modalType === "approve" && (
+                    <>
+                      <p className="text-sm text-gray-700">
+                        <strong>Last Day at Work:</strong>{" "}
+                        {formatDate(selectedRequest.lastDayToWork)}
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        <strong>Return to Work:</strong>{" "}
+                        {formatDate(selectedRequest.returnToWork)}
+                      </p>
+                      <p className="text-sm text-gray-700">
+                        <strong>Total Days:</strong> {selectedRequest.totalDays}
+                      </p>
+                    </>
+                  )}
                   <p className="text-sm text-gray-700">
                     <strong>Reason:</strong> {selectedRequest.reason}
                   </p>
@@ -814,9 +670,13 @@ const LeaveManagement: React.FC = () => {
                   Leave Type
                 </label>
                 <select
-                  value={newLeaveType || selectedRequest.leaveType}
-                  onChange={(e) => setNewLeaveType(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  value={selectedRequest.leaveType}
+                  onChange={(e) =>
+                    setSelectedRequest((prev) =>
+                      prev ? { ...prev, leaveType: e.target.value } : null
+                    )
+                  }
+                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Select Leave Type</option>
                   <option value="Casual Leave">Casual Leave</option>
@@ -829,6 +689,7 @@ const LeaveManagement: React.FC = () => {
                   <option value="Unauthorized Leaves">
                     Unauthorized Leaves
                   </option>
+                  {/* Uncomment if needed */}
                   {/* <option value="Unapproved Absence Without Pay">
                     Unapproved Absence Without Pay
                   </option> */}
@@ -845,7 +706,7 @@ const LeaveManagement: React.FC = () => {
                       prev ? { ...prev, startDate: e.target.value } : null
                     )
                   }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -859,7 +720,7 @@ const LeaveManagement: React.FC = () => {
                       prev ? { ...prev, endDate: e.target.value } : null
                     )
                   }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -873,7 +734,7 @@ const LeaveManagement: React.FC = () => {
                       prev ? { ...prev, lastDayToWork: e.target.value } : null
                     )
                   }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
 
                 <label className="block mb-2 text-sm font-medium text-gray-700">
@@ -887,7 +748,7 @@ const LeaveManagement: React.FC = () => {
                       prev ? { ...prev, returnToWork: e.target.value } : null
                     )
                   }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             )}
@@ -895,13 +756,13 @@ const LeaveManagement: React.FC = () => {
             <div className="flex justify-end space-x-4">
               <button
                 onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400"
+                className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors"
               >
                 Cancel
               </button>
               <button
                 onClick={handleConfirmAction}
-                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
+                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
               >
                 {modalType === "edit" ? "Update" : "Confirm"}
               </button>

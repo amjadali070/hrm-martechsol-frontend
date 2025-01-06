@@ -10,12 +10,14 @@ interface User {
     joiningDate: string;
     abbreviatedJobTitle: string;
   };
+  nextAnniversary: string; // Included in the interface
 }
 
 const WorkAnniversariesCard: React.FC = () => {
   const [anniversaries, setAnniversaries] = useState<User[]>([]);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const navigate = useNavigate();
+
   useEffect(() => {
     const fetchUsers = async () => {
       try {
@@ -25,25 +27,15 @@ const WorkAnniversariesCard: React.FC = () => {
         );
 
         if (data.allAnniversaries) {
+          // Sort the anniversaries based on the nextAnniversary date
           const sortedAnniversaries = data.allAnniversaries.sort(
             (a: User, b: User) => {
-              const aDate = new Date(a.personalDetails.joiningDate);
-              const bDate = new Date(b.personalDetails.joiningDate);
-              const currentYear = new Date().getFullYear();
-
-              const nextAnniversaryA = new Date(aDate.setFullYear(currentYear));
-              const nextAnniversaryB = new Date(bDate.setFullYear(currentYear));
-
-              if (nextAnniversaryA < new Date()) {
-                nextAnniversaryA.setFullYear(currentYear + 1);
-              }
-              if (nextAnniversaryB < new Date()) {
-                nextAnniversaryB.setFullYear(currentYear + 1);
-              }
-
-              return nextAnniversaryA.getTime() - nextAnniversaryB.getTime();
+              const aDate = new Date(a.nextAnniversary);
+              const bDate = new Date(b.nextAnniversary);
+              return aDate.getTime() - bDate.getTime();
             }
           );
+          // Select the top 5 upcoming anniversaries
           setAnniversaries(sortedAnniversaries.slice(0, 5));
         } else {
           console.error("Unexpected API response structure:", data);
@@ -59,7 +51,8 @@ const WorkAnniversariesCard: React.FC = () => {
   const getOrdinalSuffix = (num: number) => {
     const suffixes = ["th", "st", "nd", "rd"];
     const value = num % 100;
-    return suffixes[(value - 20) % 10] || suffixes[value] || suffixes[0];
+    if (value >= 11 && value <= 13) return "th";
+    return suffixes[value % 10] || "th";
   };
 
   return (
@@ -85,15 +78,18 @@ const WorkAnniversariesCard: React.FC = () => {
 
       <ul className="divide-y divide-gray-200">
         {anniversaries.map((user) => {
-          const joiningDate = new Date(user.personalDetails.joiningDate);
-          const currentYear = new Date().getFullYear();
-          const anniversaryYear = currentYear - joiningDate.getFullYear() + 1;
+          const nextAnniversary = new Date(user.nextAnniversary);
+          const joiningYear = new Date(
+            user.personalDetails.joiningDate
+          ).getFullYear();
+          const nextAnniversaryYear = nextAnniversary.getFullYear();
+          const anniversaryYear = nextAnniversaryYear - joiningYear;
 
           const options: Intl.DateTimeFormatOptions = {
             month: "long",
             day: "numeric",
           };
-          const anniversaryDate = joiningDate.toLocaleDateString(
+          const anniversaryDate = nextAnniversary.toLocaleDateString(
             undefined,
             options
           );

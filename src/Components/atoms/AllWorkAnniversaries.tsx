@@ -19,6 +19,7 @@ interface User {
     department: string;
     jobTitle: string;
   };
+  nextAnniversary: string;
 }
 
 const AllWorkAnniversaries: React.FC = () => {
@@ -123,8 +124,8 @@ const AllWorkAnniversaries: React.FC = () => {
         Date.parse(monthFilter + " 1, 2021")
       ).getMonth();
       filtered = filtered.filter((user) => {
-        const joiningDate = new Date(user.personalDetails.joiningDate);
-        return joiningDate.getMonth() === monthIndex;
+        const nextAnniversary = new Date(user.nextAnniversary);
+        return nextAnniversary.getMonth() === monthIndex;
       });
     }
 
@@ -143,29 +144,31 @@ const AllWorkAnniversaries: React.FC = () => {
   return (
     <div className="flex flex-col w-full px-5 py-5 bg-white rounded-xl">
       <div className="flex items-center justify-between p-3">
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-black">
+        <h2 className="text-2xl font-extrabold tracking-wide text-gray-800">
           All Work Anniversaries
         </h2>
       </div>
 
-      <div className="flex gap-4 mb-2 flex-nowrap overflow-x-auto">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
-          <FaSearch className="text-gray-400 mr-2" />
+      <div className="flex flex-wrap gap-4 mb-6">
+        {/* Search Field */}
+        <div className="flex items-center bg-gray-100 rounded-lg px-4 py-3 border border-gray-200 flex-grow min-w-[200px]">
+          <FaSearch className="text-gray-500 mr-3" />
           <input
             type="text"
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full bg-transparent focus:outline-none text-sm text-gray-700 placeholder-gray-500"
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
-          <FaUsers className="text-gray-400 mr-2" />
+        {/* Department Filter */}
+        <div className="flex items-center bg-gray-100 rounded-lg px-4 py-3 border border-gray-200 flex-grow min-w-[200px]">
+          <FaUsers className="text-gray-500 mr-3" />
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full bg-transparent focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Departments</option>
             {departmentOptions.map((department) => (
@@ -176,12 +179,13 @@ const AllWorkAnniversaries: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
-          <FaUserTag className="text-gray-400 mr-2" />
+        {/* Job Title Filter */}
+        <div className="flex items-center bg-gray-100 rounded-lg px-4 py-3 border border-gray-200 flex-grow min-w-[200px]">
+          <FaUserTag className="text-gray-500 mr-3" />
           <select
             value={jobTitleFilter}
             onChange={(e) => setJobTitleFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full bg-transparent focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Job Titles</option>
             {jobTitleOptions.map((jobTitle) => (
@@ -192,12 +196,13 @@ const AllWorkAnniversaries: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
-          <FaCalendarAlt className="text-gray-400 mr-2" />
+        {/* Month Filter */}
+        <div className="flex items-center bg-gray-100 rounded-lg px-4 py-3 border border-gray-200 flex-grow min-w-[200px]">
+          <FaCalendarAlt className="text-gray-500 mr-3" />
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full bg-transparent focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Months</option>
             {[
@@ -223,65 +228,66 @@ const AllWorkAnniversaries: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="text-center py-4">
-          <div className="flex flex-col items-center">
-            <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
-          </div>
+        <div className="flex justify-center items-center py-10">
+          <FaSpinner size={40} className="text-blue-500 animate-spin" />
         </div>
       ) : filteredAnniversaries.length === 0 ? (
-        <div className="flex flex-col items-center">
-          <FaInbox size={30} className="text-gray-400 mb-4" />
-          <span className="text-lg font-medium">No anniversaries found.</span>
+        <div className="flex flex-col items-center py-10">
+          <FaInbox size={40} className="text-gray-400 mb-4" />
+          <span className="text-lg font-medium text-gray-600">
+            No anniversaries found.
+          </span>
         </div>
       ) : (
-        <ul className="divide-y divide-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredAnniversaries.map((user) => {
-            const joiningDate = new Date(user.personalDetails.joiningDate);
-            const currentYear = new Date().getFullYear();
-            const anniversaryYear = currentYear - joiningDate.getFullYear() + 1;
+            const nextAnniversary = new Date(user.nextAnniversary);
+            const joiningYear = new Date(
+              user.personalDetails.joiningDate
+            ).getFullYear();
+            const nextAnniversaryYear = nextAnniversary.getFullYear();
+            const anniversaryYear = nextAnniversaryYear - joiningYear;
 
             const options: Intl.DateTimeFormatOptions = {
               month: "long",
               day: "numeric",
             };
-            const anniversaryDate = joiningDate.toLocaleDateString(
+            const anniversaryDate = nextAnniversary.toLocaleDateString(
               undefined,
               options
             );
 
             return (
-              <li
+              <div
                 key={user._id}
-                className="flex items-center p-2 hover:bg-gray-50 transition"
+                className="flex items-center p-4 bg-gray-100 rounded-lg"
               >
-                <div className="flex items-center justify-left w-12 h-12 bg-purple-900 rounded-lg text-white text-xl relative">
-                  <div className="relative inline-block text-md font-semibold ml-3">
-                    {anniversaryYear}
-                    <span className="absolute top-0 left-3.5 text-xs">
-                      {getOrdinalSuffix(anniversaryYear)}
-                    </span>
-                  </div>
-                </div>
-                <div className="ml-3 flex items-center flex-1">
-                  <span className="mr-3 text-purple-900">
-                    <CelebrateIcon width={30} height={30} />
+                <div className="flex-shrink-0 w-16 h-16 bg-purple-900 rounded-full flex items-center justify-center text-white text-2xl font-semibold relative">
+                  <span>{anniversaryYear}</span>
+                  <span className="absolute top-4 right-3 text-sm">
+                    {getOrdinalSuffix(anniversaryYear)}
                   </span>
-                  <div className="flex flex-col">
-                    <span className="text-md font-bold text-black">
+                </div>
+                <div className="ml-4 flex-1 flex items-center">
+                  <CelebrateIcon className="w-8 h-8 text-purple-900 mr-4" />
+                  <div>
+                    <h3 className="text-lg font-bold text-gray-800">
                       {user.name}
-                    </span>
-                    <span className="text-xs text-gray-600">
+                    </h3>
+                    <p className="text-sm text-gray-500">
                       {user.personalDetails.abbreviatedJobTitle}
-                    </span>
+                    </p>
                   </div>
                 </div>
-                <div className="ml-auto flex items-center text-sm font-semibold text-black">
-                  <span className="font-bold">{anniversaryDate}</span>
+                <div className="ml-auto text-right">
+                  <p className="text-sm font-semibold text-gray-700">
+                    {anniversaryDate}
+                  </p>
                 </div>
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </div>
       )}
     </div>
   );
