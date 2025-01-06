@@ -10,6 +10,7 @@ import {
   FaMoneyBillWave,
   FaFileAlt,
 } from "react-icons/fa";
+import DocumentViewerModal from "../DocumentViewerModal";
 
 interface Employee {
   name: string;
@@ -81,9 +82,49 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<string>("Personal Details");
 
-  const renderDocument = (url: string, title: string) => {
+  // Modal state
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const [modalFileUrl, setModalFileUrl] = useState<string>("");
+  const [modalFileName, setModalFileName] = useState<string>("");
+  const [modalFileType, setModalFileType] = useState<"image" | "pdf">("pdf");
+
+  const handleOpenModal = (url: string, name: string) => {
+    if (!url) return;
+
+    // Determine file type based on URL extension
+    const extension = url.split(".").pop()?.toLowerCase();
+    const imageExtensions = ["jpg", "jpeg", "png", "gif", "bmp", "svg"];
+    const fileType: "image" | "pdf" =
+      extension && imageExtensions.includes(extension) ? "image" : "pdf";
+
     const backendUrl = process.env.REACT_APP_BACKEND_URL;
     const fullUrl = url.startsWith("http") ? url : `${backendUrl}${url}`;
+
+    setModalFileUrl(fullUrl);
+    setModalFileName(name);
+    setModalFileType(fileType);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setModalFileUrl("");
+    setModalFileName("");
+    setModalFileType("pdf");
+  };
+
+  const renderDocument = (url: string, title: string) => {
+    if (!url) {
+      return (
+        <div className="mb-6">
+          <h3 className="flex items-center text-md font-semibold mb-2 text-blue-600">
+            <FaFileAlt className="mr-2" title={`${title} Icon`} />
+            {title}
+          </h3>
+          <p className="text-gray-500">Not Provided</p>
+        </div>
+      );
+    }
 
     return (
       <div className="mb-6">
@@ -91,18 +132,12 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
           <FaFileAlt className="mr-2" title={`${title} Icon`} />
           {title}
         </h3>
-        {url ? (
-          <a
-            href={fullUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 underline"
-          >
-            View {title}
-          </a>
-        ) : (
-          <p className="text-gray-500">Not Provided</p>
-        )}
+        <button
+          onClick={() => handleOpenModal(url, title)}
+          className="text-blue-500 underline focus:outline-none"
+        >
+          View {title}
+        </button>
       </div>
     );
   };
@@ -615,6 +650,15 @@ const UserProfileDetails: React.FC<UserProfileDetailsProps> = ({
           <div>{renderContent()}</div>
         </div>
       </div>
+
+      {/* Document Viewer Modal */}
+      <DocumentViewerModal
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        fileUrl={modalFileUrl}
+        fileName={modalFileName}
+        fileType={modalFileType}
+      />
     </div>
   );
 };

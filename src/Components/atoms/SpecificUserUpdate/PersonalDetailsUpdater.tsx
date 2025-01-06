@@ -180,7 +180,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
 
       <div className="relative border-[7px] border-blue-600 rounded-full">
         <img
-          src={`${backendUrl}/${employee.profilePicture.replace(/\\/g, "/")}`}
+          src={`${employee.profilePicture.replace(/\\/g, "/")}`}
           alt="Profile"
           className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
         />
