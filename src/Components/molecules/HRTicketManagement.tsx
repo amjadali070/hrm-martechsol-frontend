@@ -1,8 +1,18 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaInbox, FaCalendarAlt, FaFilter, FaSpinner } from "react-icons/fa";
+import {
+  FaInbox,
+  FaCalendarAlt,
+  FaFilter,
+  FaSpinner,
+  FaCheck,
+  FaTimes,
+  FaEye,
+} from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
+import { toast } from "react-toastify";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 export interface HRTicket {
   id: string;
@@ -91,8 +101,12 @@ const HRTicketManagement: React.FC = () => {
           ticket.id === id ? { ...ticket, status: newStatus } : ticket
         )
       );
+      toast.success(
+        `Ticket ${action === "approve" ? "approved" : "rejected"} successfully.`
+      );
     } catch (error) {
       console.error("Error updating ticket status:", error);
+      toast.error("Failed to update the ticket status.");
     }
   };
 
@@ -111,105 +125,99 @@ const HRTicketManagement: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-4 bg-white rounded-lg">
-      <h2 className="text-2xl font-bold mb-4 mt-4 text-center">
+    <div className="w-full p-6 bg-gray-50 rounded-xl">
+      <h2 className="text-3xl font-semibold mb-6 text-center">
         HR Tickets Management
       </h2>
 
-      <div className="mb-4">
-        <div className="flex flex-wrap items-center gap-2 w-full">
-          <div className="flex-grow min-w-[200px]">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2  border border-gray-300">
-              <FaCalendarAlt className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                value={
-                  filters.fromDate
-                    ? new Date(filters.fromDate).toLocaleDateString()
-                    : "FROM"
-                }
-                onFocus={(e) => {
-                  e.target.type = "date";
-                  e.target.showPicker();
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = "FROM";
-                  }
-                }}
-                onChange={(e) => {
-                  setFilters({ ...filters, fromDate: e.target.value });
-                  e.target.type = "text";
-                  e.target.value = new Date(
-                    e.target.value
-                  ).toLocaleDateString();
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
-              />
-            </div>
-          </div>
+      {/* Filters Section */}
+      <div className="grid gap-6 mb-6 sm:grid-cols-1 md:grid-cols-3">
+        {/* From Date */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
+          <input
+            type="text"
+            value={
+              filters.fromDate
+                ? new Date(filters.fromDate).toLocaleDateString()
+                : "FROM"
+            }
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "FROM";
+              }
+            }}
+            onChange={(e) => {
+              setFilters({ ...filters, fromDate: e.target.value });
+              e.target.type = "text";
+              e.target.value = new Date(e.target.value).toLocaleDateString();
+            }}
+            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
+            placeholder="From Date"
+          />
+        </div>
 
-          <div className="flex-grow min-w-[200px]">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2  border border-gray-300">
-              <FaCalendarAlt className="text-gray-400 mr-2" />
-              <input
-                type="text"
-                value={
-                  filters.toDate
-                    ? new Date(filters.toDate).toLocaleDateString()
-                    : "TO"
-                }
-                onFocus={(e) => {
-                  e.target.type = "date";
-                  e.target.showPicker();
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = "TO";
-                  }
-                }}
-                onChange={(e) => {
-                  setFilters({ ...filters, toDate: e.target.value });
-                  e.target.type = "text";
-                  e.target.value = new Date(
-                    e.target.value
-                  ).toLocaleDateString();
-                }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
-              />
-            </div>
-          </div>
+        {/* To Date */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
+          <input
+            type="text"
+            value={
+              filters.toDate
+                ? new Date(filters.toDate).toLocaleDateString()
+                : "TO"
+            }
+            onFocus={(e) => {
+              e.target.type = "date";
+              e.target.showPicker();
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) {
+                e.target.type = "text";
+                e.target.value = "TO";
+              }
+            }}
+            onChange={(e) => {
+              setFilters({ ...filters, toDate: e.target.value });
+              e.target.type = "text";
+              e.target.value = new Date(e.target.value).toLocaleDateString();
+            }}
+            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
+            placeholder="To Date"
+          />
+        </div>
 
-          <div className="flex-grow min-w-[200px]">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2  border border-gray-300">
-              <FaFilter className="text-gray-400 mr-2" />
-              <select
-                value={filters.status}
-                onChange={(e) =>
-                  setFilters({ ...filters, status: e.target.value })
-                }
-                className="w-full border-none focus:outline-none text-sm text-gray-600"
-              >
-                <option value="All">All Status</option>
-                <option value="Open">Open</option>
-                <option value="Closed">Closed</option>
-                <option value="Rejected">Rejected</option>
-              </select>
-            </div>
-          </div>
+        {/* Status Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaFilter className="text-black mr-3" />
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+            className="w-full border-none focus:outline-none text-sm text-gray-700"
+          >
+            <option value="All">All Status</option>
+            <option value="Open">Open</option>
+            <option value="Closed">Closed</option>
+            <option value="Rejected">Rejected</option>
+          </select>
         </div>
       </div>
 
+      {/* Tickets Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-          <thead className="bg-purple-900">
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead className="bg-purple-900 sticky top-0">
             <tr>
               {[
                 "S.No",
                 "Date",
                 "User Name",
+                "Department",
                 "Job Title",
                 "Subject",
                 "Status",
@@ -217,7 +225,7 @@ const HRTicketManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-3 py-2 text-center text-sm font-medium text-white"
+                  className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center"
                 >
                   {header}
                 </th>
@@ -227,21 +235,22 @@ const HRTicketManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
-                  <div className="w-full bg-white rounded-lg flex justify-center items-center">
+                <td colSpan={8} className="text-center py-12 text-gray-500">
+                  <div className="flex flex-col items-center justify-center">
                     <FaSpinner
-                      size={30}
-                      className="text-blue-500 animate-spin"
+                      size={40}
+                      className="animate-spin text-blue-600 mb-2"
+                      aria-hidden="true"
                     />
                   </div>
                 </td>
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td colSpan={8} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">
+                    <FaInbox size={40} className="text-gray-400 mb-4" />
+                    <span className="text-lg font-medium">
                       No HR Tickets Found.
                     </span>
                   </div>
@@ -249,50 +258,67 @@ const HRTicketManagement: React.FC = () => {
               </tr>
             ) : currentTickets.length > 0 ? (
               currentTickets.map((ticket, index) => (
-                <tr key={ticket.id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                <tr
+                  key={ticket.id}
+                  className="hover:bg-gray-100 transition-colors"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.name}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
+                    {ticket.user.department}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.abbreviatedJobTitle}
                   </td>
-
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.subject}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
-                    {ticket.status}
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
+                    <span
+                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        ticket.status === "Open"
+                          ? "bg-blue-100 text-blue-800"
+                          : ticket.status === "Closed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {ticket.status}
+                    </span>
                   </td>
-                  <td className="px-3 py-2 text-center space-x-2 flex items-center justify-center">
+                  <td className="px-6 py-4 text-center space-x-2 flex items-center justify-center">
                     {ticket.status === "Open" && (
                       <>
                         <button
                           onClick={() => handleAction(ticket.id, "approve")}
-                          className="px-1.5 py-0.5 text-xs text-white bg-green-600 rounded-full hover:bg-green-700"
+                          className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 transition-colors"
+                          title="Approve"
                         >
-                          Approve
+                          <FaCheck className="mr-1" /> Approve
                         </button>
                         <button
                           onClick={() => handleAction(ticket.id, "reject")}
-                          className="px-1.5 py-0.5 text-xs text-white bg-red-600 rounded-full hover:bg-red-700"
+                          className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-colors"
+                          title="Reject"
                         >
-                          Reject
+                          <FaTimes className="mr-1" /> Reject
                         </button>
                       </>
                     )}
 
                     {ticket.status !== "Open" && (
                       <span
-                        className={`text-xs mr-2 ${
+                        className={`px-3 py-1 text-sm rounded-full ${
                           ticket.status === "Rejected"
-                            ? "text-red-600"
-                            : "text-green-600"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-600"
                         }`}
                       >
                         {ticket.status}
@@ -301,19 +327,20 @@ const HRTicketManagement: React.FC = () => {
 
                     <button
                       onClick={() => openModal(ticket)}
-                      className="px-1.5 py-0.5 text-xs text-white bg-blue-600 rounded-full hover:bg-blue-700"
+                      className="flex items-center px-3 py-1 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors"
+                      title="View Details"
                     >
-                      View
+                      <FaEye className="mr-1" /> View
                     </button>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td colSpan={8} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">
+                    <FaInbox size={40} className="text-gray-400 mb-4" />
+                    <span className="text-lg font-medium">
                       No HR Tickets Found.
                     </span>
                   </div>
@@ -323,12 +350,12 @@ const HRTicketManagement: React.FC = () => {
           </tbody>
         </table>
       </div>
-
-      <div className="flex flex-col md:flex-row justify-between items-center mt-4 space-y-4 md:space-y-0">
+      {/* Pagination and Items Per Page */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
         <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <span className="text-sm text-gray-700 mr-3">Show:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md"
+            className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
@@ -342,32 +369,36 @@ const HRTicketManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
             }`}
-            onClick={handlePrevious}
             disabled={currentPage === 1}
+            onClick={handlePrevious}
           >
+            <FiChevronLeft className="mr-2" />
             Previous
           </button>
+          <span className="text-sm text-gray-700">
+            Page {currentPage} of {totalPages}
+          </span>
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === totalPages || totalPages === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
             }`}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
-            disabled={currentPage === totalPages}
           >
             Next
+            <FiChevronRight className="ml-2" />
           </button>
         </div>
       </div>
 
+      {/* Ticket Detail Modal */}
       <TicketDetailModal
         isOpen={isModalOpen}
         ticket={selectedTicket}

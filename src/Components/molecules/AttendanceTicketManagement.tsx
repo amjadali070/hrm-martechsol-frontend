@@ -1,13 +1,23 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
+import {
+  FaCalendarAlt,
+  FaFilter,
+  FaInbox,
+  FaSpinner,
+  FaEdit,
+  FaEye,
+  FaCheck,
+  FaTimes,
+} from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import DocumentViewerModal from "../atoms/DocumentViewerModal";
 import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 import { toast } from "react-toastify";
-import EditAttendanceModal from "../atoms/EditAttendanceModal"; // Import the updated modal
-import useUser from "../../hooks/useUser"; // Adjust the path as necessary
+import EditAttendanceModal from "../atoms/EditAttendanceModal";
+import useUser from "../../hooks/useUser";
 import { formatAttendenceTicketTime } from "../../utils/formateTime";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface AttendanceTicket {
   _id: string;
@@ -29,7 +39,7 @@ interface AttendanceTicket {
 }
 
 const AttendanceTicketManagement: React.FC = () => {
-  const { user, loading: userLoading } = useUser(); // Fetch user data
+  const { user, loading: userLoading } = useUser();
   const [attendanceTickets, setAttendanceTickets] = useState<
     AttendanceTicket[]
   >([]);
@@ -52,11 +62,10 @@ const AttendanceTicketManagement: React.FC = () => {
   >(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [notFound, setNotFound] = useState<boolean>(false);
-
-  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false); // State for edit modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [ticketToEdit, setTicketToEdit] = useState<AttendanceTicket | null>(
     null
-  ); // Selected ticket to edit
+  );
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -130,6 +139,7 @@ const AttendanceTicketManagement: React.FC = () => {
       );
     } catch (error: any) {
       console.error("Error updating attendance ticket status:", error);
+      toast.error("Failed to update the ticket status.");
     }
   };
 
@@ -145,14 +155,14 @@ const AttendanceTicketManagement: React.FC = () => {
   };
 
   const openViewer = (fileUrl: string, fileName: string) => {
-    if (!fileUrl) return; // Ensure the file URL exists
+    if (!fileUrl) return;
 
-    const fileType = fileUrl.split(".").pop()?.toLowerCase(); // Extract file extension
-    const fileNameFromUrl = fileUrl.split("/").pop(); // Extract file name from URL
+    const fileType = fileUrl.split(".").pop()?.toLowerCase();
+    const fileNameFromUrl = fileUrl.split("/").pop();
 
-    setSelectedFileUrl(fileUrl); // Set the full file URL
-    setSelectedFileName(fileName || fileNameFromUrl || "Unknown File"); // Use the provided fileName or fallback
-    setSelectedFileType(fileType === "pdf" ? "pdf" : "image"); // Determine file type
+    setSelectedFileUrl(fileUrl);
+    setSelectedFileName(fileName || fileNameFromUrl || "Unknown File");
+    setSelectedFileType(fileType === "pdf" ? "pdf" : "image");
     setIsViewerOpen(true);
   };
 
@@ -174,7 +184,6 @@ const AttendanceTicketManagement: React.FC = () => {
   };
 
   const handleEditSuccess = () => {
-    // Refresh the attendance tickets or update state accordingly
     const fetchAttendanceTickets = async () => {
       try {
         setLoading(true);
@@ -201,13 +210,14 @@ const AttendanceTicketManagement: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-4 bg-white rounded-lg">
-      <h2 className="text-2xl font-bold mb-4 mt-4 text-center">
+    <div className="w-full p-6 bg-gray-50 rounded-xl">
+      <h2 className="text-3xl font-semibold mb-6 text-center ">
         Attendance Tickets Management
       </h2>
-      <div className="grid gap-4 mb-4 sm:grid-cols-1 md:grid-cols-3">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaCalendarAlt className="text-gray-400 mr-2" />
+      <div className="grid gap-6 mb-6 sm:grid-cols-1 md:grid-cols-3">
+        {/* From Date */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
           <input
             type="text"
             value={
@@ -230,12 +240,13 @@ const AttendanceTicketManagement: React.FC = () => {
               e.target.type = "text";
               e.target.value = new Date(e.target.value).toLocaleDateString();
             }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaCalendarAlt className="text-gray-400 mr-2" />
+        {/* To Date */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaCalendarAlt className="text-black mr-3" />
           <input
             type="text"
             value={
@@ -258,16 +269,17 @@ const AttendanceTicketManagement: React.FC = () => {
               e.target.type = "text";
               e.target.value = new Date(e.target.value).toLocaleDateString();
             }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaFilter className="text-gray-400 mr-2" />
+        {/* Status Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+          <FaFilter className="text-black mr-3" />
           <select
             value={filters.status}
             onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
+            className="w-full border-none focus:outline-none text-sm text-gray-700"
           >
             <option value="All">All Status</option>
             <option value="Open">Open</option>
@@ -278,7 +290,7 @@ const AttendanceTicketManagement: React.FC = () => {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
           <thead className="bg-purple-900">
             <tr>
               {[
@@ -294,7 +306,7 @@ const AttendanceTicketManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-3 py-2 text-sm font-medium text-white text-center"
+                  className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center"
                 >
                   {header}
                 </th>
@@ -304,21 +316,22 @@ const AttendanceTicketManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaSpinner
-                      size={30}
-                      className="text-blue-500 animate-spin"
+                      size={40}
+                      className="animate-spin text-blue-600 mb-2"
+                      aria-hidden="true"
                     />
                   </div>
                 </td>
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">
+                    <FaInbox size={40} className="text-gray-400 mb-4" />
+                    <span className="text-lg font-medium">
                       No Attendance Tickets Found.
                     </span>
                   </div>
@@ -326,66 +339,70 @@ const AttendanceTicketManagement: React.FC = () => {
               </tr>
             ) : currentTickets.length > 0 ? (
               currentTickets.map((ticket, index) => (
-                <tr key={ticket._id} className="hover:bg-gray-100">
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                <tr
+                  key={ticket._id}
+                  className="hover:bg-gray-100 transition-colors"
+                >
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.name}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.personalDetails.abbreviatedJobTitle}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {formatAttendenceTicketTime(ticket.timeIn)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {formatAttendenceTicketTime(ticket.timeOut)}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.totalTime}
                   </td>
-                  <td className="px-3 py-2 text-sm text-gray-800 text-center">
+                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.workLocation}
                   </td>
-
-                  <td className="px-3 py-2 text-center space-x-2 flex items-center justify-center">
+                  <td className="px-6 py-4 text-center space-x-2 flex items-center justify-center">
                     {ticket.status === "Open" && (
                       <>
                         <button
                           onClick={() => handleAction(ticket._id, "approve")}
-                          className="px-1.5 py-0.5 text-xs text-white bg-green-600 rounded-full hover:bg-green-700"
+                          className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 transition-colors"
+                          title="Approve"
                         >
-                          Approve
+                          <FaCheck className="mr-1" /> Approve
                         </button>
                         <button
                           onClick={() => handleAction(ticket._id, "reject")}
-                          className="px-1.5 py-0.5 text-xs text-white bg-red-600 rounded-full hover:bg-red-700"
+                          className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-colors"
+                          title="Reject"
                         >
-                          Reject
+                          <FaTimes className="mr-1" /> Reject
                         </button>
                       </>
                     )}
                     {ticket.status !== "Open" && (
                       <span
-                        className={`text-xs mr-2 ${
+                        className={`px-3 py-1 text-sm rounded-full ${
                           ticket.status === "Rejected"
-                            ? "text-red-600"
-                            : "text-green-600"
+                            ? "bg-red-100 text-red-600"
+                            : "bg-green-100 text-green-600"
                         }`}
                       >
                         {ticket.status}
                       </span>
                     )}
-
                     <button
                       onClick={() => openModal(ticket)}
-                      className="px-1.5 py-0.5 text-xs text-white bg-blue-600 rounded-full hover:bg-blue-700"
+                      className="flex items-center px-3 py-1 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors"
+                      title="View Details"
                     >
-                      View
+                      <FaEye className="mr-1" /> View
                     </button>
 
                     {/* Conditionally render "Edit" button */}
@@ -395,9 +412,10 @@ const AttendanceTicketManagement: React.FC = () => {
                         user.role === "SuperAdmin") && (
                         <button
                           onClick={() => openEditModal(ticket)}
-                          className="px-1.5 py-0.5 text-xs text-white bg-yellow-600 rounded-full hover:bg-yellow-700"
+                          className="flex items-center px-3 py-1 bg-yellow-500 text-white text-sm rounded-full hover:bg-yellow-600 transition-colors"
+                          title="Edit Ticket"
                         >
-                          Edit
+                          <FaEdit className="mr-1" /> Edit
                         </button>
                       )}
                   </td>
@@ -405,10 +423,10 @@ const AttendanceTicketManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="text-center py-8 text-gray-500">
+                <td colSpan={9} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">
+                    <FaInbox size={40} className="text-gray-400 mb-4" />
+                    <span className="text-lg font-medium">
                       No Attendance Tickets Found.
                     </span>
                   </div>
@@ -419,11 +437,12 @@ const AttendanceTicketManagement: React.FC = () => {
         </table>
       </div>
 
-      <div className="flex justify-between items-center mt-4">
+      {/* Pagination and Items Per Page */}
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
         <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
+          <span className="text-sm text-gray-700 mr-3">Show:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md"
+            className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
@@ -437,31 +456,31 @@ const AttendanceTicketManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-3">
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
           >
+            <FiChevronLeft className="mr-2" />
             Previous
           </button>
           <span className="text-sm text-gray-700">
             Page {currentPage} of {totalPages}
           </span>
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+              currentPage === totalPages || totalPages === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
             }`}
-            disabled={currentPage === totalPages}
+            disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
             Next
+            <FiChevronRight className="ml-2" />
           </button>
         </div>
       </div>

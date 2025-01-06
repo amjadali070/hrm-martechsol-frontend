@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaInbox } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 
@@ -120,7 +120,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
           >
             <FaSpinner className="text-blue-500 animate-spin" size={30} />
           </div>
-        ) : (
+        ) : attendanceRecords.length > 0 ? (
           <div className="overflow-x-auto" style={{ height: "180px" }}>
             <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-purple-900">
@@ -137,59 +137,54 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
                   <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
                     Time Out
                   </th>
-                  {/* <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Total Time
-                  </th> */}
                   <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md">
                     Status
                   </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {attendanceRecords.length > 0 ? (
-                  attendanceRecords.map((record) => (
-                    <tr key={record._id} className="hover:bg-gray-100">
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {new Date(record.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {getDayOfWeek(record.createdAt)}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.timeIn
-                          ? new Date(record.timeIn).toLocaleTimeString()
-                          : "N/A"}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.timeOut
-                          ? new Date(record.timeOut).toLocaleTimeString()
-                          : "N/A"}
-                      </td>
-
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            statusColors[record.type] ||
-                            "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {record.type}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
-                    >
-                      No recent attendance records found.
+                {attendanceRecords.map((record) => (
+                  <tr key={record._id} className="hover:bg-gray-100">
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {new Date(record.createdAt).toLocaleDateString()}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {getDayOfWeek(record.createdAt)}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {record.timeIn
+                        ? new Date(record.timeIn).toLocaleTimeString()
+                        : "N/A"}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {record.timeOut
+                        ? new Date(record.timeOut).toLocaleTimeString()
+                        : "N/A"}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          statusColors[record.type] ||
+                          "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {record.type}
+                      </span>
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
+          </div>
+        ) : (
+          <div
+            className="flex flex-col items-center justify-center"
+            style={{ height: "180px" }}
+          >
+            <FaInbox size={30} className="text-gray-400 mb-2" />
+            <span className="text-md font-medium">
+              No recent attendance records found.
+            </span>
           </div>
         )}
       </div>

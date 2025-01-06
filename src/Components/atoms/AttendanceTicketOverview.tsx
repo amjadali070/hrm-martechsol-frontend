@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { formatDate } from "../../utils/formatDate";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaInbox } from "react-icons/fa";
 import { truncateComment } from "../../utils/truncateComment";
 
 interface AttendanceRecord {
@@ -74,7 +74,7 @@ const AttendanceTicketOverview: React.FC = () => {
             <div className="flex justify-center items-center h-40">
               <FaSpinner className="text-blue-500 animate-spin" size={30} />
             </div>
-          ) : (
+          ) : attendanceTickets.length > 0 ? (
             <table className="min-w-full divide-y divide-gray-200 table-fixed">
               <thead className="bg-purple-900">
                 <tr>
@@ -105,45 +105,44 @@ const AttendanceTicketOverview: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {attendanceTickets.length > 0 ? (
-                  attendanceTickets.map((ticket, index) => (
-                    <tr key={ticket._id} className="hover:bg-gray-100">
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {index + 1}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {formatDate(ticket.date)}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
-                        {truncateComment(ticket.comments)}
-                      </td>
-                      <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            ticket.status === "Closed"
-                              ? "bg-red-100 text-red-800"
-                              : ticket.status === "Open"
-                              ? "bg-yellow-100 text-yellow-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {ticket.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={4}
-                      className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
-                    >
-                      No recent attendance ticket found.
+                {attendanceTickets.map((ticket, index) => (
+                  <tr key={ticket._id} className="hover:bg-gray-100">
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {index + 1}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                      {formatDate(ticket.date)}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
+                      {truncateComment(ticket.comments)}
+                    </td>
+                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
+                      <span
+                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          ticket.status === "Closed"
+                            ? "bg-red-100 text-red-800"
+                            : ticket.status === "Open"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-green-100 text-green-800"
+                        }`}
+                      >
+                        {ticket.status}
+                      </span>
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
+          ) : (
+            <div
+              className="flex flex-col items-center justify-center"
+              style={{ height: "180px" }}
+            >
+              <FaInbox size={30} className="text-gray-400 mb-2" />
+              <span className="text-md font-medium">
+                No recent attendance tickets found.
+              </span>
+            </div>
           )}
         </div>
       </div>
