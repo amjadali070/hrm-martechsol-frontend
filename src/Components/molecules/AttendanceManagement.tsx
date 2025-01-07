@@ -165,7 +165,7 @@ const AttendanceManagement: React.FC = () => {
         break;
       case "This Month": {
         // Get first day of current month
-        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
         // Get last day of current month
         end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
         break;
