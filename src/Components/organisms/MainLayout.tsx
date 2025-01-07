@@ -3,6 +3,7 @@ import { Outlet, useNavigate } from "react-router";
 import axios from "axios";
 import Sidebar from "../molecules/Sidebar";
 import Header from "../atoms/Header";
+import { FaSpinner } from "react-icons/fa";
 
 interface User {
   _id: string;
@@ -72,7 +73,12 @@ const MainLayout: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-[#efefef]">
-        <svg
+        <div className="text-center text-gray-500">
+          <div className="flex flex-col items-center">
+            <FaSpinner size={40} className="text-blue-500 mb-4 animate-spin" />
+          </div>
+        </div>
+        {/* <svg
           className="animate-spin h-12 w-12 text-purple-600"
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
@@ -91,10 +97,7 @@ const MainLayout: React.FC = () => {
             fill="currentColor"
             d="M4 12a8 8 0 018-8v8H4z"
           ></path>
-        </svg>
-        {/* <span className="ml-3 text-purple-600 font-semibold text-lg">
-          Loading...
-        </span> */}
+        </svg> */}
       </div>
     );
   }

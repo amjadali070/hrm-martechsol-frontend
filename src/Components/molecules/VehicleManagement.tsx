@@ -193,7 +193,6 @@ const VehicleManagement: React.FC = () => {
             className="animate-spin text-blue-600 mb-4"
             aria-hidden="true"
           />
-          <span className="text-lg text-gray-600">Loading vehicles...</span>
         </div>
       ) : error ? (
         <div className="bg-red-100 text-red-700 p-4 rounded-md">
