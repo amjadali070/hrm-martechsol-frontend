@@ -1,8 +1,9 @@
+// src/components/TeamManagement.tsx
+
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import {
-  FaUsers,
-  FaUserTag,
+  FaInbox,
   FaListUl,
   FaPlus,
   FaSpinner,
@@ -76,6 +77,7 @@ const TeamManagement: React.FC = () => {
         setManagers(response.data || []);
       } catch (error) {
         console.error("Error fetching managers:", error);
+        toast.error("Failed to fetch managers.");
       } finally {
         setLoading(false);
       }
@@ -96,6 +98,7 @@ const TeamManagement: React.FC = () => {
         setFilteredMembers(users || []);
       } catch (error) {
         console.error("Error fetching team members:", error);
+        toast.error("Failed to fetch team members.");
       } finally {
         setLoading(false);
       }
@@ -141,8 +144,8 @@ const TeamManagement: React.FC = () => {
         setAssignedUsers([]);
       }
     } catch (error) {
-      console.error("Error fetching assigned users:", error);
-      // If an error occurs or no assigned members found, clear previous data
+      // console.error("Error fetching assigned users:", error);
+      // toast.error("Failed to fetch assigned team members.");
       setAssignedUsers([]);
     } finally {
       setViewLoading(false);
@@ -171,8 +174,10 @@ const TeamManagement: React.FC = () => {
 
       toast.success("Team members assigned successfully!"); // Toast notification
       closeModals();
+      // Optionally, refresh managers or team members
     } catch (error) {
       console.error("Error assigning team member:", error);
+      toast.error("Failed to assign team members.");
     }
   };
 
@@ -187,15 +192,16 @@ const TeamManagement: React.FC = () => {
       setAssignedUsers((prev) => prev.filter((user) => user._id !== userId));
     } catch (error) {
       console.error("Error unassigning team member:", error);
+      toast.error("Failed to unassign team member.");
     }
   };
 
   if (userLoading) {
     return (
-      <div className="flex flex-col items-center justify-center mt-20 mb-20">
+      <div className="flex flex-col items-center justify-center h-screen">
         <FaSpinner
-          size={30}
-          className="animate-spin text-blue-600 mb-2"
+          size={40}
+          className="animate-spin text-indigo-500 mb-4"
           aria-hidden="true"
         />
       </div>
@@ -203,33 +209,36 @@ const TeamManagement: React.FC = () => {
   }
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg">
+    <div className="w-full p-8 bg-gradient-to-r from-gray-100 to-white rounded-lg mb-8">
       <ToastContainer position="top-center" />
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">Team Management</h2>
+      <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
+        <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800">
+          Team Management
+        </h2>
+        {/* Optional: Add a global action button if needed */}
       </div>
       {loading ? (
-        <div className="flex justify-center items-center">
-          <FaSpinner className="animate-spin" />
+        <div className="flex justify-center items-center h-64">
+          <FaSpinner size={30} className="animate-spin text-indigo-500" />
         </div>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white border border-gray-300 rounded-lg">
+          <table className="min-w-full bg-white rounded-lg overflow-hidden">
             <thead>
-              <tr className="bg-purple-900">
-                <th className="py-3 px-4 text-left text-sm font-medium text-white">
+              <tr className="bg-purple-900 text-white">
+                <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                   S.No
                 </th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                   Name
                 </th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                   Department
                 </th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                   Job Title
                 </th>
-                <th className="py-3 px-4 text-left text-sm font-medium text-white">
+                <th className="py-3 px-6 text-left text-sm font-semibold uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
@@ -237,42 +246,40 @@ const TeamManagement: React.FC = () => {
             <tbody>
               {Array.isArray(managers) && managers.length > 0 ? (
                 managers.map((manager, index) => (
-                  <tr key={manager._id} className="hover:bg-gray-50">
-                    <td className="py-3 px-4 text-sm text-gray-800">
+                  <tr
+                    key={manager._id}
+                    className={`${
+                      index % 2 === 0 ? "bg-gray-50" : "bg-white"
+                    } hover:bg-gray-100 transition-colors`}
+                  >
+                    <td className="py-4 px-6 text-sm text-gray-700">
                       {index + 1}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-800">
+                    <td className="py-4 px-6 text-sm text-gray-700">
                       {manager.name}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-800">
+                    <td className="py-4 px-6 text-sm text-gray-700">
                       {manager.personalDetails.department}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-800">
+                    <td className="py-4 px-6 text-sm text-gray-700">
                       {manager.personalDetails.fullJobTitle}
                     </td>
-                    <td className="py-3 px-4 text-sm text-gray-800 flex gap-2">
-                      {role === "manager" ? (
+                    <td className="py-4 px-6 text-sm text-gray-700 flex space-x-3">
+                      <button
+                        className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+                        onClick={() => handleViewTeamMembers(manager._id)}
+                      >
+                        <FaListUl className="mr-2" />
+                        View Team
+                      </button>
+                      {role !== "manager" && (
                         <button
-                          className="px-3 py-1 text-white bg-blue-600 rounded-full hover:bg-blue-700"
-                          onClick={() => handleViewTeamMembers(manager._id)}
+                          className="flex items-center px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
+                          onClick={() => handleAssignTeamMembers(manager._id)}
                         >
-                          <FaListUl className="inline mr-2" /> View Team
+                          <FaPlus className="mr-2" />
+                          Assign Members
                         </button>
-                      ) : (
-                        <>
-                          <button
-                            className="px-3 py-1 text-white bg-blue-600 rounded-full hover:bg-blue-700"
-                            onClick={() => handleViewTeamMembers(manager._id)}
-                          >
-                            <FaListUl className="inline mr-2" /> View Team
-                          </button>
-                          <button
-                            className="px-3 py-1 text-white bg-green-600 rounded-full hover:bg-green-700"
-                            onClick={() => handleAssignTeamMembers(manager._id)}
-                          >
-                            <FaPlus className="inline mr-2" /> Assign Members
-                          </button>
-                        </>
                       )}
                     </td>
                   </tr>
@@ -280,8 +287,8 @@ const TeamManagement: React.FC = () => {
               ) : (
                 <tr>
                   <td
-                    colSpan={6}
-                    className="py-3 px-4 text-sm text-gray-800 text-center"
+                    colSpan={5}
+                    className="py-8 px-6 text-sm text-gray-700 text-center"
                   >
                     No managers found.
                   </td>
@@ -293,34 +300,42 @@ const TeamManagement: React.FC = () => {
       )}
       {/* View Team Modal */}
       {viewModal.isOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-11/12 md:w-1/2 lg:w-1/3 max-h-[80vh] overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Assigned Team Members</h3>
-              <button
-                onClick={closeModals}
-                className="text-gray-700 hover:text-gray-900"
-              >
-                <FaTimes />
-              </button>
-            </div>
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          aria-modal="true"
+          role="dialog"
+        >
+          <div className="bg-white p-8 rounded-lg w-11/12 md:w-3/4 lg:w-1/2 max-h-screen overflow-y-auto relative">
+            <button
+              onClick={closeModals}
+              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
+              aria-label="Close View Team Modal"
+            >
+              <FaTimes size={20} />
+            </button>
+            <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+              Assigned Team Members
+            </h3>
             {viewLoading ? (
-              <div className="flex justify-center items-center">
-                <FaSpinner className="animate-spin" />
+              <div className="flex justify-center items-center h-32">
+                <FaSpinner size={30} className="animate-spin text-indigo-500" />
               </div>
             ) : (
-              <ul className="space-y-2">
+              <ul className="space-y-4">
                 {assignedUsers.length > 0 ? (
                   assignedUsers.map((member) => (
                     <li
                       key={member._id}
-                      className="flex justify-between p-2 bg-gray-100 rounded"
+                      className="flex justify-between items-center p-4 bg-gray-100 rounded-md"
                     >
-                      <div className="flex flex-col">
-                        <span className="font-semibold">{member.name}</span>
-                        <span className="text-xs text-gray-500">
+                      <div>
+                        <p className="text-md font-semibold text-gray-800">
+                          {member.name}
+                        </p>
+                        <p className="text-sm text-gray-500">
                           {member.personalDetails.fullJobTitle}
-                        </span>
+                        </p>
+                        <p className="text-sm text-gray-500">{member.email}</p>
                       </div>
                       {role !== "manager" && (
                         <button
@@ -328,6 +343,7 @@ const TeamManagement: React.FC = () => {
                             handleUnassign(member._id, viewModal.managerId!)
                           }
                           className="text-red-600 hover:text-red-800"
+                          aria-label={`Unassign ${member.name}`}
                         >
                           <FaTrash />
                         </button>
@@ -335,8 +351,13 @@ const TeamManagement: React.FC = () => {
                     </li>
                   ))
                 ) : (
-                  <li className="p-2 bg-gray-100 rounded">
-                    No assigned team members found.
+                  <li className="text-center text-gray-600">
+                    <div className="flex flex-col items-center">
+                      <FaInbox size={30} className="text-gray-400 mb-4" />
+                      <span className="text-lg font-medium">
+                        No assigned team members found.
+                      </span>
+                    </div>
                   </li>
                 )}
               </ul>
@@ -344,33 +365,38 @@ const TeamManagement: React.FC = () => {
           </div>
         </div>
       )}
+      {/* Assign Team Members Modal */}
       {assignModal.isOpen && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center">
-          <div className="bg-white p-6 rounded-lg w-[60%] max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-bold">Assign Team Members</h3>
-              <button
-                onClick={closeModals}
-                className="text-gray-700 hover:text-gray-900 text-2xl"
-              >
-                <FaTimes />
-              </button>
-            </div>
-
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
+          aria-modal="true"
+          role="dialog"
+        >
+          <div className="bg-white p-8 rounded-lg w-11/12 md:w-3/4 lg:w-2/3 max-h-screen overflow-y-auto relative">
+            <button
+              onClick={closeModals}
+              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
+              aria-label="Close Assign Team Members Modal"
+            >
+              <FaTimes size={20} />
+            </button>
+            <h3 className="text-2xl font-semibold mb-6 text-gray-800">
+              Assign Team Members
+            </h3>
             {/* Search and Filters */}
-            <div className="flex flex-col md:flex-row gap-4 mb-4">
+            <div className="flex flex-col md:flex-row gap-4 mb-6">
               {/* Search Bar */}
               <input
                 type="text"
-                placeholder="Search team members by name..."
+                placeholder="Search team members by name, job title, department..."
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="p-2 border border-gray-300 rounded w-full md:w-1/3"
+                className="flex-1 p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                aria-label="Search Team Members"
               />
-
               {/* Department Filter */}
               <select
-                className="p-2 border border-gray-300 rounded w-full md:w-1/4"
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 onChange={(e) => {
                   const department = e.target.value;
                   const filtered = teamMembers.filter((member) =>
@@ -380,8 +406,9 @@ const TeamManagement: React.FC = () => {
                   );
                   setFilteredMembers(filtered);
                 }}
+                aria-label="Filter by Department"
               >
-                <option value="">Filter by Department</option>
+                <option value="">All Departments</option>
                 {Array.from(
                   new Set(teamMembers.map((m) => m.personalDetails.department))
                 ).map((dept) => (
@@ -390,10 +417,9 @@ const TeamManagement: React.FC = () => {
                   </option>
                 ))}
               </select>
-
               {/* Job Title Filter */}
               <select
-                className="p-2 border border-gray-300 rounded w-full md:w-1/4"
+                className="p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 onChange={(e) => {
                   const jobTitle = e.target.value;
                   const filtered = teamMembers.filter((member) =>
@@ -403,8 +429,9 @@ const TeamManagement: React.FC = () => {
                   );
                   setFilteredMembers(filtered);
                 }}
+                aria-label="Filter by Job Title"
               >
-                <option value="">Filter by Job Title</option>
+                <option value="">All Job Titles</option>
                 {Array.from(
                   new Set(
                     teamMembers.map((m) => m.personalDetails.fullJobTitle)
@@ -416,55 +443,66 @@ const TeamManagement: React.FC = () => {
                 ))}
               </select>
             </div>
-
             {/* Team Member List */}
-            <div className="overflow-y-auto custom-scrollbar max-h-[60vh]">
-              <ul className="space-y-2">
+            <div className="max-h-96 overflow-y-auto mb-6">
+              <ul className="space-y-3">
                 {filteredMembers.length > 0 ? (
                   filteredMembers.map((member) => (
                     <li
                       key={member._id}
-                      className="flex justify-between items-center p-3 bg-gray-100 rounded hover:bg-gray-200 transition"
+                      className="flex items-center justify-between p-4 bg-gray-100 rounded-md hover:bg-gray-200 transition"
                     >
-                      <div>
-                        <p className="text-sm font-semibold">{member.name}</p>
-                        <p className="text-xs text-gray-500">
-                          {member.personalDetails.department} |{" "}
-                          {member.personalDetails.fullJobTitle} |{" "}
-                          {member.personalDetails.Jobcategory}
-                        </p>
+                      <div className="flex items-center space-x-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedMembers.includes(member._id)}
+                          onChange={() => {
+                            if (selectedMembers.includes(member._id)) {
+                              setSelectedMembers(
+                                selectedMembers.filter(
+                                  (id) => id !== member._id
+                                )
+                              );
+                            } else {
+                              setSelectedMembers([
+                                ...selectedMembers,
+                                member._id,
+                              ]);
+                            }
+                          }}
+                          className="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                          aria-label={`Select ${member.name}`}
+                        />
+                        <div>
+                          <p className="text-md font-semibold text-gray-800">
+                            {member.name}
+                          </p>
+                          <p className="text-sm text-gray-500">
+                            {member.personalDetails.fullJobTitle} |{" "}
+                            {member.personalDetails.department} |{" "}
+                            {member.personalDetails.Jobcategory}
+                          </p>
+                        </div>
                       </div>
-                      <input
-                        type="checkbox"
-                        checked={selectedMembers.includes(member._id)}
-                        onChange={() => {
-                          if (selectedMembers.includes(member._id)) {
-                            setSelectedMembers(
-                              selectedMembers.filter((id) => id !== member._id)
-                            );
-                          } else {
-                            setSelectedMembers([
-                              ...selectedMembers,
-                              member._id,
-                            ]);
-                          }
-                        }}
-                        className="w-5 h-5 cursor-pointer"
-                      />
                     </li>
                   ))
                 ) : (
-                  <li className="p-3 bg-gray-100 text-center text-gray-700 rounded">
+                  <li className="text-center text-gray-600">
                     No team members found.
                   </li>
                 )}
               </ul>
             </div>
-
-            <div className="mt-6 text-right">
+            {/* Assign Button */}
+            <div className="flex justify-end">
               <button
                 onClick={() => handleAssign(assignModal.managerId!)}
-                className="px-6 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+                className={`px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition ${
+                  selectedMembers.length === 0
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={selectedMembers.length === 0}
               >
                 Assign Selected Members
               </button>
@@ -473,14 +511,21 @@ const TeamManagement: React.FC = () => {
         </div>
       )}
       <style>{`
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 0; /* Hides scrollbar */
-  }
-  .custom-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
-    scrollbar-width: none; /* Firefox */
-  }
-`}</style>
+        /* Custom Scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #cbd5e0;
+          border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #a0aec0;
+        }
+      `}</style>
     </div>
   );
 };
