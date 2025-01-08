@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { FaEdit } from "react-icons/fa";
 import Select from "react-select";
+import { pakistaniBanks } from "../../../utils/pakistaniBanks";
 
 interface BankAccountDetailsProps {
   bankName: string;
@@ -57,73 +58,11 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
     setIsEditing((prev) => !prev);
   };
 
-  const pakistaniBanks = [
-    {
-      value: "AlBaraka Bank (Pakistan) Limited",
-      label: "AlBaraka Bank (Pakistan) Limited",
-    },
-    { value: "Allied Bank Limited", label: "Allied Bank Limited" },
-    { value: "Askari Bank Limited", label: "Askari Bank Limited" },
-    { value: "Bank AL Habib Limited", label: "Bank AL Habib Limited" },
-    { value: "Bank Alfalah Limited", label: "Bank Alfalah Limited" },
-    { value: "The Bank of Khyber", label: "The Bank of Khyber" },
-    { value: "The Bank of Punjab", label: "The Bank of Punjab" },
-    {
-      value: "BankIslami Pakistan Limited",
-      label: "BankIslami Pakistan Limited",
-    },
-    { value: "Citibank N.A.", label: "Citibank N.A." },
-    { value: "Deutsche Bank AG", label: "Deutsche Bank AG" },
-    {
-      value: "Dubai Islamic Bank Pakistan Limited",
-      label: "Dubai Islamic Bank Pakistan Limited",
-    },
-    { value: "Faysal Bank Limited", label: "Faysal Bank Limited" },
-    { value: "First Women Bank Limited", label: "First Women Bank Limited" },
-    { value: "Habib Bank Limited", label: "Habib Bank Limited" },
-    {
-      value: "Habib Metropolitan Bank Limited",
-      label: "Habib Metropolitan Bank Limited",
-    },
-    {
-      value: "Industrial and Commercial Bank of China Limited",
-      label: "Industrial and Commercial Bank of China Limited",
-    },
-    {
-      value: "Industrial Development Bank of Pakistan",
-      label: "Industrial Development Bank of Pakistan",
-    },
-    { value: "JS Bank Limited", label: "JS Bank Limited" },
-    { value: "Meezan Bank Limited", label: "Meezan Bank Limited" },
-    { value: "MCB Bank Limited", label: "MCB Bank Limited" },
-    { value: "MCB Islamic Bank", label: "MCB Islamic Bank" },
-    { value: "National Bank of Pakistan", label: "National Bank of Pakistan" },
-    {
-      value: "Punjab Provincial Cooperative Bank Ltd.",
-      label: "Punjab Provincial Cooperative Bank Ltd.",
-    },
-    { value: "Samba Bank Limited", label: "Samba Bank Limited" },
-    { value: "Sindh Bank Limited", label: "Sindh Bank Limited" },
-    { value: "Silkbank Limited", label: "Silkbank Limited" },
-    { value: "SME Bank Limited", label: "SME Bank Limited" },
-    { value: "Soneri Bank Limited", label: "Soneri Bank Limited" },
-    {
-      value: "Standard Chartered Bank (Pakistan) Ltd",
-      label: "Standard Chartered Bank (Pakistan) Ltd",
-    },
-    { value: "Summit Bank Limited", label: "Summit Bank Limited" },
-    {
-      value: "The Bank of Tokyo-Mitsubishi UFJ Ltd.",
-      label: "The Bank of Tokyo-Mitsubishi UFJ Ltd.",
-    },
-    { value: "United Bank Limited", label: "United Bank Limited" },
-    { value: "Zarai Taraqiati Bank Ltd.", label: "Zarai Taraqiati Bank Ltd." },
-  ];
-
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      height: "50px",
+      minHeight: "48px", // Match the input field height
+      height: "48px",
       border: "1px solid #D1D5DB",
       borderRadius: "0.375rem",
       backgroundColor: "#F3F4F6",
@@ -131,6 +70,25 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
       "&:hover": {
         borderColor: "#6B46C1",
       },
+      padding: "0px", // Remove default padding
+    }),
+    valueContainer: (base: any) => ({
+      ...base,
+      height: "100%",
+      padding: "0 12px", // Match p-3 (12px) padding
+      display: "flex",
+      alignItems: "center",
+    }),
+    input: (base: any) => ({
+      ...base,
+      margin: "0px",
+      padding: "0px",
+      height: "100%",
+      boxSizing: "border-box",
+    }),
+    indicatorsContainer: (base: any) => ({
+      ...base,
+      height: "100%",
     }),
     singleValue: (base: any) => ({
       ...base,
@@ -173,10 +131,15 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
                 classNamePrefix="react-select"
                 className="react-select-container"
                 styles={customSelectStyles}
+                placeholder="Select a bank"
               />
             ) : (
-              <div className="w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-                {formData.bankName}
+              <div className="w-full border border-gray-300 rounded-md bg-[#F3F4F6] flex items-center px-3 min-h-[48px]">
+                {formData.bankName ? (
+                  formData.bankName
+                ) : (
+                  <span className="text-gray-500">No bank selected</span>
+                )}
               </div>
             )}
           </div>

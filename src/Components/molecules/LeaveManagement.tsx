@@ -132,7 +132,6 @@ const LeaveManagement: React.FC = () => {
     loadLeaveRequests();
   }, [user]);
 
-  // Handle Approve/Reject Actions
   const handleConfirmAction = async () => {
     if (selectedRequest && modalType) {
       try {
@@ -161,7 +160,6 @@ const LeaveManagement: React.FC = () => {
       }
     }
   };
-
   // Handle Pagination
   const handlePagination = (
     data: LeaveRequest[],
@@ -210,7 +208,6 @@ const LeaveManagement: React.FC = () => {
     }
   };
 
-  // Handle Edit Leave Request
   const handleEdit = (id: string | undefined) => {
     if (!id) {
       toast.error("Invalid request ID");

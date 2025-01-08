@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { FaThumbsUp, FaRegComment } from 'react-icons/fa';
-import { useBlogContext } from '../organisms/BlogContext';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { FaThumbsUp, FaRegComment } from "react-icons/fa";
+import { useBlogContext } from "../organisms/BlogContext";
 
 interface CommentProps {
   id: number;
@@ -20,7 +20,7 @@ const BlogDetails: React.FC = () => {
   const [likes, setLikes] = useState(0);
   const [comments, setComments] = useState<CommentProps[]>([]);
 
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
 
   useEffect(() => {
     if (blog) {
@@ -43,17 +43,17 @@ const BlogDetails: React.FC = () => {
 
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newComment.trim() === '') return;
+    if (newComment.trim() === "") return;
 
     const comment: CommentProps = {
       id: comments.length + 1,
-      author: 'User',
+      author: "User",
       content: newComment,
       likes: 0,
     };
 
     setComments([...comments, comment]);
-    setNewComment('');
+    setNewComment("");
   };
 
   return (
@@ -65,7 +65,9 @@ const BlogDetails: React.FC = () => {
             alt={blog.title}
             className="w-full h-auto object-cover rounded-lg mb-6"
           />
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">{blog.title}</h1>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            {blog.title}
+          </h1>
 
           <p className="text-gray-500 text-sm mb-4">{blog.publishedDate}</p>
 
@@ -86,19 +88,24 @@ const BlogDetails: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-gray-700 text-lg leading-relaxed mb-6">{blog.paragraph}</p>
+          <p className="text-gray-700 text-lg leading-relaxed mb-6">
+            {blog.paragraph}
+          </p>
           {blog.content && (
             <div className="mt-6 space-y-4">
               {blog.content.map((content, index) =>
-                typeof content === 'string' ? (
-                  <p key={index} className="text-gray-700 text-base leading-relaxed">
+                typeof content === "string" ? (
+                  <p
+                    key={index}
+                    className="text-gray-700 text-base leading-relaxed"
+                  >
                     {content}
                   </p>
                 ) : (
                   <img
                     key={index}
                     src={content.src}
-                    alt={content.alt || 'Blog Content'}
+                    alt={content.alt || "Blog Content"}
                     className="w-full rounded-lg"
                   />
                 )
@@ -107,7 +114,9 @@ const BlogDetails: React.FC = () => {
           )}
 
           <div className="mt-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Leave a Comment</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Leave a Comment
+            </h2>
             <form onSubmit={handleCommentSubmit}>
               <textarea
                 value={newComment}
@@ -130,9 +139,14 @@ const BlogDetails: React.FC = () => {
               <p className="text-gray-600">No comments yet.</p>
             ) : (
               comments.map((comment) => (
-                <div key={comment.id} className="mb-6 border-b border-gray-200 pb-4">
+                <div
+                  key={comment.id}
+                  className="mb-6 border-b border-gray-200 pb-4"
+                >
                   <div className="flex justify-between items-center mb-2">
-                    <p className="font-semibold text-gray-800">{comment.author}</p>
+                    <p className="font-semibold text-gray-800">
+                      {comment.author}
+                    </p>
                   </div>
                   <p className="text-gray-700">{comment.content}</p>
                 </div>
@@ -150,7 +164,9 @@ const BlogDetails: React.FC = () => {
 
         <div className="w-full md:w-1/3">
           <div className="bg-white rounded-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Recent Blogs</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">
+              Recent Blogs
+            </h2>
             <div className="space-y-4">
               {recentBlogs.map((recentBlog) => (
                 <Link

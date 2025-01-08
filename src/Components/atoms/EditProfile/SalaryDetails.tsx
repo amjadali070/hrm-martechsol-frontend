@@ -133,7 +133,7 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
         )}
       </div>
 
-      {/* Edit/Save Buttons */}
+      {/* Edit/Save Buttons
       <div className="flex space-x-4">
         {isEditing ? (
           <>
@@ -158,7 +158,7 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
             Edit
           </button>
         )}
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -1,9 +1,8 @@
-// UserShiftManagement.tsx
-
 import React, { useEffect, useState } from "react";
-import { FaFilter, FaSearch, FaSpinner, FaInbox } from "react-icons/fa";
+import { FaFilter, FaSearch, FaSpinner, FaInbox, FaEdit } from "react-icons/fa";
 import axios from "axios";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface UserShiftData {
   _id: string;
@@ -188,14 +187,16 @@ const UserShiftManagement: React.FC = () => {
   );
 
   return (
-    <div className="p-6 bg-white rounded-lg">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+    <div className="w-full p-8 bg-gradient-to-r from-gray-100 to-white rounded-lg mb-8">
+      <ToastContainer position="top-center" />
+      <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
         User Shift Management
       </h1>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Filter Inputs */}
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
+      {/* Search and Filters */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        {/* Search Input */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
@@ -204,15 +205,19 @@ const UserShiftManagement: React.FC = () => {
             value={filters.search}
             onChange={handleFilterChange}
             className="w-full border-none focus:outline-none"
+            aria-label="Search by name"
           />
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
+
+        {/* Department Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="department"
             value={filters.department}
             onChange={handleFilterChange}
             className="w-full border-none focus:outline-none"
+            aria-label="Filter by Department"
           >
             <option value="">Filter by Department</option>
             {departmentOptions.map((dept) => (
@@ -222,13 +227,16 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
+
+        {/* Job Title Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="jobTitle"
             value={filters.jobTitle}
             onChange={handleFilterChange}
             className="w-full border-none focus:outline-none"
+            aria-label="Filter by Job Title"
           >
             <option value="">Filter by Job Title</option>
             {jobTitleOptions.map((title) => (
@@ -238,18 +246,21 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
+
+        {/* Shift Timings Filter */}
+        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             name="shiftTimings"
             value={filters.shiftTimings}
             onChange={handleFilterChange}
             className="w-full border-none focus:outline-none"
+            aria-label="Filter by Shift Timings"
           >
             <option value="">Filter by Shift</option>
-            {shiftOptions.map((shiftTimings) => (
-              <option key={shiftTimings.label} value={shiftTimings.label}>
-                {shiftTimings.label}
+            {shiftOptions.map((shift) => (
+              <option key={shift.label} value={shift.label}>
+                {shift.label}
               </option>
             ))}
           </select>
@@ -258,9 +269,9 @@ const UserShiftManagement: React.FC = () => {
 
       {/* Table */}
       <div className="overflow-x-auto">
-        <table className="w-full bg-white rounded-lg">
-          <thead className="bg-purple-900 text-white">
-            <tr>
+        <table className="min-w-full bg-white rounded-lg overflow-hidden">
+          <thead>
+            <tr className="bg-purple-900 text-white">
               {[
                 "S.No",
                 "Employee Name",
@@ -271,7 +282,7 @@ const UserShiftManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="text-left px-4 py-2 text-sm font-medium"
+                  className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider "
                 >
                   {header}
                 </th>
@@ -281,11 +292,15 @@ const UserShiftManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={6} className="text-center py-8 text-blue-600">
-                  <div className="flex flex-col items-center justify-center">
+                <td
+                  className="py-4 px-4 text-sm text-gray-700 border border-gray-300 text-center"
+                  colSpan={6}
+                >
+                  <div className="flex flex-col items-center justify-center mt-10 mb-10">
                     <FaSpinner
-                      className="text-blue-500 mb-4 animate-spin"
                       size={30}
+                      className="animate-spin text-blue-600 mb-2"
+                      aria-hidden="true"
                     />
                   </div>
                 </td>
@@ -294,21 +309,21 @@ const UserShiftManagement: React.FC = () => {
               currentData.map((user, index) => (
                 <tr
                   key={user._id}
-                  className="border-t border-gray-200 hover:bg-gray-50"
+                  className={`border-t border-gray-200 hover:bg-indigo-50 transition-colors`}
                 >
-                  <td className="px-4 py-2 text-sm text-gray-600">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-600">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap">
                     {user.name}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-600">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap">
                     {user.department}
                   </td>
-                  <td className="px-4 py-2 text-sm text-gray-600">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap">
                     {user.jobTitle}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap">
                     <select
                       value={
                         editedShifts[user._id] ||
@@ -328,7 +343,8 @@ const UserShiftManagement: React.FC = () => {
                           });
                         }
                       }}
-                      className="border border-gray-300 rounded-lg p-1 focus:ring-2 focus:ring-purple-500"
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500"
+                      aria-label={`Select shift timing for ${user.name}`}
                     >
                       <option value="" disabled>
                         {user.shiftStartTime && user.shiftEndTime
@@ -342,17 +358,25 @@ const UserShiftManagement: React.FC = () => {
                       ))}
                     </select>
                   </td>
-                  <td className="px-2 py-2">
+                  <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
                     {editedShifts[user._id] ? (
                       <button
                         onClick={() => handleUpdate(user._id)}
-                        className="flex items-center gap-1 px-3 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 focus:ring-2 focus:ring-blue-500"
+                        className={`flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition ${
+                          updating[user._id]
+                            ? "opacity-50 cursor-not-allowed"
+                            : ""
+                        }`}
                         disabled={updating[user._id]}
+                        aria-label={`Update shift for ${user.name}`}
                       >
                         {updating[user._id] ? (
-                          <FaSpinner className="animate-spin" size={16} />
+                          <FaSpinner className="animate-spin" />
                         ) : (
-                          "Update"
+                          <>
+                            <FaEdit />
+                            Update
+                          </>
                         )}
                       </button>
                     ) : (
@@ -368,10 +392,8 @@ const UserShiftManagement: React.FC = () => {
             ) : (
               <tr>
                 <td colSpan={6} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">No users found.</span>
-                  </div>
+                  <FaInbox size={30} className="mx-auto mb-2" />
+                  <p>No users found matching the criteria.</p>
                 </td>
               </tr>
             )}
@@ -380,16 +402,18 @@ const UserShiftManagement: React.FC = () => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-6">
+        {/* Items Per Page Selector */}
+        <div className="flex items-center mb-4 sm:mb-0">
           <span className="text-sm text-gray-700 mr-2">Show:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md"
+            className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
               setCurrentPage(1);
             }}
+            aria-label="Select number of items per page"
           >
             {[5, 10, 20].map((option) => (
               <option key={option} value={option}>
@@ -398,33 +422,35 @@ const UserShiftManagement: React.FC = () => {
             ))}
           </select>
         </div>
+
+        {/* Page Navigation */}
         <div className="flex items-center space-x-4">
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
               currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
             }`}
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            aria-label="Go to previous page"
           >
+            <FiChevronLeft className="mr-2" />
             Previous
           </button>
           <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages || 1}
+            Page {currentPage} of {totalPages}
           </span>
           <button
-            className={`px-3 py-1 text-sm rounded-full ${
+            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
               currentPage === totalPages || totalPages === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
             }`}
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={() =>
               setCurrentPage((prev) => Math.min(prev + 1, totalPages))
             }
+            aria-label="Go to next page"
           >
             Next
+            <FiChevronRight className="ml-2" />
           </button>
         </div>
       </div>
