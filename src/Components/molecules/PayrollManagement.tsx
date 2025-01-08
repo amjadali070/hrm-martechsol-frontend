@@ -1,3 +1,5 @@
+// components/PayrollManagement.tsx
+
 import React, { useState, useEffect } from "react";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
@@ -8,6 +10,7 @@ import {
   FaUsers,
   FaBriefcase,
   FaCalendarAlt,
+  FaDownload,
 } from "react-icons/fa";
 import UserPayrolls from "../atoms/UserPayrolls";
 import { IoDocumentText } from "react-icons/io5";
@@ -35,6 +38,7 @@ export interface PayrollDetails {
     };
     basicSalary: number;
     overtimePay: number;
+    extraPayments: number; // New Field
   };
   deductions: {
     providentFund: {
@@ -44,10 +48,17 @@ export interface PayrollDetails {
     tax: number;
     eobi: number;
     lossOfPay: number;
+    absenceDeduction: number;
+    lateDeduction: number;
   };
   totalWorkingDays: number;
   presentDays: number;
   absentDays: number;
+  halfDays: number;
+  leaveDays: number;
+  lateCount: number;
+  absentDates: Date[]; // New Field
+  netSalary: number; // Added for summary
 }
 
 interface User {
@@ -137,26 +148,47 @@ const PayrollManagement: React.FC = () => {
       { header: "Month", key: "month", width: 15 },
       { header: "Year", key: "year", width: 15 },
       { header: "Basic Salary", key: "basicSalary", width: 15 },
+      { header: "Overtime Pay", key: "overtimePay", width: 15 },
+      { header: "Extra Payments", key: "extraPayments", width: 15 },
+      { header: "Total Earnings", key: "totalEarnings", width: 15 },
+      { header: "Tax", key: "tax", width: 10 },
+      { header: "EOBI", key: "eobi", width: 10 },
+      { header: "PF Contribution", key: "pfContribution", width: 15 },
+      { header: "Loss of Pay", key: "lossOfPay", width: 15 },
+      { header: "Total Deductions", key: "totalDeductions", width: 15 },
       { header: "Net Salary", key: "netSalary", width: 15 },
-      { header: "Deductions", key: "deductions", width: 15 },
-      { header: "Earnings", key: "earnings", width: 15 },
+      { header: "Absent Dates", key: "absentDates", width: 30 },
+      { header: "Status", key: "status", width: 15 },
     ];
 
     payrollData.forEach((payroll, index) => {
-      const totalDeductions =
-        payroll.deductions.tax +
-        payroll.deductions.providentFund.employeeContribution +
-        payroll.deductions.providentFund.employerContribution +
-        payroll.deductions.eobi;
-
       const totalEarnings =
         payroll.earnings.basicSalary +
         payroll.earnings.allowances.medicalAllowance +
         payroll.earnings.allowances.mobileAllowance +
         payroll.earnings.allowances.fuelAllowance +
-        payroll.earnings.overtimePay;
+        payroll.earnings.overtimePay +
+        payroll.earnings.extraPayments;
+
+      const totalDeductions =
+        payroll.deductions.tax +
+        payroll.deductions.providentFund.employeeContribution +
+        payroll.deductions.eobi +
+        payroll.deductions.lossOfPay +
+        payroll.deductions.absenceDeduction +
+        payroll.deductions.lateDeduction;
 
       const netSalary = totalEarnings - totalDeductions;
+
+      const formattedAbsentDates = payroll.absentDates
+        .map((date) =>
+          new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+          })
+        )
+        .join(", ");
 
       worksheet.addRow({
         sNo: index + 1,
@@ -164,9 +196,17 @@ const PayrollManagement: React.FC = () => {
         month: payroll.month,
         year: payroll.year,
         basicSalary: payroll.earnings.basicSalary,
-        netSalary: netSalary,
-        deductions: totalDeductions,
-        earnings: totalEarnings,
+        overtimePay: payroll.earnings.overtimePay,
+        extraPayments: payroll.earnings.extraPayments,
+        totalEarnings,
+        tax: payroll.deductions.tax,
+        eobi: payroll.deductions.eobi,
+        pfContribution: payroll.deductions.providentFund.employeeContribution,
+        lossOfPay: payroll.deductions.lossOfPay,
+        totalDeductions,
+        netSalary,
+        absentDates: formattedAbsentDates || "N/A",
+        status: payroll.status,
       });
     });
 
@@ -209,6 +249,7 @@ const PayrollManagement: React.FC = () => {
       setPayrollData(refreshedPayrolls.data);
     } catch (error: any) {
       console.error("Error generating payroll:", error);
+      toast.error(error.response?.data?.message || "Error generating payroll.");
     } finally {
       setGenerateLoading(false);
     }
@@ -229,6 +270,9 @@ const PayrollManagement: React.FC = () => {
       setUserPayrolls(response.data);
     } catch (error: any) {
       console.error("Error fetching user payrolls:", error);
+      toast.error(
+        error.response?.data?.message || "Error fetching user payrolls."
+      );
     } finally {
       setUserLoading(false);
     }
@@ -251,6 +295,7 @@ const PayrollManagement: React.FC = () => {
       setPayrollData(refreshedPayrolls.data);
     } catch (error: any) {
       console.error("Error updating payroll:", error);
+      toast.error(error.response?.data?.message || "Error updating payroll.");
     } finally {
       setLoading(false);
     }
@@ -333,6 +378,13 @@ const PayrollManagement: React.FC = () => {
           <FaUsers className="w-5 h-5" />
           <span>Users Payroll</span>
         </button>
+        <button
+          onClick={() => navigate("/organization/payroll-management/process")}
+          className="flex-1 flex items-center justify-center px-4 py-2 rounded-lg transition duration-300 space-x-2 bg-green-600 text-white hover:bg-green-700"
+        >
+          <FaBriefcase className="w-5 h-5" />
+          <span>Process Payrolls</span>
+        </button>
       </div>
 
       {tab === "summary" && (
@@ -347,9 +399,10 @@ const PayrollManagement: React.FC = () => {
             </button>
             <button
               onClick={handleExportToExcel}
-              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300"
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition duration-300 flex items-center space-x-2"
             >
-              Export to Excel
+              <FaDownload className="w-4 h-4" />
+              <span>Export to Excel</span>
             </button>
           </div>
 
@@ -428,8 +481,9 @@ const PayrollManagement: React.FC = () => {
             </div>
           )}
 
-          <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+          {/* Search and Filters */}
+          <div className="flex gap-4 mb-4 flex-wrap">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaSearch className="text-gray-400 mr-2" />
               <input
                 type="text"
@@ -440,7 +494,7 @@ const PayrollManagement: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaUsers className="text-gray-400 mr-2" />
               <select
                 value={departmentFilter}
@@ -458,7 +512,7 @@ const PayrollManagement: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaBriefcase className="text-gray-400 mr-2" />
               <select
                 value={jobTitleFilter}
@@ -476,7 +530,7 @@ const PayrollManagement: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaCalendarAlt className="text-gray-400 mr-2" />
               <select
                 value={yearFilter}
@@ -495,7 +549,7 @@ const PayrollManagement: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaCalendarAlt className="text-gray-400 mr-2" />
               <select
                 value={monthFilter}
@@ -525,6 +579,7 @@ const PayrollManagement: React.FC = () => {
             </div>
           </div>
 
+          {/* Payroll Table */}
           {loading ? (
             <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
               <FaSpinner
@@ -562,6 +617,12 @@ const PayrollManagement: React.FC = () => {
                     Year
                   </th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Net Salary
+                  </th>
+                  {/* <th className="px-4 py-2 text-left text-sm font-medium text-white">
+                    Absent Dates
+                  </th> */}
+                  <th className="px-4 py-2 text-left text-sm font-medium text-white">
                     Status
                   </th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-white">
@@ -593,6 +654,22 @@ const PayrollManagement: React.FC = () => {
                     <td className="px-4 py-2 text-sm text-gray-800">
                       {payroll.year}
                     </td>
+                    <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.netSalary.toLocaleString()} PKR
+                    </td>
+                    {/* <td className="px-4 py-2 text-sm text-gray-800">
+                      {payroll.absentDates.length > 0
+                        ? payroll.absentDates
+                            .map((date) =>
+                              new Date(date).toLocaleDateString("en-US", {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              })
+                            )
+                            .join(", ")
+                        : "N/A"}
+                    </td> */}
                     <td className="px-4 py-2 text-sm text-gray-800 capitalize">
                       {payroll.status}
                     </td>
@@ -627,6 +704,7 @@ const PayrollManagement: React.FC = () => {
             </table>
           )}
 
+          {/* Pagination Controls */}
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
               <span className="text-sm text-gray-700 mr-2">Show:</span>
@@ -680,8 +758,8 @@ const PayrollManagement: React.FC = () => {
       {tab === "user" && selectedUser === null && (
         <div>
           <h2 className="text-xl font-semibold mb-4">Users List</h2>
-          <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+          <div className="flex gap-4 mb-4 flex-wrap">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaSearch className="text-gray-400 mr-2" />
               <input
                 type="text"
@@ -692,7 +770,7 @@ const PayrollManagement: React.FC = () => {
               />
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaUsers className="text-gray-400 mr-2" />
               <select
                 value={departmentFilter}
@@ -710,7 +788,7 @@ const PayrollManagement: React.FC = () => {
               </select>
             </div>
 
-            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+            <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow min-w-[200px]">
               <FaBriefcase className="text-gray-400 mr-2" />
               <select
                 value={jobTitleFilter}
@@ -796,6 +874,7 @@ const PayrollManagement: React.FC = () => {
             </table>
           )}
 
+          {/* Pagination Controls */}
           <div className="flex justify-between items-center mt-4">
             <div className="flex items-center">
               <span className="text-sm text-gray-700 mr-2">Show:</span>
@@ -850,7 +929,7 @@ const PayrollManagement: React.FC = () => {
           payrolls={userPayrolls}
           onBack={() => {
             setSelectedUser(null);
-            setTab("user");
+            setTab("summary");
           }}
         />
       )}

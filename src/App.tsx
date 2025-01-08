@@ -57,6 +57,7 @@ import ViewHolidays from "./Components/atoms/ViewHolidays";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PopupNotice from "./Components/atoms/PopupNotice";
+import ProcessPayroll from "./Components/atoms/ProcessPayroll";
 
 const App: React.FC = () => {
   return (
@@ -79,6 +80,10 @@ const App: React.FC = () => {
                 <Route
                   path="/forms/leave-application"
                   element={<LeaveApplication />}
+                />
+                <Route
+                  path="/organization/payroll-management/process"
+                  element={<ProcessPayroll />}
                 />
                 <Route
                   path="/forms/track-application"

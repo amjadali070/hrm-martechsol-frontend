@@ -1,39 +1,11 @@
+// EditablePayrollPage.tsx
+
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import EditablePayroll from "./EditablePayroll";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
-
-interface PayrollDetails {
-  _id?: string;
-  payrollId: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    department: string;
-    jobTitle: string;
-    jobType: string;
-  };
-  month: string;
-  year: number;
-  earnings: {
-    allowances: {
-      medicalAllowance: number;
-      fuelAllowance: number;
-      mobileAllowance: number;
-    };
-    basicSalary: number;
-    overtimePay: number;
-  };
-  deductions: {
-    tax: number;
-    eobi: number;
-    providentFund: {
-      employeeContribution: number;
-    };
-  };
-}
+import { PayrollDetails } from "../../types/payrollDetails";
 
 const EditablePayrollPage: React.FC = () => {
   const location = useLocation();
@@ -44,12 +16,13 @@ const EditablePayrollPage: React.FC = () => {
   const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
   const normalizePayrollData = (data: any): PayrollDetails => ({
     payrollId: data.payrollId || "",
     _id: data._id || "",
     user: {
-      name: data.user?.name || "",
       id: data.user?.id || "",
+      name: data.user?.name || "",
       email: data.user?.email || "",
       department: data.user?.department || "",
       jobTitle: data.user?.jobTitle || "",
@@ -63,6 +36,7 @@ const EditablePayrollPage: React.FC = () => {
         fuelAllowance: data.earnings?.allowances?.fuelAllowance || 0,
       },
       overtimePay: data.earnings?.overtimePay || 0,
+      extraPayments: data.earnings?.extraPayments || 0,
     },
     deductions: {
       tax: data.deductions?.tax || 0,
@@ -71,9 +45,15 @@ const EditablePayrollPage: React.FC = () => {
         employeeContribution:
           data.deductions?.providentFund?.employeeContribution || 0,
       },
+      lossOfPay: data.deductions?.lossOfPay || 0,
+      absenceDeduction: data.deductions?.absenceDeduction || 0,
+      lateDeduction: data.deductions?.lateDeduction || 0,
     },
     month: data.month || "",
     year: data.year || new Date().getFullYear(),
+    absentDates: data.absentDates
+      ? data.absentDates.map((date: string) => new Date(date))
+      : [],
   });
 
   useEffect(() => {
@@ -129,10 +109,14 @@ const EditablePayrollPage: React.FC = () => {
           updatedPayroll.earnings.allowances.mobileAllowance || 0,
         fuelAllowance: updatedPayroll.earnings.allowances.fuelAllowance || 0,
         overtimePay: updatedPayroll.earnings.overtimePay || 0,
+        extraPayments: updatedPayroll.earnings.extraPayments || 0, // Include extraPayments
         tax: updatedPayroll.deductions.tax || 0,
         eobi: updatedPayroll.deductions.eobi || 0,
         providentFundContribution:
           updatedPayroll.deductions.providentFund.employeeContribution || 0,
+        lossOfPay: updatedPayroll.deductions.lossOfPay || 0, // Include if necessary
+        absenceDeduction: updatedPayroll.deductions.absenceDeduction || 0, // Include if necessary
+        lateDeduction: updatedPayroll.deductions.lateDeduction || 0, // Include if necessary
       };
 
       await axiosInstance.put(
@@ -147,6 +131,7 @@ const EditablePayrollPage: React.FC = () => {
       navigate("/organization/payroll-management");
     } catch (err: any) {
       console.error("Error updating payroll:", err);
+      toast.error("Failed to update payroll");
     }
   };
 

@@ -1,10 +1,16 @@
+// components/EditablePayroll.tsx
+
 import React, { useState, useMemo } from "react";
 import { AiOutlineSave, AiOutlineClose } from "react-icons/ai";
-import { FaUser, FaBriefcase, FaMoneyBillWave } from "react-icons/fa";
+import {
+  FaUser,
+  FaBriefcase,
+  FaMoneyBillWave,
+  FaCalendarTimes,
+} from "react-icons/fa";
 import { toast } from "react-toastify";
 
 interface PayrollDetails {
-  _id?: string;
   payrollId: string;
   user: {
     id: string;
@@ -24,6 +30,7 @@ interface PayrollDetails {
     };
     basicSalary: number;
     overtimePay: number;
+    extraPayments: number; // New Field
   };
   deductions: {
     tax: number;
@@ -31,7 +38,11 @@ interface PayrollDetails {
     providentFund: {
       employeeContribution: number;
     };
+    lossOfPay: number;
+    absenceDeduction: number;
+    lateDeduction: number;
   };
+  absentDates: Date[]; // New Field
 }
 
 interface EditablePayrollProps {
@@ -50,19 +61,35 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
 
   // Calculate total earnings and deductions
   const totalEarnings = useMemo(() => {
-    const { basicSalary, allowances, overtimePay } = editableData.earnings;
+    const { basicSalary, allowances, overtimePay, extraPayments } =
+      editableData.earnings;
     return (
       basicSalary +
       allowances.medicalAllowance +
       allowances.fuelAllowance +
       allowances.mobileAllowance +
-      overtimePay
+      overtimePay +
+      extraPayments
     );
   }, [editableData.earnings]);
 
   const totalDeductions = useMemo(() => {
-    const { tax, eobi, providentFund } = editableData.deductions;
-    return tax + eobi + providentFund.employeeContribution;
+    const {
+      tax,
+      eobi,
+      providentFund,
+      lossOfPay,
+      absenceDeduction,
+      lateDeduction,
+    } = editableData.deductions;
+    return (
+      tax +
+      eobi +
+      providentFund.employeeContribution +
+      lossOfPay +
+      absenceDeduction +
+      lateDeduction
+    );
   }, [editableData.deductions]);
 
   const netSalary = useMemo(() => {
@@ -72,20 +99,20 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     field: string,
-    category?: string,
+    category?: keyof PayrollDetails,
     subCategory?: string
   ) => {
     const value = parseFloat(e.target.value) || 0;
 
     setEditableData((prev) => {
-      const updated = JSON.parse(JSON.stringify(prev));
+      const updated = { ...prev };
 
       if (category && subCategory) {
-        updated[category][subCategory][field] = value;
+        (updated[category] as any)[subCategory][field] = value;
       } else if (category) {
-        updated[category][field] = value;
+        (updated[category] as any)[field] = value;
       } else {
-        updated[field] = value;
+        (updated as any)[field] = value;
       }
 
       return updated;
@@ -108,6 +135,8 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
       <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
         Edit Payroll for {editableData.user.name}
       </h2>
+
+      {/* Personal Details Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaUser className="mr-2" />
@@ -127,7 +156,7 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               disabled: true,
             },
             {
-              label: "Month",
+              label: "Month & Year",
               value: `${editableData.month} ${editableData.year}`,
               disabled: true,
             },
@@ -145,6 +174,7 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
       </section>
 
+      {/* Salary Details Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaMoneyBillWave className="mr-2" />
@@ -182,6 +212,12 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               value: editableData.earnings.overtimePay || 0,
               category: "earnings",
             },
+            {
+              label: "Extra Payments",
+              field: "extraPayments",
+              value: editableData.earnings.extraPayments || 0,
+              category: "earnings",
+            },
           ].map(({ label, field, value, category, disabled }) => (
             <div key={field}>
               <label className="block font-medium text-gray-700">{label}</label>
@@ -190,7 +226,12 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
                 value={value}
                 onChange={
                   !disabled
-                    ? (e) => handleInputChange(e, field, category)
+                    ? (e) =>
+                        handleInputChange(
+                          e,
+                          field,
+                          category as keyof PayrollDetails
+                        )
                     : undefined
                 }
                 disabled={disabled}
@@ -206,6 +247,7 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
       </section>
 
+      {/* Deductions Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaBriefcase className="mr-2" />
@@ -226,7 +268,7 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               category: "deductions",
             },
             {
-              label: "PF Contribution",
+              label: "Employee PF Contribution",
               field: "employeeContribution",
               value:
                 editableData.deductions.providentFund.employeeContribution || 0,
@@ -240,7 +282,12 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
                 type="number"
                 value={value}
                 onChange={(e) =>
-                  handleInputChange(e, field, category, subCategory)
+                  handleInputChange(
+                    e,
+                    field,
+                    category as keyof PayrollDetails | undefined,
+                    subCategory
+                  )
                 }
                 className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-purple-500"
               />
@@ -249,6 +296,32 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
         </div>
       </section>
 
+      {/* Absent Dates Section */}
+      <section className="mb-6">
+        <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
+          <FaCalendarTimes className="mr-2" />
+          <h3 className="text-lg font-semibold">Absent Dates</h3>
+        </div>
+        <div className="p-4 bg-gray-100 rounded-b-md">
+          {editableData.absentDates.length === 0 ? (
+            <p className="text-gray-700">No absent dates for this payroll.</p>
+          ) : (
+            <ul className="list-disc list-inside">
+              {editableData.absentDates.map((date, index) => (
+                <li key={index}>
+                  {new Date(date).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      {/* Salary Summary Section */}
       <section className="mb-6">
         <div className="flex items-center bg-purple-900 text-white px-4 py-3 rounded-t-md">
           <FaMoneyBillWave className="mr-2" />
@@ -277,14 +350,14 @@ const EditablePayroll: React.FC<EditablePayrollProps> = ({
               className="w-full border border-gray-300 rounded-lg p-2 bg-gray-200"
             />
           </div>
-          <div className="md:col-span-2 flex items-center justify-between border-purple-900 rounded-lg p-3 bg-purple-900 ">
+          <div className="md:col-span-2 flex items-center justify-between border-purple-900 rounded-lg p-3 bg-purple-900">
             <label className="font-medium text-white text-xl">Net Salary</label>
-
             <label className="font-bold text-white text-xl">{`${netSalary.toLocaleString()} PKR`}</label>
           </div>
         </div>
       </section>
 
+      {/* Action Buttons */}
       <div className="flex justify-end gap-4">
         <button
           onClick={handleSave}
