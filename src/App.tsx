@@ -1,7 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
 import { BrowserRouter } from "react-router-dom";
-import { ToastContainer } from "react-toastify";
 import { AuthProvider } from "./Components/organisms/AuthContext";
 import AdminTicket from "./Components/atoms/AdminTicket";
 import AllUpcomingBirthdays from "./Components/atoms/AllUpcomingBirthdays";
@@ -55,6 +54,8 @@ import RegisterUser from "./Components/organisms/RegisterUser";
 import UserPasswordManager from "./Components/atoms/UserPasswordManager";
 import TrainingRoom from "./Components/molecules/TrainingRoom";
 import ViewHolidays from "./Components/atoms/ViewHolidays";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const App: React.FC = () => {
   return (
