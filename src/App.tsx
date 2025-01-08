@@ -56,11 +56,13 @@ import TrainingRoom from "./Components/molecules/TrainingRoom";
 import ViewHolidays from "./Components/atoms/ViewHolidays";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import PopupNotice from "./Components/atoms/PopupNotice";
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <div className="font-sans">
+        <PopupNotice />
         <BrowserRouter>
           <Routes>
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
