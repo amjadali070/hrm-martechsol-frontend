@@ -298,10 +298,10 @@ const AttendanceTicketManagement: React.FC = () => {
                 "Date",
                 "Name",
                 "Job Title",
-                "Time In",
-                "Time Out",
-                "Total Time",
-                "Work Location",
+                // "Time In",
+                // "Time Out",
+                // "Total Time",
+                // "Work Location",
                 "Action",
               ].map((header) => (
                 <th
@@ -355,7 +355,7 @@ const AttendanceTicketManagement: React.FC = () => {
                   <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.personalDetails.abbreviatedJobTitle}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
+                  {/* <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {formatAttendenceTicketTime(ticket.timeIn)}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 text-center">
@@ -366,7 +366,7 @@ const AttendanceTicketManagement: React.FC = () => {
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.workLocation}
-                  </td>
+                  </td> */}
                   <td className="px-6 py-4 text-center space-x-2 flex items-center justify-center">
                     {ticket.status === "Open" && (
                       <>
