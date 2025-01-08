@@ -35,9 +35,7 @@ const TrackApplication: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>("All");
   const [filterLeaveType, setFilterLeaveType] = useState<string>("All");
   const [searchTerm, setSearchTerm] = useState<string>("");
-
   const [currentPage, setCurrentPage] = useState<number>(1);
-
   const [selectedMonth, setSelectedMonth] = useState<string>("All");
   const [dateFrom, setDateFrom] = useState<string>("");
   const [dateTo, setDateTo] = useState<string>("");
@@ -45,22 +43,22 @@ const TrackApplication: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
-  const user = useUser();
-  const userId = user.user?._id;
+  const { user } = useUser();
 
-  const hasFetched = useRef(false);
-
+  // Remove the hasFetched ref as we'll control refetching through dependencies
   useEffect(() => {
-    if (hasFetched.current) return;
-    hasFetched.current = true;
-
     const fetchLeaveApplications = async () => {
+      // Only proceed if we have a user ID
+      if (!user?._id) {
+        return;
+      }
+
       setLoading(true);
       setError("");
 
       try {
         const response = await axios.get(
-          `${backendUrl}/api/leave-applications/user/${userId}`,
+          `${backendUrl}/api/leave-applications/user/${user._id}`,
           {
             withCredentials: true,
           }
@@ -75,13 +73,14 @@ const TrackApplication: React.FC = () => {
         }
       } catch (err) {
         setError("An error occurred while fetching data.");
+        console.error("Error fetching leave applications:", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaveApplications();
-  }, [userId, backendUrl]);
+  }, [user?._id, backendUrl]);
 
   const leaveTypes = [
     "All",
