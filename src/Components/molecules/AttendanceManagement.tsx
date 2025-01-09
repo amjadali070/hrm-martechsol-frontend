@@ -144,68 +144,125 @@ const AttendanceManagement: React.FC = () => {
   // New State for Type Summary
   const [typeSummary, setTypeSummary] = useState<Record<string, number>>({});
 
+  const isDateInRange = (
+    dateToCheck: string,
+    start: Date | null,
+    end: Date | null
+  ) => {
+    if (!start || !end) return true; // If no date range is specified, include all dates
+
+    const checkDate = new Date(dateToCheck);
+    checkDate.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    return checkDate >= startDate && checkDate <= endDate;
+  };
+
+  // Function to get date range based on selected option
   const getDateRange = (range: string) => {
     const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     let start: Date | null = null;
     let end: Date | null = null;
 
     switch (range) {
       case "Today": {
-        const currentDate = today.toISOString().split("T")[0];
-        start = end = new Date(currentDate);
+        start = today;
+        end = new Date(today);
+        end.setHours(23, 59, 59, 999);
         break;
       }
       case "Yesterday": {
-        const yesterday = new Date(today);
-        yesterday.setDate(yesterday.getDate() - 1);
-        const yesterdayDate = yesterday.toISOString().split("T")[0];
-        start = end = new Date(yesterdayDate);
+        start = new Date(today);
+        start.setDate(today.getDate() - 1);
+        end = new Date(start);
+        end.setHours(23, 59, 59, 999);
         break;
       }
-      case "This Week":
-        start = startOfWeek(today, { weekStartsOn: 1 });
-        end = endOfWeek(today, { weekStartsOn: 1 });
+      case "This Week": {
+        start = new Date(today);
+        start.setDate(
+          today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+        ); // Start from Monday
+        end = new Date(today);
+        end.setDate(start.getDate() + 6); // End on Sunday
+        end.setHours(23, 59, 59, 999);
         break;
+      }
       case "This Month": {
-        // Get first day of current month
-        start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-        // Get last day of current month
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
         end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        end.setHours(23, 59, 59, 999);
         break;
       }
-      case "All": {
-        start = null;
-        end = null;
+      case "Custom": {
+        if (fromDate && toDate) {
+          start = new Date(fromDate);
+          end = new Date(toDate);
+          end.setHours(23, 59, 59, 999);
+        }
         break;
       }
+      case "All":
       default:
         start = null;
         end = null;
     }
 
-    // Format dates for API - ensures we get YYYY-MM-DD format consistently
-    const formatDate = (date: Date | null) => {
-      if (!date) return "";
-      const year = date.getFullYear();
-      const month = String(date.getMonth() + 1).padStart(2, "0");
-      const day = String(date.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
-
-    return {
-      startDate: formatDate(start),
-      endDate: formatDate(end),
-    };
+    return { start, end };
   };
 
   useEffect(() => {
-    if (dateRange !== "Custom") {
-      const { startDate, endDate } = getDateRange(dateRange);
-      setFromDate(startDate);
-      setToDate(endDate);
-    }
-  }, [dateRange]);
+    let filteredData = attendanceData;
+    const { start: startDate, end: endDate } = getDateRange(dateRange);
 
+    // Apply date range filter
+    if (startDate && endDate) {
+      filteredData = filteredData.filter((record) =>
+        isDateInRange(record.createdAt, startDate, endDate)
+      );
+    }
+
+    // Apply job title filter
+    if (jobTitleFilter !== "All") {
+      filteredData = filteredData.filter(
+        (log) => log.user.personalDetails?.jobTitle === jobTitleFilter
+      );
+    }
+
+    // Apply name search filter
+    if (debouncedSearchName.trim() !== "") {
+      const searchLower = debouncedSearchName.toLowerCase();
+      filteredData = filteredData.filter((log) =>
+        log.user.name.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply type filter
+    if (typeFilter !== "All") {
+      filteredData = filteredData.filter(
+        (record) => record.type === typeFilter
+      );
+    }
+
+    setFilteredAttendanceData(filteredData);
+  }, [
+    attendanceData,
+    dateRange,
+    fromDate,
+    toDate,
+    jobTitleFilter,
+    debouncedSearchName,
+    typeFilter,
+  ]);
+
+  // Modified fetchAttendance to get all records
   const fetchAttendance = useCallback(async () => {
     if (!backendUrl) {
       setLoading(false);
@@ -218,36 +275,23 @@ const AttendanceManagement: React.FC = () => {
         throw new Error("User not found");
       }
 
-      const params: Record<string, any> = {};
-
-      if (fromDate) params.startDate = fromDate;
-      if (toDate) params.endDate = toDate;
-      if (typeFilter && typeFilter !== "All") params.types = typeFilter;
-
-      // Reset pagination to first page on new fetch
-      params.page = 1;
-      params.limit = 1000;
-
-      console.log("Fetching attendance with params:", params);
+      const params: Record<string, any> = {
+        page: 1,
+        limit: 1000,
+      };
 
       const { data } = await axiosInstance.get<ApiResponse>(
         `${backendUrl}/api/attendance`,
-        {
-          params,
-        }
+        { params }
       );
+
       let fetchedData = data.attendances || [];
 
-      // Sort fetched data by createdAt descending, then timeIn ascending
+      // Sort fetched data by createdAt descending
       fetchedData.sort((a, b) => {
-        const dateA = new Date(a.createdAt).getTime();
-        const dateB = new Date(b.createdAt).getTime();
-        if (dateA !== dateB) {
-          return dateB - dateA; // Descending date
-        }
-        const timeA = a.timeIn ? new Date(a.timeIn).getTime() : 0;
-        const timeB = b.timeIn ? new Date(b.timeIn).getTime() : 0;
-        return timeA - timeB; // Ascending timeIn
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       });
 
       setAttendanceData(fetchedData);
@@ -257,7 +301,7 @@ const AttendanceManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [backendUrl, user_Id, fromDate, toDate, typeFilter]);
+  }, [backendUrl, user_Id]);
 
   useEffect(() => {
     if (!userLoading && user_Id) {
@@ -361,7 +405,7 @@ const AttendanceManagement: React.FC = () => {
               Attendance Management
             </h2>
 
-            {/* <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowMarkAbsentModal(true)}
                 className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -369,7 +413,7 @@ const AttendanceManagement: React.FC = () => {
                 <FaUserTimes className="mr-2" />
                 Mark Absent
               </button>
-            </div> */}
+            </div>
           </div>
 
           <div className="flex flex-col md:flex-row justify-end items-left mb-3">
