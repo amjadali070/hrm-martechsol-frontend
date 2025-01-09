@@ -6,6 +6,7 @@ import {
   FaInbox,
   FaSpinner,
   FaSearch,
+  FaUserTimes,
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Added for pagination icons
 import axiosInstance from "../../utils/axiosConfig";
@@ -22,6 +23,7 @@ import {
   startOfMonth,
   endOfMonth,
 } from "date-fns";
+import MarkAbsentModal from "../atoms/MarkAbsentModal";
 
 const statusColors: Record<string, string> = {
   Present: "bg-green-500",
@@ -112,6 +114,7 @@ const AttendanceManagement: React.FC = () => {
   const [jobTitleFilter, setJobTitleFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
+  const [showMarkAbsentModal, setShowMarkAbsentModal] = useState(false);
 
   const jobTitleOptions = [
     "Executive",
@@ -353,11 +356,23 @@ const AttendanceManagement: React.FC = () => {
 
       {!loading && (
         <>
-          <div className="flex flex-col md:flex-row justify-between items-center mb-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
             <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
               Attendance Management
             </h2>
 
+            {/* <div className="flex justify-end mb-4">
+              <button
+                onClick={() => setShowMarkAbsentModal(true)}
+                className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              >
+                <FaUserTimes className="mr-2" />
+                Mark Absent
+              </button>
+            </div> */}
+          </div>
+
+          <div className="flex flex-col md:flex-row justify-end items-left mb-3">
             {currentDateDisplay && currentDayDisplay && (
               <div className="text-md font-medium text-gray-700">
                 <span className="font-semibold">Date: </span>
@@ -624,6 +639,13 @@ const AttendanceManagement: React.FC = () => {
           )}
         </>
       )}
+      <MarkAbsentModal
+        isOpen={showMarkAbsentModal}
+        onClose={() => {
+          setShowMarkAbsentModal(false);
+          fetchAttendance(); // Refresh the attendance data
+        }}
+      />
     </div>
   );
 };

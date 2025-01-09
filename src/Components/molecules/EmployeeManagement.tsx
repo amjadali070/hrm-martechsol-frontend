@@ -14,8 +14,6 @@ import {
   FaPlus,
   FaFileExport,
   FaEdit,
-  FaToggleOn,
-  FaToggleOff,
   FaChevronRight,
   FaChevronLeft,
 } from "react-icons/fa";
@@ -41,7 +39,7 @@ const EmployeeManagement: React.FC = () => {
   const [departmentFilter, setDepartmentFilter] = useState<string>("All");
   const [jobTypeFilter, setJobTypeFilter] = useState<string>("All");
   const [jobTitleFilter, setJobTitleFilter] = useState<string>("All");
-  const [genderFilter, setGenderFilter] = useState<string>("All");  
+  const [genderFilter, setGenderFilter] = useState<string>("All");
   const [monthFilter, setMonthFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(20);
