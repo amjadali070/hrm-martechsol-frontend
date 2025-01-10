@@ -1,0 +1,149 @@
+// src/components/GeneratePayrollModal.tsx
+
+import React, { useState } from "react";
+import { FaTimes, FaCalendarPlus } from "react-icons/fa";
+import { getMonthNumber } from "../../../utils/monthUtils"; // Adjust path as needed
+
+interface GeneratePayrollModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onGenerate: (month: string, year: number) => Promise<void>;
+}
+
+const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
+  isOpen,
+  onClose,
+  onGenerate,
+}) => {
+  const [month, setMonth] = useState<string>("");
+  const [year, setYear] = useState<number>(new Date().getFullYear());
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (!isOpen) return null;
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (month && year) {
+      const monthNumber = getMonthNumber(month);
+      if (!monthNumber) {
+        setError("Invalid month selected.");
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+      try {
+        await onGenerate(month, year);
+        onClose();
+      } catch (err: any) {
+        setError(err.message || "Failed to generate payroll.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity"
+      aria-labelledby="generate-payroll-modal"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 relative transform transition-all duration-300 scale-100">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-colors"
+          aria-label="Close Modal"
+        >
+          <FaTimes size={20} />
+        </button>
+        <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800 dark:text-gray-200">
+          <FaCalendarPlus className="mr-2" />
+          Generate Payroll
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Month Selection */}
+          <div>
+            <label
+              htmlFor="month"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Month
+            </label>
+            <select
+              id="month"
+              value={month}
+              onChange={(e) => setMonth(e.target.value)}
+              required
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+            >
+              <option value="">Select Month</option>
+              {months.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Year Input */}
+          <div>
+            <label
+              htmlFor="year"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
+              Year
+            </label>
+            <input
+              type="number"
+              id="year"
+              value={year}
+              onChange={(e) => setYear(parseInt(e.target.value))}
+              required
+              min={2000}
+              max={2100}
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+              placeholder="e.g., 2025"
+            />
+          </div>
+
+          {/* Error Message */}
+          {error && <div className="text-red-500 text-sm">{error}</div>}
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className={`flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
+            >
+              <FaCalendarPlus className="mr-2" />
+              {loading ? "Generating..." : "Generate"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default GeneratePayrollModal;
