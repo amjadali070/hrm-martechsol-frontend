@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent } from "react";
 import { FaSpinner, FaEye, FaPlus, FaInbox, FaEdit } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { IoArrowBackCircle } from "react-icons/io5";
 import { Link } from "react-router-dom";
 import PayrollDetailModal, { PayrollData } from "./PayrollDetailModal";
 import GeneratePayrollModal from "./GeneratePayrollModal";
@@ -13,71 +14,76 @@ interface MonthYear {
 }
 
 const PayrollManagement: React.FC = () => {
-  const { payrolls, fetchPayrolls, generatePayroll } = usePayroll();
+  const { payrolls, fetchPayrolls, fetchAllMonths, generatePayroll } =
+    usePayroll();
 
-  // 1) Local state for distinct month-year combos
+  // State for the month–year list loaded from the API.
   const [monthYears, setMonthYears] = useState<MonthYear[]>([]);
-  // 2) Selected month and year
+  // State for the currently selected month and year.
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
 
-  // Table pagination states
+  // Filter states for months list
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [filterYear, setFilterYear] = useState<string>("");
+
+  // Pagination states for payroll data.
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // Loading and notFound states
+  // Loading and notFound states.
   const [loading, setLoading] = useState<boolean>(false);
   const [notFound, setNotFound] = useState<boolean>(false);
 
-  // Payroll details modal states
+  // Modal states.
   const [selectedPayroll, setSelectedPayroll] = useState<PayrollData | null>(
     null
   );
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
-
-  // Generate payroll modal state
   const [isGenerateModalOpen, setIsGenerateModalOpen] =
     useState<boolean>(false);
 
-  // ---  Fetch distinct months/years on component mount  ---
+  // --- Load the list of month–year combinations when the component mounts ---
   useEffect(() => {
-    const fetchMonthYears = async () => {
+    const loadMonths = async () => {
       setLoading(true);
       try {
-        // E.g., GET /api/payroll/all-months
-        const response = await fetch("/api/payroll/all-months", {
-          credentials: "include", // or with axiosInstance.get(...)
-        });
-        if (!response.ok) {
-          throw new Error("Failed to fetch distinct months");
-        }
-        const data = await response.json();
-        setMonthYears(data.months); // => [ { month: 12, year: 2025 }, ...]
+        const months = await fetchAllMonths();
+        setMonthYears(months);
       } catch (error) {
-        console.error(error);
+        console.error("Error fetching months:", error);
       } finally {
         setLoading(false);
       }
     };
+    loadMonths();
+  }, [fetchAllMonths]);
 
-    fetchMonthYears();
-  }, []);
+  // --- Compute unique years for the year filter dropdown ---
+  const uniqueYears = Array.from(
+    new Set(monthYears.map((my) => my.year))
+  ).sort();
 
-  // --- Fetch all payrolls for the *selected* month-year ---
+  // --- Filter the monthYears using search term and selected year ---
+  const filteredMonthYears = monthYears.filter((my) => {
+    const monthName = getMonthName(my.month).toLowerCase();
+    const matchesSearch = monthName.includes(searchTerm.toLowerCase());
+    const matchesYear = filterYear === "" || my.year.toString() === filterYear;
+    return matchesSearch && matchesYear;
+  });
+
+  // --- When a month row is clicked, update the selection and fetch payroll data ---
   const handleMonthYearClick = async (m: number, y: number) => {
     setSelectedMonth(m);
     setSelectedYear(y);
-    setNotFound(false);
     setCurrentPage(1);
+    setNotFound(false);
 
-    // Re-use your existing fetchPayrolls in the PayrollContext
-    // This calls GET /api/payroll?month={m}&year={y}
     setLoading(true);
     try {
-      await fetchPayrolls(getMonthName(m), y);
-
-      // Check if we got no payroll for that month
-      const foundPayrolls = payrolls.filter(
+      // fetchPayrolls expects the month name (e.g., "January") and the year.
+      const fetchedPayrolls = await fetchPayrolls(getMonthName(m), y);
+      const foundPayrolls = fetchedPayrolls.filter(
         (pay) => pay.month === m && pay.year === y
       );
       setNotFound(foundPayrolls.length === 0);
@@ -89,12 +95,19 @@ const PayrollManagement: React.FC = () => {
     }
   };
 
-  // Filter the global payrolls by the selected month-year
+  // --- Option to clear selection and show months list again ---
+  const handleBackToMonths = () => {
+    setSelectedMonth(null);
+    setSelectedYear(null);
+    // Optionally, you can also reset payroll-related pagination or state if needed.
+  };
+
+  // --- Filter payrolls according to the selected month and year ---
   const filteredPayrolls = payrolls.filter(
     (pay) => pay.month === selectedMonth && pay.year === selectedYear
   );
 
-  // Pagination
+  // --- Pagination calculations ---
   const totalPages = Math.ceil(filteredPayrolls.length / itemsPerPage);
   const currentPayrolls = filteredPayrolls.slice(
     (currentPage - 1) * itemsPerPage,
@@ -105,7 +118,7 @@ const PayrollManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  // Detail modal
+  // --- Modal control functions ---
   const openDetailModal = (payroll: PayrollData) => {
     setSelectedPayroll(payroll);
     setIsDetailModalOpen(true);
@@ -115,12 +128,16 @@ const PayrollManagement: React.FC = () => {
     setSelectedPayroll(null);
   };
 
-  // Generate payroll modal
-  const openGenerateModal = () => {
-    setIsGenerateModalOpen(true);
+  const openGenerateModal = () => setIsGenerateModalOpen(true);
+  const closeGenerateModal = () => setIsGenerateModalOpen(false);
+
+  // --- Event handlers for filter controls ---
+  const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
   };
-  const closeGenerateModal = () => {
-    setIsGenerateModalOpen(false);
+
+  const handleYearFilterChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setFilterYear(e.target.value);
   };
 
   return (
@@ -130,7 +147,7 @@ const PayrollManagement: React.FC = () => {
       </h2>
 
       {/* Generate Payroll Button */}
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-6">
         <button
           onClick={openGenerateModal}
           className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors"
@@ -140,41 +157,102 @@ const PayrollManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* 1) List all distinct month-year combos */}
-      {loading && monthYears.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8">
-          <FaSpinner size={40} className="animate-spin text-blue-600 mb-2" />
-          <span>Loading months...</span>
-        </div>
-      ) : (
-        <div className="grid gap-2 grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 mb-8">
-          {monthYears.map((my) => (
-            <button
-              key={`${my.year}-${my.month}`}
-              onClick={() => handleMonthYearClick(my.month, my.year)}
-              className={`border px-3 py-2 rounded shadow hover:shadow-md
-                ${
-                  selectedMonth === my.month && selectedYear === my.year
-                    ? "bg-purple-200 dark:bg-purple-600"
-                    : "bg-white dark:bg-gray-800"
-                }
-              `}
+      {/* --- Months List (with Filters) --- */}
+      {!selectedMonth && !selectedYear && (
+        <div className="mb-6">
+          {/* Filter Controls for Months List */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-start items-start mb-4">
+            <input
+              type="text"
+              placeholder="Search by month name"
+              value={searchTerm}
+              onChange={handleSearchChange}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+            />
+            <select
+              value={filterYear}
+              onChange={handleYearFilterChange}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
             >
-              {getMonthName(my.month)} {my.year}
-            </button>
-          ))}
+              <option value="">All Years</option>
+              {uniqueYears.map((year) => (
+                <option key={year} value={year}>
+                  {year}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {loading && monthYears.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8">
+              <FaSpinner
+                size={40}
+                className="animate-spin text-blue-600 mb-2"
+              />
+              <span>Loading months...</span>
+            </div>
+          ) : filteredMonthYears.length === 0 ? (
+            <div className="text-center py-8 text-gray-500">
+              No data available.
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+                <thead className="bg-purple-900">
+                  <tr>
+                    <th className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center">
+                      S.No
+                    </th>
+                    <th className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center">
+                      Month
+                    </th>
+                    <th className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center">
+                      Year
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredMonthYears.map((my, index) => (
+                    <tr
+                      key={`${my.year}-${my.month}`}
+                      onClick={() => handleMonthYearClick(my.month, my.year)}
+                      className="cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
+                        {getMonthName(my.month)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
+                        {my.year}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
-      {/* 2) Show payroll table for the selected month-year */}
-      {selectedMonth && selectedYear ? (
+      {/* --- Payroll Data Table (when a month is selected) --- */}
+      {selectedMonth && selectedYear && (
         <div>
-          <h3 className="text-xl font-bold mb-4 text-gray-800 dark:text-gray-200">
-            Showing Payroll for {getMonthName(selectedMonth)} {selectedYear}
-          </h3>
-
+          <div className="mb-4 flex items-center justify-between">
+            <button
+              onClick={handleBackToMonths}
+              className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center"
+            >
+              <IoArrowBackCircle className="mr-2" />
+              Back
+            </button>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-gray-200">
+              Payroll for {getMonthName(selectedMonth)} {selectedYear}
+            </h3>
+          </div>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+            <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
               <thead className="bg-purple-900 sticky top-0">
                 <tr>
                   {[
@@ -211,18 +289,18 @@ const PayrollManagement: React.FC = () => {
                       </div>
                     </td>
                   </tr>
-                ) : notFound ? (
+                ) : notFound || currentPayrolls.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="text-center py-12 text-gray-500">
                       <div className="flex flex-col items-center justify-center">
                         <FaInbox size={40} className="text-gray-400 mb-4" />
                         <span className="text-lg font-medium">
-                          No Payroll Data Found for this month-year.
+                          No payroll data found for this period.
                         </span>
                       </div>
                     </td>
                   </tr>
-                ) : currentPayrolls.length > 0 ? (
+                ) : (
                   currentPayrolls.map((payroll, index) => (
                     <tr
                       key={payroll.id}
@@ -235,7 +313,7 @@ const PayrollManagement: React.FC = () => {
                         {payroll.user.name}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
-                        {payroll.user.department}
+                        {payroll.user.personalDetails?.department}
                       </td>
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
                         {getMonthName(payroll.month)}
@@ -252,18 +330,18 @@ const PayrollManagement: React.FC = () => {
                       <td className="px-6 py-4 text-sm text-gray-700 dark:text-gray-300 text-center">
                         {payroll.status}
                       </td>
-                      <td className="px-6 py-4 text-center space-x-2">
+                      <td className="px-6 py-4 text-center">
                         <div className="flex justify-center space-x-2">
                           <button
                             onClick={() => openDetailModal(payroll)}
-                            className="flex items-center justify-center px-3 py-2 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors"
+                            className="flex items-center px-3 py-2 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors"
                             title="View Details"
                           >
                             <FaEye className="mr-1" /> View
                           </button>
                           <Link
                             to={`/edit/${payroll.id}`}
-                            className="flex items-center justify-center px-3 py-2 bg-yellow-500 text-white text-sm rounded-full hover:bg-yellow-600 transition-colors"
+                            className="flex items-center px-3 py-2 bg-yellow-500 text-white text-sm rounded-full hover:bg-yellow-600 transition-colors"
                             title="Edit Payroll"
                           >
                             <FaEdit className="mr-1" /> Edit
@@ -272,23 +350,12 @@ const PayrollManagement: React.FC = () => {
                       </td>
                     </tr>
                   ))
-                ) : (
-                  <tr>
-                    <td colSpan={9} className="text-center py-12 text-gray-500">
-                      <div className="flex flex-col items-center justify-center">
-                        <FaInbox size={40} className="text-gray-400 mb-4" />
-                        <span className="text-lg font-medium">
-                          No Payroll Data Found.
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
                 )}
               </tbody>
             </table>
           </div>
 
-          {/* Pagination */}
+          {/* --- Pagination Controls --- */}
           {filteredPayrolls.length > 0 && (
             <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
               <div className="flex items-center">
@@ -312,10 +379,9 @@ const PayrollManagement: React.FC = () => {
               </div>
               <div className="flex items-center space-x-3">
                 <button
-                  className={`flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 
-                  text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 
-                  dark:hover:bg-gray-600 transition-colors 
-                  ${currentPage === 1 ? "cursor-not-allowed opacity-50" : ""}`}
+                  className={`flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors ${
+                    currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+                  }`}
                   disabled={currentPage === 1}
                   onClick={handlePrevious}
                 >
@@ -326,10 +392,7 @@ const PayrollManagement: React.FC = () => {
                   Page {currentPage} of {totalPages || 1}
                 </span>
                 <button
-                  className={`flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 
-                  text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 
-                  dark:hover:bg-gray-600 transition-colors 
-                  ${
+                  className={`flex items-center px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors ${
                     currentPage === totalPages || totalPages === 0
                       ? "cursor-not-allowed opacity-50"
                       : ""
@@ -344,13 +407,9 @@ const PayrollManagement: React.FC = () => {
             </div>
           )}
         </div>
-      ) : (
-        <div className="text-center text-gray-600 dark:text-gray-300 mt-8">
-          Select a month and year to view payrolls.
-        </div>
       )}
 
-      {/* Payroll Detail Modal */}
+      {/* --- Payroll Detail Modal --- */}
       {isDetailModalOpen && selectedPayroll && (
         <PayrollDetailModal
           isOpen={isDetailModalOpen}
@@ -359,7 +418,7 @@ const PayrollManagement: React.FC = () => {
         />
       )}
 
-      {/* Generate Payroll Modal */}
+      {/* --- Generate Payroll Modal --- */}
       {isGenerateModalOpen && (
         <GeneratePayrollModal
           isOpen={isGenerateModalOpen}

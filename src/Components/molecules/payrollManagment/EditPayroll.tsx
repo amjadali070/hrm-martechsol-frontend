@@ -231,7 +231,7 @@ const EditPayroll: React.FC = () => {
                 type="text"
                 id="department"
                 name="department"
-                value={payroll?.user.department}
+                value={payroll?.user.personalDetails?.department}
                 onChange={(e) =>
                   setPayroll((prev) =>
                     prev

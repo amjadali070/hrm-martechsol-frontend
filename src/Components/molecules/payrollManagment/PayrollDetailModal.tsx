@@ -1,5 +1,4 @@
 // src/components/PayrollDetailModal.tsx
-
 import React from "react";
 import {
   FaTimes,
@@ -11,10 +10,10 @@ import {
 } from "react-icons/fa";
 import { getMonthName } from "../../../utils/monthUtils";
 
-interface PayrollDetailModalProps {
-  isOpen: boolean;
-  payroll: PayrollData;
-  onClose: () => void;
+export interface ExtraPayment {
+  id: string;
+  description: string;
+  amount: number;
 }
 
 export interface PayrollData {
@@ -22,7 +21,9 @@ export interface PayrollData {
   user: {
     name: string;
     email: string;
-    department: string;
+    personalDetails: {
+      department: string;
+    };
   };
   month: number;
   year: number;
@@ -41,10 +42,10 @@ export interface PayrollData {
   absentDates: string[];
 }
 
-export interface ExtraPayment {
-  id: string;
-  description: string;
-  amount: number;
+interface PayrollDetailModalProps {
+  isOpen: boolean;
+  payroll: PayrollData;
+  onClose: () => void;
 }
 
 const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
@@ -54,9 +55,10 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const formattedAbsentDates = payroll.absentDates.map((date) =>
-    new Date(date).toLocaleDateString()
-  );
+  // Define formattedAbsentDates with a fallback to an empty array.
+  const formattedAbsentDates = payroll.absentDates
+    ? payroll.absentDates.map((date) => new Date(date).toLocaleDateString())
+    : [];
 
   return (
     <div
@@ -65,7 +67,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white dark:bg-gray-900 rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-6 relative transform transition-all duration-300 scale-100">
+      <div className="bg-white dark:bg-gray-900 rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-4 relative transform transition-all duration-300 scale-100">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-purple-900 dark:text-blue-600 hover:text-purple-700 dark:hover:text-blue-400 transition-colors"
@@ -98,7 +100,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   <FaBuilding className="mr-2" /> Department
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.user.department}
+                  {payroll.user.personalDetails?.department}
                 </td>
               </tr>
               <tr className="border-b">
@@ -138,7 +140,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   <FaMoneyCheckAlt className="mr-2" /> Base Salary
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {payroll.baseSalary.toFixed(2)}
+                  PKR {Number(payroll.baseSalary || 0).toFixed(2)}
                 </td>
               </tr>
               <tr className="border-b">
@@ -146,7 +148,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   Deductions
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {payroll.deductions.toFixed(2)}
+                  PKR {Number(payroll.deductions || 0).toFixed(2)}
                 </td>
               </tr>
               <tr className="border-b">
@@ -154,7 +156,15 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   Bonuses
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {payroll.bonuses.toFixed(2)}
+                  PKR {Number(payroll.bonuses || 0).toFixed(2)}
+                </td>
+              </tr>
+              {/* <tr className="border-b">
+                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
+                  Total Salary
+                </td>
+                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
+                  PKR {Number(payroll.totalSalary || 0).toFixed(2)}
                 </td>
               </tr>
               <tr className="border-b">
@@ -162,17 +172,17 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   Net Salary
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {payroll.netSalary.toFixed(2)}
+                  PKR {Number(payroll.netSalary || 0).toFixed(2)}
                 </td>
-              </tr>
-              <tr className="border-b">
+              </tr> */}
+              {/* <tr className="border-b">
                 <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
                   Status
                 </td>
                 <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
                   {payroll.status}
                 </td>
-              </tr>
+              </tr> */}
               {payroll.processedOn && (
                 <tr className="border-b">
                   <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
@@ -184,14 +194,13 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                 </tr>
               )}
               <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
+                {/* <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
                   Remarks
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
+                </td> */}
+                {/* <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
                   {payroll.remarks || "N/A"}
-                </td>
+                </td> */}
               </tr>
-              {/* Extra Payments */}
               {payroll.extraPayments && payroll.extraPayments.length > 0 && (
                 <>
                   <tr className="border-b">
@@ -208,13 +217,12 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                         {payment.description}
                       </td>
                       <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                        PKR {payment.amount.toFixed(2)}
+                        PKR {Number(payment.amount || 0).toFixed(2)}
                       </td>
                     </tr>
                   ))}
                 </>
               )}
-              {/* Absent Dates */}
               {payroll.absentDates && payroll.absentDates.length > 0 && (
                 <>
                   <tr className="border-b">
@@ -222,7 +230,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                       className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium"
                       colSpan={2}
                     >
-                      <FaChartLine className="mr-2 inline" /> Absent Dates
+                      Absent Dates
                     </td>
                   </tr>
                   {formattedAbsentDates.map((date, index) => (
@@ -242,7 +250,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   Total Salary
                 </td>
                 <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  PKR {payroll.totalSalary.toFixed(2)}
+                  PKR {Number(payroll.totalSalary || 0).toFixed(2)}
                 </td>
               </tr>
               <tr className="border-t-2">
@@ -250,7 +258,7 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
                   Net Salary
                 </td>
                 <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  PKR {payroll.netSalary.toFixed(2)}
+                  PKR {Number(payroll.netSalary || 0).toFixed(2)}
                 </td>
               </tr>
             </tbody>
