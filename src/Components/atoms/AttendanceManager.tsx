@@ -94,26 +94,40 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
 
     setLoading(true);
     setError(null);
+
     try {
+      // Option 1: If your backend endpoint is paginated, you might pass a parameter
+      // to disable pagination or increase the limit. For example, if the backend supports
+      // a "limit" parameter, you can do:
       const response = await axiosInstance.get(
-        `${backendUrl}/api/attendance`, // Ensure this endpoint returns all attendance records
-        {
-          withCredentials: true,
-        }
+        `${backendUrl}/api/attendance?limit=10000`,
+        { withCredentials: true }
       );
 
-      // Ensure attendances is an array
-      const attendances: TimeLogExtended[] = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray(response.data.attendances)
-        ? response.data.attendances.map((record: any) => ({
-            ...record,
-            userName: record.user?.name || "Unknown", // Assuming `user` is populated
-          }))
-        : [];
+      let attendances: any[] = [];
 
-      setAllAttendanceRecords(attendances || []);
-      setFilteredAttendanceRecords(attendances || []);
+      // If the response is paginated and has an "attendances" array:
+      if (response.data && Array.isArray(response.data.attendances)) {
+        attendances = response.data.attendances;
+      }
+      // Otherwise, if response.data is already an array:
+      else if (Array.isArray(response.data)) {
+        attendances = response.data;
+      } else {
+        // If the response is an object but doesn't follow the expected schema,
+        // you can try logging it to see what it contains.
+        console.warn("Unexpected response shape:", response.data);
+        attendances = response.data;
+      }
+
+      // Map each record to include userName (if available)
+      attendances = attendances.map((record: any) => ({
+        ...record,
+        userName: record.user?.name || "Unknown",
+      }));
+
+      setAllAttendanceRecords(attendances);
+      setFilteredAttendanceRecords(attendances);
     } catch (err: any) {
       console.error("Error fetching attendance records:", err);
       setError(
