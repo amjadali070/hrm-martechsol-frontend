@@ -51,39 +51,55 @@ const getDayOfWeek = (dateString: string) => {
 };
 
 const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
-  const { user, loading: userLoading } = useUser(); // Ensure useUser provides user and loading states
+  const { user, loading: userLoading } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Tab state: "active", "edit", or "deleted"
+  const [activeTab, setActiveTab] = useState<"active" | "edit" | "deleted">(
+    "active"
+  );
+
+  // Data states:
   const [allAttendanceRecords, setAllAttendanceRecords] = useState<
     TimeLogExtended[]
   >([]);
   const [filteredAttendanceRecords, setFilteredAttendanceRecords] = useState<
     TimeLogExtended[]
   >([]);
+  const [deletedRecords, setDeletedRecords] = useState<TimeLogExtended[]>([]);
+
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  // State for modals
+  // Modal states:
   const [isEditModalOpen, setIsEditModalOpen] = useState<boolean>(false);
   const [currentRecord, setCurrentRecord] = useState<TimeLogExtended | null>(
     null
   );
   const [isBulkModalOpen, setIsBulkModalOpen] = useState<boolean>(false);
 
-  // State for pagination
+  // Pagination (for active and edit tabs)
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(10);
+  const [pageSize] = useState<number>(50);
 
-  // New States for Filters
+  // Filter states (applies to active and edit tabs)
   const [filterUserName, setFilterUserName] = useState<string>("");
   const [filterDate, setFilterDate] = useState<string>("");
 
+  // Bulk selection (active tab only)
+  const [selectedRecords, setSelectedRecords] = useState<string[]>([]);
+
+  // Fetch records based on tab selection:
   useEffect(() => {
     if (!userLoading) {
-      fetchAllAttendanceRecords();
+      if (activeTab === "active" || activeTab === "edit") {
+        fetchAllAttendanceRecords();
+      } else if (activeTab === "deleted") {
+        fetchDeletedAttendanceRecords();
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userLoading]);
+  }, [userLoading, activeTab]);
 
   const fetchAllAttendanceRecords = async () => {
     if (!user) {
@@ -91,29 +107,30 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
       setError("User not authenticated.");
       return;
     }
-
     setLoading(true);
     setError(null);
     try {
       const response = await axiosInstance.get(
-        `${backendUrl}/api/attendance`, // Ensure this endpoint returns all attendance records
-        {
-          withCredentials: true,
-        }
+        `${backendUrl}/api/attendance?limit=10000`,
+        { withCredentials: true }
       );
-
-      // Ensure attendances is an array
-      const attendances: TimeLogExtended[] = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray(response.data.attendances)
-        ? response.data.attendances.map((record: any) => ({
-            ...record,
-            userName: record.user?.name || "Unknown", // Assuming `user` is populated
-          }))
-        : [];
-
-      setAllAttendanceRecords(attendances || []);
-      setFilteredAttendanceRecords(attendances || []);
+      let attendances: any[] = [];
+      if (response.data && Array.isArray(response.data.attendances)) {
+        attendances = response.data.attendances;
+      } else if (Array.isArray(response.data)) {
+        attendances = response.data;
+      } else {
+        console.warn("Unexpected response shape:", response.data);
+        attendances = response.data;
+      }
+      attendances = attendances.map((record: any) => ({
+        ...record,
+        userName: record.user?.name || "Unknown",
+      }));
+      setAllAttendanceRecords(attendances);
+      setFilteredAttendanceRecords(attendances);
+      // Clear selection in active tab
+      setSelectedRecords([]);
     } catch (err: any) {
       console.error("Error fetching attendance records:", err);
       setError(
@@ -124,33 +141,68 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
     }
   };
 
-  // Apply filters whenever filterUserName or filterDate changes
-  useEffect(() => {
-    let filtered = allAttendanceRecords;
-
-    if (filterUserName.trim() !== "") {
-      filtered = filtered.filter((record) =>
-        record.userName.toLowerCase().includes(filterUserName.toLowerCase())
+  const fetchDeletedAttendanceRecords = async () => {
+    if (!user) {
+      setLoading(false);
+      setError("User not authenticated.");
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get(
+        `${backendUrl}/api/attendance/deleted`,
+        { withCredentials: true }
       );
+      let attendances: any[] = [];
+      if (response.data && Array.isArray(response.data)) {
+        attendances = response.data;
+      } else {
+        console.warn("Unexpected response shape:", response.data);
+        attendances = response.data;
+      }
+      attendances = attendances.map((record: any) => ({
+        ...record,
+        userName: record.user?.name || "Unknown",
+      }));
+      setDeletedRecords(attendances);
+    } catch (err: any) {
+      console.error("Error fetching deleted attendance records:", err);
+      setError(
+        err.response?.data?.message ||
+          "Failed to fetch deleted attendance records."
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (filterDate !== "") {
-      const selectedDate = new Date(filterDate);
-      filtered = filtered.filter((record) => {
-        const recordDate = new Date(record.createdAt);
-        return (
-          recordDate.getFullYear() === selectedDate.getFullYear() &&
-          recordDate.getMonth() === selectedDate.getMonth() &&
-          recordDate.getDate() === selectedDate.getDate()
+  // Filter active/edit records based on user name and date
+  useEffect(() => {
+    if (activeTab === "active" || activeTab === "edit") {
+      let filtered = allAttendanceRecords;
+      if (filterUserName.trim() !== "") {
+        filtered = filtered.filter((record) =>
+          record.userName.toLowerCase().includes(filterUserName.toLowerCase())
         );
-      });
+      }
+      if (filterDate !== "") {
+        const selectedDate = new Date(filterDate);
+        filtered = filtered.filter((record) => {
+          const recordDate = new Date(record.createdAt);
+          return (
+            recordDate.getFullYear() === selectedDate.getFullYear() &&
+            recordDate.getMonth() === selectedDate.getMonth() &&
+            recordDate.getDate() === selectedDate.getDate()
+          );
+        });
+      }
+      setFilteredAttendanceRecords(filtered);
+      setCurrentPage(1);
     }
+  }, [filterUserName, filterDate, allAttendanceRecords, activeTab]);
 
-    setFilteredAttendanceRecords(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
-  }, [filterUserName, filterDate, allAttendanceRecords]);
-
-  // Memoize the paginated data to optimize performance
+  // Memoize paginated data (for active/edit tabs)
   const paginatedRecords = useMemo(() => {
     const startIndex = (currentPage - 1) * pageSize;
     return filteredAttendanceRecords.slice(startIndex, startIndex + pageSize);
@@ -158,19 +210,49 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
 
   const totalPages = Math.ceil(filteredAttendanceRecords.length / pageSize);
 
+  // Helpers for bulk selection in active tab:
+  const toggleSelection = (recordId: string) => {
+    setSelectedRecords((prev) =>
+      prev.includes(recordId)
+        ? prev.filter((id) => id !== recordId)
+        : [...prev, recordId]
+    );
+  };
+
+  const isAllSelected = useMemo(
+    () =>
+      paginatedRecords.length > 0 &&
+      paginatedRecords.every((record) => selectedRecords.includes(record._id)),
+    [paginatedRecords, selectedRecords]
+  );
+
+  const toggleSelectAll = () => {
+    if (isAllSelected) {
+      setSelectedRecords((prev) =>
+        prev.filter(
+          (id) => !paginatedRecords.find((record) => record._id === id)
+        )
+      );
+    } else {
+      const newSelected = paginatedRecords
+        .map((record) => record._id)
+        .filter((id) => !selectedRecords.includes(id));
+      setSelectedRecords((prev) => [...prev, ...newSelected]);
+    }
+  };
+
+  // Action handlers
   const handleTimeIn = async () => {
     if (!user?._id) {
       alert("User not authenticated.");
       return;
     }
-
     try {
       await axiosInstance.post(
         `${backendUrl}/api/attendance/time-in`,
         { userId: user._id },
         { withCredentials: true }
       );
-      // Refresh records
       fetchAllAttendanceRecords();
       alert("Time In logged successfully.");
     } catch (err: any) {
@@ -184,14 +266,12 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
       alert("User not authenticated.");
       return;
     }
-
     try {
       await axiosInstance.post(
         `${backendUrl}/api/attendance/time-out`,
         { userId: user._id },
         { withCredentials: true }
       );
-      // Refresh records
       fetchAllAttendanceRecords();
       alert("Time Out logged successfully.");
     } catch (err: any) {
@@ -215,13 +295,15 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
       !window.confirm("Are you sure you want to delete this attendance record?")
     )
       return;
-
     try {
       await axiosInstance.delete(`${backendUrl}/api/attendance/${recordId}`, {
         withCredentials: true,
       });
-      // Refresh records
-      fetchAllAttendanceRecords();
+      if (activeTab === "active" || activeTab === "edit") {
+        fetchAllAttendanceRecords();
+      } else {
+        fetchDeletedAttendanceRecords();
+      }
       alert("Attendance record deleted successfully.");
     } catch (err: any) {
       console.error("Error deleting attendance record:", err);
@@ -231,49 +313,122 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
     }
   };
 
+  // Handle bulk deletion (only for active tab)
+  const handleBulkDelete = async () => {
+    if (
+      !window.confirm(
+        "Are you sure you want to delete the selected attendance records?"
+      )
+    )
+      return;
+    try {
+      await Promise.all(
+        selectedRecords.map((recordId) =>
+          axiosInstance.delete(`${backendUrl}/api/attendance/${recordId}`, {
+            withCredentials: true,
+          })
+        )
+      );
+      alert("Selected attendance records deleted successfully.");
+      setSelectedRecords([]);
+      fetchAllAttendanceRecords();
+    } catch (err: any) {
+      console.error("Error deleting selected records:", err);
+      alert(
+        err.response?.data?.message ||
+          "Failed to delete selected attendance records."
+      );
+    }
+  };
+
+  // Permanently delete all soft-deleted records (deleted tab)
+  const handlePermanentDeleteAll = async () => {
+    if (
+      !window.confirm(
+        "This action cannot be undone. Are you sure you want to permanently delete all deleted attendance records from the database?"
+      )
+    )
+      return;
+    try {
+      await axiosInstance.delete(`${backendUrl}/api/attendance/deleted`, {
+        withCredentials: true,
+      });
+      alert(
+        "All deleted attendance records have been permanently removed from the database."
+      );
+      fetchDeletedAttendanceRecords();
+    } catch (err: any) {
+      console.error("Error permanently deleting records:", err);
+      alert(
+        err.response?.data?.message ||
+          "Failed to permanently delete attendance records."
+      );
+    }
+  };
+
+  // Handle edit submission from modal.
+  // Use the new endpoint /api/attendance/edit/:id when in the "edit" tab.
   const handleEditSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!currentRecord) return;
-
     const form = e.currentTarget;
     const formData = new FormData(form);
+    const getField = (name: string): string =>
+      formData.get(name)?.toString().trim() || "";
+    const date = getField("date");
+    const timeInField = getField("timeIn");
+    const timeOutField = getField("timeOut");
+    const typeField = getField("type");
+    const remarksField = getField("remarks");
 
-    const date = formData.get("date") as string; // "2024-12-19"
-    const timeIn = formData.get("timeIn") as string; // "18:01"
-    const timeOut = formData.get("timeOut") as string; // "02:39"
-
-    // Combine date and time to create ISO strings
-    const combinedTimeIn = new Date(`${date}T${timeIn}:00`).toISOString();
-    let combinedTimeOut: string | null = null;
-
-    if (timeOut) {
-      let dateTimeOut = new Date(`${date}T${timeOut}:00`);
-      const dateTimeIn = new Date(`${date}T${timeIn}:00`);
-
-      if (dateTimeOut < dateTimeIn) {
-        // Assume timeOut is on the next day
-        dateTimeOut.setDate(dateTimeOut.getDate() + 1);
-      }
-
-      combinedTimeOut = dateTimeOut.toISOString();
+    if (!date) {
+      alert("Date is required.");
+      return;
     }
-
+    let combinedTimeIn: string | null = null;
+    if (timeInField !== "") {
+      const potentialTimeIn = new Date(`${date}T${timeInField}:00`);
+      if (isNaN(potentialTimeIn.getTime())) {
+        alert("Invalid Time In value.");
+        return;
+      }
+      combinedTimeIn = potentialTimeIn.toISOString();
+    }
+    let combinedTimeOut: string | null = null;
+    if (timeOutField !== "") {
+      let potentialTimeOut = new Date(`${date}T${timeOutField}:00`);
+      if (isNaN(potentialTimeOut.getTime())) {
+        alert("Invalid Time Out value.");
+        return;
+      }
+      if (combinedTimeIn) {
+        const timeInDate = new Date(combinedTimeIn);
+        if (potentialTimeOut < timeInDate) {
+          potentialTimeOut.setDate(potentialTimeOut.getDate() + 1);
+        }
+      }
+      combinedTimeOut = potentialTimeOut.toISOString();
+    }
     const updatedData: Partial<TimeLog> = {
-      timeIn: combinedTimeIn, // "2024-12-19T18:01:00.000Z"
-      timeOut: combinedTimeOut, // "2024-12-20T02:39:00.000Z" or null
-      type: formData.get("type") as AttendanceType,
-      remarks: formData.get("remarks") as string,
-      // Add other fields as necessary
+      timeIn: combinedTimeIn,
+      timeOut: combinedTimeOut,
+      type: typeField as AttendanceType,
+      remarks: remarksField,
     };
 
     try {
-      await axiosInstance.patch(
-        `${backendUrl}/api/attendance/${currentRecord._id}`,
-        updatedData,
-        { withCredentials: true }
-      );
-      // Refresh records
-      fetchAllAttendanceRecords();
+      // Use the "edit" endpoint if in "edit" tab; otherwise use the standard update endpoint.
+      const patchEndpoint =
+        activeTab === "edit"
+          ? `${backendUrl}/api/attendance/edit/${currentRecord._id}`
+          : `${backendUrl}/api/attendance/${currentRecord._id}`;
+      await axiosInstance.patch(patchEndpoint, updatedData, {
+        withCredentials: true,
+      });
+      // Refresh records accordingly
+      if (activeTab === "active" || activeTab === "edit") {
+        fetchAllAttendanceRecords();
+      }
       closeEditModal();
       alert("Attendance record updated successfully.");
     } catch (err: any) {
@@ -299,7 +454,6 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
         { users, date },
         { withCredentials: true }
       );
-      // Refresh records
       fetchAllAttendanceRecords();
       closeBulkModal();
       alert("Bulk attendance processed successfully.");
@@ -313,221 +467,426 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
 
   return (
     <section className="flex flex-col w-full p-4">
-      <div className="flex flex-col bg-white rounded-xl p-6">
-        {/* Header Section */}
-        <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            Attendance Manager
-          </h2>
-          <div className="flex space-x-4 mt-4 md:mt-0">
-            <button
-              onClick={handleTimeIn}
-              className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-300"
-            >
-              Time In
-            </button>
-            <button
-              onClick={handleTimeOut}
-              className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-300"
-            >
-              Time Out
-            </button>
-            {user?.role && ["test"].includes(user.role) && (
-              <button
-                onClick={openBulkModal}
-                className="flex items-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors duration-300"
-              >
-                Bulk Process
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Filter Section */}
-        <div className="flex flex-col md:flex-row md:space-x-4 mb-6">
-          {/* User Name Filter */}
-          <div className="flex-1 mb-4 md:mb-0">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search by User Name
-            </label>
-            <input
-              type="text"
-              value={filterUserName}
-              onChange={(e) => setFilterUserName(e.target.value)}
-              placeholder="Enter user name"
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            />
-          </div>
-          {/* Date Filter */}
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter by Date
-            </label>
-            <input
-              type="date"
-              value={filterDate}
-              onChange={(e) => setFilterDate(e.target.value)}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-            />
-          </div>
-        </div>
-        {/* End of Filter Section */}
-
-        {loading ? (
-          <div
-            className="flex justify-center items-center"
-            style={{ height: "200px" }}
+      <div className="bg-white rounded-xl p-6">
+        {/* Tab Headers */}
+        <div className="mb-4 flex border-b">
+          <button
+            onClick={() => setActiveTab("active")}
+            className={`px-4 py-2 -mb-px font-semibold ${
+              activeTab === "active"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-600 hover:text-blue-500"
+            }`}
           >
-            <FaSpinner className="text-blue-500 animate-spin" size={30} />
-          </div>
-        ) : error ? (
-          <div className="text-red-500 text-center">{error}</div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-gray-800">
-                <tr>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md">
-                    User Name
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Day
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+            Active Attendances
+          </button>
+          <button
+            onClick={() => setActiveTab("edit")}
+            className={`px-4 py-2 -mb-px font-semibold ${
+              activeTab === "edit"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-600 hover:text-blue-500"
+            }`}
+          >
+            Edit Records
+          </button>
+          <button
+            onClick={() => setActiveTab("deleted")}
+            className={`px-4 py-2 -mb-px font-semibold ${
+              activeTab === "deleted"
+                ? "border-b-2 border-blue-500 text-blue-500"
+                : "text-gray-600 hover:text-blue-500"
+            }`}
+          >
+            Deleted Attendances
+          </button>
+        </div>
+
+        {/* Content for Active and Edit tabs */}
+        {(activeTab === "active" || activeTab === "edit") && (
+          <>
+            {activeTab === "active" && (
+              <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Attendance Manager
+                </h2>
+                <div className="flex space-x-4 mt-4 md:mt-0">
+                  <button
+                    onClick={handleTimeIn}
+                    className="flex items-center px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors duration-300"
+                  >
                     Time In
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                  </button>
+                  <button
+                    onClick={handleTimeOut}
+                    className="flex items-center px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-300"
+                  >
                     Time Out
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Status
-                  </th>
+                  </button>
                   {user?.role && ["test"].includes(user.role) && (
-                    <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md">
-                      Actions
-                    </th>
+                    <button
+                      onClick={openBulkModal}
+                      className="flex items-center px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors duration-300"
+                    >
+                      Bulk Process
+                    </button>
                   )}
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedRecords.length > 0 ? (
-                  paginatedRecords.map((record) => (
-                    <tr key={record._id} className="hover:bg-gray-100">
-                      {/* User Name Column */}
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.userName}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {new Date(record.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {getDayOfWeek(record.createdAt)}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.timeIn
-                          ? new Date(record.timeIn).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {record.timeOut
-                          ? new Date(record.timeOut).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                        {formatDuration(record.duration)}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-center">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            statusColors[record.type] ||
-                            "bg-gray-100 text-gray-800"
-                          }`}
-                        >
-                          {record.type}
-                        </span>
-                      </td>
+                </div>
+              </div>
+            )}
+            {/* Filter Section */}
+            <div className="flex flex-col md:flex-row md:space-x-4 mb-6">
+              <div className="flex-1 mb-4 md:mb-0">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Search by User Name
+                </label>
+                <input
+                  type="text"
+                  value={filterUserName}
+                  onChange={(e) => setFilterUserName(e.target.value)}
+                  placeholder="Enter user name"
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Filter by Date
+                </label>
+                <input
+                  type="date"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                />
+              </div>
+            </div>
+            {activeTab === "active" &&
+              user?.role &&
+              ["test"].includes(user.role) &&
+              selectedRecords.length > 0 && (
+                <div className="mb-4">
+                  <button
+                    onClick={handleBulkDelete}
+                    className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300"
+                  >
+                    Delete Selected ({selectedRecords.length})
+                  </button>
+                </div>
+              )}
+            {loading ? (
+              <div
+                className="flex justify-center items-center"
+                style={{ height: "200px" }}
+              >
+                <FaSpinner className="text-blue-500 animate-spin" size={30} />
+              </div>
+            ) : error ? (
+              <div className="text-red-500 text-center">{error}</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                  <thead className="bg-gray-800">
+                    <tr>
+                      {activeTab === "active" &&
+                        user?.role &&
+                        ["test"].includes(user.role) && (
+                          <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md">
+                            <input
+                              type="checkbox"
+                              checked={isAllSelected}
+                              onChange={toggleSelectAll}
+                            />
+                          </th>
+                        )}
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        User Name
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Day
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Time In
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Time Out
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Duration
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Status
+                      </th>
                       {user?.role && ["test"].includes(user.role) && (
-                        <td className="px-4 py-2 whitespace-nowrap text-center space-x-2">
-                          <button
-                            onClick={() => openEditModal(record)}
-                            className="text-blue-500 hover:text-blue-700"
-                            title="Edit"
-                          >
-                            <FaEdit />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(record._id)}
-                            className="text-red-500 hover:text-red-700"
-                            title="Delete"
-                          >
-                            <FaTrash />
-                          </button>
-                        </td>
+                        <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md">
+                          Actions
+                        </th>
                       )}
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={
-                        user?.role && ["test"].includes(user.role) ? 8 : 7
-                      } // Increased colspan by 1
-                      className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
-                    >
-                      No attendance records found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {paginatedRecords.length > 0 ? (
+                      paginatedRecords.map((record) => (
+                        <tr key={record._id} className="hover:bg-gray-100">
+                          {activeTab === "active" &&
+                            user?.role &&
+                            ["test"].includes(user.role) && (
+                              <td className="px-4 py-2 whitespace-nowrap text-center">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedRecords.includes(record._id)}
+                                  onChange={() => toggleSelection(record._id)}
+                                />
+                              </td>
+                            )}
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.userName}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {new Date(record.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {getDayOfWeek(record.createdAt)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.timeIn
+                              ? new Date(record.timeIn).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.timeOut
+                              ? new Date(record.timeOut).toLocaleTimeString(
+                                  [],
+                                  { hour: "2-digit", minute: "2-digit" }
+                                )
+                              : "N/A"}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {formatDuration(record.duration)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-center">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                statusColors[record.type] ||
+                                "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {record.type}
+                            </span>
+                          </td>
+                          {user?.role && ["test"].includes(user.role) && (
+                            <td className="px-4 py-2 whitespace-nowrap text-center space-x-2">
+                              {/* Edit icon present in both "active" and "edit" tabs */}
+                              <button
+                                onClick={() => openEditModal(record)}
+                                className="text-blue-500 hover:text-blue-700"
+                                title="Edit"
+                              >
+                                <FaEdit />
+                              </button>
+                              {activeTab === "active" && (
+                                <button
+                                  onClick={() => handleDelete(record._id)}
+                                  className="text-red-500 hover:text-red-700"
+                                  title="Delete"
+                                >
+                                  <FaTrash />
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={
+                            user?.role && ["test"].includes(user.role) ? 9 : 8
+                          }
+                          className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
+                        >
+                          No records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {/* Pagination for active and edit tabs */}
+            {!loading && filteredAttendanceRecords.length > 0 && (
+              <div className="flex justify-between items-center mt-4">
+                <span className="text-sm text-gray-700">
+                  Page {currentPage} of {totalPages}
+                </span>
+                <div className="flex space-x-2">
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(prev - 1, 1))
+                    }
+                    disabled={currentPage === 1}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === 1
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
+                  >
+                    Previous
+                  </button>
+                  <button
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+                    }
+                    disabled={currentPage === totalPages}
+                    className={`px-3 py-1 rounded-md ${
+                      currentPage === totalPages
+                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                        : "bg-blue-500 text-white hover:bg-blue-600"
+                    }`}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {/* Pagination */}
-        {!loading && filteredAttendanceRecords.length > 0 && (
-          <div className="flex justify-between items-center mt-4">
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === 1
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Previous
-              </button>
-              <button
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-                className={`px-3 py-1 rounded-md ${
-                  currentPage === totalPages
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
-              >
-                Next
-              </button>
+        {/* Content for Deleted Attendances Tab */}
+        {activeTab === "deleted" && (
+          <>
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-800">
+                Deleted Attendances
+              </h2>
+              {user?.role && ["test"].includes(user.role) && (
+                <button
+                  onClick={handlePermanentDeleteAll}
+                  className="flex items-center px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors duration-300"
+                >
+                  Permanently Delete All
+                </button>
+              )}
             </div>
-          </div>
+            {loading ? (
+              <div
+                className="flex justify-center items-center"
+                style={{ height: "200px" }}
+              >
+                <FaSpinner className="text-blue-500 animate-spin" size={30} />
+              </div>
+            ) : error ? (
+              <div className="text-red-500 text-center">{error}</div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 table-fixed">
+                  <thead className="bg-gray-800">
+                    <tr>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        User Name
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Date
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Day
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Time In
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Time Out
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Duration
+                      </th>
+                      <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                        Status
+                      </th>
+                      {user?.role && ["test"].includes(user.role) && (
+                        <th className="px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
+                          Actions
+                        </th>
+                      )}
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {deletedRecords.length > 0 ? (
+                      deletedRecords.map((record) => (
+                        <tr key={record._id} className="hover:bg-gray-100">
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.userName}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {new Date(record.createdAt).toLocaleDateString()}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {getDayOfWeek(record.createdAt)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.timeIn
+                              ? new Date(record.timeIn).toLocaleTimeString([], {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "N/A"}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {record.timeOut
+                              ? new Date(record.timeOut).toLocaleTimeString(
+                                  [],
+                                  { hour: "2-digit", minute: "2-digit" }
+                                )
+                              : "N/A"}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                            {formatDuration(record.duration)}
+                          </td>
+                          <td className="px-4 py-2 whitespace-nowrap text-center">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                statusColors[record.type] ||
+                                "bg-gray-100 text-gray-800"
+                              }`}
+                            >
+                              {record.type}
+                            </span>
+                          </td>
+                          {user?.role && ["test"].includes(user.role) && (
+                            <td className="px-4 py-2 whitespace-nowrap text-center">
+                              <button
+                                onClick={() => handleDelete(record._id)}
+                                className="text-red-500 hover:text-red-700"
+                                title="Delete"
+                              >
+                                <FaTrash />
+                              </button>
+                            </td>
+                          )}
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td
+                          colSpan={
+                            user?.role && ["test"].includes(user.role) ? 8 : 7
+                          }
+                          className="px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center"
+                        >
+                          No deleted attendance records found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
 
@@ -550,7 +909,6 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                         .split("T")[0]
                     : ""
                 }
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                 required
               />
             </div>
@@ -561,6 +919,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
               <input
                 type="time"
                 name="timeIn"
+                placeholder="--:--"
                 defaultValue={
                   currentRecord.timeIn
                     ? new Date(currentRecord.timeIn).toLocaleTimeString([], {
@@ -570,7 +929,6 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                       })
                     : ""
                 }
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               />
             </div>
             <div>
@@ -580,6 +938,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
               <input
                 type="time"
                 name="timeOut"
+                placeholder="--:--"
                 defaultValue={
                   currentRecord.timeOut
                     ? new Date(currentRecord.timeOut).toLocaleTimeString([], {
@@ -589,7 +948,6 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                       })
                     : ""
                 }
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
               />
             </div>
             <div>
