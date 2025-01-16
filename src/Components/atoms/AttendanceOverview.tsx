@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaInbox, FaCalendarAlt, FaFilter } from "react-icons/fa";
+import { FaSpinner, FaInbox } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 
@@ -32,27 +32,28 @@ interface AttendanceOverviewProps {
   onViewAll: () => void;
 }
 
-// Updated status colors:
-// - "Present" now uses a gray palette.
-// - "Completed" uses a green palette.
+// Updated status colors made consistent with your original ViewAttendance color scheme:
+// Here we assume that "Completed" should show in the same green as originally used for "Present" ("bg-green-100 text-green-800")
+// and that any record still marked as "Present" should use a neutral gray.
 const statusColors: Record<string, string> = {
-  Present: "bg-gray-400 text-white", // changed from bg-green-500 to bg-gray-400
-  Completed: "bg-green-500 text-white", // new type: Completed uses former present color
-  Absent: "bg-red-600 text-white",
-  "Late IN": "bg-yellow-500 text-white",
-  "Half Day": "bg-orange-600 text-white",
-  "Early Out": "bg-pink-500 text-white",
-  "Late IN and Early Out": "bg-violet-700 text-white",
-  "Casual Leave": "bg-blue-600 text-white",
-  "Sick Leave": "bg-lime-600 text-white",
-  "Annual Leave": "bg-purple-400 text-white",
-  "Hajj Leave": "bg-cyan-500 text-white",
-  "Maternity Leave": "bg-fuchsia-800 text-white",
-  "Paternity Leave": "bg-teal-600 text-white",
-  "Bereavement Leave": "bg-slate-700 text-white",
-  "Unauthorized Leave": "bg-red-900 text-white",
-  "Public Holiday": "bg-sky-700 text-white",
+  Present: "bg-gray-100 text-gray-800",
+  Completed: "bg-green-100 text-green-800",
+  Absent: "bg-red-100 text-red-800",
+  "Late IN": "bg-yellow-100 text-yellow-800",
+  "Half Day": "bg-orange-100 text-orange-800",
+  "Early Out": "bg-pink-100 text-pink-800",
+  "Late IN and Early Out": "bg-violet-100 text-violet-800",
+  "Casual Leave": "bg-blue-100 text-blue-800",
+  "Sick Leave": "bg-lime-100 text-lime-800",
+  "Annual Leave": "bg-purple-100 text-purple-800",
+  "Hajj Leave": "bg-cyan-100 text-cyan-800",
+  "Maternity Leave": "bg-fuchsia-100 text-fuchsia-800",
+  "Paternity Leave": "bg-teal-100 text-teal-800",
+  "Bereavement Leave": "bg-slate-100 text-slate-800",
+  "Unauthorized Leave": "bg-red-200 text-red-900",
+  "Public Holiday": "bg-sky-100 text-sky-800",
 };
+
 const getDayOfWeek = (dateString: string) => {
   const days = [
     "Sunday",
@@ -79,7 +80,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   useEffect(() => {
     const fetchAttendance = async () => {
       if (!user_Id) return;
-
       setLoading(true);
       try {
         const { data } = await axiosInstance.get(
@@ -91,7 +91,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             },
           }
         );
-        // Ensure that we only take the first 3 records
+        // Take the first 3 attendance records
         setAttendanceRecords(data.slice(0, 3));
       } catch (error) {
         console.error("Error fetching attendance:", error);
@@ -99,7 +99,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setLoading(false);
       }
     };
-
     fetchAttendance();
   }, [user_Id, backendUrl, user]);
 
@@ -117,7 +116,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             View All
           </button>
         </div>
-
         {loading ? (
           <div
             className="flex justify-center items-center"
