@@ -26,7 +26,8 @@ import {
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
 
 const statusColors: Record<string, string> = {
-  Present: "bg-green-500",
+  Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
+  Completed: "bg-green-500", // new type: Completed uses former present color
   Absent: "bg-red-600",
   "Late IN": "bg-yellow-500",
   "Half Day": "bg-orange-600",

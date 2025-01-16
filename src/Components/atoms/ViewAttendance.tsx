@@ -6,7 +6,8 @@ import { toast } from "react-toastify"; // For user-friendly notifications
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const statusColors: Record<string, string> = {
-  Present: "bg-green-500",
+  // Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
+  Completed: "bg-green-500", // new type: Completed uses former present color
   Absent: "bg-red-600",
   "Late IN": "bg-yellow-500",
   "Half Day": "bg-orange-600",
@@ -31,6 +32,7 @@ interface TimeLog {
   duration: number;
   type:
     | "Present"
+    | "Completed"
     | "Absent"
     | "Late IN"
     | "Half Day"
