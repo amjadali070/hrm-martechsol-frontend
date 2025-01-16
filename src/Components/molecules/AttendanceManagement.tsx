@@ -8,11 +8,21 @@ import {
   FaSearch,
   FaUserTimes,
 } from "react-icons/fa";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Added for pagination icons
 import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
 import useDebounce from "../../hooks/useDebounce";
+import {
+  startOfDay,
+  endOfDay,
+  startOfYesterday,
+  endOfYesterday,
+  startOfWeek,
+  endOfWeek,
+  startOfMonth,
+  endOfMonth,
+} from "date-fns";
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
 
 const statusColors: Record<string, string> = {
@@ -40,11 +50,13 @@ const formatDuration = (seconds: number) => {
   return `${hours}h ${minutes}m`;
 };
 
+// Helper function to get the day of the week
 const getDayOfWeek = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { weekday: "long" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
+// Helper function to format date with weekday (if needed elsewhere)
 const formatDateWithWeekday = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
@@ -72,9 +84,8 @@ interface Attendance {
   timeOut: string | null;
   duration: number;
   type: string;
-  attendanceDate?: string; // new field from backend, if available
   createdAt: string;
-  workLocation?: string;
+  workLocation?: string; // Added field for work location coming from API
   leaveApplication?: string | null;
 }
 
@@ -85,22 +96,6 @@ interface ApiResponse {
   pageSize: number;
   attendances: Attendance[];
 }
-
-// Use attendanceDate if present, otherwise fallback to createdAt.
-const isDateInRange = (
-  dateToCheck: string,
-  start: Date | null,
-  end: Date | null
-) => {
-  if (!start || !end) return true;
-  const checkDate = new Date(dateToCheck);
-  checkDate.setHours(0, 0, 0, 0);
-  const startDate = new Date(start);
-  startDate.setHours(0, 0, 0, 0);
-  const endDate = new Date(end);
-  endDate.setHours(23, 59, 59, 999);
-  return checkDate >= startDate && checkDate <= endDate;
-};
 
 const AttendanceManagement: React.FC = () => {
   const [attendanceData, setAttendanceData] = useState<Attendance[]>([]);
@@ -141,56 +136,134 @@ const AttendanceManagement: React.FC = () => {
 
   const debouncedSearchName = useDebounce(searchName, 300);
 
-  const getDateRange = useCallback(
-    (range: string) => {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      let start: Date | null = null;
-      let end: Date | null = null;
-      switch (range) {
-        case "Today":
-          start = today;
-          end = new Date(today);
-          end.setHours(23, 59, 59, 999);
-          break;
-        case "Yesterday":
-          start = new Date(today);
-          start.setDate(today.getDate() - 1);
-          end = new Date(start);
-          end.setHours(23, 59, 59, 999);
-          break;
-        case "This Week":
-          start = new Date(today);
-          start.setDate(
-            today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
-          );
-          end = new Date(start);
-          end.setDate(start.getDate() + 6);
-          end.setHours(23, 59, 59, 999);
-          break;
-        case "This Month":
-          start = new Date(today.getFullYear(), today.getMonth(), 1);
-          end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-          end.setHours(23, 59, 59, 999);
-          break;
-        case "Custom":
-          if (fromDate && toDate) {
-            start = new Date(fromDate);
-            end = new Date(toDate);
-            end.setHours(23, 59, 59, 999);
-          }
-          break;
-        case "All":
-        default:
-          start = null;
-          end = null;
-      }
-      return { start, end };
-    },
-    [fromDate, toDate]
-  );
+  // New States for Grouped Data
+  const [uniqueDates, setUniqueDates] = useState<string[]>([]);
+  const [groupedAttendanceData, setGroupedAttendanceData] = useState<
+    Record<string, Attendance[]>
+  >({});
 
-  // Fetch attendance from API
+  // New State for Type Summary
+  const [typeSummary, setTypeSummary] = useState<Record<string, number>>({});
+
+  const isDateInRange = (
+    dateToCheck: string,
+    start: Date | null,
+    end: Date | null
+  ) => {
+    if (!start || !end) return true; // If no date range is specified, include all dates
+
+    const checkDate = new Date(dateToCheck);
+    checkDate.setHours(0, 0, 0, 0);
+
+    const startDate = new Date(start);
+    startDate.setHours(0, 0, 0, 0);
+
+    const endDate = new Date(end);
+    endDate.setHours(23, 59, 59, 999);
+
+    return checkDate >= startDate && checkDate <= endDate;
+  };
+
+  // Function to get date range based on selected option
+  const getDateRange = (range: string) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    let start: Date | null = null;
+    let end: Date | null = null;
+
+    switch (range) {
+      case "Today": {
+        start = today;
+        end = new Date(today);
+        end.setHours(23, 59, 59, 999);
+        break;
+      }
+      case "Yesterday": {
+        start = new Date(today);
+        start.setDate(today.getDate() - 1);
+        end = new Date(start);
+        end.setHours(23, 59, 59, 999);
+        break;
+      }
+      case "This Week": {
+        start = new Date(today);
+        start.setDate(
+          today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+        ); // Start from Monday
+        end = new Date(today);
+        end.setDate(start.getDate() + 6); // End on Sunday
+        end.setHours(23, 59, 59, 999);
+        break;
+      }
+      case "This Month": {
+        start = new Date(today.getFullYear(), today.getMonth(), 1);
+        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      }
+      case "Custom": {
+        if (fromDate && toDate) {
+          start = new Date(fromDate);
+          end = new Date(toDate);
+          end.setHours(23, 59, 59, 999);
+        }
+        break;
+      }
+      case "All":
+      default:
+        start = null;
+        end = null;
+    }
+
+    return { start, end };
+  };
+
+  useEffect(() => {
+    let filteredData = attendanceData;
+    const { start: startDate, end: endDate } = getDateRange(dateRange);
+
+    // Apply date range filter
+    if (startDate && endDate) {
+      filteredData = filteredData.filter((record) =>
+        isDateInRange(record.createdAt, startDate, endDate)
+      );
+    }
+
+    // Apply job title filter
+    if (jobTitleFilter !== "All") {
+      filteredData = filteredData.filter(
+        (log) => log.user.personalDetails?.jobTitle === jobTitleFilter
+      );
+    }
+
+    // Apply name search filter
+    if (debouncedSearchName.trim() !== "") {
+      const searchLower = debouncedSearchName.toLowerCase();
+      filteredData = filteredData.filter((log) =>
+        log.user.name.toLowerCase().includes(searchLower)
+      );
+    }
+
+    // Apply type filter
+    if (typeFilter !== "All") {
+      filteredData = filteredData.filter(
+        (record) => record.type === typeFilter
+      );
+    }
+
+    setFilteredAttendanceData(filteredData);
+  }, [
+    attendanceData,
+    dateRange,
+    fromDate,
+    toDate,
+    jobTitleFilter,
+    debouncedSearchName,
+    typeFilter,
+  ]);
+
+  // Modified fetchAttendance to get all records
   const fetchAttendance = useCallback(async () => {
     if (!backendUrl) {
       setLoading(false);
@@ -215,11 +288,11 @@ const AttendanceManagement: React.FC = () => {
 
       let fetchedData = data.attendances || [];
 
-      // Sort using attendanceDate (fallback to createdAt) descending
+      // Sort fetched data by createdAt descending
       fetchedData.sort((a, b) => {
-        const dateA = new Date(a.attendanceDate || a.createdAt).getTime();
-        const dateB = new Date(b.attendanceDate || b.createdAt).getTime();
-        return dateB - dateA;
+        return (
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
       });
 
       setAttendanceData(fetchedData);
@@ -232,22 +305,13 @@ const AttendanceManagement: React.FC = () => {
   }, [backendUrl, user_Id]);
 
   useEffect(() => {
-    let filteredData = attendanceData;
-    const { start: startDate, end: endDate } = getDateRange(dateRange);
-
-    if (startDate && endDate) {
-      filteredData = filteredData.filter((record) =>
-        isDateInRange(
-          record.attendanceDate || record.createdAt,
-          startDate,
-          endDate
-        )
-      );
+    if (!userLoading && user_Id) {
+      fetchAttendance();
     }
+  }, [user_Id, fromDate, toDate, typeFilter, fetchAttendance, userLoading]);
 
-    // Log to verify what is being filtered out
-    console.log("Date Range:", startDate, endDate);
-    console.log("Filtered Data:", filteredData);
+  useEffect(() => {
+    let filteredData = attendanceData;
 
     if (jobTitleFilter !== "All") {
       filteredData = filteredData.filter(
@@ -262,45 +326,26 @@ const AttendanceManagement: React.FC = () => {
       );
     }
 
-    if (typeFilter !== "All") {
-      filteredData = filteredData.filter(
-        (record) => record.type === typeFilter
-      );
-    }
-
     setFilteredAttendanceData(filteredData);
-  }, [
-    attendanceData,
-    dateRange,
-    fromDate,
-    toDate,
-    jobTitleFilter,
-    debouncedSearchName,
-    typeFilter,
-    getDateRange,
-  ]);
+  }, [attendanceData, jobTitleFilter, debouncedSearchName]);
 
-  // Group filtered data by attendanceDate (or fallback to createdAt)
-  const [uniqueDates, setUniqueDates] = useState<string[]>([]);
-  const [groupedAttendanceData, setGroupedAttendanceData] = useState<
-    Record<string, Attendance[]>
-  >({});
-
+  // Group filtered data by date
   useEffect(() => {
     const grouped: Record<string, Attendance[]> = {};
     filteredAttendanceData.forEach((record) => {
-      const dateStr = record.attendanceDate || record.createdAt;
-      const dateKey = new Date(dateStr).toISOString().split("T")[0];
+      const dateKey = new Date(record.createdAt).toISOString().split("T")[0]; // Use YYYY-MM-DD as key
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
       }
       grouped[dateKey].push(record);
     });
 
+    // Sort the unique dates descending
     const dates = Object.keys(grouped).sort(
       (a, b) => new Date(b).getTime() - new Date(a).getTime()
     );
 
+    // Sort records within each date by timeIn ascending
     dates.forEach((date) => {
       grouped[date].sort((a, b) => {
         const timeA = a.timeIn ? new Date(a.timeIn).getTime() : 0;
@@ -312,15 +357,18 @@ const AttendanceManagement: React.FC = () => {
     setGroupedAttendanceData(grouped);
     setUniqueDates(dates);
     setTotalPages(dates.length);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page whenever filters change
   }, [filteredAttendanceData]);
 
-  // Type Summary
-  const [typeSummary, setTypeSummary] = useState<Record<string, number>>({});
+  // Compute Type Summary
   useEffect(() => {
     const summary: Record<string, number> = {};
     filteredAttendanceData.forEach((record) => {
-      summary[record.type] = (summary[record.type] || 0) + 1;
+      if (summary[record.type]) {
+        summary[record.type]++;
+      } else {
+        summary[record.type] = 1;
+      }
     });
     setTypeSummary(summary);
   }, [filteredAttendanceData]);
@@ -333,6 +381,7 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
+  // Get records for the current page's date
   const currentDateKey = uniqueDates[currentPage - 1];
   const currentDateDisplay = currentDateKey
     ? formatDateWithWeekday(currentDateKey)
@@ -341,12 +390,6 @@ const AttendanceManagement: React.FC = () => {
   const paginatedData = currentDateKey
     ? groupedAttendanceData[currentDateKey]
     : [];
-
-  useEffect(() => {
-    if (!userLoading && user_Id) {
-      fetchAttendance();
-    }
-  }, [user_Id, fetchAttendance, userLoading]);
 
   return (
     <div className="w-full p-6 bg-gray-50 rounded-lg mb-8">
@@ -362,6 +405,7 @@ const AttendanceManagement: React.FC = () => {
             <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
               Attendance Management
             </h2>
+
             <div className="flex justify-end mb-4">
               <button
                 onClick={() => setShowMarkAbsentModal(true)}
@@ -383,7 +427,7 @@ const AttendanceManagement: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Search by Name */}
+            {/* Search Name */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaSearch className="text-gray-400 mr-3" />
               <input
@@ -413,7 +457,7 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* From Date for Custom Range */}
+            {/* From Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
                 <FaCalendarAlt className="text-gray-400 mr-3" />
@@ -427,7 +471,7 @@ const AttendanceManagement: React.FC = () => {
               </div>
             )}
 
-            {/* To Date for Custom Range */}
+            {/* To Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
                 <FaCalendarAlt className="text-gray-400 mr-3" />
@@ -510,6 +554,7 @@ const AttendanceManagement: React.FC = () => {
                   <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Type
                   </th>
+                  {/* Render Location column if user is SuperAdmin */}
                   {user?.role === "SuperAdmin" && (
                     <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                       Location
@@ -519,66 +564,66 @@ const AttendanceManagement: React.FC = () => {
               </thead>
               <tbody>
                 {paginatedData && paginatedData.length > 0 ? (
-                  paginatedData.map((record) => {
-                    const displayDate =
-                      record.attendanceDate || record.createdAt;
-                    return (
-                      <tr
-                        key={record._id}
-                        className="hover:bg-gray-100 transition-colors text-center"
-                      >
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {record.user.name}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {record.user.personalDetails?.jobTitle || "N/A"}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {getDayOfWeek(displayDate)}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {new Date(displayDate).toLocaleDateString(undefined, {
+                  paginatedData.map((record) => (
+                    <tr
+                      key={record._id}
+                      className="hover:bg-gray-100 transition-colors text-center"
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {record.user.name}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {record.user.personalDetails?.jobTitle || "N/A"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {getDayOfWeek(record.createdAt)}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {new Date(record.createdAt).toLocaleDateString(
+                          undefined,
+                          {
                             year: "numeric",
                             month: "long",
                             day: "numeric",
-                          })}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {record.timeIn
-                            ? new Date(record.timeIn).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {record.timeOut
-                            ? new Date(record.timeOut).toLocaleTimeString([], {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              })
-                            : "N/A"}
-                        </td>
-                        <td className="py-3 px-4 text-sm text-gray-700">
-                          {formatDuration(record.duration)}
-                        </td>
-                        <td className="py-3 px-4">
-                          <span
-                            className={`inline-block px-3 py-1 text-xs font-medium rounded-full text-white ${
-                              statusColors[record.type] || "bg-gray-400"
-                            }`}
-                          >
-                            {record.type}
-                          </span>
-                        </td>
-                        {user?.role === "SuperAdmin" && (
-                          <td className="py-3 px-4 text-sm text-gray-700">
-                            {record.workLocation || "N/A"}
-                          </td>
+                          }
                         )}
-                      </tr>
-                    );
-                  })
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {record.timeIn
+                          ? new Date(record.timeIn).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {record.timeOut
+                          ? new Date(record.timeOut).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })
+                          : "N/A"}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-gray-700">
+                        {formatDuration(record.duration)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <span
+                          className={`inline-block px-3 py-1 text-xs font-medium rounded-full text-white ${
+                            statusColors[record.type] || "bg-gray-400"
+                          }`}
+                        >
+                          {record.type}
+                        </span>
+                      </td>
+                      {/* Render workLocation for SuperAdmin */}
+                      {user?.role === "SuperAdmin" && (
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {record.workLocation || "N/A"}
+                        </td>
+                      )}
+                    </tr>
+                  ))
                 ) : (
                   <tr>
                     <td
@@ -655,7 +700,7 @@ const AttendanceManagement: React.FC = () => {
         isOpen={showMarkAbsentModal}
         onClose={() => {
           setShowMarkAbsentModal(false);
-          fetchAttendance();
+          fetchAttendance(); // Refresh the attendance data
         }}
       />
     </div>

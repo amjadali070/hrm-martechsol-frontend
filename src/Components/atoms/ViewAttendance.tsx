@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axiosInstance from "../../utils/axiosConfig"; // Centralized Axios instance
 import useUser from "../../hooks/useUser";
-import { toast } from "react-toastify";
+import { toast } from "react-toastify"; // For user-friendly notifications
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const statusColors: Record<string, string> = {
   Present: "bg-green-500",
@@ -45,8 +45,6 @@ interface TimeLog {
     | "Bereavement Leave"
     | "Unauthorized Leave"
     | "Public Holiday";
-  // New field from backend – use if available
-  attendanceDate?: string;
   createdAt: string;
   leaveApplication?: string | null;
 }
@@ -60,17 +58,11 @@ const ViewAttendance: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
   const [loading, setLoading] = useState<boolean>(true);
-
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  // Helper: given a TimeLog record, choose attendanceDate if available,
-  // otherwise use createdAt.
-  const getRecordDate = (record: TimeLog) =>
-    new Date(record.attendanceDate || record.createdAt);
-
-  // Fetch attendance data for the current user
+  // Fetch attendance data
   useEffect(() => {
     const fetchAttendance = async () => {
       setLoading(true);
@@ -89,7 +81,6 @@ const ViewAttendance: React.FC = () => {
           }
         );
 
-        // Expecting API to return an array (or adjust if the structure has changed)
         setAttendanceData(data);
         setFilteredData(data);
       } catch (error: any) {
@@ -102,32 +93,34 @@ const ViewAttendance: React.FC = () => {
       }
     };
 
+    // Fetch attendance only when user is loaded and user_Id is available
     if (!userLoading && user_Id) {
       fetchAttendance();
     }
-  }, [fromDate, toDate, user_Id, userLoading, backendUrl, user]);
+  }, [fromDate, toDate, user_Id, userLoading, backendUrl]);
 
-  // Apply filters whenever attendanceData or filter parameters change
+  // Apply filters whenever attendanceData or filters change
   useEffect(() => {
     let data = [...attendanceData];
 
-    // Filter by date range using attendanceDate if available, otherwise createdAt.
+    // Filter by date range if both dates are selected
     if (fromDate && toDate) {
       const start = new Date(fromDate);
       const end = new Date(toDate);
       data = data.filter(
         (record) =>
-          getRecordDate(record) >= start && getRecordDate(record) <= end
+          new Date(record.createdAt) >= start &&
+          new Date(record.createdAt) <= end
       );
     }
 
-    // Filter by attendance type if not "All"
+    // Filter by attendance type
     if (typeFilter !== "All") {
       data = data.filter((record) => record.type === typeFilter);
     }
 
     setFilteredData(data);
-    setCurrentPage(1);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [fromDate, toDate, typeFilter, attendanceData]);
 
   // Pagination calculations
@@ -152,7 +145,7 @@ const ViewAttendance: React.FC = () => {
     return `${hours}h ${minutes}m`;
   };
 
-  // Get day of the week from a date string (using the record date)
+  // Get day of the week from date string
   const getDayOfWeek = (dateString: string) => {
     const days = [
       "Sunday",
@@ -163,7 +156,8 @@ const ViewAttendance: React.FC = () => {
       "Friday",
       "Saturday",
     ];
-    return days[new Date(dateString).getDay()];
+    const date = new Date(dateString);
+    return days[date.getDay()];
   };
 
   return (
@@ -174,10 +168,9 @@ const ViewAttendance: React.FC = () => {
         </div>
       ) : (
         <>
-          {/* Legend */}
           <div className="mt-2 flex justify-center mb-8">
             <div className="w-full">
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
                 {Object.entries(statusColors).map(([type, color]) => (
                   <div
                     key={type}
@@ -203,7 +196,7 @@ const ViewAttendance: React.FC = () => {
           <div className="flex flex-col sm:flex-row gap-6 mb-8 items-start sm:items-center">
             {/* Date Filters */}
             <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              {/* From Date */}
+              {/* From Date Filter */}
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
                 <FaCalendarAlt className="text-black mr-3" />
                 <input
@@ -215,7 +208,8 @@ const ViewAttendance: React.FC = () => {
                   aria-label="Filter from date"
                 />
               </div>
-              {/* To Date */}
+
+              {/* To Date Filter */}
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
                 <FaCalendarAlt className="text-black mr-3" />
                 <input
@@ -228,6 +222,7 @@ const ViewAttendance: React.FC = () => {
                 />
               </div>
             </div>
+
             {/* Type Filter */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200 w-full sm:w-auto">
               <FaFilter className="text-black mr-3" />
@@ -289,18 +284,17 @@ const ViewAttendance: React.FC = () => {
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {indexOfFirstItem + index + 1}
                       </td>
-                      {/* Date (using attendanceDate if available) */}
+
+                      {/* Date */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {new Date(
-                          record.attendanceDate || record.createdAt
-                        ).toLocaleDateString()}
+                        {new Date(record.createdAt).toLocaleDateString()}
                       </td>
+
                       {/* Day */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {getDayOfWeek(
-                          record.attendanceDate || record.createdAt
-                        )}
+                        {getDayOfWeek(record.createdAt)}
                       </td>
+
                       {/* Time In */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {record.timeIn
@@ -310,6 +304,7 @@ const ViewAttendance: React.FC = () => {
                             })
                           : "N/A"}
                       </td>
+
                       {/* Time Out */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {record.timeOut
@@ -319,12 +314,14 @@ const ViewAttendance: React.FC = () => {
                             })
                           : "N/A"}
                       </td>
+
                       {/* Total Time */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {record.duration
                           ? formatDuration(record.duration)
                           : "N/A"}
                       </td>
+
                       {/* Type */}
                       <td className="py-4 px-4 text-sm text-center">
                         <span
@@ -356,7 +353,7 @@ const ViewAttendance: React.FC = () => {
             </table>
           </div>
 
-          {/* Pagination & Items Per Page */}
+          {/* Pagination and Items Per Page */}
           <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
             <div className="flex items-center">
               <span className="text-sm text-gray-700 mr-3">Show:</span>
