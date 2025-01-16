@@ -50,13 +50,11 @@ const formatDuration = (seconds: number) => {
   return `${hours}h ${minutes}m`;
 };
 
-// Helper function to get the day of the week
 const getDayOfWeek = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { weekday: "long" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Helper function to format date with weekday (if needed elsewhere)
 const formatDateWithWeekday = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
