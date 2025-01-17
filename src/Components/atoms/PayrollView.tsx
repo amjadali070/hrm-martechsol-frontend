@@ -1,106 +1,123 @@
+// src/components/PayrollView.tsx
 import React, { useState, useEffect } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import SalarySlipPDF from "../../html/SalarySlipPDF";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 import { FaInbox, FaSpinner } from "react-icons/fa";
+import { getMonthName } from "../../utils/monthUtils";
 
 interface PayrollDetails {
   _id: string;
-  user: string;
-  month: string;
+  user: {
+    _id: string;
+    name: string;
+    email: string;
+    personalDetails: {
+      department: string;
+      fullJobTitle?: string;
+    };
+  };
+  leaveDetails?: {
+    casualLeaveAvailable: number;
+    sickLeaveAvailable: number;
+    annualLeaveAvailable: number;
+  };
+  month: number; // e.g., 12 for December
   year: number;
   basicSalary: number;
-  earnings: {
-    basicSalary: number;
-    allowances: {
-      medicalAllowance: number;
-      fuelAllowance: number;
-      mobileAllowance: number;
-    };
-    overtimePay: number;
-  };
-  deductions: {
-    tax: number;
-    eobi: number;
-    providentFund: {
-      employeeContribution: number;
-      employerContribution: number;
-    };
-    lossOfPay: number;
-  };
-  netSalary?: number;
+  medicalAllowance: number; // Added
+  mobileAllowance: number; // Added
+  fuelAllowance: number; // Added
+  allowances: number; // Total allowances (e.g., 20000)
+  perDaySalary: number;
+  totalSalary: number;
+  deductions: number; // Other deductions (if any)
+  netSalary: number;
+  lateIns: number;
+  absentDays: number;
   presentDays: number;
   totalWorkingDays: number;
-  leaveDetails?: {
-    casualLeaveAvailable?: number;
-    sickLeaveAvailable?: number;
-    annualLeaveAvailable?: number;
-  };
+  absentDates?: string[]; // Array of ISO date strings
+  status: string;
+  processedOn: string | null;
+  createdAt: string;
+  updatedAt: string;
+  employeePF: number;
+  employerPF: number;
+  eobi: number;
+  extraPayments: { description: string; amount: number }[];
+  tax: number;
 }
 
 const PayrollView: React.FC = () => {
   const [selectedMonthYear, setSelectedMonthYear] = useState<string>("");
   const [payrollData, setPayrollData] = useState<PayrollDetails | null>(null);
-  const [monthYearOptions, setMonthYearOptions] = useState<string[]>([]);
   const [payrollRecords, setPayrollRecords] = useState<PayrollDetails[]>([]);
+  const [monthYearOptions, setMonthYearOptions] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const user = useUser();
 
+  // Get the logged-in user details from the useUser hook.
+  const { user, loading: userLoading } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Fetch payroll records for the logged-in user using the correct endpoint.
   useEffect(() => {
     const fetchPayrollData = async () => {
       try {
         setLoading(true);
-        const response = await axiosInstance.get(`${backendUrl}/api/payrolls`, {
-          withCredentials: true,
-        });
+        // Use the /api/payroll/user/:userId endpoint.
+        const response = await axiosInstance.get(
+          `${backendUrl}/api/payroll/user/${user?._id}`,
+          { withCredentials: true }
+        );
 
-        // Sort payroll records by year and month (most recent first)
+        // Sort payroll records by year (descending) and then by month (descending)
+        const monthOrder = [
+          "January",
+          "February",
+          "March",
+          "April",
+          "May",
+          "June",
+          "July",
+          "August",
+          "September",
+          "October",
+          "November",
+          "December",
+        ];
+
         const sortedRecords = response.data.sort(
           (a: PayrollDetails, b: PayrollDetails) => {
-            const monthOrder = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
-
-            if (b.year !== a.year) {
-              return b.year - a.year;
-            }
-            return monthOrder.indexOf(b.month) - monthOrder.indexOf(a.month);
+            if (b.year !== a.year) return b.year - a.year;
+            return (
+              monthOrder.indexOf(getMonthName(b.month)) -
+              monthOrder.indexOf(getMonthName(a.month))
+            );
           }
         );
 
         setPayrollRecords(sortedRecords);
 
-        // Create month-year options
+        // Create month-year options from the records using month name.
         const options = sortedRecords.map(
-          (record: PayrollDetails) => `${record.month} ${record.year}`
+          (record: PayrollDetails) =>
+            `${getMonthName(record.month)} ${record.year}`
         );
         setMonthYearOptions(options);
 
-        // Set the most recent payroll record as default
+        // Set the most recent payroll record as the default.
         if (sortedRecords.length > 0) {
           const mostRecentRecord = sortedRecords[0];
           setPayrollData(mostRecentRecord);
           setSelectedMonthYear(
-            `${mostRecentRecord.month} ${mostRecentRecord.year}`
+            `${getMonthName(mostRecentRecord.month)} ${mostRecentRecord.year}`
           );
         }
       } catch (err: any) {
-        console.error("Full Axios Error:", err);
+        console.error("Error fetching payroll data:", err);
         setError(
           err.response?.data?.message ||
             err.message ||
@@ -111,76 +128,136 @@ const PayrollView: React.FC = () => {
       }
     };
 
-    fetchPayrollData();
-  }, []);
+    if (user && user._id) {
+      fetchPayrollData();
+    }
+  }, [backendUrl, user]);
 
   const handleMonthYearChange = (selectedValue: string) => {
     setSelectedMonthYear(selectedValue);
-
     const selectedRecord =
       payrollRecords.find(
         (record: PayrollDetails) =>
-          `${record.month} ${record.year}` === selectedValue
+          `${getMonthName(record.month)} ${record.year}` === selectedValue
       ) || null;
     setPayrollData(selectedRecord);
   };
 
-  // Calculate Net Salary if not provided
+  // Fallback calculation for Net Salary if not provided by the API.
   const calculateNetSalary = () => {
     if (!payrollData) return 0;
-
     const basicSalary = payrollData.basicSalary || 0;
-    const allowances = payrollData.earnings?.allowances || {};
-    const deductions = payrollData.deductions || {};
-
-    const totalEarnings =
-      basicSalary +
-      (allowances.medicalAllowance || 0) +
-      (allowances.fuelAllowance || 0) +
-      (allowances.mobileAllowance || 0);
-
-    const totalDeductions =
-      (deductions.tax || 0) +
-      (deductions.eobi || 0) +
-      (deductions.providentFund?.employeeContribution || 0);
-
-    return totalEarnings - totalDeductions;
+    const allowances = payrollData.allowances || 0;
+    const totalSalary = basicSalary + allowances;
+    const deductions = payrollData.deductions || 0;
+    return totalSalary - deductions;
   };
 
-  // Prepare data for PDF
+  // Calculate Total Extra Payments
+  const totalExtraPayments = payrollData?.extraPayments
+    ? payrollData.extraPayments.reduce(
+        (sum, payment) => sum + payment.amount,
+        0
+      )
+    : 0;
+
   const pdfData = {
     date: new Date().toLocaleDateString(),
-    name: user.user?.name || "",
-    designation: user.user?.personalDetails?.fullJobTitle || "",
-    jobType: user.user?.personalDetails?.jobType || "",
-    month: payrollData?.month || "",
+    name: user?.name || "",
+    designation: user?.personalDetails?.fullJobTitle || "",
+    jobType: user?.personalDetails?.jobType || "",
+    month: payrollData ? getMonthName(payrollData.month) : "",
     year: payrollData?.year?.toString() || "",
-    basicSalary: payrollData?.basicSalary?.toLocaleString() || "0",
+    basicSalary:
+      "PKR " +
+      (payrollData?.basicSalary?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
     medicalAllowance:
-      payrollData?.earnings?.allowances?.medicalAllowance?.toLocaleString() ||
-      "0",
-    fuelAllowance:
-      payrollData?.earnings?.allowances?.fuelAllowance?.toLocaleString() || "0",
+      "PKR " +
+      (payrollData?.medicalAllowance?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
     mobileAllowance:
-      payrollData?.earnings?.allowances?.mobileAllowance?.toLocaleString() ||
-      "0",
-    grossSalary: (
-      (payrollData?.basicSalary || 0) +
-      (payrollData?.earnings?.allowances?.medicalAllowance || 0) +
-      (payrollData?.earnings?.allowances?.fuelAllowance || 0) +
-      (payrollData?.earnings?.allowances?.mobileAllowance || 0)
-    ).toLocaleString(),
-    tax: payrollData?.deductions?.tax?.toLocaleString() || "0",
-    eobi: payrollData?.deductions?.eobi?.toLocaleString() || "0",
+      "PKR " +
+      (payrollData?.mobileAllowance?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    fuelAllowance:
+      "PKR " +
+      (payrollData?.fuelAllowance?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    allowances:
+      "PKR " +
+      (payrollData?.allowances?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    perDaySalary:
+      "PKR " +
+      (payrollData?.perDaySalary?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    totalSalary:
+      "PKR " +
+      (payrollData?.totalSalary?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    grossSalary:
+      "PKR " +
+      (payrollData?.totalSalary?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    tax:
+      "PKR " +
+      (payrollData?.tax?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    eobi:
+      "PKR " +
+      (payrollData?.eobi?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
     pfContribution:
-      payrollData?.deductions?.providentFund.employeeContribution?.toLocaleString() ||
-      "0",
-    amountPayable: (
-      payrollData?.netSalary || calculateNetSalary()
-    ).toLocaleString(),
+      "PKR " +
+      (payrollData?.employeePF?.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }) || "0"),
+    netSalary:
+      "PKR " +
+      (payrollData?.netSalary || calculateNetSalary()).toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }),
+    amountPayable:
+      "PKR " +
+      (payrollData?.netSalary || calculateNetSalary()).toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }),
+    extraPayments: payrollData?.extraPayments?.map((p) => ({
+      description: p.description,
+      amount:
+        "PKR " + p.amount.toLocaleString("en-US", { maximumFractionDigits: 0 }),
+    })),
+    absentDates: payrollData?.absentDates,
+    // Calculate absent deductions as (absentDays * perDaySalary)
+    absentDeductions:
+      "PKR " +
+      (
+        (payrollData?.absentDays || 0) * (payrollData?.perDaySalary || 0)
+      ).toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      }),
+    leaveDetails: payrollData?.leaveDetails && {
+      casualLeaveAvailable:
+        payrollData.leaveDetails.casualLeaveAvailable.toString(),
+      sickLeaveAvailable:
+        payrollData.leaveDetails.sickLeaveAvailable.toString(),
+      annualLeaveAvailable:
+        payrollData.leaveDetails.annualLeaveAvailable.toString(),
+    },
   };
 
-  if (loading)
+  if (loading || userLoading) {
     return (
       <div className="flex flex-col items-center justify-center mt-40">
         <FaSpinner
@@ -190,8 +267,9 @@ const PayrollView: React.FC = () => {
         />
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="flex items-center justify-center mt-40">
         <div className="text-center">
@@ -216,24 +294,30 @@ const PayrollView: React.FC = () => {
         </div>
       </div>
     );
+  }
 
-  if (!payrollData)
+  if (!payrollData) {
     return (
       <div className="flex flex-col items-center mt-20">
         <FaInbox size={30} className="text-gray-600 mb-4" />
         <span className="text-lg font-medium">No Payroll Data Available</span>
       </div>
     );
+  }
 
+  // CSS classes for tables.
   const tableClass =
     "w-full border-collapse bg-white border border-gray-300 rounded-md mb-4 md:mb-6";
   const thClass =
     "bg-purple-900 text-white text-xs sm:text-sm font-semibold text-left px-2 py-2 sm:px-4 sm:py-2 border border-gray-300";
   const tdClass =
     "text-xs sm:text-sm text-gray-800 px-2 py-2 sm:px-4 sm:py-2 border border-gray-300 whitespace-nowrap";
+  const newStyle =
+    "text-xs sm:text-sm font-semibold text-left px-2 py-2 sm:px-4 sm:py-2 border border-gray-300";
 
   return (
     <div className="w-full p-3 sm:p-6 bg-white rounded-lg" id="payroll-view">
+      {/* Header: Month-Year selector and PDF Download */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-black mb-4 sm:mb-0">
           Salary Slip
@@ -271,127 +355,191 @@ const PayrollView: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass} colSpan={2}>
-                  Personal Details
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className={tdClass}>Name</td>
-                <td className={`${tdClass} font-bold`}>{user.user?.name}</td>
-              </tr>
-              <tr>
-                <td className={tdClass}>Designation</td>
-                <td className={`${tdClass} font-bold`}>
-                  {user.user?.personalDetails?.fullJobTitle}
-                </td>
-              </tr>
-              <tr>
-                <td className={tdClass}>Job Type</td>
-                <td className={`${tdClass} font-bold`}>
-                  {user.user?.personalDetails?.jobType}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass} colSpan={2}>
-                  Salary Period
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className={`${tdClass} w-1/2`}>Salary for the month of</td>
-                <td className={`${tdClass} font-bold w-1/2`}>
-                  {selectedMonthYear}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${tdClass} w-1/2`}>Year</td>
-                <td className={`${tdClass} font-bold w-1/2`}>
-                  {payrollData?.year}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${tdClass} w-1/2`}>Month</td>
-                <td className={`${tdClass} font-bold w-1/2`}>
-                  {payrollData?.month}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <table className={tableClass}>
-        <thead>
-          <tr>
-            <th className={thClass} colSpan={2}>
-              Salary Details
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td className={`${tdClass} w-1/2`}>Basic Salary</td>
-            <td className={`${tdClass} w-1/2`}>{payrollData?.basicSalary}</td>
-          </tr>
-          <tr>
-            <td className={`${tdClass} w-1/2`}>Medical Allowance</td>
-            <td className={`${tdClass} w-1/2`}>
-              {payrollData?.earnings?.allowances?.medicalAllowance}
-            </td>
-          </tr>
-          <tr>
-            <td className={`${tdClass} w-1/2`}>Mobile Allowance</td>
-            <td className={`${tdClass} w-1/2`}>
-              {payrollData?.earnings?.allowances?.mobileAllowance}
-            </td>
-          </tr>
-          <tr>
-            <td className={`${tdClass} w-1/2`}>Fuel Allowance</td>
-            <td className={`${tdClass} w-1/2`}>
-              {payrollData?.earnings?.allowances?.fuelAllowance}
-            </td>
-          </tr>
-          <tr>
-            <td className={`${tdClass} w-1/2`}>Gross Salary</td>
-            <td className={`${tdClass} w-1/2`}>
-              {payrollData?.earnings?.basicSalary}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+      {/* Personal Details Section */}
+      <div>
         <table className={tableClass}>
           <thead>
             <tr>
               <th className={thClass} colSpan={2}>
-                Additions
+                Personal Details
               </th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td className={tdClass}>N/A</td>
-              <td className={tdClass}>N/A</td>
+              <td className={`${tdClass} w-1/2`}>Name</td>
+              <td className={`${tdClass} font-bold`}>{user?.name}</td>
+            </tr>
+            <tr>
+              <td className={tdClass}>Designation</td>
+              <td className={`${tdClass} font-bold`}>
+                {user?.personalDetails?.fullJobTitle}
+              </td>
+            </tr>
+            <tr>
+              <td className={tdClass}>Job Type</td>
+              <td className={`${tdClass} font-bold`}>
+                {user?.personalDetails?.jobType}
+              </td>
+            </tr>
+            <tr>
+              <td className={tdClass}>Department</td>
+              <td className={`${tdClass} font-bold`}>
+                {user?.personalDetails?.department}
+              </td>
             </tr>
           </tbody>
         </table>
+      </div>
 
+      {/* Salary Period Section */}
+      <div>
+        <table className={tableClass}>
+          <thead>
+            <tr>
+              <th className={thClass} colSpan={2}>
+                Salary Period
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className={`${tdClass} w-1/2`}>Year</td>
+              <td className={`${tdClass} font-bold w-1/2`}>
+                {payrollData?.year}
+              </td>
+            </tr>
+            <tr>
+              <td className={`${tdClass} w-1/2`}>Month</td>
+              <td className={`${tdClass} font-bold w-1/2`}>
+                {getMonthName(payrollData?.month)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Salary Details Section */}
+      <div>
+        <table className={tableClass}>
+          <thead>
+            <tr>
+              <th className={thClass} colSpan={2}>
+                Salary Details
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className={`${tdClass} w-1/2`}>Basic Salary</td>
+              <td className={`${tdClass} w-1/2`}>
+                PKR {payrollData?.basicSalary.toFixed(0)}
+              </td>
+            </tr>
+            <tr>
+              <td className={`${tdClass} w-1/2`}>Allowances</td>
+              <td className={`${tdClass} w-1/2`}>
+                PKR {payrollData?.allowances.toFixed(0)}
+              </td>
+            </tr>
+            <tr>
+              <td className={`${tdClass} w-1/2`}>Gross Salary</td>
+              <td className={`${tdClass} w-1/2`}>
+                PKR {payrollData?.totalSalary.toFixed(0)}
+              </td>
+            </tr>
+            <tr>
+              <td className={`${tdClass} font-bold w-1/2`}>Net Salary</td>
+              <td className={`${tdClass} font-bold w-1/2`}>
+                PKR{" "}
+                {(payrollData?.netSalary || calculateNetSalary()).toFixed(0)}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Absent Dates Section (full-width) with an extra row for Absent Attendance Deductions */}
+      <div className="w-full my-4">
+        {payrollData?.absentDates && payrollData.absentDates.length > 0 && (
+          <div className="mt-4">
+            <table className={tableClass}>
+              <thead>
+                <tr>
+                  <th className={thClass} colSpan={2}>
+                    Absent Dates
+                  </th>
+                </tr>
+                <tr>
+                  <th className={`${newStyle} w-1/2`}>S.No</th>
+                  <th className={`${newStyle} w-1/2`}>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payrollData.absentDates.map((dateStr, index) => {
+                  const formattedDate = new Date(dateStr).toLocaleDateString();
+                  return (
+                    <tr key={index} className="hover:bg-gray-100">
+                      <td className={tdClass}>{index + 1}</td>
+                      <td className={tdClass}>{formattedDate}</td>
+                    </tr>
+                  );
+                })}
+                <tr className="bg-gray-200">
+                  <td className={tdClass}>Absent Attendance Deductions</td>
+                  <td className={`${tdClass} font-bold`}>
+                    PKR{" "}
+                    {(
+                      (payrollData.absentDays || 0) *
+                      (payrollData.perDaySalary || 0)
+                    ).toFixed(0)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Leave Details Section (full-width) */}
+      <div className="w-full my-4">
+        {payrollData?.leaveDetails && (
+          <div>
+            <table className={tableClass}>
+              <thead>
+                <tr>
+                  <th className={thClass} colSpan={2}>
+                    Leave Details
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className={tdClass}>Casual Leave Available</td>
+                  <td className={`${tdClass} font-bold`}>
+                    {payrollData.leaveDetails.casualLeaveAvailable || 0}
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdClass}>Sick Leave Available</td>
+                  <td className={`${tdClass} font-bold`}>
+                    {payrollData.leaveDetails.sickLeaveAvailable || 0}
+                  </td>
+                </tr>
+                <tr>
+                  <td className={tdClass}>Annual Leave Available</td>
+                  <td className={`${tdClass} font-bold`}>
+                    {payrollData.leaveDetails.annualLeaveAvailable || 0}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      {/* Deductions Section (full-width) */}
+      <div className="w-full my-4">
         <table className={tableClass}>
           <thead>
             <tr>
@@ -399,111 +547,121 @@ const PayrollView: React.FC = () => {
                 Deductions
               </th>
             </tr>
+            <tr>
+              <th className={`${newStyle} w-1/2`}>S.No</th>
+              <th className={`${newStyle} w-1/2`}>Details</th>
+            </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className={tdClass}>Tax</td>
-              <td className={tdClass}>{payrollData?.deductions?.tax}</td>
-            </tr>
-            <tr>
-              <td className={tdClass}>EOBI</td>
-              <td className={tdClass}>{payrollData?.deductions?.eobi}</td>
-            </tr>
-            <tr>
-              <td className={tdClass}>PF Contribution</td>
+            <tr className="hover:bg-gray-100">
+              <td className={tdClass}>1.</td>
               <td className={tdClass}>
-                {payrollData?.deductions?.providentFund?.employeeContribution}
+                Tax: PKR {payrollData?.tax.toFixed(0)}
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-100">
+              <td className={tdClass}>2.</td>
+              <td className={tdClass}>
+                EOBI: PKR {payrollData?.eobi.toFixed(0)}
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-100">
+              <td className={tdClass}>3.</td>
+              <td className={tdClass}>
+                PF Contribution (Employee): PKR{" "}
+                {payrollData?.employeePF.toFixed(0)}
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-100">
+              <td className={tdClass}>4.</td>
+              <td className={tdClass}>
+                PF Contribution (Employer): PKR{" "}
+                {payrollData?.employerPF.toFixed(0)}
+              </td>
+            </tr>
+            <tr className="hover:bg-gray-100">
+              <td className={tdClass}>5.</td>
+              <td className={tdClass}>
+                Other Deductions: PKR {payrollData?.deductions.toFixed(0)}
+              </td>
+            </tr>
+            <tr className="bg-gray-200">
+              <td className={tdClass}>Total Deductions</td>
+              <td className={`${tdClass} font-bold`}>
+                PKR{" "}
+                {(
+                  (payrollData?.tax || 0) +
+                  (payrollData?.eobi || 0) +
+                  (payrollData?.employeePF || 0) +
+                  (payrollData?.employerPF || 0) +
+                  (payrollData?.deductions || 0)
+                ).toFixed(0)}
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
+      {/* Extra Payments Section */}
+      <div className="w-full mt-4">
+        {payrollData?.extraPayments && payrollData.extraPayments.length > 0 ? (
+          <table className={tableClass}>
+            <thead>
+              <tr>
+                <th className={thClass} colSpan={3}>
+                  Extra Payments
+                </th>
+              </tr>
+              <tr>
+                <th className={newStyle}>S.No</th>
+                <th className={newStyle}>Description</th>
+                <th className={newStyle}>Amount</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payrollData.extraPayments.map((payment, index) => (
+                <tr key={index} className="hover:bg-gray-100">
+                  <td className={tdClass}>{index + 1}</td>
+                  <td className={tdClass}>{payment.description}</td>
+                  <td className={tdClass}>
+                    PKR{" "}
+                    {payment.amount.toLocaleString("en-US", {
+                      maximumFractionDigits: 0,
+                    })}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr className="bg-gray-200">
+                <td className={tdClass} colSpan={2}>
+                  Total Extra Payments
+                </td>
+                <td className={`${tdClass} font-bold`}>
+                  PKR{" "}
+                  {totalExtraPayments.toLocaleString("en-US", {
+                    maximumFractionDigits: 0,
+                  })}
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        ) : (
+          <p className="text-gray-600">No extra payments.</p>
+        )}
+      </div>
+
+      {/* Amount Payable Section */}
       <table className={tableClass}>
         <thead>
           <tr>
             <th className={`${thClass} w-1/2`}>Amount Payable</th>
             <th className={`${tdClass} w-1/2 text-black text-left`}>
-              PKR {(payrollData.netSalary || calculateNetSalary()).toFixed(2)}
+              PKR {(payrollData?.netSalary || calculateNetSalary()).toFixed(0)}
             </th>
           </tr>
         </thead>
       </table>
-
-      <div className="grid grid-cols-1 md:grid-cols-1 gap-4 mt-4">
-        {/* <div>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass} colSpan={2}>
-                  Leave Details
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className={tdClass}>Casual Leave</td>
-                <td className={tdClass}>
-                  {payrollData?.leaveDetails?.casualLeaveAvailable}
-                </td>
-              </tr>
-              <tr>
-                <td className={tdClass}>Sick Leave</td>
-                <td className={tdClass}>
-                  {payrollData?.leaveDetails?.sickLeaveAvailable}
-                </td>
-              </tr>
-              <tr>
-                <td className={tdClass}>Annual Leave</td>
-                <td className={tdClass}>
-                  {payrollData?.leaveDetails?.annualLeaveAvailable}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div> */}
-
-        <div>
-          <table className={tableClass}>
-            <thead>
-              <tr>
-                <th className={thClass} colSpan={2}>
-                  Provident Fund Details
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td className={`${tdClass} w-1/2 text-black text-left`}>
-                  Your Contribution
-                </td>
-                <td className={tdClass}>
-                  {payrollData?.deductions?.providentFund?.employeeContribution}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${tdClass} w-1/2 text-black text-left`}>
-                  Employer Contribution
-                </td>
-                <td className={tdClass}>
-                  {payrollData?.deductions?.providentFund?.employerContribution}
-                </td>
-              </tr>
-              <tr>
-                <td className={`${tdClass} w-1/2 text-black text-left`}>
-                  Total Provident Fund
-                </td>
-                <td className={tdClass}>
-                  {(payrollData?.deductions?.providentFund
-                    ?.employeeContribution || 0) +
-                    (payrollData?.deductions?.providentFund
-                      ?.employerContribution || 0)}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
     </div>
   );
 };
