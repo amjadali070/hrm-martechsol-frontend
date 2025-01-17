@@ -6,7 +6,8 @@ import { toast } from "react-toastify"; // For user-friendly notifications
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const statusColors: Record<string, string> = {
-  Present: "bg-green-500",
+  // Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
+  Completed: "bg-green-500", // new type: Completed uses former present color
   Absent: "bg-red-600",
   "Late IN": "bg-yellow-500",
   "Half Day": "bg-orange-600",
@@ -31,6 +32,7 @@ interface TimeLog {
   duration: number;
   type:
     | "Present"
+    | "Completed"
     | "Absent"
     | "Late IN"
     | "Half Day"
@@ -285,17 +287,14 @@ const ViewAttendance: React.FC = () => {
                         {indexOfFirstItem + index + 1}
                       </td>
 
-                      {/* Date */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {new Date(record.createdAt).toLocaleDateString()}
                       </td>
 
-                      {/* Day */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {getDayOfWeek(record.createdAt)}
                       </td>
 
-                      {/* Time In */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {record.timeIn
                           ? new Date(record.timeIn).toLocaleTimeString([], {
@@ -305,7 +304,6 @@ const ViewAttendance: React.FC = () => {
                           : "N/A"}
                       </td>
 
-                      {/* Time Out */}
                       <td className="py-4 px-4 text-sm text-gray-700 text-center">
                         {record.timeOut
                           ? new Date(record.timeOut).toLocaleTimeString([], {

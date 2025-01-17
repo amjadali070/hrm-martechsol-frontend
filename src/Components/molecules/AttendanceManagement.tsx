@@ -26,7 +26,8 @@ import {
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
 
 const statusColors: Record<string, string> = {
-  Present: "bg-green-500",
+  Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
+  Completed: "bg-green-500", // new type: Completed uses former present color
   Absent: "bg-red-600",
   "Late IN": "bg-yellow-500",
   "Half Day": "bg-orange-600",
@@ -50,13 +51,11 @@ const formatDuration = (seconds: number) => {
   return `${hours}h ${minutes}m`;
 };
 
-// Helper function to get the day of the week
 const getDayOfWeek = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = { weekday: "long" };
   return new Date(dateString).toLocaleDateString(undefined, options);
 };
 
-// Helper function to format date with weekday (if needed elsewhere)
 const formatDateWithWeekday = (dateString: string) => {
   const options: Intl.DateTimeFormatOptions = {
     weekday: "long",
@@ -71,6 +70,7 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  role: "normal" | "HR" | "manager" | "SuperAdmin";
   personalDetails?: {
     jobTitle: string;
   };
@@ -84,6 +84,7 @@ interface Attendance {
   duration: number;
   type: string;
   createdAt: string;
+  workLocation?: string; // Added field for work location coming from API
   leaveApplication?: string | null;
 }
 
@@ -100,13 +101,12 @@ const AttendanceManagement: React.FC = () => {
   const [filteredAttendanceData, setFilteredAttendanceData] = useState<
     Attendance[]
   >([]);
-
   const [loading, setLoading] = useState<boolean>(true);
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  const [dateRange, setDateRange] = useState<string>("Today"); // New state for date range
+  const [dateRange, setDateRange] = useState<string>("Today");
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [typeFilter, setTypeFilter] = useState<string>("All");
@@ -553,6 +553,12 @@ const AttendanceManagement: React.FC = () => {
                   <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Type
                   </th>
+                  {/* Render Location column if user is SuperAdmin */}
+                  {user?.role === "SuperAdmin" && (
+                    <th className="py-3 px-4 text-center text-sm font-semibold text-white">
+                      Location
+                    </th>
+                  )}
                 </tr>
               </thead>
               <tbody>
@@ -609,13 +615,19 @@ const AttendanceManagement: React.FC = () => {
                           {record.type}
                         </span>
                       </td>
+                      {/* Render workLocation for SuperAdmin */}
+                      {user?.role === "SuperAdmin" && (
+                        <td className="py-3 px-4 text-sm text-gray-700">
+                          {record.workLocation || "N/A"}
+                        </td>
+                      )}
                     </tr>
                   ))
                 ) : (
                   <tr>
                     <td
                       className="py-6 px-4 text-center text-gray-500"
-                      colSpan={8}
+                      colSpan={user?.role === "SuperAdmin" ? 9 : 8}
                     >
                       <div className="flex flex-col items-center justify-center">
                         <FaInbox size={40} className="text-gray-400 mb-4" />

@@ -11,6 +11,7 @@ interface TimeLog {
   duration: number;
   type:
     | "Present"
+    | "Completed"
     | "Absent"
     | "Late IN"
     | "Half Day"
@@ -31,8 +32,12 @@ interface AttendanceOverviewProps {
   onViewAll: () => void;
 }
 
+// Updated status colors made consistent with your original ViewAttendance color scheme:
+// Here we assume that "Completed" should show in the same green as originally used for "Present" ("bg-green-100 text-green-800")
+// and that any record still marked as "Present" should use a neutral gray.
 const statusColors: Record<string, string> = {
-  Present: "bg-green-100 text-green-800",
+  Present: "bg-gray-100 text-gray-800",
+  Completed: "bg-green-100 text-green-800",
   Absent: "bg-red-100 text-red-800",
   "Late IN": "bg-yellow-100 text-yellow-800",
   "Half Day": "bg-orange-100 text-orange-800",
@@ -75,7 +80,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   useEffect(() => {
     const fetchAttendance = async () => {
       if (!user_Id) return;
-
       setLoading(true);
       try {
         const { data } = await axiosInstance.get(
@@ -87,6 +91,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             },
           }
         );
+        // Take the first 3 attendance records
         setAttendanceRecords(data.slice(0, 3));
       } catch (error) {
         console.error("Error fetching attendance:", error);
@@ -94,9 +99,8 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
         setLoading(false);
       }
     };
-
     fetchAttendance();
-  }, [user_Id, backendUrl]);
+  }, [user_Id, backendUrl, user]);
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
@@ -112,7 +116,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             View All
           </button>
         </div>
-
         {loading ? (
           <div
             className="flex justify-center items-center"
