@@ -53,9 +53,9 @@ const SiginPage: React.FC = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    navigate("/forgot-password");
-  };
+  // const handleForgotPassword = () => {
+  //   navigate("/forgot-password");
+  // };
 
   return (
     <>
@@ -124,13 +124,13 @@ const SiginPage: React.FC = () => {
               <p className="text-red-500 text-sm">{errorMessage}</p>
             )}
 
-            <button
+            {/* <button
               type="button"
               className="self-start mt-2 text-sm font-medium text-blue-600 hover:underline"
               onClick={handleForgotPassword}
             >
               Forgot password?
-            </button>
+            </button> */}
 
             <button
               type="submit"

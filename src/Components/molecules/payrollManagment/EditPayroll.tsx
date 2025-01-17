@@ -1,7 +1,6 @@
 // src/components/EditPayroll.tsx
-
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, Link } from "react-router-dom";
 import {
   FaTimes,
   FaPlus,
@@ -12,35 +11,47 @@ import {
   FaMoneyBillWave,
   FaArrowLeft,
   FaSpinner,
+  FaRegCalendarCheck,
+  FaFileInvoiceDollar,
 } from "react-icons/fa";
-import { ExtraPayment, PayrollData, usePayroll } from "./PayrollContext"; // Adjust the path as needed
+import { usePayroll, PayrollData, ExtraPayment } from "./PayrollContext";
 import { toast } from "react-toastify";
 import axiosInstance from "../../../utils/axiosConfig";
-import { getMonthNumber } from "../../../utils/monthUtils";
+import { getMonthName } from "../../../utils/monthUtils";
 
 const EditPayroll: React.FC = () => {
+  // Extract payroll id from URL; this id refers to payroll record _id.
   const { id } = useParams<{ id: string }>();
   const { updatePayroll } = usePayroll();
   const navigate = useNavigate();
 
+  // Component state
   const [payroll, setPayroll] = useState<PayrollData | null>(null);
   const [extraPayments, setExtraPayments] = useState<ExtraPayment[]>([]);
+  const [tax, setTax] = useState<number>(0);
+  const [eobi, setEobi] = useState<number>(0);
+  // Only Employee PF field is used now
+  const [employeePF, setEmployeePF] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Fetch payroll details using GET /api/payroll/:id
   useEffect(() => {
     const fetchPayroll = async () => {
       if (!id) {
         setError("Invalid payroll ID.");
         return;
       }
-
       try {
         setLoading(true);
-        const response = await axiosInstance.get(`/api/payroll/user/${id}`);
-        const fetchedPayroll: PayrollData = response.data.payroll; // Ensure the backend sends 'payroll'
+        const response = await axiosInstance.get(`/api/payroll/${id}`);
+        const fetchedPayroll: PayrollData = response.data;
         setPayroll(fetchedPayroll);
         setExtraPayments(fetchedPayroll.extraPayments || []);
+        // Set extra fields from the API response
+        setTax(fetchedPayroll.tax || 0);
+        setEobi(fetchedPayroll.eobi || 0);
+        setEmployeePF(fetchedPayroll.employeePF || 0);
       } catch (err: any) {
         console.error("Error fetching payroll:", err);
         setError(err.response?.data?.message || "Failed to fetch payroll.");
@@ -48,44 +59,18 @@ const EditPayroll: React.FC = () => {
         setLoading(false);
       }
     };
-
     fetchPayroll();
   }, [id]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setPayroll((prev: PayrollData | null) =>
-      prev
-        ? {
-            ...prev,
-            [name]: [
-              "year",
-              "daysPresent",
-              "daysAbsent",
-              "leaves",
-              "baseSalary",
-              "deductions",
-              "bonuses",
-              "totalSalary",
-              "netSalary",
-            ].includes(name)
-              ? Number(value)
-              : value,
-          }
-        : null
-    );
-  };
-
+  // Handle extra payments changes
   const handleExtraPaymentChange = (
-    id: string,
+    paymentId: string,
     field: keyof ExtraPayment,
     value: string | number
   ) => {
     setExtraPayments((prev) =>
       prev.map((payment) =>
-        payment.id === id
+        payment.id === paymentId
           ? { ...payment, [field]: field === "amount" ? Number(value) : value }
           : payment
       )
@@ -101,42 +86,53 @@ const EditPayroll: React.FC = () => {
     setExtraPayments((prev) => [...prev, newPayment]);
   };
 
-  const removeExtraPayment = (id: string) => {
-    setExtraPayments((prev) => prev.filter((payment) => payment.id !== id));
+  const removeExtraPayment = (paymentId: string) => {
+    setExtraPayments((prev) =>
+      prev.filter((payment) => payment.id !== paymentId)
+    );
   };
 
+  // Net salary calculation:
+  // netSalary = totalSalary - (deductions + tax + eobi + employeePF) + sum(extraPayments)
   const calculateNetSalary = () => {
     if (!payroll) return 0;
-    const base = payroll.baseSalary;
-    const deductions = payroll.deductions;
-    const bonuses = payroll.bonuses;
-    const extras = extraPayments.reduce(
-      (acc, payment) => acc + payment.amount,
+    const extrasTotal = extraPayments.reduce(
+      (sum, payment) => sum + payment.amount,
       0
     );
-    return base - deductions + bonuses + extras;
+    return (
+      payroll.totalSalary -
+      payroll.deductions -
+      tax -
+      eobi -
+      employeePF +
+      extrasTotal
+    );
   };
 
+  // Handle form submission to update the payroll record
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (payroll) {
       setLoading(true);
-      setError(null);
       try {
-        const updatedPayroll: PayrollData = {
+        // Include extra fields in updated payroll object.
+        const updatedPayroll: any = {
           ...payroll,
           netSalary: calculateNetSalary(),
           extraPayments,
+          tax,
+          eobi,
+          employeePF,
         };
-
-        // Send update request to backend
         const response = await axiosInstance.patch(
           `/api/payroll/${id}`,
           updatedPayroll
         );
         updatePayroll(response.data.payroll);
         toast.success(`Payroll updated for ${payroll.user.name}`);
-        navigate("/");
+        // Redirect to PayrollManagement page
+        navigate("/organization/payroll-management");
       } catch (err: any) {
         console.error("Error updating payroll:", err);
         setError(err.response?.data?.message || "Failed to update payroll.");
@@ -146,323 +142,278 @@ const EditPayroll: React.FC = () => {
     }
   };
 
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+  // Handle close action (redirect to PayrollManagement)
+  const handleClose = () => {
+    navigate("/organization/payroll-management");
+  };
 
+  // Show spinner while loading payroll details
   if (loading && !payroll) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
-        <FaSpinner className="animate-spin text-blue-600" size={50} />
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="animate-spin text-blue-500" size={50} />
       </div>
     );
   }
 
-  if (error) {
+  // If no payroll data is available
+  if (!loading && !payroll) {
     return (
-      <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-gray-900">
-        <p className="text-red-500">{error}</p>
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-700">No payroll data found.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full p-6 bg-white dark:bg-gray-900 min-h-screen flex items-center justify-center rounded-lg">
-      <div className="w-full bg-white dark:bg-gray-800 rounded-2xl p-8">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 rounded-lg">
+      <div className="w-full dark:bg-gray-800 p-6">
+        {/* Header */}
         <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center">
-            <FaUserEdit
-              className="text-purple-900 dark:text-blue-600 mr-3"
-              size={30}
-            />
-            <h2 className="text-3xl font-bold text-purple-900 dark:text-blue-600">
+          <div className="flex items-center space-x-3">
+            <h2 className="text-3xl font-bold text-black px-4 py-2 rounded">
               Edit Payroll
             </h2>
           </div>
           <button
-            onClick={() => navigate("/")}
-            className="text-purple-900 dark:text-blue-600 hover:text-purple-700 dark:hover:text-blue-400 transition-colors"
+            onClick={handleClose}
+            className="text-white bg-purple-900 hover:bg-purple-800 transition-colors rounded-full p-2"
             aria-label="Close"
           >
-            <FaTimes size={24} />
+            <FaTimes size={28} />
           </button>
         </div>
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Name */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="name"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaUserEdit className="mr-2" /> Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={payroll?.user.name}
-                onChange={handleChange}
-                required
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
 
-            {/* Department */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="department"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaBuilding className="mr-2" /> Department
-              </label>
-              <input
-                type="text"
-                id="department"
-                name="department"
-                value={payroll?.user.personalDetails?.department}
-                onChange={(e) =>
-                  setPayroll((prev) =>
-                    prev
-                      ? {
-                          ...prev,
-                          user: { ...prev.user, department: e.target.value },
-                        }
-                      : null
-                  )
-                }
-                required
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Month */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="month"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaCalendarAlt className="mr-2" /> Month
-              </label>
-              <select
-                id="month"
-                name="month"
-                value={payroll?.month}
-                onChange={handleChange}
-                required
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              >
-                <option value="">Select Month</option>
-                {months.map((month) => (
-                  <option key={month} value={getMonthNumber(month)}>
-                    {month}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Year */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="year"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaCalendarAlt className="mr-2" /> Year
-              </label>
-              <input
-                type="number"
-                id="year"
-                name="year"
-                value={payroll?.year}
-                onChange={handleChange}
-                required
-                min={2000}
-                max={2100}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Days Present */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="daysPresent"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaCalendarAlt className="mr-2" /> Days Present
-              </label>
-              <input
-                type="number"
-                id="daysPresent"
-                name="daysPresent"
-                value={payroll?.daysPresent}
-                onChange={handleChange}
-                required
-                min={0}
-                max={31}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Days Absent */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="daysAbsent"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaCalendarAlt className="mr-2" /> Days Absent
-              </label>
-              <input
-                type="number"
-                id="daysAbsent"
-                name="daysAbsent"
-                value={payroll?.daysAbsent}
-                onChange={handleChange}
-                required
-                min={0}
-                max={31}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Leaves */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="leaves"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaCalendarAlt className="mr-2" /> Leaves
-              </label>
-              <input
-                type="number"
-                id="leaves"
-                name="leaves"
-                value={payroll?.leaves ?? 0}
-                onChange={handleChange}
-                required
-                min={0}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Base Salary */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="baseSalary"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaMoneyBillWave className="mr-2" /> Base Salary (PKR)
-              </label>
-              <input
-                type="number"
-                id="baseSalary"
-                name="baseSalary"
-                value={payroll?.baseSalary}
-                onChange={handleChange}
-                required
-                min={0}
-                step={0.01}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Deductions */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="deductions"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaMoneyBillWave className="mr-2" /> Deductions (PKR)
-              </label>
-              <input
-                type="number"
-                id="deductions"
-                name="deductions"
-                value={payroll?.deductions}
-                onChange={handleChange}
-                required
-                min={0}
-                step={0.01}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Bonuses */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="bonuses"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaMoneyBillWave className="mr-2" /> Bonuses (PKR)
-              </label>
-              <input
-                type="number"
-                id="bonuses"
-                name="bonuses"
-                value={payroll?.bonuses}
-                onChange={handleChange}
-                required
-                min={0}
-                step={0.01}
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
-              />
-            </div>
-
-            {/* Net Salary */}
-            <div className="flex flex-col">
-              <label
-                htmlFor="netSalary"
-                className="flex items-center text-sm font-medium text-purple-900 dark:text-blue-600 mb-1"
-              >
-                <FaMoneyBillWave className="mr-2" /> Net Salary (PKR)
-              </label>
-              <input
-                type="number"
-                id="netSalary"
-                name="netSalary"
-                value={calculateNetSalary()}
-                readOnly
-                className="mt-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 cursor-not-allowed"
-              />
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Section 1: User Details */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaBuilding className="mr-2" /> User Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <div className="mt-1 text-gray-900">{payroll?.user.name}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <div className="mt-1 text-gray-900">{payroll?.user.email}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Department
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll?.user.personalDetails?.department}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Job Title
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll?.user as any)?.jobTitle || "N/A"}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Extra Payments */}
-          <div className="mt-6">
-            <h3 className="flex items-center text-lg font-semibold text-purple-900 dark:text-blue-600 mb-4">
+          {/* Section 2: Payroll Period */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaRegCalendarCheck className="mr-2" /> Payroll Period
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Month
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {getMonthName(payroll!.month)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Year
+                </label>
+                <div className="mt-1 text-gray-900">{payroll!.year}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Salary Details */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaMoneyBillWave className="mr-2" /> Salary Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Basic Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">{payroll!.basicSalary}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Medical Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.medicalAllowance ||
+                    payroll!.allowances}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Mobile Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.mobileAllowance || 0}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Fuel Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.fuelAllowance || 0}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Per Day Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll!.perDaySalary.toFixed(0)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gross Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll!.totalSalary.toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Absences */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Absent Dates
+            </h3>
+            <div>
+              {payroll?.absentDates && payroll.absentDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700">
+                        S.NO
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.absentDates.map((date, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No absent dates recorded.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Section 5: Deductions */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Deductions
+            </h3>
+            {/* Row for editable inputs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tax (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={tax}
+                  onChange={(e) => setTax(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter Tax"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  EOBI (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={eobi}
+                  onChange={(e) => setEobi(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter EOBI"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Employee PF (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={employeePF}
+                  onChange={(e) => setEmployeePF(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter Employee PF"
+                />
+              </div>
+            </div>
+            {/* Row for total deductions */}
+            <div className="mt-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Total Deductions (PKR)
+              </label>
+              <div className="mt-1 text-black rounded">
+                {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 6: Extra Payments */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Extra Payments
             </h3>
             {extraPayments.length > 0 ? (
-              <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
-                <thead>
+              <table className="min-w-full border divide-y divide-gray-300 rounded-lg overflow-hidden">
+                <thead className="bg-gray-200">
                   <tr>
-                    <th className="px-4 py-2 border-b text-left text-purple-900 dark:text-blue-600">
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
                       Description
                     </th>
-                    <th className="px-4 py-2 border-b text-left text-purple-900 dark:text-blue-600">
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
                       Amount (PKR)
                     </th>
-                    <th className="px-4 py-2 border-b text-center text-purple-900 dark:text-blue-600">
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
                       Actions
                     </th>
                   </tr>
                 </thead>
                 <tbody>
                   {extraPayments.map((payment) => (
-                    <tr
-                      key={payment.id}
-                      className="hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                    >
+                    <tr key={payment.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">
                         <input
                           type="text"
@@ -475,8 +426,8 @@ const EditPayroll: React.FC = () => {
                             )
                           }
                           required
-                          placeholder="Description"
-                          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
+                          className="w-full p-2 border rounded-md"
+                          placeholder="Enter description"
                         />
                       </td>
                       <td className="px-4 py-2">
@@ -492,17 +443,17 @@ const EditPayroll: React.FC = () => {
                           }
                           required
                           min={0}
-                          step={0.01}
-                          placeholder="Amount"
-                          className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white transition-colors"
+                          step={0}
+                          className="w-full p-2 border rounded-md"
+                          placeholder="Enter amount"
                         />
                       </td>
                       <td className="px-4 py-2 text-center">
                         <button
                           type="button"
                           onClick={() => removeExtraPayment(payment.id)}
-                          className="text-red-500 hover:text-red-700 transition-colors"
-                          aria-label="Remove Extra Payment"
+                          className="text-red-500 hover:text-red-700"
+                          title="Remove Payment"
                         >
                           <FaMinus />
                         </button>
@@ -512,32 +463,59 @@ const EditPayroll: React.FC = () => {
                 </tbody>
               </table>
             ) : (
-              <p className="text-gray-500 dark:text-gray-300 mb-4">
-                No extra payments added.
-              </p>
+              <p className="text-gray-500">No extra payments added.</p>
             )}
             <button
               type="button"
               onClick={addExtraPayment}
-              className="flex items-center text-green-500 hover:text-green-700 transition-colors mt-4"
+              className="flex items-center text-green-500 mt-4"
             >
               <FaPlus className="mr-2" /> Add Extra Payment
             </button>
           </div>
 
-          {/* Error Message */}
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {/* Section 7: Payroll Summary */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gross Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll!.totalSalary.toFixed(0)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Total Deductions (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Net Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {calculateNetSalary().toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Submit Button */}
-          <div className="flex justify-end mt-8">
+          <div className="flex justify-end">
             <button
               type="submit"
-              className={`flex items-center px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+              className={`flex items-center px-6 py-3 bg-purple-900 text-white rounded-md hover:bg-purple-800 transition-colors ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={loading}
             >
-              <FaArrowLeft className="mr-2" />{" "}
               {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>

@@ -1,45 +1,30 @@
 // src/components/PayrollDetailModal.tsx
 import React from "react";
-import {
-  FaTimes,
-  FaUser,
-  FaBuilding,
-  FaCalendarAlt,
-  FaMoneyCheckAlt,
-  FaChartLine,
-} from "react-icons/fa";
+import { FaTimes, FaMoneyCheckAlt } from "react-icons/fa";
 import { getMonthName } from "../../../utils/monthUtils";
-
-export interface ExtraPayment {
-  id: string;
-  description: string;
-  amount: number;
-}
 
 export interface PayrollData {
   id: string;
   user: {
     name: string;
     email: string;
-    personalDetails: {
-      department: string;
-    };
+    personalDetails: { department: string };
   };
   month: number;
   year: number;
-  daysPresent: number;
-  daysAbsent: number;
-  leaves: number;
-  baseSalary: number;
-  deductions: number;
-  bonuses: number;
+  basicSalary: number;
+  allowances: number;
+  perDaySalary: number;
   totalSalary: number;
+  deductions: number;
   netSalary: number;
+  lateIns: number;
+  absentDays: number;
+  absentDates: string[];
   status: string;
   processedOn: string | null;
-  remarks: string;
-  extraPayments?: ExtraPayment[];
-  absentDates: string[];
+  remarks?: string;
+  extraPayments?: any[];
 }
 
 interface PayrollDetailModalProps {
@@ -55,22 +40,16 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  // Define formattedAbsentDates with a fallback to an empty array.
   const formattedAbsentDates = payroll.absentDates
     ? payroll.absentDates.map((date) => new Date(date).toLocaleDateString())
     : [];
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity"
-      aria-labelledby="payroll-detail-modal"
-      role="dialog"
-      aria-modal="true"
-    >
-      <div className="bg-white dark:bg-gray-900 rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-4 relative transform transition-all duration-300 scale-100">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
+      <div className="bg-white dark:bg-gray-900 rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-4 relative">
         <button
           onClick={onClose}
-          className="absolute top-6 right-6 text-purple-900 dark:text-blue-600 hover:text-purple-700 dark:hover:text-blue-400 transition-colors"
+          className="absolute top-6 right-6 text-purple-900 dark:text-blue-600"
           aria-label="Close Modal"
         >
           <FaTimes size={24} />
@@ -85,189 +64,93 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
           </h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto">
+          <table className="min-w-full">
             <tbody>
-              <tr className="border-b">
-                <td className="px-6 py-3 text-purple-800 dark:text-blue-400 font-medium flex items-center">
-                  <FaUser className="mr-2" /> Name
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.user.name}
-                </td>
+              <tr>
+                <td className="px-5 py-3 font-medium">Name</td>
+                <td className="px-5 py-3">{payroll.user.name}</td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium flex items-center">
-                  <FaBuilding className="mr-2" /> Department
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
+              <tr>
+                <td className="px-5 py-3 font-medium">Department</td>
+                <td className="px-5 py-3">
                   {payroll.user.personalDetails?.department}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium flex items-center">
-                  <FaCalendarAlt className="mr-2" /> Month & Year
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
+              <tr>
+                <td className="px-5 py-3 font-medium">Month & Year</td>
+                <td className="px-5 py-3">
                   {getMonthName(payroll.month)} {payroll.year}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Days Present
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.daysPresent}
+              <tr>
+                <td className="px-5 py-3 font-medium">Basic Salary</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.basicSalary).toFixed(2)}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Days Absent
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.daysAbsent}
+              <tr>
+                <td className="px-5 py-3 font-medium">Allowances</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.allowances).toFixed(2)}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Leaves
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.leaves}
+              <tr>
+                <td className="px-5 py-3 font-medium">Per Day Salary</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.perDaySalary).toFixed(2)}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium flex items-center">
-                  <FaMoneyCheckAlt className="mr-2" /> Base Salary
+              <tr>
+                <td className="px-5 py-3 font-medium">Absent Days</td>
+                <td className="px-5 py-3">{payroll.absentDays}</td>
+              </tr>
+              <tr>
+                <td className="px-5 py-3 font-medium">
+                  Late IN/Early Out Count
                 </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {Number(payroll.baseSalary || 0).toFixed(2)}
+                <td className="px-5 py-3">{payroll.lateIns}</td>
+              </tr>
+              <tr>
+                <td className="px-5 py-3 font-medium">Total Deductions</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.deductions).toFixed(2)}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Deductions
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {Number(payroll.deductions || 0).toFixed(2)}
+              <tr>
+                <td className="px-5 py-3 font-medium">Total Salary</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.totalSalary).toFixed(2)}
                 </td>
               </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Bonuses
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {Number(payroll.bonuses || 0).toFixed(2)}
+              <tr>
+                <td className="px-5 py-3 font-medium">Net Salary</td>
+                <td className="px-5 py-3">
+                  PKR {Number(payroll.netSalary).toFixed(2)}
                 </td>
               </tr>
-              {/* <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Total Salary
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {Number(payroll.totalSalary || 0).toFixed(2)}
-                </td>
-              </tr>
-              <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Net Salary
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  PKR {Number(payroll.netSalary || 0).toFixed(2)}
-                </td>
-              </tr> */}
-              {/* <tr className="border-b">
-                <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Status
-                </td>
-                <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.status}
-                </td>
-              </tr> */}
-              {payroll.processedOn && (
-                <tr className="border-b">
-                  <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                    Processed On
+              {formattedAbsentDates.length > 0 && (
+                <tr>
+                  <td className="px-5 py-3 font-medium">Absent Dates</td>
+                  <td className="px-5 py-3">
+                    {formattedAbsentDates.join(", ")}
                   </td>
-                  <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
+                </tr>
+              )}
+              {payroll.processedOn && (
+                <tr>
+                  <td className="px-5 py-3 font-medium">Processed On</td>
+                  <td className="px-5 py-3">
                     {new Date(payroll.processedOn).toLocaleString()}
                   </td>
                 </tr>
               )}
-              <tr className="border-b">
-                {/* <td className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium">
-                  Remarks
-                </td> */}
-                {/* <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                  {payroll.remarks || "N/A"}
-                </td> */}
-              </tr>
-              {payroll.extraPayments && payroll.extraPayments.length > 0 && (
-                <>
-                  <tr className="border-b">
-                    <td
-                      className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium"
-                      colSpan={2}
-                    >
-                      <FaChartLine className="mr-2 inline" /> Extra Payments
-                    </td>
-                  </tr>
-                  {payroll.extraPayments.map((payment) => (
-                    <tr key={payment.id} className="border-b">
-                      <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                        {payment.description}
-                      </td>
-                      <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                        PKR {Number(payment.amount || 0).toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              )}
-              {payroll.absentDates && payroll.absentDates.length > 0 && (
-                <>
-                  <tr className="border-b">
-                    <td
-                      className="px-5 py-3 text-purple-800 dark:text-blue-400 font-medium"
-                      colSpan={2}
-                    >
-                      Absent Dates
-                    </td>
-                  </tr>
-                  {formattedAbsentDates.map((date, index) => (
-                    <tr key={index} className="border-b">
-                      <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                        Absent Date {index + 1}
-                      </td>
-                      <td className="px-5 py-3 text-gray-700 dark:text-gray-300">
-                        {date}
-                      </td>
-                    </tr>
-                  ))}
-                </>
-              )}
-              <tr className="border-t-2">
-                <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  Total Salary
-                </td>
-                <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  PKR {Number(payroll.totalSalary || 0).toFixed(2)}
-                </td>
-              </tr>
-              <tr className="border-t-2">
-                <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  Net Salary
-                </td>
-                <td className="px-5 py-3 text-purple-900 dark:text-blue-600 font-semibold text-lg">
-                  PKR {Number(payroll.netSalary || 0).toFixed(2)}
-                </td>
-              </tr>
             </tbody>
           </table>
         </div>
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="flex items-center px-5 py-2 bg-purple-900 dark:bg-blue-600 text-white rounded-md hover:bg-purple-700 dark:hover:bg-blue-400 transition-colors"
+            className="flex items-center px-5 py-2 bg-purple-900 dark:bg-blue-600 text-white rounded-md"
           >
             <FaTimes className="mr-2" />
             Close

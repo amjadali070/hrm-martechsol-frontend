@@ -1,8 +1,6 @@
-// src/components/GeneratePayrollModal.tsx
-
 import React, { useState } from "react";
 import { FaTimes, FaCalendarPlus } from "react-icons/fa";
-import { getMonthNumber } from "../../../utils/monthUtils"; // Adjust path as needed
+import { getMonthNumber } from "../../../utils/monthUtils";
 
 interface GeneratePayrollModalProps {
   isOpen: boolean;
@@ -39,37 +37,42 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (month && year) {
-      const monthNumber = getMonthNumber(month);
-      if (!monthNumber) {
-        setError("Invalid month selected.");
-        return;
-      }
 
-      setLoading(true);
-      setError(null);
-      try {
-        await onGenerate(month, year);
-        onClose();
-      } catch (err: any) {
-        setError(err.message || "Failed to generate payroll.");
-      } finally {
-        setLoading(false);
-      }
+    if (!month || !year) {
+      setError("Both Month and Year are required.");
+      return;
+    }
+
+    const monthNumber = getMonthNumber(month);
+    if (!monthNumber) {
+      setError("Invalid month selected.");
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      await onGenerate(month, year);
+      onClose();
+    } catch (err: any) {
+      setError(err.message || "Failed to generate payroll.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 transition-opacity"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60"
       aria-labelledby="generate-payroll-modal"
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-white dark:bg-gray-800 rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 relative transform transition-all duration-300 scale-100">
+      <div className="bg-white dark:bg-gray-800 rounded-lg w-11/12 md:w-1/2 lg:w-1/3 p-6 relative">
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white transition-colors"
+          className="absolute top-4 right-4 text-gray-500 dark:text-gray-300 hover:text-gray-700 dark:hover:text-white"
           aria-label="Close Modal"
         >
           <FaTimes size={20} />
@@ -79,7 +82,7 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
           Generate Payroll
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Month Selection */}
+          {/* Month selection */}
           <div>
             <label
               htmlFor="month"
@@ -92,7 +95,7 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
               value={month}
               onChange={(e) => setMonth(e.target.value)}
               required
-              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md p-2"
             >
               <option value="">Select Month</option>
               {months.map((m) => (
@@ -103,7 +106,7 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
             </select>
           </div>
 
-          {/* Year Input */}
+          {/* Year input */}
           <div>
             <label
               htmlFor="year"
@@ -119,19 +122,18 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
               required
               min={2000}
               max={2100}
-              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md shadow-sm p-2 focus:outline-none focus:ring-2 focus:ring-purple-500 dark:bg-gray-700 dark:text-white"
+              className="mt-1 block w-full border border-gray-300 dark:border-gray-600 rounded-md p-2"
               placeholder="e.g., 2025"
             />
           </div>
 
-          {/* Error Message */}
           {error && <div className="text-red-500 text-sm">{error}</div>}
 
-          {/* Submit Button */}
+          {/* Submit button */}
           <div className="flex justify-end">
             <button
               type="submit"
-              className={`flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 ${
+              className={`flex items-center px-4 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition-colors ${
                 loading ? "opacity-50 cursor-not-allowed" : ""
               }`}
               disabled={loading}

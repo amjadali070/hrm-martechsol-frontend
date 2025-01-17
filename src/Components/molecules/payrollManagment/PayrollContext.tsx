@@ -1,3 +1,4 @@
+// src/components/PayrollContext.tsx
 import React, {
   createContext,
   useState,
@@ -17,7 +18,7 @@ export interface ExtraPayment {
 }
 
 export interface PayrollData {
-  // Note: We now use "id" mapped from the API’s "_id"
+  // "id" is mapped from the API’s "_id"
   id: string;
   user: {
     name: string;
@@ -25,22 +26,30 @@ export interface PayrollData {
     personalDetails: {
       department: string;
     };
+    // Optionally include jobTitle if needed
+    jobTitle?: string;
   };
   month: number;
   year: number;
-  daysPresent: number;
-  daysAbsent: number;
-  leaves: number;
-  baseSalary: number;
-  deductions: number;
-  bonuses: number;
+  basicSalary: number;
+  allowances: number;
+  perDaySalary: number;
   totalSalary: number;
+  deductions: number;
   netSalary: number;
+  lateIns: number;
+  absentDays: number;
+  absentDates: string[];
   status: string;
   processedOn: string | null;
   remarks: string;
   extraPayments?: ExtraPayment[];
-  absentDates: string[];
+
+  // New extra fields:
+  tax: number;
+  eobi: number;
+  employeePF: number;
+  employerPF: number;
 }
 
 export interface MonthYear {
@@ -57,7 +66,7 @@ export interface PayrollContextProps {
   deletePayroll: (id: string) => void;
   generatePayroll: (month: string, year: number) => Promise<void>;
   processPayroll: (month: string, year: number) => Promise<void>;
-  payrollSummary: any; // You can define a more specific type if desired
+  payrollSummary: any;
 }
 
 const PayrollContext = createContext<PayrollContextProps | undefined>(
@@ -83,7 +92,7 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
   const [payrollSummary, setPayrollSummary] = useState<any>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
 
-  // Updated fetchPayrolls maps "_id" to "id" and returns the payrolls
+  // Fetch payrolls based on provided month and year
   const fetchPayrolls = useCallback(
     async (month?: string, year?: number): Promise<PayrollData[]> => {
       try {
@@ -92,12 +101,14 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
           const monthNumber = getMonthNumber(month);
           if (monthNumber) params.month = monthNumber;
         }
-        if (year) params.year = year;
+        if (year) {
+          params.year = year;
+        }
 
         const response = await axiosInstance.get(`${backendUrl}/api/payroll`, {
           params,
         });
-        // Map each payroll's _id to an id property
+        // Map each payroll's _id to id property
         const payrollsWithId: PayrollData[] = response.data.payrolls.map(
           (payroll: any) => ({
             ...payroll,
@@ -117,13 +128,12 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     [backendUrl]
   );
 
-  // New function to fetch all months via axios
+  // Fetch distinct month/year combinations
   const fetchAllMonths = useCallback(async (): Promise<MonthYear[]> => {
     try {
       const response = await axiosInstance.get(
         `${backendUrl}/api/payroll/all-months`
       );
-      // Assuming the endpoint returns { months: [ { month, year }, ... ] }
       return response.data.months;
     } catch (error: any) {
       console.error("Error fetching all months:", error);
@@ -157,7 +167,10 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     }
   };
 
-  const generatePayroll = async (month: string, year: number) => {
+  const generatePayroll = async (
+    month: string,
+    year: number
+  ): Promise<void> => {
     try {
       const monthNumber = getMonthNumber(month);
       if (!monthNumber) {
@@ -177,7 +190,7 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     }
   };
 
-  const processPayroll = async (month: string, year: number) => {
+  const processPayroll = async (month: string, year: number): Promise<void> => {
     try {
       const monthNumber = getMonthNumber(month);
       if (!monthNumber) {
@@ -197,7 +210,10 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     }
   };
 
-  const fetchPayrollSummary = async (month: string, year: number) => {
+  const fetchPayrollSummary = async (
+    month: string,
+    year: number
+  ): Promise<void> => {
     try {
       const monthNumber = getMonthNumber(month);
       if (!monthNumber) {
@@ -219,7 +235,7 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
   };
 
   useEffect(() => {
-    // Fetch initial payrolls—for example, for the current month
+    // Fetch initial payrolls for the current month and year
     const currentMonth = getMonthName(new Date().getMonth() + 1);
     const currentYear = new Date().getFullYear();
     fetchPayrolls(currentMonth, currentYear);
