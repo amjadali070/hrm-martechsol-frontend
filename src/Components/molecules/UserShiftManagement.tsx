@@ -3,6 +3,7 @@ import { FaFilter, FaSearch, FaSpinner, FaInbox, FaEdit } from "react-icons/fa";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import useUser from "../../hooks/useUser";
 
 interface UserShiftData {
   _id: string;
@@ -88,6 +89,8 @@ const UserShiftManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const user = useUser();
+  const currentUserId = user.user?._id;
 
   useEffect(() => {
     const fetchUserShifts = async () => {
@@ -157,6 +160,7 @@ const UserShiftManagement: React.FC = () => {
         toast.success("Shift timings updated successfully!");
       } catch (error: any) {
         console.error("Error updating shift:", error);
+        toast.error("Failed to update shift timings.");
       } finally {
         setUpdating((prev) => ({ ...prev, [id]: false }));
       }
@@ -282,7 +286,7 @@ const UserShiftManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider "
+                  className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wider"
                 >
                   {header}
                 </th>
@@ -309,7 +313,7 @@ const UserShiftManagement: React.FC = () => {
               currentData.map((user, index) => (
                 <tr
                   key={user._id}
-                  className={`border-t border-gray-200 hover:bg-indigo-50 transition-colors`}
+                  className="border-t border-gray-200 hover:bg-indigo-50 transition-colors"
                 >
                   <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
                     {(currentPage - 1) * itemsPerPage + index + 1}
@@ -345,6 +349,7 @@ const UserShiftManagement: React.FC = () => {
                       }}
                       className="w-full border border-gray-300 rounded-lg p-2 focus:ring-2 focus:ring-indigo-500"
                       aria-label={`Select shift timing for ${user.name}`}
+                      disabled={user._id === currentUserId}
                     >
                       <option value="" disabled>
                         {user.shiftStartTime && user.shiftEndTime
@@ -359,7 +364,9 @@ const UserShiftManagement: React.FC = () => {
                     </select>
                   </td>
                   <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
-                    {editedShifts[user._id] ? (
+                    {user._id === currentUserId ? (
+                      <span className="text-sm text-gray-700">Disabled</span>
+                    ) : editedShifts[user._id] ? (
                       <button
                         onClick={() => handleUpdate(user._id)}
                         className={`flex items-center justify-center gap-1 px-3 py-2 bg-green-600 text-white rounded-full hover:bg-green-700 transition ${
@@ -427,7 +434,7 @@ const UserShiftManagement: React.FC = () => {
         <div className="flex items-center space-x-4">
           <button
             className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-              currentPage === 1
+              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
             }`}
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
@@ -442,6 +449,8 @@ const UserShiftManagement: React.FC = () => {
           <button
             className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
               currentPage === totalPages || totalPages === 0
+                ? "cursor-not-allowed opacity-50"
+                : ""
             }`}
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={() =>
