@@ -60,6 +60,7 @@ import ProcessPayroll from "./Components/atoms/ProcessPayroll";
 import PayrollManagement from "./Components/molecules/payrollManagment/PayrollManagement";
 import { PayrollProvider } from "./Components/molecules/payrollManagment/PayrollContext";
 import EditPayroll from "./Components/molecules/payrollManagment/EditPayroll";
+import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
 
 const App: React.FC = () => {
   return (
@@ -159,6 +160,15 @@ const App: React.FC = () => {
                   element={
                     <PayrollProvider>
                       <EditPayroll />
+                    </PayrollProvider>
+                  }
+                />
+
+                <Route
+                  path="/view/:id"
+                  element={
+                    <PayrollProvider>
+                      <ViewPayroll />
                     </PayrollProvider>
                   }
                 />
