@@ -17,6 +17,11 @@ export interface ExtraPayment {
   amount: number;
 }
 
+export interface LeaveDate {
+  date: string; // ISO string or formatted date string
+  type: string;
+}
+
 export interface PayrollData {
   // "id" is mapped from the API’s "_id"
   id: string;
@@ -40,6 +45,8 @@ export interface PayrollData {
   lateIns: number;
   absentDays: number;
   absentDates: string[];
+  // NEW: leaveDates array—each item has a date and a leave type
+  leaveDates?: LeaveDate[];
   status: string;
   processedOn: string | null;
   remarks: string;

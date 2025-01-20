@@ -1,4 +1,3 @@
-// src/components/ViewPayroll.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -222,7 +221,7 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 4: Absences */}
+          {/* Section 4: Absent Dates */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Absent Dates
@@ -232,7 +231,7 @@ const ViewPayroll: React.FC = () => {
                 <table className="min-w-full border divide-y divide-gray-300">
                   <thead className="bg-gray-200">
                     <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.NO</th>
+                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
                       <th className="px-4 py-2 text-sm font-semibold">Date</th>
                     </tr>
                   </thead>
@@ -253,7 +252,40 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 5: Deductions */}
+          {/* NEW Section 5: Leave Dates */}
+          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Leave Dates
+            </h3>
+            <div className="text-gray-800 dark:text-gray-100">
+              {payroll?.leaveDates && payroll.leaveDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
+                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
+                      <th className="px-4 py-2 text-sm font-semibold">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.leaveDates.map((entry, idx) => (
+                      <tr key={idx} className="hover:bg-gray-100">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 text-center">{entry.type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No leave dates recorded.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Section 6: Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Deductions
@@ -284,7 +316,7 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 6: Extra Payments */}
+          {/* Section 7: Extra Payments */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Extra Payments
@@ -315,7 +347,7 @@ const ViewPayroll: React.FC = () => {
             )}
           </div>
 
-          {/* Section 7: Payroll Summary - HIGHLIGHTED */}
+          {/* Section 8: Payroll Summary */}
           <div className="p-6 border rounded-lg bg-white dark:bg-gray-600">
             <h3 className="text-2xl font-bold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
@@ -345,8 +377,6 @@ const ViewPayroll: React.FC = () => {
               </div>
             </div>
           </div>
-
-          {/* Back Button - Redirects to previously open month's payroll */}
         </div>
       </div>
     </div>

@@ -20,10 +20,10 @@ const PayrollManagement: React.FC = () => {
   const [monthYears, setMonthYears] = useState<MonthYear[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>(""); // For searching months in month selection view
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [filterYear, setFilterYear] = useState<string>("");
-  const [nameFilter, setNameFilter] = useState<string>(""); // Filter by user name on payroll list view
-  const [departmentFilter, setDepartmentFilter] = useState<string>(""); // Filter by department on payroll list view
+  const [nameFilter, setNameFilter] = useState<string>("");
+  const [departmentFilter, setDepartmentFilter] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState<boolean>(false);
@@ -66,7 +66,6 @@ const PayrollManagement: React.FC = () => {
         setCurrentPage(1);
         setNotFound(false);
         setLoading(true);
-        // Fetch payrolls for the specified month and year
         fetchPayrolls(getMonthName(monthNum), yearNum)
           .then((fetchedPayrolls) => {
             const foundPayrolls = fetchedPayrolls.filter(
@@ -98,7 +97,7 @@ const PayrollManagement: React.FC = () => {
   });
 
   // When a month is clicked, set selectedMonth and selectedYear,
-  // fetch payrolls for that period and update URL with query parameters
+  // fetch payrolls and update URL with query parameters
   const handleMonthYearClick = async (m: number, y: number) => {
     setSelectedMonth(m);
     setSelectedYear(y);
@@ -116,8 +115,6 @@ const PayrollManagement: React.FC = () => {
     } finally {
       setLoading(false);
     }
-
-    // Update the URL with query parameters
     window.history.replaceState(
       {},
       "",
@@ -128,7 +125,6 @@ const PayrollManagement: React.FC = () => {
   const handleBackToMonths = () => {
     setSelectedMonth(null);
     setSelectedYear(null);
-    // Remove query parameters from URL
     window.history.replaceState({}, "", `/organization/payroll-management`);
   };
 
@@ -137,7 +133,7 @@ const PayrollManagement: React.FC = () => {
     (pay) => pay.month === selectedMonth && pay.year === selectedYear
   );
 
-  // Apply additional filters by user name and department on payroll list view
+  // Additional filters by user name and department
   const finalFilteredPayrolls = filteredPayrolls.filter((pay) => {
     const matchesName = pay.user.name
       .toLowerCase()
@@ -159,7 +155,7 @@ const PayrollManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  // For payroll filtering (by department), derive unique department list from selected payrolls
+  // Derive unique department list for filtering
   const uniqueDepartments = Array.from(
     new Set(
       filteredPayrolls
@@ -194,6 +190,22 @@ const PayrollManagement: React.FC = () => {
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-200">
         Payroll Management
       </h2>
+
+      <div className="mb-4 flex items-center justify-between">
+        <button
+          onClick={openGenerateModal}
+          className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center"
+        >
+          <FaPlus className="mr-2" /> Generate Payroll
+        </button>
+        <button
+          onClick={handleBackToMonths}
+          className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center"
+        >
+          <IoArrowBackCircle className="mr-2" /> Back
+        </button>
+      </div>
+
       {/* Month selection view */}
       {!selectedMonth && !selectedYear && (
         <div className="mb-6">
@@ -224,7 +236,6 @@ const PayrollManagement: React.FC = () => {
                 size={40}
                 className="animate-spin mb-2 text-purple-500"
               />
-              <span className="text-lg text-gray-700">Loading months...</span>
             </div>
           ) : filteredMonthYears.length === 0 ? (
             <div className="text-center py-8 text-gray-500">
@@ -232,7 +243,7 @@ const PayrollManagement: React.FC = () => {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white rounded-lg shadow-md">
+              <table className="min-w-full bg-white rounded-lg">
                 <thead className="bg-purple-900">
                   <tr>
                     <th className="px-6 py-3 text-sm text-white text-center">
@@ -274,21 +285,7 @@ const PayrollManagement: React.FC = () => {
       {/* Payroll list view for selected month/year */}
       {selectedMonth && selectedYear && (
         <div>
-          {/* New row with Generate Payroll (left) and Back (right) buttons */}
-          <div className="mb-4 flex items-center justify-between">
-            <button
-              onClick={openGenerateModal}
-              className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center"
-            >
-              <FaPlus className="mr-2" /> Generate Payroll
-            </button>
-            <button
-              onClick={handleBackToMonths}
-              className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center"
-            >
-              <IoArrowBackCircle className="mr-2" /> Back
-            </button>
-          </div>
+          {/* Header row with Generate and Back buttons */}
 
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
             <div className="flex flex-col sm:flex-row gap-4">
@@ -318,18 +315,15 @@ const PayrollManagement: React.FC = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-lg shadow-md">
+            <table className="min-w-full bg-white rounded-lg">
               <thead className="bg-purple-900 sticky top-0">
                 <tr>
                   {[
                     "S.No",
                     "Name",
                     "Department",
-                    "Month",
-                    "Year",
                     "Total Salary",
                     "Net Salary",
-                    "Status",
                     "Action",
                   ].map((header) => (
                     <th
@@ -350,7 +344,6 @@ const PayrollManagement: React.FC = () => {
                           size={40}
                           className="animate-spin mb-2 text-purple-500"
                         />
-                        <span>Loading payroll data...</span>
                       </div>
                     </td>
                   </tr>
@@ -378,19 +371,18 @@ const PayrollManagement: React.FC = () => {
                         {payroll.user.personalDetails?.department}
                       </td>
                       <td className="px-6 py-4 text-sm text-center">
-                        {getMonthName(payroll.month)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-center">
-                        {payroll.year}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-center">
                         PKR {payroll.totalSalary.toFixed(0)}
                       </td>
                       <td className="px-6 py-4 text-sm text-center">
-                        PKR {payroll.netSalary.toFixed(0)}
-                      </td>
-                      <td className="px-6 py-4 text-sm text-center">
-                        {payroll.status}
+                        {/* Updated net salary calculation */}
+                        PKR{" "}
+                        {(
+                          payroll.netSalary +
+                          (payroll.extraPayments ?? []).reduce(
+                            (acc, payment) => acc + payment.amount,
+                            0
+                          )
+                        ).toFixed(0)}
                       </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex justify-center space-x-2">

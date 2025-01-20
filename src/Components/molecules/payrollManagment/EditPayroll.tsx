@@ -12,8 +12,12 @@ import {
   FaSpinner,
   FaArrowLeft,
 } from "react-icons/fa";
-import { usePayroll, PayrollData, ExtraPayment } from "./PayrollContext";
-import { toast } from "react-toastify";
+import {
+  usePayroll,
+  PayrollData,
+  ExtraPayment,
+  LeaveDate,
+} from "./PayrollContext";
 import axiosInstance from "../../../utils/axiosConfig";
 import { getMonthName } from "../../../utils/monthUtils";
 
@@ -92,7 +96,6 @@ const EditPayroll: React.FC = () => {
   /* 
     Calculation of Net Salary:
     Net Salary = Gross Salary - (Deductions + Tax + EOBI + Employee PF) + Sum(Extra Payments)
-    This calculation is key to the payroll summary.
   */
   const calculateNetSalary = () => {
     if (!payroll) return 0;
@@ -123,6 +126,8 @@ const EditPayroll: React.FC = () => {
           tax,
           eobi,
           employeePF,
+          // Optionally, if you want to allow editing leaveDates,
+          // include it here. Otherwise, you may leave it as is.
         };
         const response = await axiosInstance.patch(
           `/api/payroll/${id}`,
@@ -198,7 +203,7 @@ const EditPayroll: React.FC = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Section 1: User Details */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaBuilding className="mr-2" /> User Details
             </h3>
@@ -235,7 +240,7 @@ const EditPayroll: React.FC = () => {
           </div>
 
           {/* Section 2: Payroll Period */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaRegCalendarCheck className="mr-2" /> Payroll Period
             </h3>
@@ -258,7 +263,7 @@ const EditPayroll: React.FC = () => {
           </div>
 
           {/* Section 3: Salary Details */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Salary Details
             </h3>
@@ -314,7 +319,7 @@ const EditPayroll: React.FC = () => {
           </div>
 
           {/* Section 4: Absences */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Absent Dates
             </h3>
@@ -324,7 +329,7 @@ const EditPayroll: React.FC = () => {
                   <thead className="bg-gray-200">
                     <tr>
                       <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
-                        S.NO
+                        S.No
                       </th>
                       <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
                         Date
@@ -348,8 +353,46 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 5: Deductions */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Leave Dates
+            </h3>
+            <div>
+              {payroll?.leaveDates && payroll.leaveDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        S.No
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        Date
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        Type
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.leaveDates.map((entry, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 text-center">{entry.type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No leave dates recorded.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Section 6: Deductions */}
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Deductions
             </h3>
@@ -391,8 +434,8 @@ const EditPayroll: React.FC = () => {
                 />
               </div>
             </div>
-            {/* Highlighting Total Deductions */}
-            <div className="mt-4 p-4 bg-red-100 border border-red-300 rounded-md shadow-sm">
+            {/* Highlight Total Deductions */}
+            <div className="mt-4 p-4 bg-red-100 border border-red-300 rounded-md">
               <label className="block text-sm font-medium text-red-700">
                 Total Deductions (PKR)
               </label>
@@ -402,8 +445,8 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 6: Extra Payments */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-sm">
+          {/* Section 7: Extra Payments */}
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Extra Payments
             </h3>
@@ -484,8 +527,8 @@ const EditPayroll: React.FC = () => {
             </button>
           </div>
 
-          {/* Section 7: Payroll Summary */}
-          <div className="p-6 border rounded-lg bg-gray-50 shadow-lg">
+          {/* Section 8: Payroll Summary */}
+          <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
             </h3>

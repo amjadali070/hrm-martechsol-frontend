@@ -19,6 +19,7 @@ const colors = {
   lightGray: "#f3f4f6",
   grayforRows: "#e8e8e8",
   black: "#000000",
+  cellBg: "#d1d5db", // Background for attendance cells
 };
 
 const styles = StyleSheet.create({
@@ -50,6 +51,7 @@ const styles = StyleSheet.create({
   logo: {
     width: 120,
     marginBottom: 4,
+    alignSelf: "center",
   },
   title: {
     fontSize: 20,
@@ -127,20 +129,37 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     marginLeft: "1%",
   },
-  absentDatesContainer: {
+  detailsTwoColumnContainer: {
     flexDirection: "row",
-    flexWrap: "wrap",
+    justifyContent: "space-between",
   },
-  absentDateBox: {
+  detailsColumn: {
+    width: "48%",
+  },
+  // Styles for attendance grid cells (max 6 columns)
+  attendanceCell: {
+    width: "15.66%",
     backgroundColor: colors.grayforRows,
-    paddingVertical: 4,
-    paddingHorizontal: 8,
+    borderWidth: 1,
     borderRadius: 4,
-    marginRight: 4,
-  },
-  absentDateText: {
-    fontSize: 9,
+    borderColor: colors.lightGray,
     color: colors.black,
+    padding: 2,
+    margin: 1,
+    textAlign: "center",
+  },
+  attendanceCellText: {
+    fontSize: 7,
+    textAlign: "center",
+    color: colors.gray800,
+  },
+
+  subSectionTitle: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 4,
+    textAlign: "left",
+    marginTop: 4,
   },
   footer: {
     textAlign: "center",
@@ -155,13 +174,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.purple900,
     marginTop: 70,
     marginBottom: 10,
-  },
-  detailsTwoColumnContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  detailsColumn: {
-    width: "48%",
   },
 });
 
@@ -186,6 +198,7 @@ interface SalarySlipPDFProps {
     allowances?: string;
     extraPayments?: { description: string; amount: string }[];
     absentDates?: string[];
+    leaveDates?: { date: string; type: string }[];
     leaveDetails?: {
       casualLeaveAvailable?: string;
       sickLeaveAvailable?: string;
@@ -196,6 +209,18 @@ interface SalarySlipPDFProps {
 
 const parseCurrency = (value: string): number => {
   return Number(value.replace(/[^0-9.-]+/g, ""));
+};
+
+// Mapping for leave type abbreviations
+const leaveShortForms: { [key: string]: string } = {
+  "Casual Leave": "CL",
+  "Sick Leave": "SL",
+  "Annual Leave": "AL",
+  "Maternity Leave": "ML",
+  "Paternity Leave": "PL",
+  "Bereavement Leave": "BL",
+  "Absence Without Pay": "AWP",
+  "Unapproved Absence": "UA",
 };
 
 const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
@@ -210,6 +235,18 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
     totalDeductionsNumber.toLocaleString("en-US", {
       maximumFractionDigits: 0,
     });
+
+  // Prepare attendance data
+  const absentAttendance: string[] = data.absentDates
+    ? [...data.absentDates].sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+      )
+    : [];
+  const leaveAttendance: { date: string; type: string }[] = data.leaveDates
+    ? [...data.leaveDates].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      )
+    : [];
 
   return (
     <Document>
@@ -263,7 +300,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
           </View>
         </View>
 
-        {/* Salary Details Section with two columns for allowances */}
+        {/* Salary Details Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Salary Details</Text>
           <View style={styles.detailsTwoColumnContainer}>
@@ -314,7 +351,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               </View>
             </View>
           </View>
-          {/* Gross Salary Row - label and value in same row */}
+          {/* Gross Salary Row */}
           <View style={styles.table}>
             <View style={styles.tableRow}>
               <Text
@@ -346,7 +383,6 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Deductions</Text>
           <View style={styles.table}>
-            {/* Header Row */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -381,7 +417,6 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                 Absent Deductions
               </Text>
             </View>
-            {/* Values Row */}
             <View style={styles.tableRow}>
               <Text
                 style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
@@ -404,7 +439,6 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                 {data.absentDeductions || "PKR 0"}
               </Text>
             </View>
-            {/* Total Deductions Row */}
             <View style={styles.tableRow}>
               <Text
                 style={[
@@ -453,22 +487,41 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
           </View>
         )}
 
-        {/* Absent Dates Section */}
-        {data.absentDates && data.absentDates.length > 0 && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Absent Dates</Text>
-            <View style={styles.absentDatesContainer}>
-              {data.absentDates.map((dateStr, index) => {
-                const formattedDate = new Date(dateStr).toLocaleDateString();
-                return (
-                  <View style={styles.absentDateBox} key={index}>
-                    <Text style={styles.absentDateText}>{formattedDate}</Text>
+        {/* Attendance Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Attendance</Text>
+          {/* Absents Subsection */}
+          {absentAttendance.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                <Text style={styles.subSectionTitle}>Absents:</Text>
+                {absentAttendance.map((d, index) => (
+                  <View key={index} style={styles.attendanceCell}>
+                    <Text style={styles.attendanceCellText}>
+                      {new Date(d).toLocaleDateString()}
+                    </Text>
                   </View>
-                );
-              })}
+                ))}
+              </View>
             </View>
-          </View>
-        )}
+          )}
+          {/* Leaves Subsection */}
+          {leaveAttendance.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                <Text style={styles.subSectionTitle}>Leaves:</Text>
+                {leaveAttendance.map((entry, index) => (
+                  <View key={index} style={styles.attendanceCell}>
+                    <Text style={styles.attendanceCellText}>
+                      {new Date(entry.date).toLocaleDateString()} (
+                      {leaveShortForms[entry.type] || entry.type})
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
 
         {/* Leave Details Section */}
         {data.leaveDetails && (

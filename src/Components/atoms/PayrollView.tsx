@@ -26,19 +26,21 @@ interface PayrollDetails {
   month: number; // e.g., 12 for December
   year: number;
   basicSalary: number;
-  medicalAllowance: number; // Added
-  mobileAllowance: number; // Added
-  fuelAllowance: number; // Added
-  allowances: number; // Total allowances (e.g., 20000)
+  medicalAllowance: number;
+  mobileAllowance: number;
+  fuelAllowance: number;
+  allowances: number;
   perDaySalary: number;
   totalSalary: number;
-  deductions: number; // Other deductions (if any)
+  deductions: number;
   netSalary: number;
   lateIns: number;
   absentDays: number;
   presentDays: number;
   totalWorkingDays: number;
   absentDates?: string[]; // Array of ISO date strings
+  // NEW: leaveDates is an array of objects with a date and a leave type.
+  leaveDates?: { date: string; type: string }[];
   status: string;
   processedOn: string | null;
   createdAt: string;
@@ -143,16 +145,6 @@ const PayrollView: React.FC = () => {
     setPayrollData(selectedRecord);
   };
 
-  // Fallback calculation for Net Salary if not provided by the API.
-  const calculateNetSalary = () => {
-    if (!payrollData) return 0;
-    const basicSalary = payrollData.basicSalary || 0;
-    const allowances = payrollData.allowances || 0;
-    const totalSalary = basicSalary + allowances;
-    const deductions = payrollData.deductions || 0;
-    return totalSalary - deductions;
-  };
-
   // Calculate Total Extra Payments
   const totalExtraPayments = payrollData?.extraPayments
     ? payrollData.extraPayments.reduce(
@@ -160,6 +152,16 @@ const PayrollView: React.FC = () => {
         0
       )
     : 0;
+
+  // Fallback calculation for Net Salary if not provided by the API.
+  const calculateNetSalary = () => {
+    if (!payrollData) return 0;
+    const basicSalary = payrollData.basicSalary || 0;
+    const allowances = payrollData.allowances || 0;
+    const totalSalary = basicSalary + allowances + totalExtraPayments;
+    const deductions = payrollData.deductions || 0;
+    return totalSalary - deductions;
+  };
 
   const pdfData = {
     date: new Date().toLocaleDateString(),
@@ -230,7 +232,7 @@ const PayrollView: React.FC = () => {
       }),
     amountPayable:
       "PKR " +
-      (payrollData?.netSalary || calculateNetSalary()).toLocaleString("en-US", {
+      calculateNetSalary().toLocaleString("en-US", {
         maximumFractionDigits: 0,
       }),
     extraPayments: payrollData?.extraPayments?.map((p) => ({
@@ -239,14 +241,11 @@ const PayrollView: React.FC = () => {
         "PKR " + p.amount.toLocaleString("en-US", { maximumFractionDigits: 0 }),
     })),
     absentDates: payrollData?.absentDates,
-    // Calculate absent deductions as (absentDays * perDaySalary)
     absentDeductions:
       "PKR " +
       (
         (payrollData?.absentDays || 0) * (payrollData?.perDaySalary || 0)
-      ).toLocaleString("en-US", {
-        maximumFractionDigits: 0,
-      }),
+      ).toLocaleString("en-US", { maximumFractionDigits: 0 }),
     leaveDetails: payrollData?.leaveDetails && {
       casualLeaveAvailable:
         payrollData.leaveDetails.casualLeaveAvailable.toString(),
@@ -255,6 +254,8 @@ const PayrollView: React.FC = () => {
       annualLeaveAvailable:
         payrollData.leaveDetails.annualLeaveAvailable.toString(),
     },
+    // NEW: Pass leaveDates to the PDF document if available.
+    leaveDates: payrollData?.leaveDates,
   };
 
   if (loading || userLoading) {
@@ -459,7 +460,7 @@ const PayrollView: React.FC = () => {
         </table>
       </div>
 
-      {/* Absent Dates Section (full-width) with an extra row for Absent Attendance Deductions */}
+      {/* Absent Dates Section */}
       <div className="w-full my-4">
         {payrollData?.absentDates && payrollData.absentDates.length > 0 && (
           <div className="mt-4">
@@ -501,44 +502,75 @@ const PayrollView: React.FC = () => {
         )}
       </div>
 
-      {/* Leave Details Section (full-width) */}
+      {/* NEW: Leave Dates Section */}
       <div className="w-full my-4">
-        {payrollData?.leaveDetails && (
-          <div>
+        {payrollData?.leaveDates && payrollData.leaveDates.length > 0 && (
+          <div className="mt-4">
             <table className={tableClass}>
               <thead>
                 <tr>
-                  <th className={thClass} colSpan={2}>
-                    Leave Details
+                  <th className={thClass} colSpan={3}>
+                    Leave Dates
                   </th>
+                </tr>
+                <tr>
+                  <th className={`${newStyle} w-1/3`}>S.No</th>
+                  <th className={`${newStyle} w-1/3`}>Date</th>
+                  <th className={`${newStyle} w-1/3`}>Type</th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td className={tdClass}>Casual Leave Available</td>
-                  <td className={`${tdClass} font-bold`}>
-                    {payrollData.leaveDetails.casualLeaveAvailable || 0}
-                  </td>
-                </tr>
-                <tr>
-                  <td className={tdClass}>Sick Leave Available</td>
-                  <td className={`${tdClass} font-bold`}>
-                    {payrollData.leaveDetails.sickLeaveAvailable || 0}
-                  </td>
-                </tr>
-                <tr>
-                  <td className={tdClass}>Annual Leave Available</td>
-                  <td className={`${tdClass} font-bold`}>
-                    {payrollData.leaveDetails.annualLeaveAvailable || 0}
-                  </td>
-                </tr>
+                {payrollData.leaveDates.map((entry, index) => (
+                  <tr key={index} className="hover:bg-gray-100">
+                    <td className={tdClass}>{index + 1}</td>
+                    <td className={tdClass}>
+                      {new Date(entry.date).toLocaleDateString()}
+                    </td>
+                    <td className={tdClass}>{entry.type}</td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
         )}
       </div>
 
-      {/* Deductions Section (full-width) */}
+      {/* Leave Details Section (if any leave details exist) */}
+      {payrollData?.leaveDetails && (
+        <div className="w-full my-4">
+          <table className={tableClass}>
+            <thead>
+              <tr>
+                <th className={thClass} colSpan={2}>
+                  Leave Details
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className={tdClass}>Casual Leave Available</td>
+                <td className={`${tdClass} font-bold`}>
+                  {payrollData.leaveDetails.casualLeaveAvailable || 0}
+                </td>
+              </tr>
+              <tr>
+                <td className={tdClass}>Sick Leave Available</td>
+                <td className={`${tdClass} font-bold`}>
+                  {payrollData.leaveDetails.sickLeaveAvailable || 0}
+                </td>
+              </tr>
+              <tr>
+                <td className={tdClass}>Annual Leave Available</td>
+                <td className={`${tdClass} font-bold`}>
+                  {payrollData.leaveDetails.annualLeaveAvailable || 0}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Deductions Section */}
       <div className="w-full my-4">
         <table className={tableClass}>
           <thead>
@@ -657,7 +689,7 @@ const PayrollView: React.FC = () => {
           <tr>
             <th className={`${thClass} w-1/2`}>Amount Payable</th>
             <th className={`${tdClass} w-1/2 text-black text-left`}>
-              PKR {(payrollData?.netSalary || calculateNetSalary()).toFixed(0)}
+              PKR {calculateNetSalary().toFixed(0)}
             </th>
           </tr>
         </thead>
