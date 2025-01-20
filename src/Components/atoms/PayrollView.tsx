@@ -175,17 +175,17 @@ const PayrollView: React.FC = () => {
       }) || "0"),
     medicalAllowance:
       "PKR " +
-      (payrollData?.medicalAllowance?.toLocaleString("en-US", {
+      (user?.salaryDetails?.medicalAllowance?.toLocaleString("en-US", {
         maximumFractionDigits: 0,
       }) || "0"),
     mobileAllowance:
       "PKR " +
-      (payrollData?.mobileAllowance?.toLocaleString("en-US", {
+      (user?.salaryDetails?.mobileAllowance.toLocaleString("en-US", {
         maximumFractionDigits: 0,
       }) || "0"),
     fuelAllowance:
       "PKR " +
-      (payrollData?.fuelAllowance?.toLocaleString("en-US", {
+      (user?.salaryDetails?.fuelAllowance?.toLocaleString("en-US", {
         maximumFractionDigits: 0,
       }) || "0"),
     allowances:

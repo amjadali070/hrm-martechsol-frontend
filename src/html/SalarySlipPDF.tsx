@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     paddingTop: 25,
     paddingLeft: 50,
     paddingRight: 50,
-    paddingBottom: 10,
+    paddingBottom: 5, // reduced bottom padding
     fontFamily: "Helvetica",
     fontSize: 9,
     lineHeight: 1.2,
@@ -40,12 +40,12 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 16,
+  },
+  headerRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-  },
-  headerLeft: {
-    flexDirection: "column",
+    marginTop: 4,
   },
   logo: {
     width: 120,
@@ -57,17 +57,17 @@ const styles = StyleSheet.create({
     color: colors.black,
     marginBottom: 3,
   },
-  headerRight: {
-    textAlign: "right",
-  },
   date: {
     fontSize: 9,
     color: colors.gray600,
     fontStyle: "italic",
   },
   section: {
-    marginTop: 5,
-    marginBottom: 5,
+    marginTop: 2,
+    backgroundColor: colors.lightGray,
+    padding: 4,
+    borderRadius: 4,
+    marginBottom: 2,
   },
   sectionTitle: {
     backgroundColor: colors.purple900,
@@ -76,7 +76,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     fontSize: 11,
     textAlign: "center",
-    marginBottom: 4,
+    marginBottom: 2,
+    borderRadius: 4,
   },
   table: {
     display: "flex",
@@ -86,7 +87,7 @@ const styles = StyleSheet.create({
     borderColor: colors.lightGray,
     padding: 4,
     backgroundColor: colors.lightGray,
-    marginBottom: 8,
+    borderRadius: 4,
   },
   tableRow: {
     flexDirection: "row",
@@ -98,11 +99,13 @@ const styles = StyleSheet.create({
     color: colors.black,
     padding: 6,
     backgroundColor: colors.grayforRows,
+    borderRadius: 4,
   },
   tableCol: {
     fontSize: 10,
     color: colors.gray800,
-    padding: 5,
+    padding: 6,
+    borderRadius: 4,
   },
   amountPayableHeading: {
     fontFamily: "Helvetica-Bold",
@@ -110,16 +113,20 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.white,
     backgroundColor: colors.purple900,
-    width: "40%",
+    width: "49%",
+    borderRadius: 4,
+    marginRight: "1%",
   },
   amountPayableData: {
-    padding: 5,
-    fontSize: 10,
     fontFamily: "Helvetica-Bold",
-    color: colors.gray800,
-    width: "60%",
+    padding: 8,
+    fontSize: 10,
+    color: colors.black,
+    backgroundColor: colors.white,
+    width: "49%",
+    borderRadius: 4,
+    marginLeft: "1%",
   },
-  // Styles for Absent Dates boxes:
   absentDatesContainer: {
     flexDirection: "row",
     flexWrap: "wrap",
@@ -130,7 +137,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     borderRadius: 4,
     marginRight: 4,
-    marginBottom: 4,
   },
   absentDateText: {
     fontSize: 9,
@@ -150,12 +156,14 @@ const styles = StyleSheet.create({
     marginTop: 70,
     marginBottom: 10,
   },
+  detailsTwoColumnContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  detailsColumn: {
+    width: "48%",
+  },
 });
-
-// Helper function to convert a currency-formatted string to a number
-const parseCurrency = (value: string): number => {
-  return Number(value.replace(/[^0-9.-]+/g, ""));
-};
 
 interface SalarySlipPDFProps {
   data: {
@@ -173,11 +181,11 @@ interface SalarySlipPDFProps {
     tax: string;
     eobi: string;
     pfContribution: string;
-    absentDeductions?: string; // New field for absent deductions
+    absentDeductions?: string;
     amountPayable: string;
     allowances?: string;
     extraPayments?: { description: string; amount: string }[];
-    absentDates?: string[]; // ISO strings; will be formatted in the PDF
+    absentDates?: string[];
     leaveDetails?: {
       casualLeaveAvailable?: string;
       sickLeaveAvailable?: string;
@@ -186,8 +194,11 @@ interface SalarySlipPDFProps {
   };
 }
 
+const parseCurrency = (value: string): number => {
+  return Number(value.replace(/[^0-9.-]+/g, ""));
+};
+
 const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
-  // Calculate total deductions from the four fields.
   const totalDeductionsNumber =
     parseCurrency(data.tax) +
     parseCurrency(data.eobi) +
@@ -203,17 +214,21 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header with Salary Slip and Month/Year */}
+        {/* Header */}
         <View style={styles.header}>
-          <View style={styles.headerLeft}>
-            <Image src={logo} style={styles.logo} />
+          <Image src={logo} style={styles.logo} />
+          <View style={styles.headerRow}>
             <Text style={styles.title}>Salary Slip</Text>
-          </View>
-          <View style={styles.headerRight}>
-            <Text style={{ fontSize: 10, color: colors.gray600 }}>
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.black,
+                fontFamily: "Helvetica-Bold",
+                marginTop: 4,
+              }}
+            >
               {data.month} {data.year}
             </Text>
-            <Text style={styles.date}>Date: {data.date}</Text>
           </View>
         </View>
 
@@ -248,54 +263,86 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
           </View>
         </View>
 
-        {/* Salary Details Section */}
+        {/* Salary Details Section with two columns for allowances */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Salary Details</Text>
+          <View style={styles.detailsTwoColumnContainer}>
+            <View style={styles.detailsColumn}>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableRowHeader,
+                    { width: "48%", marginLeft: "2%" },
+                  ]}
+                >
+                  Basic Salary
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.basicSalary}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableRowHeader,
+                    { width: "48%", marginLeft: "2%" },
+                  ]}
+                >
+                  Medical Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.medicalAllowance}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detailsColumn}>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "48%" }]}>
+                  Mobile Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.mobileAllowance}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "48%" }]}>
+                  Fuel Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.fuelAllowance}
+                </Text>
+              </View>
+            </View>
+          </View>
+          {/* Gross Salary Row - label and value in same row */}
           <View style={styles.table}>
             <View style={styles.tableRow}>
-              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Basic Salary
-              </Text>
-              <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.basicSalary}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Medical Allowance
-              </Text>
-              <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.medicalAllowance}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Mobile Allowance
-              </Text>
-              <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.mobileAllowance}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Fuel Allowance
-              </Text>
-              <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.fuelAllowance}
-              </Text>
-            </View>
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "49%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
                 Gross Salary
               </Text>
-              <Text style={[styles.tableCol, { width: "60%" }]}>
+              <Text
+                style={[
+                  styles.tableCol,
+                  {
+                    width: "49%",
+                    textAlign: "center",
+                    backgroundColor: colors.white,
+                    marginLeft: "1%",
+                  },
+                ]}
+              >
                 {data.grossSalary}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Deductions Section: All deductions rendered in the same row with an extra row for total */}
+        {/* Deductions Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Deductions</Text>
           <View style={styles.table}>
@@ -304,7 +351,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableRowHeader,
-                  { width: "25%", textAlign: "center" },
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
                 ]}
               >
                 Tax
@@ -312,7 +359,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableRowHeader,
-                  { width: "25%", textAlign: "center" },
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
                 ]}
               >
                 EOBI
@@ -320,7 +367,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableRowHeader,
-                  { width: "25%", textAlign: "center" },
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
                 ]}
               >
                 PF Contribution
@@ -328,7 +375,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableRowHeader,
-                  { width: "25%", textAlign: "center" },
+                  { width: "24%", textAlign: "center" },
                 ]}
               >
                 Absent Deductions
@@ -362,7 +409,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableRowHeader,
-                  { width: "66.66%", textAlign: "center" },
+                  { width: "49%", textAlign: "center", marginRight: "1%" },
                 ]}
               >
                 Total Deductions
@@ -370,7 +417,12 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
               <Text
                 style={[
                   styles.tableCol,
-                  { width: "33.33%", textAlign: "center" },
+                  {
+                    width: "49%",
+                    textAlign: "center",
+                    backgroundColor: colors.white,
+                    marginLeft: "1%",
+                  },
                 ]}
               >
                 {totalDeductionsFormatted}
@@ -386,13 +438,13 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
             <View style={styles.table}>
               {data.extraPayments.map((payment, index) => (
                 <View style={styles.tableRow} key={index}>
-                  <Text style={[styles.tableRowHeader, { width: "30%" }]}>
+                  <Text style={[styles.tableRowHeader, { width: "10%" }]}>
                     {index + 1}.
                   </Text>
-                  <Text style={[styles.tableCol, { width: "40%" }]}>
+                  <Text style={[styles.tableRowHeader, { width: "40%" }]}>
                     {payment.description}
                   </Text>
-                  <Text style={[styles.tableCol, { width: "30%" }]}>
+                  <Text style={[styles.tableCol, { width: "40%" }]}>
                     {payment.amount}
                   </Text>
                 </View>
