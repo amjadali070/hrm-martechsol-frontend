@@ -673,7 +673,6 @@ const AttendanceManagement: React.FC = () => {
             </div>
           )}
 
-          {/* Summary Section */}
           {Object.keys(typeSummary).length > 0 && (
             <div className="rounded-lg">
               <h3 className="text-xl font-semibold text-gray-800 mb-4">
@@ -699,7 +698,7 @@ const AttendanceManagement: React.FC = () => {
         isOpen={showMarkAbsentModal}
         onClose={() => {
           setShowMarkAbsentModal(false);
-          fetchAttendance(); // Refresh the attendance data
+          fetchAttendance();
         }}
       />
     </div>
