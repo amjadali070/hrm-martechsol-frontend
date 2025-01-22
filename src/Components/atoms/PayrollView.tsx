@@ -272,27 +272,9 @@ const PayrollView: React.FC = () => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center mt-40">
-        <div className="text-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-16 w-16 mx-auto mb-4 text-red-500"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <h2 className="text-xl font-semibold text-gray-800 mb-2">
-            Error Retrieving Payroll Data
-          </h2>
-          <p className="text-gray-600 mb-4">{error}</p>
-        </div>
+      <div className="flex flex-col items-center mt-20">
+        <FaInbox size={30} className="text-gray-600 mb-4" />
+        <span className="text-lg font-medium">No Payroll Data Available</span>
       </div>
     );
   }

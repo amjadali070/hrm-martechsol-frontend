@@ -20,7 +20,7 @@ const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
-  console.log("user", user);
+
   if (!user) {
     return (
       <div className="flex justify-center items-center h-screen">

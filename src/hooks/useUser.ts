@@ -186,8 +186,6 @@ const useUser = () => {
         salaryDetails: response.data.salaryDetails,
       };
 
-      console.log("Processed user data:", userData); // Debugging log
-
       setUser(userData);
       setLoading(false);
       return userData;
