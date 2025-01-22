@@ -190,7 +190,7 @@ const NoticesManagement: React.FC = () => {
   if (error) return <div className="text-red-600">{error}</div>;
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg">
+    <div className="w-full p-6 bg-gray-50 rounded-lg">
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Notices Management</h2>
         <div className="flex justify-between items-center mb-4">

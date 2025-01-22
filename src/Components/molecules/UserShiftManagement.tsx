@@ -191,7 +191,7 @@ const UserShiftManagement: React.FC = () => {
   );
 
   return (
-    <div className="w-full p-8 bg-gradient-to-r from-gray-100 to-white rounded-lg mb-8">
+    <div className="w-full p-8 bg-gray-50 rounded-lg mb-8">
       <ToastContainer position="top-center" />
       <h1 className="text-3xl font-extrabold text-gray-800 mb-6 text-center">
         User Shift Management

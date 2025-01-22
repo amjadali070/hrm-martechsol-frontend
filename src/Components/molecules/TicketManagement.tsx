@@ -97,7 +97,7 @@ const TicketManagement: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-white flex items-center justify-center p-6 rounded-lg">
+    <div className="w-full bg-gray-50 flex items-center justify-center p-6 rounded-lg">
       {!selectedTicketType ? (
         <div className="w-full">
           <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
