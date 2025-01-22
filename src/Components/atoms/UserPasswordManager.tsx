@@ -118,12 +118,11 @@ const UserPasswordManager: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto p-4 bg-gray-50 rounded-lg">
       <h1 className="text-2xl font-semibold mb-4 flex items-center">
         <FaUserShield className="mr-2" /> User Password Manager
       </h1>
 
-      {/* Filters Section */}
       <div className="mb-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         <input
           type="text"
@@ -141,7 +140,7 @@ const UserPasswordManager: React.FC = () => {
           placeholder="Filter by Department"
           className="p-2 border rounded"
         />
-       
+
         <input
           type="text"
           name="jobTitle"

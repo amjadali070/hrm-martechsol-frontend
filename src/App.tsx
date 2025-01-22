@@ -40,7 +40,6 @@ import ForgotPasswordPage from "./Components/molecules/ForgotPasswordPage";
 import FormsManagement from "./Components/molecules/FormsManagement";
 import HolidayManagement from "./Components/molecules/HolidayManagement";
 import LeaveManagement from "./Components/molecules/LeaveManagement";
-import PayrollManagement from "./Components/molecules/PayrollManagement";
 import SiginPage from "./Components/molecules/SignPage";
 import TeamManagement from "./Components/molecules/TeamManagement";
 import TicketManagement from "./Components/molecules/TicketManagement";
@@ -58,6 +57,10 @@ import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import PopupNotice from "./Components/atoms/PopupNotice";
 import ProcessPayroll from "./Components/atoms/ProcessPayroll";
+import PayrollManagement from "./Components/molecules/payrollManagment/PayrollManagement";
+import { PayrollProvider } from "./Components/molecules/payrollManagment/PayrollContext";
+import EditPayroll from "./Components/molecules/payrollManagment/EditPayroll";
+import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
 
 const App: React.FC = () => {
   return (
@@ -139,10 +142,37 @@ const App: React.FC = () => {
                   path="/organization/employee-management/add-new-employee"
                   element={<AddNewEmployee />}
                 />
-                <Route
+                {/* <Route
                   path="/organization/payroll-management"
                   element={<PayrollManagement />}
+                /> */}
+
+                <Route
+                  path="/organization/payroll-management"
+                  element={
+                    <PayrollProvider>
+                      <PayrollManagement />
+                    </PayrollProvider>
+                  }
                 />
+                <Route
+                  path="/edit/:id"
+                  element={
+                    <PayrollProvider>
+                      <EditPayroll />
+                    </PayrollProvider>
+                  }
+                />
+
+                <Route
+                  path="/view/:id"
+                  element={
+                    <PayrollProvider>
+                      <ViewPayroll />
+                    </PayrollProvider>
+                  }
+                />
+
                 <Route
                   path="/organization/payroll-management/edit/:id"
                   element={<EditablePayrollPage />}

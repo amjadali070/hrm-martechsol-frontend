@@ -1,0 +1,581 @@
+// src/components/EditPayroll.tsx
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  FaTimes,
+  FaPlus,
+  FaMinus,
+  FaBuilding,
+  FaRegCalendarCheck,
+  FaMoneyBillWave,
+  FaFileInvoiceDollar,
+  FaSpinner,
+  FaArrowLeft,
+} from "react-icons/fa";
+import {
+  usePayroll,
+  PayrollData,
+  ExtraPayment,
+  LeaveDate,
+} from "./PayrollContext";
+import axiosInstance from "../../../utils/axiosConfig";
+import { getMonthName } from "../../../utils/monthUtils";
+
+const EditPayroll: React.FC = () => {
+  // Extract payroll id from URL; this id refers to payroll record _id.
+  const { id } = useParams<{ id: string }>();
+  const { updatePayroll } = usePayroll();
+  const navigate = useNavigate();
+
+  // Component state
+  const [payroll, setPayroll] = useState<PayrollData | null>(null);
+  const [extraPayments, setExtraPayments] = useState<ExtraPayment[]>([]);
+  const [tax, setTax] = useState<number>(0);
+  const [eobi, setEobi] = useState<number>(0);
+  const [employeePF, setEmployeePF] = useState<number>(0);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch payroll details using GET /api/payroll/:id
+  useEffect(() => {
+    const fetchPayroll = async () => {
+      if (!id) {
+        setError("Invalid payroll ID.");
+        return;
+      }
+      try {
+        setLoading(true);
+        const response = await axiosInstance.get(`/api/payroll/${id}`);
+        const fetchedPayroll: PayrollData = response.data;
+        setPayroll(fetchedPayroll);
+        setExtraPayments(fetchedPayroll.extraPayments || []);
+        // Set extra fields from the API response
+        setTax(fetchedPayroll.tax || 0);
+        setEobi(fetchedPayroll.eobi || 0);
+        setEmployeePF(fetchedPayroll.employeePF || 0);
+      } catch (err: any) {
+        console.error("Error fetching payroll:", err);
+        setError(err.response?.data?.message || "Failed to fetch payroll.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchPayroll();
+  }, [id]);
+
+  // Handle extra payments changes
+  const handleExtraPaymentChange = (
+    paymentId: string,
+    field: keyof ExtraPayment,
+    value: string | number
+  ) => {
+    setExtraPayments((prev) =>
+      prev.map((payment) =>
+        payment.id === paymentId
+          ? { ...payment, [field]: field === "amount" ? Number(value) : value }
+          : payment
+      )
+    );
+  };
+
+  const addExtraPayment = () => {
+    const newPayment: ExtraPayment = {
+      id: Date.now().toString(),
+      description: "",
+      amount: 0,
+    };
+    setExtraPayments((prev) => [...prev, newPayment]);
+  };
+
+  const removeExtraPayment = (paymentId: string) => {
+    setExtraPayments((prev) =>
+      prev.filter((payment) => payment.id !== paymentId)
+    );
+  };
+
+  /* 
+    Calculation of Net Salary:
+    Net Salary = Gross Salary - (Deductions + Tax + EOBI + Employee PF) + Sum(Extra Payments)
+  */
+  const calculateNetSalary = () => {
+    if (!payroll) return 0;
+    const extrasTotal = extraPayments.reduce(
+      (sum, payment) => sum + payment.amount,
+      0
+    );
+    return (
+      payroll.totalSalary -
+      payroll.deductions -
+      tax -
+      eobi -
+      employeePF +
+      extrasTotal
+    );
+  };
+
+  // Handle form submission to update the payroll record
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (payroll) {
+      setLoading(true);
+      try {
+        const updatedPayroll: any = {
+          ...payroll,
+          netSalary: calculateNetSalary(),
+          extraPayments,
+          tax,
+          eobi,
+          employeePF,
+          // Optionally, if you want to allow editing leaveDates,
+          // include it here. Otherwise, you may leave it as is.
+        };
+        const response = await axiosInstance.patch(
+          `/api/payroll/${id}`,
+          updatedPayroll
+        );
+        updatePayroll(response.data.payroll);
+
+        // Redirect back to PayrollManagement, including month and year in query params
+        navigate(
+          `/organization/payroll-management?month=${payroll.month}&year=${payroll.year}`
+        );
+      } catch (err: any) {
+        console.error("Error updating payroll:", err);
+        setError(err.response?.data?.message || "Failed to update payroll.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  // Handle close action (without saving) with redirection back to the open month payroll
+  const handleClose = () => {
+    if (payroll) {
+      navigate(
+        `/organization/payroll-management?month=${payroll.month}&year=${payroll.year}`
+      );
+    } else {
+      navigate("/organization/payroll-management");
+    }
+  };
+
+  if (loading && !payroll) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <FaSpinner className="animate-spin text-blue-500" size={50} />
+      </div>
+    );
+  }
+
+  if (!loading && !payroll) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-gray-700">No payroll data found.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 rounded-lg">
+      <div className="w-full dark:bg-gray-800 p-6">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div className="flex items-center space-x-3">
+            <h2 className="text-3xl font-bold text-black px-4 py-2 rounded">
+              Edit Payroll
+            </h2>
+          </div>
+          <div className="flex justify-end">
+            <button
+              onClick={() =>
+                navigate(
+                  `/organization/payroll-management?month=${
+                    payroll!.month
+                  }&year=${payroll!.year}`
+                )
+              }
+              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors"
+            >
+              <FaArrowLeft className="mr-2" /> Back
+            </button>
+          </div>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Section 1: User Details */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaBuilding className="mr-2" /> User Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Name
+                </label>
+                <div className="mt-1 text-gray-900">{payroll?.user.name}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Email
+                </label>
+                <div className="mt-1 text-gray-900">{payroll?.user.email}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Department
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll?.user.personalDetails?.department}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Job Title
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll?.user as any)?.jobTitle || "N/A"}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 2: Payroll Period */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaRegCalendarCheck className="mr-2" /> Payroll Period
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Month
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {getMonthName(payroll!.month)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Year
+                </label>
+                <div className="mt-1 text-gray-900">{payroll!.year}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Salary Details */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaMoneyBillWave className="mr-2" /> Salary Details
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Basic Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">{payroll!.basicSalary}</div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Medical Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.medicalAllowance ||
+                    payroll!.allowances}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Mobile Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.mobileAllowance || 0}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Fuel Allowance (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {(payroll as any)?.user?.salaryDetails?.fuelAllowance || 0}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Per Day Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll!.perDaySalary.toFixed(0)}
+                </div>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Gross Salary (PKR)
+                </label>
+                <div className="mt-1 text-gray-900">
+                  {payroll!.totalSalary.toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Absences */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Absent Dates
+            </h3>
+            <div>
+              {payroll?.absentDates && payroll.absentDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        S.No
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        Date
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.absentDates.map((date, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No absent dates recorded.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Leave Dates
+            </h3>
+            <div>
+              {payroll?.leaveDates && payroll.leaveDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        S.No
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        Date
+                      </th>
+                      <th className="px-4 py-2 text-sm font-semibold text-gray-700 text-center">
+                        Type
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.leaveDates.map((entry, idx) => (
+                      <tr key={idx} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(entry.date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 text-center">{entry.type}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No leave dates recorded.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Section 6: Deductions */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Deductions
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Tax (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={tax}
+                  onChange={(e) => setTax(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter Tax"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  EOBI (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={eobi}
+                  onChange={(e) => setEobi(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter EOBI"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">
+                  Employee PF (PKR)
+                </label>
+                <input
+                  type="number"
+                  value={employeePF}
+                  onChange={(e) => setEmployeePF(Number(e.target.value))}
+                  className="mt-1 block w-full rounded-md border-gray-300 px-2 py-1"
+                  placeholder="Enter Employee PF"
+                />
+              </div>
+            </div>
+            {/* Highlight Total Deductions */}
+            <div className="mt-4 p-4 bg-red-100 border border-red-300 rounded-md">
+              <label className="block text-sm font-medium text-red-700">
+                Total Deductions (PKR)
+              </label>
+              <div className="mt-1 font-bold text-red-800">
+                {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+              </div>
+            </div>
+          </div>
+
+          {/* Section 7: Extra Payments */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaMoneyBillWave className="mr-2" /> Extra Payments
+            </h3>
+            {extraPayments.length > 0 ? (
+              <table className="min-w-full border divide-y divide-gray-300 rounded-lg overflow-hidden">
+                <thead className="bg-gray-200">
+                  <tr>
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
+                      Description
+                    </th>
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
+                      Amount (PKR)
+                    </th>
+                    <th className="px-4 py-2 text-sm font-semibold text-gray-700">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {extraPayments.map((payment) => (
+                    <tr key={payment.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-2">
+                        <input
+                          type="text"
+                          value={payment.description}
+                          onChange={(e) =>
+                            handleExtraPaymentChange(
+                              payment.id,
+                              "description",
+                              e.target.value
+                            )
+                          }
+                          required
+                          className="w-full p-2 border rounded-md"
+                          placeholder="Enter description"
+                        />
+                      </td>
+                      <td className="px-4 py-2">
+                        <input
+                          type="number"
+                          value={payment.amount}
+                          onChange={(e) =>
+                            handleExtraPaymentChange(
+                              payment.id,
+                              "amount",
+                              e.target.value
+                            )
+                          }
+                          required
+                          min={0}
+                          className="w-full p-2 border rounded-md"
+                          placeholder="Enter amount"
+                        />
+                      </td>
+                      <td className="px-4 py-2 text-center">
+                        <button
+                          type="button"
+                          onClick={() => removeExtraPayment(payment.id)}
+                          className="text-red-500 hover:text-red-700"
+                          title="Remove Payment"
+                        >
+                          <FaMinus />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <p className="text-gray-500">No extra payments added.</p>
+            )}
+            <button
+              type="button"
+              onClick={addExtraPayment}
+              className="flex items-center text-green-500 mt-4"
+            >
+              <FaPlus className="mr-2" /> Add Extra Payment
+            </button>
+          </div>
+
+          {/* Section 8: Payroll Summary */}
+          <div className="p-6 border rounded-lg bg-gray-50">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-4 bg-blue-50 border border-blue-200 rounded-md text-center">
+                <label className="block text-sm font-medium text-blue-700">
+                  Gross Salary (PKR)
+                </label>
+                <div className="mt-2 font-bold text-blue-900">
+                  {payroll!.totalSalary.toFixed(0)}
+                </div>
+              </div>
+              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-md text-center">
+                <label className="block text-sm font-medium text-yellow-700">
+                  Total Deductions (PKR)
+                </label>
+                <div className="mt-2 font-bold text-yellow-900">
+                  {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+                </div>
+              </div>
+              <div className="p-4 bg-green-50 border border-green-200 rounded-md text-center">
+                <label className="block text-sm font-medium text-green-700">
+                  Net Salary (PKR)
+                </label>
+                <div className="mt-2 font-extrabold text-green-900 text-xl">
+                  {calculateNetSalary().toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              className={`flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors ${
+                loading ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default EditPayroll;

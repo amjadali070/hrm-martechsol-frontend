@@ -209,7 +209,7 @@ const TeamManagement: React.FC = () => {
   }
 
   return (
-    <div className="w-full p-8 bg-gradient-to-r from-gray-100 to-white rounded-lg mb-8">
+    <div className="w-full p-8 bg-gray-50 rounded-lg mb-8">
       <ToastContainer position="top-center" />
       <div className="flex flex-col sm:flex-row justify-between items-center mb-8">
         <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-800">

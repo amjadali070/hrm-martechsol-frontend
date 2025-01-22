@@ -1,4 +1,5 @@
-import React from 'react';
+// src/html/SalarySlipPDF.tsx
+import React from "react";
 import {
   Page,
   Text,
@@ -6,64 +7,69 @@ import {
   Document,
   StyleSheet,
   Image,
-} from '@react-pdf/renderer';
-import logo from '../assets/LogoMartechSol.png';
-import backgroundImage from '../assets/v_background.svg';
+} from "@react-pdf/renderer";
+import logo from "../assets/LogoMartechSol.png";
+import backgroundImage from "../assets/v_background.svg";
 
 const colors = {
-  purple900: '#581c87',
-  white: '#FFFFFF',
-  gray600: '#718096',
-  gray800: '#2D3748',
-  lightGray: '#f3f4f6',
-  grayforRows: '#e8e8e8',
-  black: '#000000',
+  purple900: "#581c87",
+  white: "#FFFFFF",
+  gray600: "#718096",
+  gray800: "#2D3748",
+  lightGray: "#f3f4f6",
+  grayforRows: "#e8e8e8",
+  black: "#000000",
+  cellBg: "#d1d5db", // Background for attendance cells
 };
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 25, 
+    paddingTop: 25,
     paddingLeft: 50,
     paddingRight: 50,
-    paddingBottom:10,
-    fontFamily: 'Helvetica',
+    paddingBottom: 5, // reduced bottom padding
+    fontFamily: "Helvetica",
     fontSize: 9,
     lineHeight: 1.2,
     color: colors.gray800,
-    flexDirection: 'column',
-    justifyContent: 'flex-start',
-    height: '100%',
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    height: "100%",
     backgroundImage: `url(${backgroundImage})`,
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    backgroundSize: "cover",
+    backgroundPosition: "center",
   },
   header: {
-    textAlign: 'center',
     marginBottom: 16,
-    position: 'relative',
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 4,
   },
   logo: {
     width: 120,
     marginBottom: 4,
+    alignSelf: "center",
   },
   title: {
     fontSize: 20,
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: "Helvetica-Bold",
     color: colors.black,
     marginBottom: 3,
-    marginTop: 10,
   },
   date: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
     fontSize: 9,
     color: colors.gray600,
-    fontStyle: 'italic',
+    fontStyle: "italic",
   },
   section: {
-    marginTop: 5,
-    marginBottom: 5,
+    marginTop: 2,
+    backgroundColor: colors.lightGray,
+    padding: 4,
+    borderRadius: 4,
+    marginBottom: 2,
   },
   sectionTitle: {
     backgroundColor: colors.purple900,
@@ -71,68 +77,97 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     paddingHorizontal: 6,
     fontSize: 11,
-    textAlign: 'center',
+    textAlign: "center",
+    marginBottom: 2,
+    borderRadius: 4,
   },
   table: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '100%',
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
     borderWidth: 1,
     borderColor: colors.lightGray,
     padding: 4,
     backgroundColor: colors.lightGray,
-    marginBottom: 8,
+    borderRadius: 4,
   },
   tableRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 3,
-    alignItems: 'center',
-  },
-  tableColHeader: {
-    width: '40%',
-    padding: 5,
-    fontSize: 9,
-    color: colors.white,
-    backgroundColor: colors.purple900,
+    alignItems: "center",
   },
   tableRowHeader: {
-    width: '40%',
-    padding: 6,
     fontSize: 10,
     color: colors.black,
+    padding: 6,
     backgroundColor: colors.grayforRows,
+    borderRadius: 4,
+  },
+  tableCol: {
+    fontSize: 10,
+    color: colors.gray800,
+    padding: 6,
+    borderRadius: 4,
   },
   amountPayableHeading: {
-    width: '40%',
-    fontFamily: 'Helvetica-Bold',
+    fontFamily: "Helvetica-Bold",
     padding: 8,
     fontSize: 10,
     color: colors.white,
     backgroundColor: colors.purple900,
+    width: "49%",
+    borderRadius: 4,
+    marginRight: "1%",
   },
   amountPayableData: {
-    width: '60%',
-    padding: 5,
+    fontFamily: "Helvetica-Bold",
+    padding: 8,
     fontSize: 10,
-    fontFamily: 'Helvetica-Bold',
+    color: colors.black,
+    backgroundColor: colors.white,
+    width: "49%",
+    borderRadius: 4,
+    marginLeft: "1%",
+  },
+  detailsTwoColumnContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  detailsColumn: {
+    width: "48%",
+  },
+  // Styles for attendance grid cells (max 6 columns)
+  attendanceCell: {
+    width: "15.66%",
+    backgroundColor: colors.grayforRows,
+    borderWidth: 1,
+    borderRadius: 4,
+    borderColor: colors.lightGray,
+    color: colors.black,
+    padding: 2,
+    margin: 1,
+    textAlign: "center",
+  },
+  attendanceCellText: {
+    fontSize: 7,
+    textAlign: "center",
     color: colors.gray800,
   },
-  tableCol: {
-    width: '60%',
-    padding: 5,
+
+  subSectionTitle: {
     fontSize: 10,
-    color: colors.gray800,
+    fontFamily: "Helvetica-Bold",
+    marginBottom: 4,
+    textAlign: "left",
+    marginTop: 4,
   },
   footer: {
-    textAlign: 'center',
+    textAlign: "center",
     fontSize: 12,
     marginTop: 5,
     color: colors.black,
-    fontStyle: 'italic',
+    fontStyle: "italic",
     lineHeight: 1.2,
-  },
-  boldText: {
-    fontWeight: 'bold',
   },
   footerDivider: {
     height: 1,
@@ -149,8 +184,6 @@ interface SalarySlipPDFProps {
     designation: string;
     jobType: string;
     month: string;
-    // from: string;
-    // to: string;
     year: string;
     basicSalary: string;
     medicalAllowance: string;
@@ -160,113 +193,393 @@ interface SalarySlipPDFProps {
     tax: string;
     eobi: string;
     pfContribution: string;
+    absentDeductions?: string;
     amountPayable: string;
+    allowances?: string;
+    extraPayments?: { description: string; amount: string }[];
+    absentDates?: string[];
+    leaveDates?: { date: string; type: string }[];
+    leaveDetails?: {
+      casualLeaveAvailable?: string;
+      sickLeaveAvailable?: string;
+      annualLeaveAvailable?: string;
+    };
   };
 }
 
-const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
+const parseCurrency = (value: string): number => {
+  return Number(value.replace(/[^0-9.-]+/g, ""));
+};
 
-      <View style={styles.header}>
-        <Image src={logo} style={styles.logo} />
-        <Text style={styles.title}>Salary Slip</Text>
-        <Text style={styles.date}>Date: {data.date}</Text>
-      </View>
+// Mapping for leave type abbreviations
+const leaveShortForms: { [key: string]: string } = {
+  "Casual Leave": "CL",
+  "Sick Leave": "SL",
+  "Annual Leave": "AL",
+  "Maternity Leave": "ML",
+  "Paternity Leave": "PL",
+  "Bereavement Leave": "BL",
+  "Absence Without Pay": "AWP",
+  "Unapproved Absence": "UA",
+};
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Personal Details</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Name</Text>
-            <Text style={styles.tableCol}>{data.name}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Designation</Text>
-            <Text style={styles.tableCol}>{data.designation}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Job Type</Text>
-            <Text style={styles.tableCol}>{data.jobType}</Text>
+const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
+  const totalDeductionsNumber =
+    parseCurrency(data.tax) +
+    parseCurrency(data.eobi) +
+    parseCurrency(data.pfContribution) +
+    parseCurrency(data.absentDeductions || "PKR 0");
+
+  const totalDeductionsFormatted =
+    "PKR " +
+    totalDeductionsNumber.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    });
+
+  // Prepare attendance data
+  const absentAttendance: string[] = data.absentDates
+    ? [...data.absentDates].sort(
+        (a, b) => new Date(a).getTime() - new Date(b).getTime()
+      )
+    : [];
+  const leaveAttendance: { date: string; type: string }[] = data.leaveDates
+    ? [...data.leaveDates].sort(
+        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+      )
+    : [];
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Image src={logo} style={styles.logo} />
+          <View style={styles.headerRow}>
+            <Text style={styles.title}>Salary Slip</Text>
+            <Text
+              style={{
+                fontSize: 12,
+                color: colors.black,
+                fontFamily: "Helvetica-Bold",
+                marginTop: 4,
+              }}
+            >
+              {data.month} {data.year}
+            </Text>
           </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Salary Period</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Year</Text>
-            <Text style={styles.tableCol}>{data.year}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Salary for the month of</Text>
-            <Text style={styles.tableCol}>{data.month}</Text>
+        {/* Personal Details Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Personal Details</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                Name
+              </Text>
+              <Text style={[styles.tableCol, { width: "60%" }]}>
+                {data.name}
+              </Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                Designation
+              </Text>
+              <Text style={[styles.tableCol, { width: "60%" }]}>
+                {data.designation}
+              </Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                Job Type
+              </Text>
+              <Text style={[styles.tableCol, { width: "60%" }]}>
+                {data.jobType}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Salary Details</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Basic Salary</Text>
-            <Text style={styles.tableCol}>{data.basicSalary}</Text>
+        {/* Salary Details Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Salary Details</Text>
+          <View style={styles.detailsTwoColumnContainer}>
+            <View style={styles.detailsColumn}>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableRowHeader,
+                    { width: "48%", marginLeft: "2%" },
+                  ]}
+                >
+                  Basic Salary
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.basicSalary}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text
+                  style={[
+                    styles.tableRowHeader,
+                    { width: "48%", marginLeft: "2%" },
+                  ]}
+                >
+                  Medical Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.medicalAllowance}
+                </Text>
+              </View>
+            </View>
+            <View style={styles.detailsColumn}>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "48%" }]}>
+                  Mobile Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.mobileAllowance}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "48%" }]}>
+                  Fuel Allowance
+                </Text>
+                <Text style={[styles.tableCol, { width: "50%" }]}>
+                  {data.fuelAllowance}
+                </Text>
+              </View>
+            </View>
           </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Medical Allowance</Text>
-            <Text style={styles.tableCol}>{data.medicalAllowance}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Mobile Allowance</Text>
-            <Text style={styles.tableCol}>{data.mobileAllowance}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Fuel Allowance</Text>
-            <Text style={styles.tableCol}>{data.fuelAllowance}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Gross Salary</Text>
-            <Text style={styles.tableCol}>{data.grossSalary}</Text>
+          {/* Gross Salary Row */}
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "49%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
+                Gross Salary
+              </Text>
+              <Text
+                style={[
+                  styles.tableCol,
+                  {
+                    width: "49%",
+                    textAlign: "center",
+                    backgroundColor: colors.white,
+                    marginLeft: "1%",
+                  },
+                ]}
+              >
+                {data.grossSalary}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Deductions</Text>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>Tax</Text>
-            <Text style={styles.tableCol}>{data.tax}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>EOBI</Text>
-            <Text style={styles.tableCol}>{data.eobi}</Text>
-          </View>
-          <View style={styles.tableRow}>
-            <Text style={[styles.tableRowHeader, styles.boldText]}>PF Contribution</Text>
-            <Text style={styles.tableCol}>{data.pfContribution}</Text>
+        {/* Deductions Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Deductions</Text>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
+                Tax
+              </Text>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
+                EOBI
+              </Text>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "24%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
+                PF Contribution
+              </Text>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "24%", textAlign: "center" },
+                ]}
+              >
+                Absent Deductions
+              </Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text
+                style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
+              >
+                {data.tax}
+              </Text>
+              <Text
+                style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
+              >
+                {data.eobi}
+              </Text>
+              <Text
+                style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
+              >
+                {data.pfContribution}
+              </Text>
+              <Text
+                style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
+              >
+                {data.absentDeductions || "PKR 0"}
+              </Text>
+            </View>
+            <View style={styles.tableRow}>
+              <Text
+                style={[
+                  styles.tableRowHeader,
+                  { width: "49%", textAlign: "center", marginRight: "1%" },
+                ]}
+              >
+                Total Deductions
+              </Text>
+              <Text
+                style={[
+                  styles.tableCol,
+                  {
+                    width: "49%",
+                    textAlign: "center",
+                    backgroundColor: colors.white,
+                    marginLeft: "1%",
+                  },
+                ]}
+              >
+                {totalDeductionsFormatted}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.section}>
-        <View style={styles.table}>
-          <View style={styles.tableRow}>
-            <Text style={[styles.amountPayableHeading, styles.boldText]}>Amount Payable</Text>
-            <Text style={styles.amountPayableData}>{data.amountPayable}</Text>
+        {/* Extra Payments Section */}
+        {data.extraPayments && data.extraPayments.length > 0 && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Extra Payments</Text>
+            <View style={styles.table}>
+              {data.extraPayments.map((payment, index) => (
+                <View style={styles.tableRow} key={index}>
+                  <Text style={[styles.tableRowHeader, { width: "10%" }]}>
+                    {index + 1}.
+                  </Text>
+                  <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                    {payment.description}
+                  </Text>
+                  <Text style={[styles.tableCol, { width: "40%" }]}>
+                    {payment.amount}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
+        {/* Attendance Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Attendance</Text>
+          {/* Absents Subsection */}
+          {absentAttendance.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                <Text style={styles.subSectionTitle}>Absents:</Text>
+                {absentAttendance.map((d, index) => (
+                  <View key={index} style={styles.attendanceCell}>
+                    <Text style={styles.attendanceCellText}>
+                      {new Date(d).toLocaleDateString()}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+          {/* Leaves Subsection */}
+          {leaveAttendance.length > 0 && (
+            <View style={{ marginBottom: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                <Text style={styles.subSectionTitle}>Leaves:</Text>
+                {leaveAttendance.map((entry, index) => (
+                  <View key={index} style={styles.attendanceCell}>
+                    <Text style={styles.attendanceCellText}>
+                      {new Date(entry.date).toLocaleDateString()} (
+                      {leaveShortForms[entry.type] || entry.type})
+                    </Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+        </View>
+
+        {/* Leave Details Section */}
+        {data.leaveDetails && (
+          <View style={styles.section}>
+            <Text style={styles.sectionTitle}>Leave Details</Text>
+            <View style={styles.table}>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                  Casual Leave
+                </Text>
+                <Text style={[styles.tableCol, { width: "60%" }]}>
+                  {data.leaveDetails.casualLeaveAvailable || 0}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                  Sick Leave
+                </Text>
+                <Text style={[styles.tableCol, { width: "60%" }]}>
+                  {data.leaveDetails.sickLeaveAvailable || 0}
+                </Text>
+              </View>
+              <View style={styles.tableRow}>
+                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
+                  Annual Leave
+                </Text>
+                <Text style={[styles.tableCol, { width: "60%" }]}>
+                  {data.leaveDetails.annualLeaveAvailable || 0}
+                </Text>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {/* Amount Payable Section */}
+        <View style={styles.section}>
+          <View style={styles.table}>
+            <View style={styles.tableRow}>
+              <Text style={styles.amountPayableHeading}>Amount Payable</Text>
+              <Text style={styles.amountPayableData}>{data.amountPayable}</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      <View style={styles.footerDivider} />
+        <View style={styles.footerDivider} />
 
-      <View style={styles.footer}>
-        <Text style={{marginBottom:6}}>Plot# 172/P, Najeeb Corner, 3rd Floor, Main Tariq Road, P.E.C.H.S Block 2, Karachi</Text>
-        <Text>+92 331 2269643  |  contact@martechsol.com  |  www.martechsol.com </Text>
-      </View>
-    </Page>
-  </Document>
-);
+        <View style={styles.footer}>
+          <Text style={{ marginBottom: 6 }}>
+            Plot# 172/P, Najeeb Corner, 3rd Floor, Main Tariq Road, P.E.C.H.S
+            Block 2, Karachi
+          </Text>
+          <Text>
+            +92 331 2269643 | contact@martechsol.com | www.martechsol.com
+          </Text>
+        </View>
+      </Page>
+    </Document>
+  );
+};
 
 export default SalarySlipPDF;

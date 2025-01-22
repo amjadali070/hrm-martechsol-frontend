@@ -274,7 +274,7 @@ const LeaveManagement: React.FC = () => {
   const totalPages = Math.ceil(getFilteredRequests().length / itemsPerPage);
 
   return (
-    <div className="w-full p-6 bg-gray-100 rounded-lg">
+    <div className="w-full p-6 bg-gray-50 rounded-lg">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-6">
         <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">

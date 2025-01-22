@@ -171,7 +171,7 @@ const VehicleManagement: React.FC = () => {
   };
 
   return (
-    <div className="bg-gray-100 min-h-screen p-6">
+    <div className="bg-gray-50 min-h-screen p-6 rounded-lg">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Vehicle Management</h1>
@@ -206,11 +206,11 @@ const VehicleManagement: React.FC = () => {
           </span>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
           {vehicles.map((vehicle) => (
             <div
               key={vehicle._id}
-              className="bg-white shadow-md rounded-lg overflow-hidden flex flex-col"
+              className="rounded-lg overflow-hidden flex flex-col bg-white"
             >
               {/* Vehicle Picture */}
               <div className="relative">
@@ -310,7 +310,7 @@ const VehicleManagement: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="p-4 bg-gray-50 flex space-x-2">
+              <div className="p-4 flex space-x-2">
                 <button
                   onClick={() => openAssignModal(vehicle)}
                   className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"

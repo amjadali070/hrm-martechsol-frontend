@@ -175,10 +175,10 @@ const HolidayManagement: React.FC = () => {
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg">
+    <div className="w-full p-6 bg-gray-50 rounded-lg">
       <h1 className="text-2xl font-bold mb-6">Holiday Management</h1>
 
-      <div className="bg-gray-100 p-4 rounded-lg mb-6">
+      <div className="p-4 rounded-lg mb-6">
         <h2 className="text-lg font-bold mb-4">
           {isEditing ? "Edit Holiday" : "Add New Holiday"}
         </h2>
