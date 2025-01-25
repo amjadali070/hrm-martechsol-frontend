@@ -13,7 +13,8 @@ interface TimeLogExtended extends TimeLog {
 }
 
 const statusColors: Record<AttendanceType, string> = {
-  Present: "bg-green-100 text-green-800",
+  Present: "bg-gray-100 text-gray-800",
+  Completed: "bg-green-100 text-green-800",
   Absent: "bg-red-100 text-red-800",
   "Late IN": "bg-yellow-100 text-yellow-800",
   "Half Day": "bg-orange-100 text-orange-800",
@@ -80,7 +81,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
 
   // Pagination (for active and edit tabs)
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [pageSize] = useState<number>(50);
+  const [pageSize] = useState<number>(150);
 
   // Filter states (applies to active and edit tabs)
   const [filterUserName, setFilterUserName] = useState<string>("");
@@ -960,6 +961,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                 className="mt-1 block w-full border border-gray-300 rounded-md p-2"
                 required
               >
+                <option value="Completed">Completed</option>
                 <option value="Present">Present</option>
                 <option value="Absent">Absent</option>
                 <option value="Late IN">Late IN</option>

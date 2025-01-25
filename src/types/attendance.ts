@@ -15,7 +15,8 @@ export type AttendanceType =
   | "Paternity Leave"
   | "Bereavement Leave"
   | "Unauthorized Leave"
-  | "Public Holiday";
+  | "Public Holiday"
+  | "Completed";
 
 export interface TimeLog {
   _id: string;

@@ -1,5 +1,3 @@
-// DashboardLayout.tsx
-
 import React, { useContext } from "react";
 import { useNavigate } from "react-router";
 import profilePlaceholder from "../../assets/placeholder.png";
@@ -9,7 +7,7 @@ import LeaveOverview from "../atoms/LeaveOverview";
 import QuickActions from "../atoms/QuickAction";
 import ProfileCard from "../molecules/ProfileCard";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
-import { AuthContext } from "./AuthContext"; // Import AuthContext
+import { AuthContext } from "./AuthContext";
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 import { FaSpinner } from "react-icons/fa";
@@ -44,7 +42,6 @@ const DashboardLayout: React.FC = () => {
     if (/^(http|https):\/\/[^ "]+$/.test(path)) {
       return path;
     }
-    // Otherwise, prepend the backendUrl
     return `${backendUrl.replace(/\/+$/, "")}/${path
       .replace(/\\+/g, "/")
       .replace(/^\/+/, "")}`;
