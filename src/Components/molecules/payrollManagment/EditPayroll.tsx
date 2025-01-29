@@ -1,8 +1,6 @@
-// src/components/EditPayroll.tsx
 import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  FaTimes,
   FaPlus,
   FaMinus,
   FaBuilding,
@@ -12,22 +10,15 @@ import {
   FaSpinner,
   FaArrowLeft,
 } from "react-icons/fa";
-import {
-  usePayroll,
-  PayrollData,
-  ExtraPayment,
-  LeaveDate,
-} from "./PayrollContext";
+import { usePayroll, PayrollData, ExtraPayment } from "./PayrollContext";
 import axiosInstance from "../../../utils/axiosConfig";
 import { getMonthName } from "../../../utils/monthUtils";
 
 const EditPayroll: React.FC = () => {
-  // Extract payroll id from URL; this id refers to payroll record _id.
   const { id } = useParams<{ id: string }>();
   const { updatePayroll } = usePayroll();
   const navigate = useNavigate();
 
-  // Component state
   const [payroll, setPayroll] = useState<PayrollData | null>(null);
   const [extraPayments, setExtraPayments] = useState<ExtraPayment[]>([]);
   const [tax, setTax] = useState<number>(0);
@@ -36,7 +27,6 @@ const EditPayroll: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch payroll details using GET /api/payroll/:id
   useEffect(() => {
     const fetchPayroll = async () => {
       if (!id) {
@@ -49,7 +39,7 @@ const EditPayroll: React.FC = () => {
         const fetchedPayroll: PayrollData = response.data;
         setPayroll(fetchedPayroll);
         setExtraPayments(fetchedPayroll.extraPayments || []);
-        // Set extra fields from the API response
+
         setTax(fetchedPayroll.tax || 0);
         setEobi(fetchedPayroll.eobi || 0);
         setEmployeePF(fetchedPayroll.employeePF || 0);
@@ -63,7 +53,6 @@ const EditPayroll: React.FC = () => {
     fetchPayroll();
   }, [id]);
 
-  // Handle extra payments changes
   const handleExtraPaymentChange = (
     paymentId: string,
     field: keyof ExtraPayment,
@@ -93,10 +82,6 @@ const EditPayroll: React.FC = () => {
     );
   };
 
-  /* 
-    Calculation of Net Salary:
-    Net Salary = Gross Salary - (Deductions + Tax + EOBI + Employee PF) + Sum(Extra Payments)
-  */
   const calculateNetSalary = () => {
     if (!payroll) return 0;
     const extrasTotal = extraPayments.reduce(
@@ -113,7 +98,6 @@ const EditPayroll: React.FC = () => {
     );
   };
 
-  // Handle form submission to update the payroll record
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (payroll) {
@@ -126,8 +110,6 @@ const EditPayroll: React.FC = () => {
           tax,
           eobi,
           employeePF,
-          // Optionally, if you want to allow editing leaveDates,
-          // include it here. Otherwise, you may leave it as is.
         };
         const response = await axiosInstance.patch(
           `/api/payroll/${id}`,
@@ -135,7 +117,6 @@ const EditPayroll: React.FC = () => {
         );
         updatePayroll(response.data.payroll);
 
-        // Redirect back to PayrollManagement, including month and year in query params
         navigate(
           `/organization/payroll-management?month=${payroll.month}&year=${payroll.year}`
         );
@@ -148,16 +129,16 @@ const EditPayroll: React.FC = () => {
     }
   };
 
-  // Handle close action (without saving) with redirection back to the open month payroll
-  const handleClose = () => {
-    if (payroll) {
-      navigate(
-        `/organization/payroll-management?month=${payroll.month}&year=${payroll.year}`
-      );
-    } else {
-      navigate("/organization/payroll-management");
-    }
-  };
+  // // Handle close action (without saving) with redirection back to the open month payroll
+  // const handleClose = () => {
+  //   if (payroll) {
+  //     navigate(
+  //       `/organization/payroll-management?month=${payroll.month}&year=${payroll.year}`
+  //     );
+  //   } else {
+  //     navigate("/organization/payroll-management");
+  //   }
+  // };
 
   if (loading && !payroll) {
     return (
@@ -178,7 +159,6 @@ const EditPayroll: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 rounded-lg">
       <div className="w-full dark:bg-gray-800 p-6">
-        {/* Header */}
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">
             <h2 className="text-3xl font-bold text-black px-4 py-2 rounded">
@@ -202,7 +182,6 @@ const EditPayroll: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Section 1: User Details */}
           <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaBuilding className="mr-2" /> User Details
@@ -239,7 +218,6 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 2: Payroll Period */}
           <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaRegCalendarCheck className="mr-2" /> Payroll Period
@@ -262,7 +240,6 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 3: Salary Details */}
           <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Salary Details
@@ -318,7 +295,6 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 4: Absences */}
           <div className="p-6 border rounded-lg bg-gray-50">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Absent Dates
@@ -364,7 +340,6 @@ const EditPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 8: Late In Dates and Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Late In Details
