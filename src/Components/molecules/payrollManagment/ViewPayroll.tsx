@@ -26,6 +26,7 @@ const ViewPayroll: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  console.log("payroll", payroll);
   // Fetch payroll details on mount
   useEffect(() => {
     const fetchPayroll = async () => {
@@ -134,7 +135,7 @@ const ViewPayroll: React.FC = () => {
               <div>
                 <label className="block text-sm font-medium">Job Title</label>
                 <div className="mt-1">
-                  {(payroll?.user as any)?.jobTitle || "N/A"}
+                  {payroll?.user.personalDetails?.jobTitle || "N/A"}
                 </div>
               </div>
             </div>

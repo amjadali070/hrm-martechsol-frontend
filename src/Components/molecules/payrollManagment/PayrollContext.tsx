@@ -28,7 +28,8 @@ export interface PayrollData {
     email: string;
     personalDetails: {
       department: string;
-      jobTitle?: string;
+      jobTitle: string;
+      abbreviatedJobTitle: string;
     };
   };
   month: number;
@@ -68,7 +69,6 @@ export interface PayrollContextProps {
   fetchPayrolls: (month?: string, year?: number) => Promise<PayrollData[]>;
   fetchAllMonths: () => Promise<MonthYear[]>;
   addPayroll: (payroll: PayrollData) => void;
-  // updatePayroll: (updatedPayroll: PayrollData) => void;
   deletePayroll: (id: string) => void;
   generatePayroll: (month: string, year: number) => Promise<void>;
   processPayroll: (month: string, year: number) => Promise<void>;
@@ -120,7 +120,16 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
             id: payroll._id,
             lateInDeductions:
               Math.floor(payroll.lateIns / 4) * (payroll.perDaySalary / 2),
-            halfDayDeductions: payroll.halfDays * (payroll.perDaySalary / 2), // Calculate half day deductions
+            halfDayDeductions: payroll.halfDays * (payroll.perDaySalary / 2),
+            user: {
+              ...payroll.user,
+              personalDetails: {
+                department: payroll.user.personalDetails.department,
+                jobTitle: payroll.user.personalDetails.jobTitle,
+                abbreviatedJobTitle:
+                  payroll.user.personalDetails.abbreviatedJobTitle,
+              },
+            },
           })
         );
 
@@ -155,29 +164,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     setPayrolls((prev) => [...prev, payroll]);
     toast.success(`Payroll added for ${payroll.user.name}`);
   };
-
-  // const updatePayroll = async (updatedPayroll: PayrollData) => {
-  //   try {
-  //     const response = await axiosInstance.patch(
-  //       `${backendUrl}/api/payroll/${updatedPayroll.id}`,
-  //       {
-  //         ...updatedPayroll,
-  //         halfDays: updatedPayroll.halfDays,
-  //         halfDayDates: updatedPayroll.halfDayDates,
-  //       }
-  //     );
-
-  //     setPayrolls((prev) =>
-  //       prev.map((payroll) =>
-  //         payroll.id === updatedPayroll.id ? response.data.payroll : payroll
-  //       )
-  //     );
-  //     toast.success(`Payroll updated for ${updatedPayroll.user.name}`);
-  //   } catch (error: any) {
-  //     console.error("Error updating payroll:", error);
-  //     toast.error(error.response?.data?.message || "Failed to update payroll.");
-  //   }
-  // };
 
   const deletePayroll = async (id: string) => {
     try {
@@ -258,7 +244,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
   };
 
   useEffect(() => {
-    // Fetch initial payrolls for the current month and year
     const currentMonth = getMonthName(new Date().getMonth() + 1);
     const currentYear = new Date().getFullYear();
     fetchPayrolls(currentMonth, currentYear);
@@ -273,7 +258,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
         fetchPayrolls,
         fetchAllMonths,
         addPayroll,
-        // updatePayroll,
         deletePayroll,
         generatePayroll,
         processPayroll,

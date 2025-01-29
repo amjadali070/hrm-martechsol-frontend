@@ -317,7 +317,7 @@ const PayrollView: React.FC = () => {
               </option>
             ))}
           </select>
-          <PDFDownloadLink
+          {/* <PDFDownloadLink
             document={<SalarySlipPDF data={pdfData} />}
             fileName={`Salary_Slip_${selectedMonthYear.replace(
               /\s+/g,
@@ -333,7 +333,7 @@ const PayrollView: React.FC = () => {
             }}
           >
             Download PDF
-          </PDFDownloadLink>
+          </PDFDownloadLink> */}
         </div>
       </div>
 

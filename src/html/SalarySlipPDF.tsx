@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   detailsColumn: {
     width: "48%",
   },
-  // Styles for attendance grid cells (max 6 columns)
+
   attendanceCell: {
     width: "15.66%",
     backgroundColor: colors.grayforRows,
@@ -175,14 +175,84 @@ const styles = StyleSheet.create({
     marginTop: 70,
     marginBottom: 10,
   },
+
+  attendanceSection: {
+    marginTop: 2,
+    marginBottom: 2,
+  },
+  attendanceGrid: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginTop: 4,
+    width: "100%",
+  },
+  attendanceColumn: {
+    width: "24%",
+    backgroundColor: colors.lightGray,
+    borderRadius: 4,
+    padding: 4,
+  },
+  columnHeader: {
+    backgroundColor: colors.grayforRows,
+    padding: 4,
+    borderRadius: 4,
+    marginBottom: 2,
+  },
+  columnHeaderText: {
+    color: colors.black,
+    fontSize: 10,
+    textAlign: "center",
+  },
+  statBlock: {
+    backgroundColor: colors.white,
+    padding: 4,
+    borderRadius: 4,
+    marginBottom: 2,
+    textAlign: "center",
+    marginTop: 4,
+  },
+  statValue: {
+    fontSize: 12,
+    color: colors.black,
+    fontFamily: "Helvetica-Bold",
+    textAlign: "center",
+  },
+  statLabel: {
+    fontSize: 8,
+    color: colors.gray800,
+    textAlign: "center",
+    marginTop: 2,
+  },
+  deductionValue: {
+    fontSize: 10,
+    color: colors.gray800,
+    textAlign: "center",
+    padding: 4,
+    borderRadius: 4,
+    marginTop: 4,
+  },
+  datesContainer: {
+    marginTop: 4,
+  },
+  dateItem: {
+    backgroundColor: colors.white,
+    padding: 3,
+    borderRadius: 2,
+    marginBottom: 2,
+  },
+  dateText: {
+    fontSize: 7,
+    color: colors.gray800,
+    textAlign: "center",
+  },
 });
 
 interface SalarySlipPDFProps {
   data: {
     date: string;
     name: string;
-    designation: string;
-    jobType: string;
+    department: string;
+    jobTitle: string;
     month: string;
     year: string;
     basicSalary: string;
@@ -204,6 +274,15 @@ interface SalarySlipPDFProps {
       sickLeaveAvailable?: string;
       annualLeaveAvailable?: string;
     };
+    totalAbsents?: number;
+    totalAbsentDeductions?: string;
+    totalLateIns?: number;
+    totalLateInDeductions?: string;
+    totalHalfDays?: number;
+    totalHalfDayDeductions?: string;
+    halfDayDates?: string[];
+    lateInDates?: string[];
+    leaveTypeCounts?: { [key: string]: number };
   };
 }
 
@@ -211,7 +290,21 @@ const parseCurrency = (value: string): number => {
   return Number(value.replace(/[^0-9.-]+/g, ""));
 };
 
-// Mapping for leave type abbreviations
+const formatCurrency = (value: string | number): string => {
+  let numericValue: number;
+  if (typeof value === "string") {
+    numericValue = parseCurrency(value);
+  } else {
+    numericValue = value;
+  }
+  return (
+    "PKR " +
+    numericValue.toLocaleString("en-US", {
+      maximumFractionDigits: 0,
+    })
+  );
+};
+
 const leaveShortForms: { [key: string]: string } = {
   "Casual Leave": "CL",
   "Sick Leave": "SL",
@@ -230,28 +323,28 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
     parseCurrency(data.pfContribution) +
     parseCurrency(data.absentDeductions || "PKR 0");
 
-  const totalDeductionsFormatted =
-    "PKR " +
-    totalDeductionsNumber.toLocaleString("en-US", {
-      maximumFractionDigits: 0,
-    });
+  const totalDeductionsFormatted = formatCurrency(totalDeductionsNumber);
 
-  // Prepare attendance data
-  const absentAttendance: string[] = data.absentDates
-    ? [...data.absentDates].sort(
-        (a, b) => new Date(a).getTime() - new Date(b).getTime()
-      )
-    : [];
-  const leaveAttendance: { date: string; type: string }[] = data.leaveDates
-    ? [...data.leaveDates].sort(
-        (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-      )
-    : [];
+  const totalAttendenceDeductions =
+    (data.totalAbsentDeductions
+      ? parseCurrency(data.totalAbsentDeductions)
+      : 0) +
+    (data.totalLateInDeductions
+      ? parseCurrency(data.totalLateInDeductions)
+      : 0) +
+    (data.totalHalfDayDeductions
+      ? parseCurrency(data.totalHalfDayDeductions)
+      : 0);
+
+  const totalLeaveDays = Object.values(data.leaveTypeCounts || {}).reduce(
+    (sum, count) => sum + count,
+    0
+  );
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        {/* Header */}
+        {/* Header section remains unchanged */}
         <View style={styles.header}>
           <Image src={logo} style={styles.logo} />
           <View style={styles.headerRow}>
@@ -269,7 +362,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
           </View>
         </View>
 
-        {/* Personal Details Section */}
+        {/* Personal Details Section - unchanged */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Personal Details</Text>
           <View style={styles.table}>
@@ -283,24 +376,24 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
             </View>
             <View style={styles.tableRow}>
               <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Designation
+                Department
               </Text>
               <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.designation}
+                {data.department}
               </Text>
             </View>
             <View style={styles.tableRow}>
               <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                Job Type
+                Job Title
               </Text>
               <Text style={[styles.tableCol, { width: "60%" }]}>
-                {data.jobType}
+                {data.jobTitle}
               </Text>
             </View>
           </View>
         </View>
 
-        {/* Salary Details Section */}
+        {/* Salary Details Section - Updated with formatted values */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Salary Details</Text>
           <View style={styles.detailsTwoColumnContainer}>
@@ -315,7 +408,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   Basic Salary
                 </Text>
                 <Text style={[styles.tableCol, { width: "50%" }]}>
-                  {data.basicSalary}
+                  {formatCurrency(data.basicSalary)}
                 </Text>
               </View>
               <View style={styles.tableRow}>
@@ -328,7 +421,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   Medical Allowance
                 </Text>
                 <Text style={[styles.tableCol, { width: "50%" }]}>
-                  {data.medicalAllowance}
+                  {formatCurrency(data.medicalAllowance)}
                 </Text>
               </View>
             </View>
@@ -338,7 +431,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   Mobile Allowance
                 </Text>
                 <Text style={[styles.tableCol, { width: "50%" }]}>
-                  {data.mobileAllowance}
+                  {formatCurrency(data.mobileAllowance)}
                 </Text>
               </View>
               <View style={styles.tableRow}>
@@ -346,7 +439,7 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   Fuel Allowance
                 </Text>
                 <Text style={[styles.tableCol, { width: "50%" }]}>
-                  {data.fuelAllowance}
+                  {formatCurrency(data.fuelAllowance)}
                 </Text>
               </View>
             </View>
@@ -373,8 +466,105 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   },
                 ]}
               >
-                {data.grossSalary}
+                {formatCurrency(data.grossSalary)}
               </Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Attendance Overview Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Attendance Overview and Deductions
+          </Text>
+          <View style={styles.attendanceGrid}>
+            <View style={styles.attendanceColumn}>
+              <View style={styles.tableRowHeader}>
+                <Text style={styles.columnHeaderText}>
+                  Total Absents: {data.totalAbsents}{" "}
+                </Text>
+              </View>
+              <View style={styles.statBlock}>
+                <Text>
+                  {data.totalAbsentDeductions
+                    ? formatCurrency(data.totalAbsentDeductions)
+                    : formatCurrency(0)}
+                </Text>
+                {/* <Text style={styles.statValue}>{data.totalAbsents}</Text> */}
+                <Text style={styles.statLabel}></Text>
+              </View>
+              {/* <View style={styles.deductionValue}>
+                <Text>
+                  {data.totalAbsentDeductions
+                    ? formatCurrency(data.totalAbsentDeductions)
+                    : formatCurrency(0)}
+                </Text>
+              </View> */}
+            </View>
+
+            <View style={styles.attendanceColumn}>
+              <View style={styles.tableRowHeader}>
+                <Text style={styles.columnHeaderText}>
+                  Total Half Days : {data.totalHalfDays}
+                </Text>
+              </View>
+              <View style={styles.statBlock}>
+                <Text>
+                  {data.totalHalfDayDeductions
+                    ? formatCurrency(data.totalHalfDayDeductions)
+                    : formatCurrency(0)}
+                </Text>
+                {/* <Text style={styles.statValue}>{data.totalHalfDays}</Text> */}
+                <Text style={styles.statLabel}></Text>
+              </View>
+              {/* <View style={styles.deductionValue}>
+                <Text>
+                  {data.totalHalfDayDeductions
+                    ? formatCurrency(data.totalHalfDayDeductions)
+                    : formatCurrency(0)}
+                </Text>
+              </View> */}
+            </View>
+
+            <View style={styles.attendanceColumn}>
+              <View style={styles.tableRowHeader}>
+                <Text style={styles.columnHeaderText}>
+                  Total Late IN : {data.totalLateIns}
+                </Text>
+              </View>
+              <View style={styles.statBlock}>
+                <Text>
+                  {data.totalLateInDeductions
+                    ? formatCurrency(data.totalLateInDeductions)
+                    : formatCurrency(0)}
+                </Text>
+                {/* <Text style={styles.statValue}>{data.totalLateIns}</Text> */}
+                <Text style={styles.statLabel}></Text>
+              </View>
+              {/* <View style={styles.deductionValue}>
+                <Text>
+                  {data.totalLateInDeductions
+                    ? formatCurrency(data.totalLateInDeductions)
+                    : formatCurrency(0)}
+                </Text>
+              </View> */}
+            </View>
+
+            <View style={styles.attendanceColumn}>
+              <View style={styles.tableRowHeader}>
+                <Text style={styles.columnHeaderText}>Total Leave Days</Text>
+              </View>
+              <View style={styles.statBlock}>
+                <Text style={styles.statValue}>{totalLeaveDays}</Text>
+                <Text style={styles.statLabel}></Text>
+              </View>
+              {/* <View style={styles.deductionValue}>
+                <Text>
+                  {"SL: " + (data.leaveTypeCounts?.["Sick Leave"] || 0)}
+                  {"\nCL: " + (data.leaveTypeCounts?.["Casual Leave"] || 0)}
+                  {"\nAL: " + (data.leaveTypeCounts?.["Annual Leave"] || 0)}
+                </Text>
+              </View> */}
             </View>
           </View>
         </View>
@@ -414,29 +604,29 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                   { width: "24%", textAlign: "center" },
                 ]}
               >
-                Absent Deductions
+                Attendance Deductions
               </Text>
             </View>
             <View style={styles.tableRow}>
               <Text
                 style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
               >
-                {data.tax}
+                {formatCurrency(data.tax)}
               </Text>
               <Text
                 style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
               >
-                {data.eobi}
+                {formatCurrency(data.eobi)}
               </Text>
               <Text
                 style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
               >
-                {data.pfContribution}
+                {formatCurrency(data.pfContribution)}
               </Text>
               <Text
                 style={[styles.tableCol, { width: "25%", textAlign: "center" }]}
               >
-                {data.absentDeductions || "PKR 0"}
+                {formatCurrency(totalAttendenceDeductions)}
               </Text>
             </View>
             <View style={styles.tableRow}>
@@ -479,79 +669,10 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
                     {payment.description}
                   </Text>
                   <Text style={[styles.tableCol, { width: "40%" }]}>
-                    {payment.amount}
+                    {formatCurrency(payment.amount)}
                   </Text>
                 </View>
               ))}
-            </View>
-          </View>
-        )}
-
-        {/* Attendance Section */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Attendance</Text>
-          {/* Absents Subsection */}
-          {absentAttendance.length > 0 && (
-            <View style={{ marginBottom: 6 }}>
-              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                <Text style={styles.subSectionTitle}>Absents:</Text>
-                {absentAttendance.map((d, index) => (
-                  <View key={index} style={styles.attendanceCell}>
-                    <Text style={styles.attendanceCellText}>
-                      {new Date(d).toLocaleDateString()}
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-          {/* Leaves Subsection */}
-          {leaveAttendance.length > 0 && (
-            <View style={{ marginBottom: 6 }}>
-              <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                <Text style={styles.subSectionTitle}>Leaves:</Text>
-                {leaveAttendance.map((entry, index) => (
-                  <View key={index} style={styles.attendanceCell}>
-                    <Text style={styles.attendanceCellText}>
-                      {new Date(entry.date).toLocaleDateString()} (
-                      {leaveShortForms[entry.type] || entry.type})
-                    </Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          )}
-        </View>
-
-        {/* Leave Details Section */}
-        {data.leaveDetails && (
-          <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Leave Details</Text>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                  Casual Leave
-                </Text>
-                <Text style={[styles.tableCol, { width: "60%" }]}>
-                  {data.leaveDetails.casualLeaveAvailable || 0}
-                </Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                  Sick Leave
-                </Text>
-                <Text style={[styles.tableCol, { width: "60%" }]}>
-                  {data.leaveDetails.sickLeaveAvailable || 0}
-                </Text>
-              </View>
-              <View style={styles.tableRow}>
-                <Text style={[styles.tableRowHeader, { width: "40%" }]}>
-                  Annual Leave
-                </Text>
-                <Text style={[styles.tableCol, { width: "60%" }]}>
-                  {data.leaveDetails.annualLeaveAvailable || 0}
-                </Text>
-              </View>
             </View>
           </View>
         )}
@@ -561,7 +682,9 @@ const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
           <View style={styles.table}>
             <View style={styles.tableRow}>
               <Text style={styles.amountPayableHeading}>Amount Payable</Text>
-              <Text style={styles.amountPayableData}>{data.amountPayable}</Text>
+              <Text style={styles.amountPayableData}>
+                {formatCurrency(data.amountPayable)}
+              </Text>
             </View>
           </View>
         </View>

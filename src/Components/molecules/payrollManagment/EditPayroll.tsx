@@ -199,7 +199,7 @@ const EditPayroll: React.FC = () => {
                   Job Title
                 </label>
                 <div className="mt-1 text-gray-900">
-                  {(payroll?.user as any)?.jobTitle || "N/A"}
+                  {payroll?.user.personalDetails?.jobTitle || "N/A"}
                 </div>
               </div>
             </div>
