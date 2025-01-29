@@ -61,6 +61,7 @@ import PayrollManagement from "./Components/molecules/payrollManagment/PayrollMa
 import { PayrollProvider } from "./Components/molecules/payrollManagment/PayrollContext";
 import EditPayroll from "./Components/molecules/payrollManagment/EditPayroll";
 import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
+import UserAttendanceDetails from "./Components/atoms/UserAttendanceDetails";
 
 const App: React.FC = () => {
   return (
@@ -251,6 +252,10 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/attendance-manager"
                   element={<AttendanceManager />}
+                />
+                <Route
+                  path="/attendance/user/:userId"
+                  element={<UserAttendanceDetails />}
                 />
 
                 <Route

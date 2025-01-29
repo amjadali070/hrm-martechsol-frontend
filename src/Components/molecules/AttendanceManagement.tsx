@@ -24,6 +24,7 @@ import {
   endOfMonth,
 } from "date-fns";
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
+import { Link } from "react-router-dom";
 
 const statusColors: Record<string, string> = {
   Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
@@ -569,7 +570,12 @@ const AttendanceManagement: React.FC = () => {
                       className="hover:bg-gray-100 transition-colors text-center"
                     >
                       <td className="py-3 px-4 text-sm text-gray-700">
-                        {record.user.name}
+                        <Link
+                          to={`/attendance/user/${record.user._id}`}
+                          className="text-blue-600 hover:text-blue-800 hover:underline"
+                        >
+                          {record.user.name}
+                        </Link>
                       </td>
                       <td className="py-3 px-4 text-sm text-gray-700">
                         {record.user.personalDetails?.jobTitle || "N/A"}
