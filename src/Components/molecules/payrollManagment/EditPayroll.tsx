@@ -350,6 +350,60 @@ const EditPayroll: React.FC = () => {
               ) : (
                 <p className="text-gray-500">No absent dates recorded.</p>
               )}
+              <div className="mt-4">
+                <label className="block text-sm font-medium">
+                  Total Absent Deductions (PKR)
+                </label>
+                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                  {(
+                    (payroll?.absentDates?.length || 0) *
+                    (payroll?.perDaySalary || 0)
+                  ).toFixed(0)}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 8: Late In Dates and Deductions */}
+          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
+            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
+              <FaFileInvoiceDollar className="mr-2" /> Late In Details
+            </h3>
+            <div className="text-gray-800 dark:text-gray-100">
+              {payroll?.lateInDates && payroll.lateInDates.length > 0 ? (
+                <table className="min-w-full border divide-y divide-gray-300">
+                  <thead className="bg-gray-200">
+                    <tr>
+                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
+                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {payroll.lateInDates.map((date, idx) => (
+                      <tr key={idx} className="hover:bg-gray-100">
+                        <td className="px-4 py-2 text-center">{idx + 1}</td>
+                        <td className="px-4 py-2 text-center">
+                          {new Date(date).toLocaleDateString()}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <p className="text-gray-500">No late in dates recorded.</p>
+              )}
+              <div className="mt-4">
+                <label className="block text-sm font-medium">
+                  Total Late In Deductions (PKR)
+                </label>
+                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                  {(
+                    (Math.floor((payroll?.lateIns ?? 0) / 4) *
+                      (payroll?.perDaySalary ?? 0)) /
+                    2
+                  ).toFixed(0)}
+                </div>
+              </div>
             </div>
           </div>
 

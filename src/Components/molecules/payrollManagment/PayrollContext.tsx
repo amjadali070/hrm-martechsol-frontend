@@ -1,4 +1,3 @@
-// src/components/PayrollContext.tsx
 import React, {
   createContext,
   useState,
@@ -18,21 +17,19 @@ export interface ExtraPayment {
 }
 
 export interface LeaveDate {
-  date: string; // ISO string or formatted date string
+  date: string;
   type: string;
 }
 
 export interface PayrollData {
-  // "id" is mapped from the API’s "_id"
   id: string;
   user: {
     name: string;
     email: string;
     personalDetails: {
       department: string;
+      jobTitle?: string;
     };
-    // Optionally include jobTitle if needed
-    jobTitle?: string;
   };
   month: number;
   year: number;
@@ -43,16 +40,15 @@ export interface PayrollData {
   deductions: number;
   netSalary: number;
   lateIns: number;
+  lateInDates: string[];
+  lateInDeductions: number;
   absentDays: number;
   absentDates: string[];
-  // NEW: leaveDates array—each item has a date and a leave type
   leaveDates?: LeaveDate[];
   status: string;
   processedOn: string | null;
   remarks: string;
   extraPayments?: ExtraPayment[];
-
-  // New extra fields:
   tax: number;
   eobi: number;
   employeePF: number;
@@ -99,7 +95,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
   const [payrollSummary, setPayrollSummary] = useState<any>(null);
   const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
 
-  // Fetch payrolls based on provided month and year
   const fetchPayrolls = useCallback(
     async (month?: string, year?: number): Promise<PayrollData[]> => {
       try {
@@ -115,13 +110,16 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
         const response = await axiosInstance.get(`${backendUrl}/api/payroll`, {
           params,
         });
-        // Map each payroll's _id to id property
+
         const payrollsWithId: PayrollData[] = response.data.payrolls.map(
           (payroll: any) => ({
             ...payroll,
             id: payroll._id,
+            lateInDeductions:
+              Math.floor(payroll.lateIns / 4) * (payroll.perDaySalary / 2),
           })
         );
+
         setPayrolls(payrollsWithId);
         return payrollsWithId;
       } catch (error: any) {

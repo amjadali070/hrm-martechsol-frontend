@@ -23,7 +23,7 @@ interface PayrollDetails {
     sickLeaveAvailable: number;
     annualLeaveAvailable: number;
   };
-  month: number; // e.g., 12 for December
+  month: number;
   year: number;
   basicSalary: number;
   medicalAllowance: number;
@@ -38,8 +38,7 @@ interface PayrollDetails {
   absentDays: number;
   presentDays: number;
   totalWorkingDays: number;
-  absentDates?: string[]; // Array of ISO date strings
-  // NEW: leaveDates is an array of objects with a date and a leave type.
+  absentDates?: string[];
   leaveDates?: { date: string; type: string }[];
   status: string;
   processedOn: string | null;
