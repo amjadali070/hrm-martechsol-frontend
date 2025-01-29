@@ -44,6 +44,9 @@ export interface PayrollData {
   lateInDeductions: number;
   absentDays: number;
   absentDates: string[];
+  halfDays: number;
+  halfDayDates: string[];
+  halfDayDeductions: number;
   leaveDates?: LeaveDate[];
   status: string;
   processedOn: string | null;
@@ -65,7 +68,7 @@ export interface PayrollContextProps {
   fetchPayrolls: (month?: string, year?: number) => Promise<PayrollData[]>;
   fetchAllMonths: () => Promise<MonthYear[]>;
   addPayroll: (payroll: PayrollData) => void;
-  updatePayroll: (updatedPayroll: PayrollData) => void;
+  // updatePayroll: (updatedPayroll: PayrollData) => void;
   deletePayroll: (id: string) => void;
   generatePayroll: (month: string, year: number) => Promise<void>;
   processPayroll: (month: string, year: number) => Promise<void>;
@@ -117,6 +120,7 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
             id: payroll._id,
             lateInDeductions:
               Math.floor(payroll.lateIns / 4) * (payroll.perDaySalary / 2),
+            halfDayDeductions: payroll.halfDays * (payroll.perDaySalary / 2), // Calculate half day deductions
           })
         );
 
@@ -152,14 +156,28 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     toast.success(`Payroll added for ${payroll.user.name}`);
   };
 
-  const updatePayroll = (updatedPayroll: PayrollData) => {
-    setPayrolls((prev) =>
-      prev.map((payroll) =>
-        payroll.id === updatedPayroll.id ? updatedPayroll : payroll
-      )
-    );
-    toast.success(`Payroll updated for ${updatedPayroll.user.name}`);
-  };
+  // const updatePayroll = async (updatedPayroll: PayrollData) => {
+  //   try {
+  //     const response = await axiosInstance.patch(
+  //       `${backendUrl}/api/payroll/${updatedPayroll.id}`,
+  //       {
+  //         ...updatedPayroll,
+  //         halfDays: updatedPayroll.halfDays,
+  //         halfDayDates: updatedPayroll.halfDayDates,
+  //       }
+  //     );
+
+  //     setPayrolls((prev) =>
+  //       prev.map((payroll) =>
+  //         payroll.id === updatedPayroll.id ? response.data.payroll : payroll
+  //       )
+  //     );
+  //     toast.success(`Payroll updated for ${updatedPayroll.user.name}`);
+  //   } catch (error: any) {
+  //     console.error("Error updating payroll:", error);
+  //     toast.error(error.response?.data?.message || "Failed to update payroll.");
+  //   }
+  // };
 
   const deletePayroll = async (id: string) => {
     try {
@@ -255,7 +273,7 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
         fetchPayrolls,
         fetchAllMonths,
         addPayroll,
-        updatePayroll,
+        // updatePayroll,
         deletePayroll,
         generatePayroll,
         processPayroll,

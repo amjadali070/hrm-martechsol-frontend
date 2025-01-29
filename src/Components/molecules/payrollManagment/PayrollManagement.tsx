@@ -84,7 +84,6 @@ const PayrollManagement: React.FC = () => {
     }
   }, [searchParams, fetchPayrolls]);
 
-  // Unique years for the month selection dropdown
   const uniqueYears = Array.from(new Set(monthYears.map((my) => my.year))).sort(
     (a, b) => b - a
   );
@@ -96,8 +95,6 @@ const PayrollManagement: React.FC = () => {
     return matchesSearch && matchesYear;
   });
 
-  // When a month is clicked, set selectedMonth and selectedYear,
-  // fetch payrolls and update URL with query parameters
   const handleMonthYearClick = async (m: number, y: number) => {
     setSelectedMonth(m);
     setSelectedYear(y);
@@ -128,12 +125,10 @@ const PayrollManagement: React.FC = () => {
     window.history.replaceState({}, "", `/organization/payroll-management`);
   };
 
-  // Filter payrolls for the selected month/year
   const filteredPayrolls = payrolls.filter(
     (pay) => pay.month === selectedMonth && pay.year === selectedYear
   );
 
-  // Additional filters by user name and department
   const finalFilteredPayrolls = filteredPayrolls.filter((pay) => {
     const matchesName = pay.user.name
       .toLowerCase()

@@ -62,6 +62,7 @@ import { PayrollProvider } from "./Components/molecules/payrollManagment/Payroll
 import EditPayroll from "./Components/molecules/payrollManagment/EditPayroll";
 import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
 import UserAttendanceDetails from "./Components/atoms/UserAttendanceDetails";
+import SalarySlip from "./Components/molecules/SalarySlip";
 
 const App: React.FC = () => {
   return (
@@ -98,7 +99,7 @@ const App: React.FC = () => {
                   path="/attendance/view-holidays"
                   element={<ViewHolidays />}
                 />
-                <Route path="/payroll/view" element={<PayrollView />} />
+                <Route path="/payroll/view" element={<SalarySlip />} />
                 <Route
                   path="/payroll/available-leaves"
                   element={<LeavesAvailable />}
