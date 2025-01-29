@@ -20,7 +20,7 @@ import {
   endOfYear,
 } from "date-fns";
 import axiosInstance from "../../utils/axiosConfig";
-import AttendanceStats from "./AttendanceStats";
+import AttendanceStats, { StatisticsProps } from "./AttendanceStats";
 
 interface User {
   _id: string;
@@ -41,17 +41,6 @@ interface Attendance {
   type: string;
   createdAt: string;
   workLocation?: string;
-}
-
-interface AttendanceStats {
-  totalDays: number;
-  present: number;
-  absent: number;
-  leaves: number;
-  averageWorkingHours: number;
-  lateArrivals: number;
-  earlyDepartures: number;
-  onTime: number;
 }
 
 const statusColors: Record<string, string> = {
@@ -95,15 +84,25 @@ const UserAttendanceDetails: React.FC = () => {
   const [typeFilter, setTypeFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [statistics, setStatistics] = useState<AttendanceStats>({
+  const [statistics, setStatistics] = useState<StatisticsProps>({
     totalDays: 0,
     present: 0,
     absent: 0,
     leaves: 0,
-    averageWorkingHours: 0,
     lateArrivals: 0,
     earlyDepartures: 0,
-    onTime: 0,
+    completed: 0,
+    halfDays: 0,
+    casualLeaves: 0,
+    sickLeaves: 0,
+    annualLeaves: 0,
+    hajjLeaves: 0,
+    maternityLeaves: 0,
+    paternityLeaves: 0,
+    bereavementLeaves: 0,
+    unauthorizedLeaves: 0,
+    publicHolidays: 0,
+    lateAndEarly: 0,
   });
 
   const itemsPerPage = 20;
@@ -133,7 +132,7 @@ const UserAttendanceDetails: React.FC = () => {
           console.error("Response data:", error.response.data);
           console.error("Response status:", error.response.status);
         }
-        toast.error("Failed to fetch attendance data");
+        // toast.error("Failed to fetch attendance data");
       } finally {
         setLoading(false);
       }
@@ -148,35 +147,51 @@ const UserAttendanceDetails: React.FC = () => {
       present: 0,
       absent: 0,
       leaves: 0,
-      averageWorkingHours: 0,
       lateArrivals: 0,
       earlyDepartures: 0,
-      onTime: 0,
-    };
-
-    let totalHours = 0;
+      completed: 0,
+      lateAndEarly: 0,
+      halfDays: 0,
+      casualLeaves: 0,
+      sickLeaves: 0,
+      annualLeaves: 0,
+      hajjLeaves: 0,
+      maternityLeaves: 0,
+      paternityLeaves: 0,
+      bereavementLeaves: 0,
+      unauthorizedLeaves: 0,
+      publicHolidays: 0,
+    } as StatisticsProps;
 
     data.forEach((record) => {
-      if (record.type === "Present" || record.type === "Completed") {
-        stats.present++;
-        if (record.type === "Present") stats.onTime++;
-      } else if (record.type === "Absent") stats.absent++;
-      else if (record.type.includes("Leave")) stats.leaves++;
-
+      if (record.type === "Present") stats.present++;
+      if (record.type === "Absent") stats.absent++;
+      if (record.type.includes("Leave")) stats.leaves++;
       if (record.type === "Late IN") stats.lateArrivals++;
       if (record.type === "Early Out") stats.earlyDepartures++;
-
-      totalHours += record.duration / 3600;
+      if (record.type === "Completed") stats.completed++;
+      if (record.type === "Half Day") stats.halfDays++;
+      if (record.type === "Casual Leave") stats.casualLeaves++;
+      if (record.type === "Sick Leave") stats.sickLeaves++;
+      if (record.type === "Annual Leave") stats.annualLeaves++;
+      if (record.type === "Hajj Leave") stats.hajjLeaves++;
+      if (record.type === "Maternity Leave") stats.maternityLeaves++;
+      if (record.type === "Paternity Leave") stats.paternityLeaves++;
+      if (record.type === "Bereavement Leave") stats.bereavementLeaves++;
+      if (record.type === "Unauthorized Leave") stats.unauthorizedLeaves++;
+      if (record.type === "Public Holiday") stats.publicHolidays++;
+      if (record.type === "Late IN and Early Out") {
+        stats.lateAndEarly++;
+        console.log("Counting Late IN and Early Out for record:", record);
+      }
     });
 
-    stats.averageWorkingHours = totalHours / (stats.totalDays || 1);
     setStatistics(stats);
   };
 
   useEffect(() => {
     let filtered = [...attendanceData];
 
-    // Apply date range filter
     const today = new Date();
     if (dateRange === "Custom" && fromDate && toDate) {
       filtered = filtered.filter((record) => {
@@ -218,6 +233,9 @@ const UserAttendanceDetails: React.FC = () => {
     setFilteredAttendance(filtered);
     setTotalPages(Math.ceil(filtered.length / itemsPerPage));
     setCurrentPage(1);
+
+    // Update statistics based on filtered data
+    calculateStatistics(filtered);
   }, [attendanceData, dateRange, fromDate, toDate, typeFilter]);
 
   const paginatedData = filteredAttendance.slice(
@@ -235,7 +253,7 @@ const UserAttendanceDetails: React.FC = () => {
 
   return (
     <div className="w-full p-6 bg-gray-50 rounded-lg">
-      <div className="flex items-center mb-6">
+      <div className="flex items-center mb-3">
         <button
           onClick={() => navigate(-1)}
           className="mr-4 p-2 hover:bg-gray-200 rounded-full transition-colors"
@@ -254,51 +272,8 @@ const UserAttendanceDetails: React.FC = () => {
 
       <AttendanceStats statistics={statistics} />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg">
-          <h3 className="text-gray-600 text-sm mb-1">Present Days</h3>
-          <p className="text-2xl font-bold text-green-600">
-            {statistics.present}
-          </p>
-        </div>
-        <div className="bg-white p-4 rounded-lg">
-          <h3 className="text-gray-600 text-sm mb-1">Absent Days</h3>
-          <p className="text-2xl font-bold text-red-600">{statistics.absent}</p>
-        </div>
-        <div className="bg-white p-4 rounded-lg">
-          <h3 className="text-gray-600 text-sm mb-1">Leaves Taken</h3>
-          <p className="text-2xl font-bold text-blue-600">
-            {statistics.leaves}
-          </p>
-        </div>
-      </div>
-
-      {/* Additional Statistics */}
-      <div className="bg-white p-4 rounded-lg mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-gray-600">Late Arrivals</p>
-            <p className="text-xl font-bold text-yellow-500">
-              {statistics.lateArrivals}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Early Departures</p>
-            <p className="text-xl font-bold text-pink-500">
-              {statistics.earlyDepartures}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600">Total Records</p>
-            <p className="text-xl font-bold text-gray-700">
-              {statistics.totalDays}
-            </p>
-          </div>
-        </div>
-      </div>
-
       {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-5">
         <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
           <FaCalendarAlt className="text-gray-400 mr-3" />
           <select

@@ -1,38 +1,36 @@
-import React from "react";
-
 interface StatsCardProps {
   label: string;
   value: number;
   color: string;
 }
 
-interface StatisticsProps {
+export interface StatisticsProps {
   present: number;
-  completed?: number;
+  completed: number;
   absent: number;
   lateArrivals: number;
   earlyDepartures: number;
-  halfDays?: number;
-  lateAndEarly?: number;
-  casualLeaves?: number;
-  sickLeaves?: number;
-  annualLeaves?: number;
-  hajjLeaves?: number;
-  maternityLeaves?: number;
-  paternityLeaves?: number;
-  bereavementLeaves?: number;
-  unauthorizedLeaves?: number;
-  publicHolidays?: number;
+  halfDays: number;
+  lateAndEarly: number;
+  casualLeaves: number;
+  sickLeaves: number;
+  annualLeaves: number;
+  hajjLeaves: number;
+  maternityLeaves: number;
+  paternityLeaves: number;
+  bereavementLeaves: number;
+  unauthorizedLeaves: number;
+  publicHolidays: number;
   totalDays: number;
   leaves: number;
 }
 
 const StatsCard = ({ label, value, color }: StatsCardProps) => (
   <div
-    className={`${color} bg-opacity-15 p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200`}
+    className={`${color} bg-opacity-15 p-1.5 rounded-lg flex items-center justify-between`}
   >
-    <h3 className="text-gray-700 text-sm font-medium mb-1">{label}</h3>
-    <p className={`text-2xl font-bold ${color.replace("bg-", "text-")}`}>
+    <h3 className="text-gray-700 text-sm font-medium ml-2">{label}</h3>
+    <p className={`text-xl font-bold mr-2 ${color.replace("bg-", "text-")}`}>
       {value}
     </p>
   </div>
@@ -40,7 +38,11 @@ const StatsCard = ({ label, value, color }: StatsCardProps) => (
 
 const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
   const mainStats = [
-    { label: "Present Days", value: statistics.present, color: "bg-gray-400" },
+    {
+      label: "Present Days",
+      value: statistics.present || 0,
+      color: "bg-green-500",
+    },
     {
       label: "Completed Days",
       value: statistics.completed || 0,
@@ -48,12 +50,12 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
     },
     { label: "Absent Days", value: statistics.absent, color: "bg-red-600" },
     {
-      label: "Late Arrivals",
+      label: "Late IN",
       value: statistics.lateArrivals,
       color: "bg-yellow-500",
     },
     {
-      label: "Early Departures",
+      label: "Early Out",
       value: statistics.earlyDepartures,
       color: "bg-pink-500",
     },
@@ -63,7 +65,7 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
       color: "bg-orange-600",
     },
     {
-      label: "Late & Early",
+      label: "Late IN & Early Out",
       value: statistics.lateAndEarly || 0,
       color: "bg-violet-700",
     },
@@ -120,10 +122,7 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">
-          Attendance Overview
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
           {mainStats.map((stat, index) => (
             <StatsCard
               key={index}
@@ -132,14 +131,6 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
               color={stat.color}
             />
           ))}
-        </div>
-      </div>
-
-      <div>
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">
-          Leave Statistics
-        </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {leaveStats.map((stat, index) => (
             <StatsCard
               key={index}
@@ -151,11 +142,13 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg shadow-sm">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">Summary</h2>
+      <div className="bg-white p-4 rounded-lg">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3">
+          Attendence Summary
+        </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Total Records</p>
+            <div className="text-sm text-gray-600">Total Records</div>
             <p className="text-xl font-bold text-gray-700">
               {statistics.totalDays}
             </p>
@@ -169,7 +162,18 @@ const AttendanceStats = ({ statistics }: { statistics: StatisticsProps }) => {
           <div className="p-3 bg-gray-50 rounded-lg">
             <p className="text-sm text-gray-600">Attendance Rate</p>
             <p className="text-xl font-bold text-green-600">
-              {((statistics.present / statistics.totalDays) * 100).toFixed(1)}%
+              {(
+                ((statistics.completed +
+                  statistics.publicHolidays +
+                  statistics.lateAndEarly +
+                  statistics.lateArrivals +
+                  statistics.present +
+                  statistics.leaves +
+                  statistics.earlyDepartures) /
+                  statistics.totalDays) *
+                100
+              ).toFixed(1)}
+              %
             </p>
           </div>
           <div className="p-3 bg-gray-50 rounded-lg">
