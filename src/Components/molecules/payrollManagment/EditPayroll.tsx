@@ -163,7 +163,7 @@ const EditPayroll: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4 rounded-lg">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 rounded-lg">
       <div className="w-full dark:bg-gray-800 p-6">
         <div className="flex justify-between items-center mb-8">
           <div className="flex items-center space-x-3">

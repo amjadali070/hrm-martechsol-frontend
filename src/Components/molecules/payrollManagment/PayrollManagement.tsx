@@ -181,7 +181,7 @@ const PayrollManagement: React.FC = () => {
     setDepartmentFilter(e.target.value);
 
   return (
-    <div className="w-full p-6 bg-gray-50 dark:bg-gray-900 rounded-xl">
+    <div className="w-full p-6 bg-gray-50 rounded-xl">
       <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-200">
         Payroll Management
       </h2>
@@ -241,13 +241,13 @@ const PayrollManagement: React.FC = () => {
               <table className="min-w-full bg-white rounded-lg">
                 <thead className="bg-purple-900">
                   <tr>
-                    <th className="px-6 py-3 text-sm text-white text-center">
+                    <th className="px-6 py-3 text-sm text-white text-center rounded-l-lg">
                       S.No
                     </th>
                     <th className="px-6 py-3 text-sm text-white text-center">
                       Month
                     </th>
-                    <th className="px-6 py-3 text-sm text-white text-center">
+                    <th className="px-6 py-3 text-sm text-white text-center rounded-r-lg">
                       Year
                     </th>
                   </tr>

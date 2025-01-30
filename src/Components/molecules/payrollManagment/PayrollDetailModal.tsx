@@ -45,8 +45,8 @@ const PayrollDetailModal: React.FC<PayrollDetailModalProps> = ({
     : [];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60">
-      <div className="bg-white dark:bg-gray-900 rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-4 relative">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
+      <div className="bg-white rounded-xl w-11/12 md:w-3/4 lg:w-1/2 p-4 relative">
         <button
           onClick={onClose}
           className="absolute top-6 right-6 text-purple-900 dark:text-blue-600"
