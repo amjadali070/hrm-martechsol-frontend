@@ -35,10 +35,10 @@ const DashboardLayout: React.FC = () => {
 
   const authorizedRoles = ["HR", "SuperAdmin"];
   const isAuthorized = authorizedRoles.includes(user.role || "");
+  const isFinance = user.role === "Finance";
 
   const processPath = (path?: string) => {
     if (!path) return null;
-    // Check if the path is an absolute URL
     if (/^(http|https):\/\/[^ "]+$/.test(path)) {
       return path;
     }
@@ -47,33 +47,55 @@ const DashboardLayout: React.FC = () => {
       .replace(/^\/+/, "")}`;
   };
 
-  const actions = [
-    {
-      label: "Apply for Leave",
-      onClick: () => navigate("/forms/leave-application"),
-      tooltip: "Apply for a new leave request",
-    },
-    {
-      label: "Attendance Ticket",
-      onClick: () => navigate("/tickets/attendance"),
-      tooltip: "View your latest payslip",
-    },
-    {
-      label: "View Payroll",
-      onClick: () => navigate("/payroll/view"),
-      tooltip: "Check your attendance records",
-    },
-    {
-      label: "Submit a Ticket",
-      onClick: () => navigate("/create-ticket"),
-      tooltip: "Report an issue or request support",
-    },
-    {
-      label: "View Policies",
-      onClick: () => navigate("/policies"),
-      tooltip: "Review company policies",
-    },
-  ];
+  const getActions = () => {
+    if (isFinance) {
+      return [
+        {
+          label: "Payroll Finances",
+          onClick: () => navigate("/organization/payroll-finance"),
+          tooltip: "View and manage payroll finances",
+        },
+        {
+          label: "Vehicle Finances",
+          onClick: () => navigate("/finance/vehicles"),
+          tooltip: "View and manage vehicle finances",
+        },
+        {
+          label: "Total Finances",
+          onClick: () => navigate("/finance/overview"),
+          tooltip: "View total financial overview",
+        },
+      ];
+    }
+
+    return [
+      {
+        label: "Apply for Leave",
+        onClick: () => navigate("/forms/leave-application"),
+        tooltip: "Apply for a new leave request",
+      },
+      {
+        label: "Attendance Ticket",
+        onClick: () => navigate("/tickets/attendance"),
+        tooltip: "View your latest payslip",
+      },
+      {
+        label: "View Payroll",
+        onClick: () => navigate("/payroll/view"),
+        tooltip: "Check your attendance records",
+      },
+      {
+        label: "Submit a Ticket",
+        onClick: () => navigate("/create-ticket"),
+        tooltip: "Report an issue or request support",
+      },
+      {
+        label: "View Policies",
+        onClick: () => navigate("/policies"),
+        tooltip: "Review company policies",
+      },
+    ];
+  };
 
   const handleViewAllAttendance = () => navigate("/attendance/view");
   const handleViewAll = () => {
@@ -93,30 +115,32 @@ const DashboardLayout: React.FC = () => {
         shiftEndTime={user.personalDetails?.shiftEndTime || "N/A"}
       />
 
-      <QuickActions actions={actions} />
+      <QuickActions actions={getActions()} />
 
-      <div>
-        <div className="flex flex-col md:flex-row gap-3">
-          <Announcements />
-          <LeaveOverview />
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-3 mt-3">
-          <AttendanceOverview onViewAll={handleViewAllAttendance} />
-          <AttendanceTicketOverview />
-        </div>
-        <div className="flex flex-col md:flex-row gap-3 mt-3">
-          <UserVehicleView userId={user._id} />
-          <LeaveManagementCard onViewAll={handleViewAll} />
-        </div>
-
-        {isAuthorized && (
-          <div className="flex flex-col md:flex-row gap-3 mt-3">
-            <WorkAnniversariesCard />
-            <UpcomingBirthdaysCard />
+      {!isFinance && (
+        <div>
+          <div className="flex flex-col md:flex-row gap-3">
+            <Announcements />
+            <LeaveOverview />
           </div>
-        )}
-      </div>
+
+          <div className="flex flex-col md:flex-row gap-3 mt-3">
+            <AttendanceOverview onViewAll={handleViewAllAttendance} />
+            <AttendanceTicketOverview />
+          </div>
+          <div className="flex flex-col md:flex-row gap-3 mt-3">
+            <UserVehicleView userId={user._id} />
+            <LeaveManagementCard onViewAll={handleViewAll} />
+          </div>
+
+          {isAuthorized && (
+            <div className="flex flex-col md:flex-row gap-3 mt-3">
+              <WorkAnniversariesCard />
+              <UpcomingBirthdaysCard />
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

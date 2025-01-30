@@ -1,4 +1,3 @@
-// src/components/PayrollManagement.tsx
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { FaSpinner, FaInbox, FaEdit, FaEye, FaPlus } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -37,7 +36,6 @@ const PayrollManagement: React.FC = () => {
 
   const [searchParams] = useSearchParams();
 
-  // Load available months
   useEffect(() => {
     const loadMonths = async () => {
       setLoading(true);
@@ -53,7 +51,6 @@ const PayrollManagement: React.FC = () => {
     loadMonths();
   }, [fetchAllMonths]);
 
-  // Read month and year from query params on mount
   useEffect(() => {
     const monthParam = searchParams.get("month");
     const yearParam = searchParams.get("year");
@@ -150,7 +147,6 @@ const PayrollManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
-  // Derive unique department list for filtering
   const uniqueDepartments = Array.from(
     new Set(
       filteredPayrolls
@@ -159,10 +155,6 @@ const PayrollManagement: React.FC = () => {
     )
   ) as string[];
 
-  const openDetailModal = (payroll: PayrollData) => {
-    setSelectedPayroll(payroll);
-    setIsDetailModalOpen(true);
-  };
   const closeDetailModal = () => {
     setIsDetailModalOpen(false);
     setSelectedPayroll(null);
@@ -201,7 +193,6 @@ const PayrollManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* Month selection view */}
       {!selectedMonth && !selectedYear && (
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-4">
@@ -277,11 +268,8 @@ const PayrollManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Payroll list view for selected month/year */}
       {selectedMonth && selectedYear && (
         <div>
-          {/* Header row with Generate and Back buttons */}
-
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
             <div className="flex flex-col sm:flex-row gap-4">
               <input
@@ -369,7 +357,6 @@ const PayrollManagement: React.FC = () => {
                         PKR {payroll.totalSalary.toFixed(0)}
                       </td>
                       <td className="px-6 py-4 text-sm text-center">
-                        {/* Updated net salary calculation */}
                         PKR{" "}
                         {(
                           payroll.netSalary +

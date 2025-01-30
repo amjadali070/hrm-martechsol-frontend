@@ -22,7 +22,6 @@ import Notices from "./Components/atoms/Notices";
 import CreateNotice from "./Components/atoms/notices/CreateNotice";
 import NoticesManagement from "./Components/atoms/NoticesManagement";
 import NotificationDetailPage from "./Components/atoms/NotificationDetailPage";
-import PayrollView from "./Components/atoms/PayrollView";
 import Policies from "./Components/atoms/Policies";
 import ProvidentFund from "./Components/atoms/ProvidentFund";
 import UserProfileUpdater from "./Components/atoms/SpecificUserUpdate/UserProfileUpdater";
@@ -63,6 +62,7 @@ import EditPayroll from "./Components/molecules/payrollManagment/EditPayroll";
 import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
 import UserAttendanceDetails from "./Components/atoms/UserAttendanceDetails";
 import SalarySlip from "./Components/molecules/SalarySlip";
+import PayrollFinanceAnalytics from "./Components/organisms/PayrollFinanceAnalytics";
 
 const App: React.FC = () => {
   return (
@@ -262,6 +262,10 @@ const App: React.FC = () => {
                 <Route
                   path="/admin/password-manager"
                   element={<UserPasswordManager />}
+                />
+                <Route
+                  path="/organization/payroll-finance"
+                  element={<PayrollFinanceAnalytics />}
                 />
 
                 <Route path="/training-room" element={<TrainingRoom />} />

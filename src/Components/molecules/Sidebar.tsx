@@ -37,7 +37,7 @@ const menuItems: MenuItem[] = [
     icon: PiNetworkFill,
     label: "Ecosystems",
     path: "/organization",
-    visibleTo: ["HR", "manager", "SuperAdmin", "test"],
+    visibleTo: ["HR", "manager", "SuperAdmin", "test", "Finance"],
     subItems: [
       {
         label: "Attendance Management",
@@ -53,6 +53,21 @@ const menuItems: MenuItem[] = [
         label: "Payroll Management",
         path: "/organization/payroll-management",
         visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
+        label: "Payroll Finance",
+        path: "/organization/payroll-finance",
+        visibleTo: ["SuperAdmin", "Finance"],
+      },
+      {
+        label: "Vehicle Finance",
+        path: "/organization/vehicle-finance",
+        visibleTo: ["SuperAdmin", "Finance"],
+      },
+      {
+        label: "Finance Management",
+        path: "/organization/finance-management",
+        visibleTo: ["SuperAdmin", "Finance"],
       },
       {
         label: "Leave Management",
@@ -94,11 +109,6 @@ const menuItems: MenuItem[] = [
         path: "/organization/vehicle-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
-      // {
-      //   label: "User Passwords",
-      //   path: "/organization/user-passwords",
-      //   visibleTo: ["SuperAdmin"],
-      // },
       {
         label: "Password Manager",
         path: "/admin/password-manager",
@@ -164,7 +174,6 @@ const menuItems: MenuItem[] = [
       { label: "Experience Letter", path: "/letters/experience-letter" },
     ],
   },
-
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
   { icon: FaBlog, label: "Blog", path: "/blog" },
   { icon: FaChalkboardTeacher, label: "Training Room", path: "/training-room" },
@@ -193,6 +202,14 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     return location.pathname === item.path;
   };
 
+  // Filter menu items based on the role
+  const filteredMenuItems =
+    role === "Finance"
+      ? menuItems.filter((item) => item.label === "Ecosystems")
+      : menuItems.filter(
+          (item) => !item.visibleTo || item.visibleTo.includes(role)
+        );
+
   return (
     <>
       <button
@@ -217,80 +234,76 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
           </button>
         </div>
         <nav className="flex flex-col pt-2 pb-10 mx-auto w-full text-lg overflow-y-auto custom-scroll">
-          {menuItems
-            .filter((item) => !item.visibleTo || item.visibleTo.includes(role))
-            .map((item, index) => {
-              const Icon = item.icon;
-              const isActive = isMenuActive(item);
+          {filteredMenuItems.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = isMenuActive(item);
 
-              return (
-                <div key={index}>
-                  <div className="block">
-                    {item.subItems ? (
-                      <button
-                        onClick={() => toggleMenu(item.label)}
-                        className={`flex items-center justify-between w-full px-4 py-3 ${
+            return (
+              <div key={index}>
+                <div className="block">
+                  {item.subItems ? (
+                    <button
+                      onClick={() => toggleMenu(item.label)}
+                      className={`flex items-center justify-between w-full px-4 py-3 ${
+                        isActive
+                          ? "bg-sky-500"
+                          : "border border-solid border-white border-opacity-10 mt-2 mb-2"
+                      } rounded-md hover:bg-sky-600 transition-colors duration-200`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <Icon size={20} />
+                        <span className="text-md">{item.label}</span>
+                      </div>
+                      <div>
+                        {openMenus[item.label] ? (
+                          <FaChevronUp />
+                        ) : (
+                          <FaChevronDown />
+                        )}
+                      </div>
+                    </button>
+                  ) : (
+                    <Link to={item.path}>
+                      <div
+                        className={`flex items-center gap-2 px-4 py-3 mb-2 mt-2 ${
                           isActive
                             ? "bg-sky-500"
-                            : "border border-solid border-white border-opacity-10 mt-2 mb-2"
+                            : "border border-solid border-white border-opacity-10"
                         } rounded-md hover:bg-sky-600 transition-colors duration-200`}
                       >
-                        <div className="flex items-center gap-2">
-                          <Icon size={20} />
-                          <span className="text-md">{item.label}</span>
-                        </div>
-                        <div>
-                          {openMenus[item.label] ? (
-                            <FaChevronUp />
-                          ) : (
-                            <FaChevronDown />
-                          )}
-                        </div>
-                      </button>
-                    ) : (
-                      <Link to={item.path}>
-                        <div
-                          className={`flex items-center gap-2 px-4 py-3 mb-2 mt-2 ${
-                            isActive
-                              ? "bg-sky-500"
-                              : "border border-solid border-white border-opacity-10"
-                          } rounded-md hover:bg-sky-600 transition-colors duration-200`}
-                        >
-                          <Icon size={20} />
-                          <span className="text-md">{item.label}</span>
-                        </div>
-                      </Link>
-                    )}
-                  </div>
-
-                  {item.subItems && openMenus[item.label] && (
-                    <div className="ml-8 mt-2 mb-2 flex flex-col space-y-2">
-                      {item.subItems
-                        .filter(
-                          (subItem) =>
-                            !subItem.visibleTo ||
-                            subItem.visibleTo.includes(role)
-                        )
-                        .map((subItem, subIndex) => {
-                          const isSubActive =
-                            location.pathname === subItem.path;
-                          return (
-                            <Link to={subItem.path} key={subIndex}>
-                              <div
-                                className={`flex items-center gap-4 px-4 py-2 rounded-md ${
-                                  isSubActive ? "bg-sky-400" : "bg-transparent"
-                                } hover:bg-sky-500 transition-colors duration-200`}
-                              >
-                                <span className="text-sm">{subItem.label}</span>
-                              </div>
-                            </Link>
-                          );
-                        })}
-                    </div>
+                        <Icon size={20} />
+                        <span className="text-md">{item.label}</span>
+                      </div>
+                    </Link>
                   )}
                 </div>
-              );
-            })}
+
+                {item.subItems && openMenus[item.label] && (
+                  <div className="ml-8 mt-2 mb-2 flex flex-col space-y-2">
+                    {item.subItems
+                      .filter(
+                        (subItem) =>
+                          !subItem.visibleTo || subItem.visibleTo.includes(role)
+                      )
+                      .map((subItem, subIndex) => {
+                        const isSubActive = location.pathname === subItem.path;
+                        return (
+                          <Link to={subItem.path} key={subIndex}>
+                            <div
+                              className={`flex items-center gap-4 px-4 py-2 rounded-md ${
+                                isSubActive ? "bg-sky-400" : "bg-transparent"
+                              } hover:bg-sky-500 transition-colors duration-200`}
+                            >
+                              <span className="text-sm">{subItem.label}</span>
+                            </div>
+                          </Link>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
       </div>
 

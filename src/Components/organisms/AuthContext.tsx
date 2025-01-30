@@ -108,7 +108,7 @@ interface User {
   businessAddress?: string;
   paymentDetails?: PaymentDetails;
   salaryDetails?: SalaryDetails;
-  role: "normal" | "HR" | "manager" | "SuperAdmin";
+  role: "normal" | "HR" | "manager" | "SuperAdmin" | "Finance";
   createdAt?: Date;
   updatedAt?: Date;
 }
