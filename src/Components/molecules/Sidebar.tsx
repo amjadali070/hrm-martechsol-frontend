@@ -57,7 +57,7 @@ const menuItems: MenuItem[] = [
       {
         label: "Leave Management",
         path: "/organization/leave-management",
-        visibleTo: ["manager", "SuperAdmin"],
+        visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
         label: "Ticket Management",

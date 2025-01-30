@@ -16,7 +16,6 @@ import AttendanceTicketDetailModal from "../atoms/AttendanceTicketDetailModal";
 import { toast } from "react-toastify";
 import EditAttendanceModal from "../atoms/EditAttendanceModal";
 import useUser from "../../hooks/useUser";
-import { formatAttendenceTicketTime } from "../../utils/formateTime";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 interface AttendanceTicket {
@@ -36,10 +35,13 @@ interface AttendanceTicket {
   comments: string;
   file: string | undefined;
   status: "Open" | "Approved" | "Rejected";
+  approvedBy?: {
+    name: string;
+  };
 }
 
 const AttendanceTicketManagement: React.FC = () => {
-  const { user, loading: userLoading } = useUser();
+  const { user } = useUser();
   const [attendanceTickets, setAttendanceTickets] = useState<
     AttendanceTicket[]
   >([]);
@@ -143,7 +145,6 @@ const AttendanceTicketManagement: React.FC = () => {
     }
   };
 
-  // Open and Close Modals
   const openModal = (ticket: AttendanceTicket) => {
     setSelectedTicket(ticket);
     setIsModalOpen(true);
@@ -215,7 +216,6 @@ const AttendanceTicketManagement: React.FC = () => {
         Attendance Tickets Management
       </h2>
       <div className="grid gap-6 mb-6 sm:grid-cols-1 md:grid-cols-3">
-        {/* From Date */}
         <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
           <FaCalendarAlt className="text-black mr-3" />
           <input
@@ -244,7 +244,6 @@ const AttendanceTicketManagement: React.FC = () => {
           />
         </div>
 
-        {/* To Date */}
         <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
           <FaCalendarAlt className="text-black mr-3" />
           <input
@@ -273,7 +272,6 @@ const AttendanceTicketManagement: React.FC = () => {
           />
         </div>
 
-        {/* Status Filter */}
         <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
           <FaFilter className="text-black mr-3" />
           <select
@@ -298,10 +296,7 @@ const AttendanceTicketManagement: React.FC = () => {
                 "Date",
                 "Name",
                 "Job Title",
-                // "Time In",
-                // "Time Out",
-                // "Total Time",
-                // "Work Location",
+                "Approved By",
                 "Action",
               ].map((header) => (
                 <th
@@ -316,7 +311,7 @@ const AttendanceTicketManagement: React.FC = () => {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={9} className="text-center py-12 text-gray-500">
+                <td colSpan={10} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaSpinner
                       size={40}
@@ -328,7 +323,7 @@ const AttendanceTicketManagement: React.FC = () => {
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={9} className="text-center py-12 text-gray-500">
+                <td colSpan={10} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={40} className="text-gray-400 mb-4" />
                     <span className="text-lg font-medium">
@@ -355,37 +350,32 @@ const AttendanceTicketManagement: React.FC = () => {
                   <td className="px-6 py-4 text-sm text-gray-700 text-center">
                     {ticket.user.personalDetails.abbreviatedJobTitle}
                   </td>
-                  {/* <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {formatAttendenceTicketTime(ticket.timeIn)}
-                  </td>
                   <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {formatAttendenceTicketTime(ticket.timeOut)}
+                    {ticket.status === "Approved" && ticket.approvedBy
+                      ? ticket.approvedBy.name
+                      : "--"}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.totalTime}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.workLocation}
-                  </td> */}
                   <td className="px-6 py-4 text-center space-x-2 flex items-center justify-center">
-                    {ticket.status === "Open" && (
-                      <>
-                        <button
-                          onClick={() => handleAction(ticket._id, "approve")}
-                          className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 transition-colors"
-                          title="Approve"
-                        >
-                          <FaCheck className="mr-1" /> Approve
-                        </button>
-                        <button
-                          onClick={() => handleAction(ticket._id, "reject")}
-                          className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-colors"
-                          title="Reject"
-                        >
-                          <FaTimes className="mr-1" /> Reject
-                        </button>
-                      </>
-                    )}
+                    {ticket.status === "Open" &&
+                      user &&
+                      ticket.user.id !== user._id && (
+                        <>
+                          <button
+                            onClick={() => handleAction(ticket._id, "approve")}
+                            className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 transition-colors"
+                            title="Approve"
+                          >
+                            <FaCheck className="mr-1" /> Approve
+                          </button>
+                          <button
+                            onClick={() => handleAction(ticket._id, "reject")}
+                            className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-colors"
+                            title="Reject"
+                          >
+                            <FaTimes className="mr-1" /> Reject
+                          </button>
+                        </>
+                      )}
                     {ticket.status !== "Open" && (
                       <span
                         className={`px-3 py-1 text-sm rounded-full ${
@@ -405,7 +395,6 @@ const AttendanceTicketManagement: React.FC = () => {
                       <FaEye className="mr-1" /> View
                     </button>
 
-                    {/* Conditionally render "Edit" button */}
                     {ticket.status === "Open" &&
                       user &&
                       (ticket.user.id === user._id ||
@@ -423,7 +412,7 @@ const AttendanceTicketManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={9} className="text-center py-12 text-gray-500">
+                <td colSpan={10} className="text-center py-12 text-gray-500">
                   <div className="flex flex-col items-center justify-center">
                     <FaInbox size={40} className="text-gray-400 mb-4" />
                     <span className="text-lg font-medium">
@@ -437,7 +426,6 @@ const AttendanceTicketManagement: React.FC = () => {
         </table>
       </div>
 
-      {/* Pagination and Items Per Page */}
       <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
         <div className="flex items-center">
           <span className="text-sm text-gray-700 mr-3">Show:</span>
@@ -485,7 +473,6 @@ const AttendanceTicketManagement: React.FC = () => {
         </div>
       </div>
 
-      {/* Attendance Ticket Detail Modal */}
       <AttendanceTicketDetailModal
         isOpen={isModalOpen}
         ticket={selectedTicket}
@@ -493,7 +480,6 @@ const AttendanceTicketManagement: React.FC = () => {
         onOpenFile={openViewer}
       />
 
-      {/* Document Viewer Modal */}
       <DocumentViewerModal
         isOpen={isViewerOpen}
         onClose={closeViewer}
@@ -502,7 +488,6 @@ const AttendanceTicketManagement: React.FC = () => {
         fileType={selectedFileType || "image"}
       />
 
-      {/* Edit Attendance Modal */}
       <EditAttendanceModal
         isOpen={isEditModalOpen}
         onClose={closeEditModal}

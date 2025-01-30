@@ -26,7 +26,7 @@ const ticketTypes: TicketType[] = [
     label: "Attendance",
     path: "Attendance",
     icon: FaUserClock,
-    visibleTo: ["manager", "SuperAdmin"],
+    visibleTo: ["HR", "manager", "SuperAdmin"],
   },
   {
     label: "HR",
