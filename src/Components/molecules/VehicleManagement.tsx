@@ -9,6 +9,7 @@ import {
   FaFilePdf,
   FaFileWord,
   FaFileAlt,
+  FaFileInvoice,
 } from "react-icons/fa";
 import AddVehicleModal from "./AddVehicleModal";
 import AssignVehicleModal from "./AssignVehicleModal";
@@ -18,6 +19,8 @@ import axiosInstance from "../../utils/axiosConfig";
 import ConfirmDialog from "../atoms/ConfirmDialog";
 import ImageModal from "../atoms/ImageModal";
 import DocumentModal from "../atoms/DocumentModal";
+import AddInvoiceModal from "../atoms/AddInvoiceModal";
+import InvoicesModal from "../atoms/VehicleInvoices";
 
 interface AssignedTo {
   _id: string;
@@ -61,8 +64,18 @@ const VehicleManagement: React.FC = () => {
     useState<boolean>(false);
   const [documentUrl, setDocumentUrl] = useState<string | null>(null);
   const [documentName, setDocumentName] = useState<string | null>(null);
+  const [isAddInvoiceModalOpen, setIsAddInvoiceModalOpen] =
+    useState<boolean>(false);
+  const [selectedVehicleForInvoice, setSelectedVehicleForInvoice] = useState<
+    string | null
+  >(null);
 
-  // Fetch vehicles from backend
+  const [isInvoicesModalOpen, setIsInvoicesModalOpen] =
+    useState<boolean>(false);
+  const [selectedVehicleForInvoices, setSelectedVehicleForInvoices] = useState<
+    string | null
+  >(null);
+
   const fetchVehicles = async () => {
     setLoading(true);
     try {
@@ -136,7 +149,6 @@ const VehicleManagement: React.FC = () => {
     }
   };
 
-  // Handlers for image modal
   const openImageModal = (url: string) => {
     setImageUrl(url);
     setIsImageModalOpen(true);
@@ -146,7 +158,6 @@ const VehicleManagement: React.FC = () => {
     setIsImageModalOpen(false);
   };
 
-  // Handlers for document modal
   const openDocumentModalHandler = (url: string, name: string) => {
     setDocumentUrl(url);
     setDocumentName(name);
@@ -158,21 +169,19 @@ const VehicleManagement: React.FC = () => {
     setIsDocumentModalOpen(false);
   };
 
-  // Utility to determine file icon based on file type
   const getFileIcon = (url: string | null | undefined) => {
-    if (!url) return <FaFileAlt className="w-4 h-4 text-gray-600" />; // Default or placeholder icon
+    if (!url) return <FaFileAlt className="w-4 h-4 text-gray-600" />;
 
     const extension = url.split(".").pop()?.toLowerCase();
     if (extension === "pdf")
       return <FaFilePdf className="w-4 h-4 text-red-600" />;
     if (["doc", "docx"].includes(extension || ""))
       return <FaFileWord className="w-4 h-4 text-blue-600" />;
-    return <FaFileAlt className="w-4 h-4 text-gray-600" />; // Default icon for other types
+    return <FaFileAlt className="w-4 h-4 text-gray-600" />;
   };
 
   return (
     <div className="bg-gray-50 min-h-screen p-6 rounded-lg">
-      {/* Header Section */}
       <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
         <h1 className="text-3xl font-bold text-gray-800">Vehicle Management</h1>
         <button
@@ -185,7 +194,6 @@ const VehicleManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* Loading, Error, or Vehicle List */}
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-20 mb-20">
           <FaSpinner
@@ -309,11 +317,11 @@ const VehicleManagement: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="p-4 flex space-x-2">
+              <div className="p-4 grid grid-cols-2 gap-2">
+                {/* First Column */}
                 <button
                   onClick={() => openAssignModal(vehicle)}
-                  className="flex-1 flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                   aria-label="Assign Vehicle"
                 >
                   <AiOutlineUpload className="w-5 h-5 mr-2" />
@@ -322,16 +330,39 @@ const VehicleManagement: React.FC = () => {
 
                 <button
                   onClick={() => openUpdateModal(vehicle)}
-                  className="flex-1 flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  className="flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
                   aria-label="View or Update Vehicle"
                 >
                   <AiOutlineEye className="w-5 h-5 mr-2" />
                   View
                 </button>
 
+                {/* Second Column */}
+                <button
+                  onClick={() => {
+                    setSelectedVehicleForInvoice(vehicle._id);
+                    setIsAddInvoiceModalOpen(true);
+                  }}
+                  className="flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
+                  aria-label="Add Invoice"
+                >
+                  <FaFileInvoice className="w-5 h-5 mr-2" />
+                  Add Invoice
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedVehicleForInvoices(vehicle._id);
+                    setIsInvoicesModalOpen(true);
+                  }}
+                  className="flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                  aria-label="View Invoices"
+                >
+                  <FaFileInvoice className="w-5 h-5 mr-2" />
+                  View Invoices
+                </button>
                 <button
                   onClick={() => openConfirmDialog(vehicle._id)}
-                  className="flex-1 flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  className="flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
                   aria-label="Delete Vehicle"
                 >
                   <AiOutlineDelete className="w-5 h-5 mr-2" />
@@ -393,6 +424,30 @@ const VehicleManagement: React.FC = () => {
           onClose={closeDocumentModalHandler}
           documentUrl={documentUrl}
           documentName={documentName}
+        />
+      )}
+
+      {selectedVehicleForInvoice && (
+        <AddInvoiceModal
+          isOpen={isAddInvoiceModalOpen}
+          onClose={() => {
+            setIsAddInvoiceModalOpen(false);
+            setSelectedVehicleForInvoice(null);
+          }}
+          vehicleId={selectedVehicleForInvoice}
+          onInvoiceAdded={fetchVehicles}
+        />
+      )}
+
+      {/* Invoices Modal */}
+      {selectedVehicleForInvoices && (
+        <InvoicesModal
+          isOpen={isInvoicesModalOpen}
+          onClose={() => {
+            setIsInvoicesModalOpen(false);
+            setSelectedVehicleForInvoices(null);
+          }}
+          vehicleId={selectedVehicleForInvoices}
         />
       )}
     </div>

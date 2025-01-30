@@ -235,7 +235,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold mb-2">Total Net Salary</h3>
           <div className="text-3xl font-bold">
-            {formatCurrency(financeData.netSalary.total)}
+            {formatCurrency(Number(financeData.netSalary.total.toFixed(0)))}
           </div>
           <p className="text-sm text-gray-500">
             Average: {formatCurrency(financeData.netSalary.average)}
