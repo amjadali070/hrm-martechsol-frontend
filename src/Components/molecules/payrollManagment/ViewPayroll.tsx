@@ -7,10 +7,13 @@ import {
   FaMoneyBillWave,
   FaFileInvoiceDollar,
   FaSpinner,
+  FaDownload,
 } from "react-icons/fa";
 import axiosInstance from "../../../utils/axiosConfig";
 import { getMonthName } from "../../../utils/monthUtils";
 import { PayrollData } from "./PayrollContext";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import SalarySlipPDF from "../../../html/SalarySlipPDF";
 
 const ViewPayroll: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,8 +29,25 @@ const ViewPayroll: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  console.log("payroll", payroll);
-  // Fetch payroll details on mount
+  const parseCurrency = (value: string): number => {
+    return Number(value.replace(/[^0-9.-]+/g, ""));
+  };
+
+  const formatCurrency = (value: string | number): string => {
+    let numericValue: number;
+    if (typeof value === "string") {
+      numericValue = parseCurrency(value);
+    } else {
+      numericValue = value;
+    }
+    return (
+      "PKR " +
+      numericValue.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      })
+    );
+  };
+
   useEffect(() => {
     const fetchPayroll = async () => {
       if (!id) {
@@ -69,6 +89,90 @@ const ViewPayroll: React.FC = () => {
     );
   };
 
+  const preparePDFData = () => {
+    if (!payroll) return null;
+
+    const totalAbsents = payroll.absentDates?.length || 0;
+    const totalAbsentDeductions = (totalAbsents * payroll.perDaySalary).toFixed(
+      0
+    );
+
+    const totalLateIns = payroll.lateIns || 0;
+    const totalLateInDeductions = (
+      (Math.floor(totalLateIns / 4) * payroll.perDaySalary) /
+      2
+    ).toFixed(0);
+
+    const totalHalfDays = payroll.halfDays || 0;
+    const totalHalfDayDeductions = (
+      (totalHalfDays * payroll.perDaySalary) /
+      2
+    ).toFixed(0);
+
+    const leaveTypeCounts: { [key: string]: number } = {};
+    if (payroll.leaveDates) {
+      payroll.leaveDates.forEach((leave) => {
+        if (leaveTypeCounts[leave.type]) {
+          leaveTypeCounts[leave.type]++;
+        } else {
+          leaveTypeCounts[leave.type] = 1;
+        }
+      });
+    }
+
+    const pdfData = {
+      date: new Date().toLocaleDateString(),
+      name: payroll.user.name,
+      department: payroll.user.personalDetails.department,
+      jobTitle: payroll.user.personalDetails.jobTitle,
+      month: getMonthName(payroll.month),
+      year: payroll.year.toString(),
+      basicSalary: `PKR ${payroll.basicSalary.toFixed(0)}`,
+      medicalAllowance: `PKR ${
+        (payroll.user as any)?.salaryDetails?.medicalAllowance ||
+        payroll.allowances ||
+        0
+      }`,
+      mobileAllowance: `PKR ${
+        (payroll.user as any)?.salaryDetails?.mobileAllowance || 0
+      }`,
+      fuelAllowance: `PKR ${
+        (payroll.user as any)?.salaryDetails?.fuelAllowance || 0
+      }`,
+      grossSalary: `PKR ${payroll.totalSalary.toFixed(0)}`,
+      tax: `PKR ${tax.toFixed(0)}`,
+      eobi: `PKR ${eobi.toFixed(0)}`,
+      pfContribution: `PKR ${employeePF.toFixed(0)}`,
+      absentDeductions: `PKR ${totalAbsentDeductions}`,
+      amountPayable: `PKR ${calculateNetSalary().toFixed(0)}`,
+      extraPayments: extraPayments.map((payment) => ({
+        description: payment.description,
+        amount: `PKR ${payment.amount.toFixed(0)}`,
+      })),
+      absentDates: payroll.absentDates || [],
+      leaveDates: payroll.leaveDates || [],
+      leaveDetails: {
+        casualLeaveAvailable:
+          (payroll.user as any)?.leaveDetails?.casualLeaveAvailable || "0",
+        sickLeaveAvailable:
+          (payroll.user as any)?.leaveDetails?.sickLeaveAvailable || "0",
+        annualLeaveAvailable:
+          (payroll.user as any)?.leaveDetails?.annualLeaveAvailable || "0",
+      },
+      totalHalfDays: payroll.halfDays || 0,
+      totalHalfDayDeductions: `PKR ${totalHalfDayDeductions}`,
+      halfDayDates: payroll.halfDayDates || [],
+      totalAbsents,
+      totalAbsentDeductions: `PKR ${totalAbsentDeductions}`,
+      totalLateIns,
+      lateInDates: payroll.lateInDates || [],
+      totalLateInDeductions: `PKR ${totalLateInDeductions}`,
+      leaveTypeCounts,
+    };
+
+    return pdfData;
+  };
+
   if (loading && !payroll) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -95,18 +199,28 @@ const ViewPayroll: React.FC = () => {
             </h2>
           </div>
           <div className="flex justify-end">
-            <button
-              onClick={() =>
-                navigate(
-                  `/organization/payroll-management?month=${
-                    payroll!.month
-                  }&year=${payroll!.year}`
-                )
-              }
-              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors"
-            >
-              <FaArrowLeft className="mr-2" /> Back
-            </button>
+            <div className="flex justify-end space-x-4">
+              <button
+                onClick={() =>
+                  navigate(
+                    `/organization/payroll-management?month=${
+                      payroll!.month
+                    }&year=${payroll!.year}`
+                  )
+                }
+                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors"
+              >
+                <FaArrowLeft className="mr-2" /> Back
+              </button>
+              <PDFDownloadLink
+                document={<SalarySlipPDF data={preparePDFData()!} />}
+                fileName={`salary-slip-${payroll?.month}-${payroll?.year}.pdf`}
+                className="flex items-center px-6 py-3 bg-green-600 text-white rounded-full transition-colors "
+              >
+                <FaDownload className="mr-2" />
+                Download PDF
+              </PDFDownloadLink>
+            </div>
           </div>
         </div>
 
@@ -169,7 +283,7 @@ const ViewPayroll: React.FC = () => {
                   Basic Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {payroll!.basicSalary.toFixed(0)}
+                  {formatCurrency(payroll!.basicSalary.toFixed(0))}
                 </div>
               </div>
               <div>
@@ -177,8 +291,10 @@ const ViewPayroll: React.FC = () => {
                   Medical Allowance (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(payroll as any)?.user?.salaryDetails?.medicalAllowance ||
-                    payroll!.allowances}
+                  {formatCurrency(
+                    (payroll as any)?.user?.salaryDetails?.medicalAllowance ||
+                      payroll!.allowances
+                  )}
                 </div>
               </div>
               <div>
@@ -202,7 +318,7 @@ const ViewPayroll: React.FC = () => {
                   Per Day Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {payroll!.perDaySalary.toFixed(0)}
+                  {formatCurrency(payroll!.perDaySalary.toFixed(0))}
                 </div>
               </div>
               <div>
@@ -210,7 +326,7 @@ const ViewPayroll: React.FC = () => {
                   Gross Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold text-green-700">
-                  {payroll!.totalSalary.toFixed(0)}
+                  {formatCurrency(payroll!.totalSalary.toFixed(0))}
                 </div>
               </div>
             </div>
@@ -249,10 +365,10 @@ const ViewPayroll: React.FC = () => {
                   Total Absent Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
+                  {formatCurrency(
                     (payroll?.absentDates?.length || 0) *
-                    (payroll?.perDaySalary || 0)
-                  ).toFixed(0)}
+                      (payroll?.perDaySalary || 0)
+                  )}
                 </div>
               </div>
             </div>
@@ -291,11 +407,11 @@ const ViewPayroll: React.FC = () => {
                   Total Late In Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
+                  {formatCurrency(
                     (Math.floor((payroll?.lateIns ?? 0) / 4) *
                       (payroll?.perDaySalary ?? 0)) /
-                    2
-                  ).toFixed(0)}
+                      2
+                  )}
                 </div>
               </div>
             </div>
@@ -333,10 +449,10 @@ const ViewPayroll: React.FC = () => {
                   Total Half Days Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
+                  {formatCurrency(
                     ((payroll?.halfDays || 0) * (payroll?.perDaySalary || 0)) /
-                    2
-                  ).toFixed(0)}
+                      2
+                  )}
                 </div>
               </div>
             </div>
@@ -383,27 +499,33 @@ const ViewPayroll: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
               <div>
                 <label className="block text-sm font-medium">Tax (PKR)</label>
-                <div className="mt-1 font-bold">{tax.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(tax.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">EOBI (PKR)</label>
-                <div className="mt-1 font-bold">{eobi.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(eobi.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">
                   Employee PF (PKR)
                 </label>
-                <div className="mt-1 font-bold">{employeePF.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(employeePF.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">
                   Absent Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
+                  {formatCurrency(
                     (payroll?.absentDates?.length || 0) *
-                    (payroll?.perDaySalary || 0)
-                  ).toFixed(0)}
+                      (payroll?.perDaySalary || 0)
+                  )}
                 </div>
               </div>
               <div>
@@ -411,11 +533,11 @@ const ViewPayroll: React.FC = () => {
                   Late IN Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
+                  {formatCurrency(
                     (Math.floor((payroll?.lateIns ?? 0) / 4) *
                       (payroll?.perDaySalary ?? 0)) /
-                    2
-                  ).toFixed(0)}
+                      2
+                  )}
                 </div>
               </div>
               <div>
@@ -423,10 +545,10 @@ const ViewPayroll: React.FC = () => {
                   Half Days Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
+                  {formatCurrency(
                     ((payroll?.halfDays || 0) * (payroll?.perDaySalary || 0)) /
-                    2
-                  ).toFixed(0)}
+                      2
+                  )}
                 </div>
               </div>
             </div>
@@ -435,7 +557,7 @@ const ViewPayroll: React.FC = () => {
                 Total Deductions (PKR)
               </label>
               <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+                {formatCurrency(payroll!.deductions + tax + eobi + employeePF)}
               </div>
             </div>
           </div>
@@ -461,7 +583,9 @@ const ViewPayroll: React.FC = () => {
                   {extraPayments.map((payment) => (
                     <tr key={payment.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{payment.description}</td>
-                      <td className="px-4 py-2">{payment.amount.toFixed(0)}</td>
+                      <td className="px-4 py-2">
+                        {formatCurrency(payment.amount.toFixed(0))}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -482,7 +606,7 @@ const ViewPayroll: React.FC = () => {
                   Gross Salary (PKR)
                 </span>
                 <div className="mt-2 text-2xl font-extrabold text-green-800">
-                  {payroll!.totalSalary.toFixed(0)}
+                  {formatCurrency(payroll!.totalSalary)}
                 </div>
               </div>
               <div className="p-4 bg-yellow-100 rounded-lg text-center">
@@ -490,13 +614,15 @@ const ViewPayroll: React.FC = () => {
                   Total Deductions (PKR)
                 </span>
                 <div className="mt-2 text-2xl font-extrabold text-yellow-800">
-                  {(payroll!.deductions + tax + eobi + employeePF).toFixed(0)}
+                  {formatCurrency(
+                    payroll!.deductions + tax + eobi + employeePF
+                  )}
                 </div>
               </div>
               <div className="p-4 bg-blue-100 rounded-lg text-center">
                 <span className="text-sm text-gray-700">Net Salary (PKR)</span>
                 <div className="mt-2 text-2xl font-extrabold text-blue-800">
-                  {calculateNetSalary().toFixed(0)}
+                  {formatCurrency(calculateNetSalary())}
                 </div>
               </div>
             </div>

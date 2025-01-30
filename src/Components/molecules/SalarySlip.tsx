@@ -33,6 +33,25 @@ const SalarySlip: React.FC = () => {
   const [payrollLoading, setPayrollLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
+  const parseCurrency = (value: string): number => {
+    return Number(value.replace(/[^0-9.-]+/g, ""));
+  };
+
+  const formatCurrency = (value: string | number): string => {
+    let numericValue: number;
+    if (typeof value === "string") {
+      numericValue = parseCurrency(value);
+    } else {
+      numericValue = value;
+    }
+    return (
+      "PKR " +
+      numericValue.toLocaleString("en-US", {
+        maximumFractionDigits: 0,
+      })
+    );
+  };
+
   const userId = user?._id;
   useEffect(() => {
     const fetchPayrolls = async () => {
@@ -332,7 +351,7 @@ const SalarySlip: React.FC = () => {
                   Basic Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {selectedPayroll!.basicSalary.toFixed(0)}
+                  {formatCurrency(selectedPayroll!.basicSalary.toFixed(0))}
                 </div>
               </div>
               <div>
@@ -367,7 +386,7 @@ const SalarySlip: React.FC = () => {
                   Per Day Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {selectedPayroll!.perDaySalary.toFixed(0)}
+                  {formatCurrency(selectedPayroll!.perDaySalary.toFixed(0))}
                 </div>
               </div>
               <div>
@@ -375,7 +394,7 @@ const SalarySlip: React.FC = () => {
                   Gross Salary (PKR)
                 </label>
                 <div className="mt-1 font-bold text-green-700">
-                  {selectedPayroll!.totalSalary.toFixed(0)}
+                  {formatCurrency(selectedPayroll!.totalSalary.toFixed(0))}
                 </div>
               </div>
             </div>
@@ -415,10 +434,12 @@ const SalarySlip: React.FC = () => {
                   Total Absent Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
-                    (selectedPayroll?.absentDates?.length || 0) *
-                    (selectedPayroll?.perDaySalary || 0)
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    (
+                      (selectedPayroll?.absentDates?.length || 0) *
+                      (selectedPayroll?.perDaySalary || 0)
+                    ).toFixed(0)
+                  )}
                 </div>
               </div>
             </div>
@@ -458,11 +479,13 @@ const SalarySlip: React.FC = () => {
                   Total Late In Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
-                    (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
-                      (selectedPayroll?.perDaySalary ?? 0)) /
-                    2
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    (
+                      (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
+                        (selectedPayroll?.perDaySalary ?? 0)) /
+                      2
+                    ).toFixed(0)
+                  )}
                 </div>
               </div>
             </div>
@@ -501,11 +524,13 @@ const SalarySlip: React.FC = () => {
                   Total Half Days Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {(
-                    ((selectedPayroll?.halfDays || 0) *
-                      (selectedPayroll?.perDaySalary || 0)) /
-                    2
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    (
+                      ((selectedPayroll?.halfDays || 0) *
+                        (selectedPayroll?.perDaySalary || 0)) /
+                      2
+                    ).toFixed(0)
+                  )}
                 </div>
               </div>
             </div>
@@ -553,27 +578,33 @@ const SalarySlip: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
               <div>
                 <label className="block text-sm font-medium">Tax (PKR)</label>
-                <div className="mt-1 font-bold">{tax.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(tax.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">EOBI (PKR)</label>
-                <div className="mt-1 font-bold">{eobi.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(eobi.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">
                   Employee PF (PKR)
                 </label>
-                <div className="mt-1 font-bold">{employeePF.toFixed(0)}</div>
+                <div className="mt-1 font-bold">
+                  {formatCurrency(employeePF.toFixed(0))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium">
                   Absent Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
+                  {formatCurrency(
                     (selectedPayroll?.absentDates?.length || 0) *
-                    (selectedPayroll?.perDaySalary || 0)
-                  ).toFixed(0)}
+                      (selectedPayroll?.perDaySalary || 0)
+                  )}
                 </div>
               </div>
               <div>
@@ -581,11 +612,13 @@ const SalarySlip: React.FC = () => {
                   Late IN Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
-                    (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
-                      (selectedPayroll?.perDaySalary ?? 0)) /
-                    2
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    (
+                      (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
+                        (selectedPayroll?.perDaySalary ?? 0)) /
+                      2
+                    ).toFixed(0)
+                  )}
                 </div>
               </div>
               <div>
@@ -593,11 +626,13 @@ const SalarySlip: React.FC = () => {
                   Half Days Deductions (PKR)
                 </label>
                 <div className="mt-1 font-bold">
-                  {(
-                    ((selectedPayroll?.halfDays || 0) *
-                      (selectedPayroll?.perDaySalary || 0)) /
-                    2
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    (
+                      ((selectedPayroll?.halfDays || 0) *
+                        (selectedPayroll?.perDaySalary || 0)) /
+                      2
+                    ).toFixed(0)
+                  )}
                 </div>
               </div>
             </div>
@@ -606,12 +641,14 @@ const SalarySlip: React.FC = () => {
                 Total Deductions (PKR)
               </label>
               <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                {(
-                  selectedPayroll!.deductions +
-                  tax +
-                  eobi +
-                  employeePF
-                ).toFixed(0)}
+                {formatCurrency(
+                  (
+                    selectedPayroll!.deductions +
+                    tax +
+                    eobi +
+                    employeePF
+                  ).toFixed(0)
+                )}
               </div>
             </div>
           </div>
@@ -637,7 +674,9 @@ const SalarySlip: React.FC = () => {
                   {extraPayments.map((payment) => (
                     <tr key={payment.id} className="hover:bg-gray-50">
                       <td className="px-4 py-2">{payment.description}</td>
-                      <td className="px-4 py-2">{payment.amount.toFixed(0)}</td>
+                      <td className="px-4 py-2">
+                        {formatCurrency(payment.amount.toFixed(0))}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -658,7 +697,7 @@ const SalarySlip: React.FC = () => {
                   Gross Salary (PKR)
                 </span>
                 <div className="mt-2 text-2xl font-extrabold text-green-800">
-                  {selectedPayroll!.totalSalary.toFixed(0)}
+                  {formatCurrency(selectedPayroll!.totalSalary.toFixed(0))}
                 </div>
               </div>
               <div className="p-4 bg-yellow-100 rounded-lg text-center">
@@ -666,18 +705,15 @@ const SalarySlip: React.FC = () => {
                   Total Deductions (PKR)
                 </span>
                 <div className="mt-2 text-2xl font-extrabold text-yellow-800">
-                  {(
-                    selectedPayroll!.deductions +
-                    tax +
-                    eobi +
-                    employeePF
-                  ).toFixed(0)}
+                  {formatCurrency(
+                    selectedPayroll!.deductions + tax + eobi + employeePF
+                  )}
                 </div>
               </div>
               <div className="p-4 bg-blue-100 rounded-lg text-center">
                 <span className="text-sm text-gray-700">Net Salary (PKR)</span>
                 <div className="mt-2 text-2xl font-extrabold text-blue-800">
-                  {calculateNetSalary().toFixed(0)}
+                  {formatCurrency(calculateNetSalary().toFixed(0))}
                 </div>
               </div>
             </div>
