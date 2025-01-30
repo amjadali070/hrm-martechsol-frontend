@@ -64,11 +64,11 @@ const menuItems: MenuItem[] = [
         path: "/organization/vehicle-finance",
         visibleTo: ["SuperAdmin", "Finance"],
       },
-      {
-        label: "Finance Management",
-        path: "/organization/finance-management",
-        visibleTo: ["SuperAdmin", "Finance"],
-      },
+      // {
+      //   label: "Finance Management",
+      //   path: "/organization/finance-management",
+      //   visibleTo: ["SuperAdmin", "Finance"],
+      // },
       {
         label: "Leave Management",
         path: "/organization/leave-management",

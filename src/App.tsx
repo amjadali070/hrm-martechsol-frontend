@@ -63,6 +63,7 @@ import ViewPayroll from "./Components/molecules/payrollManagment/ViewPayroll";
 import UserAttendanceDetails from "./Components/atoms/UserAttendanceDetails";
 import SalarySlip from "./Components/molecules/SalarySlip";
 import PayrollFinanceAnalytics from "./Components/organisms/PayrollFinanceAnalytics";
+import VehicleFinanceAnalytics from "./Components/organisms/VehicleFinanceAnalytics";
 
 const App: React.FC = () => {
   return (
@@ -266,6 +267,11 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/payroll-finance"
                   element={<PayrollFinanceAnalytics />}
+                />
+
+                <Route
+                  path="/organization/vehicle-finance"
+                  element={<VehicleFinanceAnalytics />}
                 />
 
                 <Route path="/training-room" element={<TrainingRoom />} />

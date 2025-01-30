@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ChangeEvent } from "react";
+import React, { useEffect, useState } from "react";
 import { FaSpinner, FaInbox } from "react-icons/fa";
 import {
   Chart as ChartJS,
@@ -12,7 +12,6 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import { startOfMonth } from "date-fns";
 import { Line, Pie, Bar } from "react-chartjs-2";
 import { getMonthName } from "../../utils/monthUtils";
 import axiosInstance from "../../utils/axiosConfig";
@@ -90,7 +89,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
   const [monthlyBreakdown, setMonthlyBreakdown] = useState<MonthlyBreakdown[]>(
     []
   );
-  const [selectedTimeRange, setSelectedTimeRange] = useState<string>("6months");
+  const [filter, setFilter] = useState<string>("this_month"); // Default filter
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -99,7 +98,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
     setLoading(true);
     try {
       const response = await axiosInstance.get(
-        `${backendUrl}/api/payroll/finance?timeRange=${selectedTimeRange}`
+        `${backendUrl}/api/payroll/finance`
       );
       const data = response.data;
       setFinanceData(data.data);
@@ -115,18 +114,40 @@ const PayrollFinanceAnalytics: React.FC = () => {
 
   useEffect(() => {
     fetchFinanceData();
-  }, [selectedTimeRange]);
-
-  const handleTimeRangeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTimeRange(e.target.value);
-  };
+  }, []);
 
   const formatCurrency = (value: number) => {
     return `PKR ${value.toLocaleString()}`;
   };
 
+  const filterDataByPeriod = (data: MonthlyBreakdown[], period: string) => {
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear();
+    const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed in JS
+
+    switch (period) {
+      case "this_month":
+        return data.filter(
+          (item) =>
+            item._id.year === currentYear && item._id.month === currentMonth
+        );
+      case "last_six_months":
+        return data.filter((item) => {
+          const itemDate = new Date(item._id.year, item._id.month - 1);
+          const sixMonthsAgo = new Date();
+          sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+          return itemDate >= sixMonthsAgo;
+        });
+      case "this_year":
+        return data.filter((item) => item._id.year === currentYear);
+      default:
+        return data;
+    }
+  };
+
   const getMonthlyTrendsData = () => {
-    const labels = monthlyBreakdown.map(
+    const filteredData = filterDataByPeriod(monthlyBreakdown, filter);
+    const labels = filteredData.map(
       (item) => `${getMonthName(item._id.month)} ${item._id.year}`
     );
 
@@ -135,13 +156,13 @@ const PayrollFinanceAnalytics: React.FC = () => {
       datasets: [
         {
           label: "Gross Salary",
-          data: monthlyBreakdown.map((item) => item.totalGrossSalary),
+          data: filteredData.map((item) => item.totalGrossSalary),
           borderColor: "#8884d8",
           tension: 0.1,
         },
         {
           label: "Net Salary",
-          data: monthlyBreakdown.map((item) => item.totalNetSalary),
+          data: filteredData.map((item) => item.totalNetSalary),
           borderColor: "#82ca9d",
           tension: 0.1,
         },
@@ -205,14 +226,16 @@ const PayrollFinanceAnalytics: React.FC = () => {
         Payroll Financial Analytics
       </h2>
 
-      <div className="mb-6 flex justify-between items-center">
+      {/* Date Filter Dropdown */}
+      <div className="flex justify-end mb-6">
         <select
-          value={selectedTimeRange}
-          onChange={handleTimeRangeChange}
-          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+          value={filter}
+          onChange={(e) => setFilter(e.target.value)}
+          className="p-2 border border-gray-300 rounded-md"
         >
-          <option value="6months">Last 6 Months</option>
-          <option value="1year">Last 1 Year</option>
+          <option value="this_month">This Month</option>
+          <option value="last_six_months">Last Six Months</option>
+          <option value="this_year">This Year</option>
         </select>
       </div>
 
@@ -240,6 +263,74 @@ const PayrollFinanceAnalytics: React.FC = () => {
           <p className="text-sm text-gray-500">
             Average: {formatCurrency(financeData.netSalary.average)}
           </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Basic Salary</h3>
+          <div className="text-3xl font-bold">
+            {formatCurrency(financeData.basicSalary.total)}
+          </div>
+          <p className="text-sm text-gray-500">
+            Average: {formatCurrency(financeData.basicSalary.average)}
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Allowances</h3>
+          <div className="text-3xl font-bold">
+            {formatCurrency(financeData.allowances.total)}
+          </div>
+          <p className="text-sm text-gray-500">
+            Average: {formatCurrency(financeData.allowances.average)}
+          </p>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Deductions</h3>
+          <div className="text-3xl font-bold">
+            {formatCurrency(financeData.deductions.total)}
+          </div>
+          <p className="text-sm text-gray-500">
+            Average: {formatCurrency(financeData.deductions.average)}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Extra Payments</h3>
+          <div className="text-3xl font-bold">
+            {formatCurrency(financeData.extraPayments)}
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Attendance</h3>
+          <div className="text-sm text-gray-500">
+            <p>Total Absent Days: {financeData.attendance.totalAbsentDays}</p>
+            <p>Total Half Days: {financeData.attendance.totalHalfDays}</p>
+            <p>Total Late Ins: {financeData.attendance.totalLateIns}</p>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-lg shadow-sm">
+          <h3 className="text-lg font-semibold mb-2">Metrics</h3>
+          <div className="text-sm text-gray-500">
+            <p>
+              Average Deduction Percentage:{" "}
+              {financeData.metrics.averageDeductionPercentage}%
+            </p>
+            <p>
+              Average Net/Gross Ratio:{" "}
+              {financeData.metrics.averageNetToGrossRatio}%
+            </p>
+            <p>
+              Average Tax Percentage: {financeData.metrics.averageTaxPercentage}
+              %
+            </p>
+          </div>
         </div>
       </div>
 

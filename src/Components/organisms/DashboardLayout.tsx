@@ -57,14 +57,14 @@ const DashboardLayout: React.FC = () => {
         },
         {
           label: "Vehicle Finances",
-          onClick: () => navigate("/finance/vehicles"),
+          onClick: () => navigate("/organization/vehicle-finance"),
           tooltip: "View and manage vehicle finances",
         },
-        {
-          label: "Total Finances",
-          onClick: () => navigate("/finance/overview"),
-          tooltip: "View total financial overview",
-        },
+        // {
+        //   label: "Total Finances",
+        //   onClick: () => navigate("/finance/overview"),
+        //   tooltip: "View total financial overview",
+        // },
       ];
     }
 
