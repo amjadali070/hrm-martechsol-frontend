@@ -1,4 +1,3 @@
-// src/components/AttendanceManagement.tsx
 import React, { useState, useEffect, useCallback } from "react";
 import {
   FaCalendarAlt,
@@ -7,28 +6,21 @@ import {
   FaSpinner,
   FaSearch,
   FaUserTimes,
+  FaUserPlus,
 } from "react-icons/fa";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi"; // Added for pagination icons
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
 import useDebounce from "../../hooks/useDebounce";
-import {
-  startOfDay,
-  endOfDay,
-  startOfYesterday,
-  endOfYesterday,
-  startOfWeek,
-  endOfWeek,
-  startOfMonth,
-  endOfMonth,
-} from "date-fns";
+
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
 import { Link } from "react-router-dom";
+import AddAttendanceModal from "../atoms/AddAttendanceModal";
 
 const statusColors: Record<string, string> = {
-  Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
-  Completed: "bg-green-500", // new type: Completed uses former present color
+  Present: "bg-gray-400",
+  Completed: "bg-green-500",
   Absent: "bg-red-600",
   "Late IN": "bg-yellow-500",
   "Half Day": "bg-orange-600",
@@ -85,7 +77,7 @@ interface Attendance {
   duration: number;
   type: string;
   createdAt: string;
-  workLocation?: string; // Added field for work location coming from API
+  workLocation?: string;
   leaveApplication?: string | null;
 }
 
@@ -116,6 +108,7 @@ const AttendanceManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [showMarkAbsentModal, setShowMarkAbsentModal] = useState(false);
+  const [showAddAttendanceModal, setShowAddAttendanceModal] = useState(false);
 
   const jobTitleOptions = [
     "Executive",
@@ -136,7 +129,6 @@ const AttendanceManagement: React.FC = () => {
 
   const debouncedSearchName = useDebounce(searchName, 300);
 
-  // New States for Grouped Data
   const [uniqueDates, setUniqueDates] = useState<string[]>([]);
   const [groupedAttendanceData, setGroupedAttendanceData] = useState<
     Record<string, Attendance[]>
@@ -253,6 +245,7 @@ const AttendanceManagement: React.FC = () => {
     }
 
     setFilteredAttendanceData(filteredData);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     attendanceData,
     dateRange,
@@ -263,7 +256,6 @@ const AttendanceManagement: React.FC = () => {
     typeFilter,
   ]);
 
-  // Modified fetchAttendance to get all records
   const fetchAttendance = useCallback(async () => {
     if (!backendUrl) {
       setLoading(false);
@@ -288,7 +280,6 @@ const AttendanceManagement: React.FC = () => {
 
       let fetchedData = data.attendances || [];
 
-      // Sort fetched data by createdAt descending
       fetchedData.sort((a, b) => {
         return (
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -329,23 +320,20 @@ const AttendanceManagement: React.FC = () => {
     setFilteredAttendanceData(filteredData);
   }, [attendanceData, jobTitleFilter, debouncedSearchName]);
 
-  // Group filtered data by date
   useEffect(() => {
     const grouped: Record<string, Attendance[]> = {};
     filteredAttendanceData.forEach((record) => {
-      const dateKey = new Date(record.createdAt).toISOString().split("T")[0]; // Use YYYY-MM-DD as key
+      const dateKey = new Date(record.createdAt).toISOString().split("T")[0];
       if (!grouped[dateKey]) {
         grouped[dateKey] = [];
       }
       grouped[dateKey].push(record);
     });
 
-    // Sort the unique dates descending
     const dates = Object.keys(grouped).sort(
       (a, b) => new Date(b).getTime() - new Date(a).getTime()
     );
 
-    // Sort records within each date by timeIn ascending
     dates.forEach((date) => {
       grouped[date].sort((a, b) => {
         const timeA = a.timeIn ? new Date(a.timeIn).getTime() : 0;
@@ -357,10 +345,9 @@ const AttendanceManagement: React.FC = () => {
     setGroupedAttendanceData(grouped);
     setUniqueDates(dates);
     setTotalPages(dates.length);
-    setCurrentPage(1); // Reset to first page whenever filters change
+    setCurrentPage(1);
   }, [filteredAttendanceData]);
 
-  // Compute Type Summary
   useEffect(() => {
     const summary: Record<string, number> = {};
     filteredAttendanceData.forEach((record) => {
@@ -381,7 +368,6 @@ const AttendanceManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  // Get records for the current page's date
   const currentDateKey = uniqueDates[currentPage - 1];
   const currentDateDisplay = currentDateKey
     ? formatDateWithWeekday(currentDateKey)
@@ -406,7 +392,14 @@ const AttendanceManagement: React.FC = () => {
               Attendance Management
             </h2>
 
-            <div className="flex justify-end mb-4">
+            <div className="flex justify-end mb-4 gap-4">
+              <button
+                onClick={() => setShowAddAttendanceModal(true)}
+                className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                <FaUserPlus className="mr-2" />
+                Add Attendance
+              </button>
               <button
                 onClick={() => setShowMarkAbsentModal(true)}
                 className="flex items-center px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
@@ -427,7 +420,6 @@ const AttendanceManagement: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Search Name */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaSearch className="text-gray-400 mr-3" />
               <input
@@ -439,7 +431,6 @@ const AttendanceManagement: React.FC = () => {
               />
             </div>
 
-            {/* Date Range Selector */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaCalendarAlt className="text-gray-400 mr-3" />
               <select
@@ -457,7 +448,6 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* From Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
                 <FaCalendarAlt className="text-gray-400 mr-3" />
@@ -471,7 +461,6 @@ const AttendanceManagement: React.FC = () => {
               </div>
             )}
 
-            {/* To Date - Only enabled if Custom is selected */}
             {dateRange === "Custom" && (
               <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
                 <FaCalendarAlt className="text-gray-400 mr-3" />
@@ -485,7 +474,6 @@ const AttendanceManagement: React.FC = () => {
               </div>
             )}
 
-            {/* Type Filter */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaFilter className="text-gray-400 mr-3" />
               <select
@@ -503,7 +491,6 @@ const AttendanceManagement: React.FC = () => {
               </select>
             </div>
 
-            {/* Job Title Filter */}
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaFilter className="text-gray-400 mr-3" />
               <select
@@ -554,7 +541,7 @@ const AttendanceManagement: React.FC = () => {
                   <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                     Type
                   </th>
-                  {/* Render Location column if user is SuperAdmin */}
+
                   {user?.role === "SuperAdmin" && (
                     <th className="py-3 px-4 text-center text-sm font-semibold text-white">
                       Location
@@ -621,7 +608,7 @@ const AttendanceManagement: React.FC = () => {
                           {record.type}
                         </span>
                       </td>
-                      {/* Render workLocation for SuperAdmin */}
+
                       {user?.role === "SuperAdmin" && (
                         <td className="py-3 px-4 text-sm text-gray-700">
                           {record.workLocation || "N/A"}
@@ -648,7 +635,6 @@ const AttendanceManagement: React.FC = () => {
             </table>
           </div>
 
-          {/* Pagination Controls */}
           {uniqueDates.length > 0 && (
             <div className="flex justify-center items-center mt-6 space-x-4">
               <button
@@ -704,6 +690,13 @@ const AttendanceManagement: React.FC = () => {
         isOpen={showMarkAbsentModal}
         onClose={() => {
           setShowMarkAbsentModal(false);
+          fetchAttendance();
+        }}
+      />
+      <AddAttendanceModal
+        isOpen={showAddAttendanceModal}
+        onClose={() => {
+          setShowAddAttendanceModal(false);
           fetchAttendance();
         }}
       />

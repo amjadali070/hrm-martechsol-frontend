@@ -31,7 +31,6 @@ const SalarySlip: React.FC = () => {
   const [eobi, setEobi] = useState<number>(0);
   const [employeePF, setEmployeePF] = useState<number>(0);
   const [payrollLoading, setPayrollLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const parseCurrency = (value: string): number => {
     return Number(value.replace(/[^0-9.-]+/g, ""));
@@ -57,7 +56,6 @@ const SalarySlip: React.FC = () => {
     const fetchPayrolls = async () => {
       console.log("userId", userId);
       if (!userId) {
-        setError("User ID not found.");
         return;
       }
       try {
@@ -66,7 +64,6 @@ const SalarySlip: React.FC = () => {
         setPayrolls(response.data);
       } catch (err: any) {
         console.error("Error fetching payrolls:", err);
-        setError(err.response?.data?.message || "Failed to fetch payrolls.");
       } finally {
         setPayrollLoading(false);
       }

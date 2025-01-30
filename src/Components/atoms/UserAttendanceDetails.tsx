@@ -225,7 +225,6 @@ const UserAttendanceDetails: React.FC = () => {
       // No filtering needed for all records
     }
 
-    // Apply type filter
     if (typeFilter !== "All") {
       filtered = filtered.filter((record) => record.type === typeFilter);
     }
@@ -270,7 +269,10 @@ const UserAttendanceDetails: React.FC = () => {
         </div>
       </div>
 
-      <AttendanceStats statistics={statistics} />
+      <AttendanceStats
+        statistics={statistics}
+        attendanceData={attendanceData}
+      />
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-5">
