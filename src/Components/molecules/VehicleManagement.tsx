@@ -246,7 +246,6 @@ const VehicleManagement: React.FC = () => {
                 </div>
               </div>
 
-              {/* Vehicle Details */}
               <div className="p-4 flex-1 flex flex-col">
                 <h2 className="text-xl font-semibold text-gray-800">
                   {vehicle.make} {vehicle.model}
@@ -254,7 +253,7 @@ const VehicleManagement: React.FC = () => {
                 <p className="text-sm text-gray-600 mt-1">
                   <strong>Registration:</strong> {vehicle.registrationNo}
                 </p>
-                {/* Assigned To */}
+
                 <p className="text-sm text-gray-600 mt-1">
                   <strong>Assigned To:</strong>{" "}
                   {vehicle.assignedTo ? (
@@ -267,7 +266,6 @@ const VehicleManagement: React.FC = () => {
                   )}
                 </p>
 
-                {/* Vehicle Documents */}
                 <div className="mt-3">
                   <h3 className="text-sm font-medium text-gray-700 mb-1">
                     Documents:
@@ -277,7 +275,6 @@ const VehicleManagement: React.FC = () => {
                     <ul className="space-y-1">
                       {vehicle.vehicleDocuments.map((docUrl, index) => {
                         if (!docUrl) {
-                          // Handle null or undefined document URLs
                           return (
                             <li
                               key={index}
@@ -318,7 +315,6 @@ const VehicleManagement: React.FC = () => {
               </div>
 
               <div className="p-4 grid grid-cols-2 gap-2">
-                {/* First Column */}
                 <button
                   onClick={() => openAssignModal(vehicle)}
                   className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -337,7 +333,6 @@ const VehicleManagement: React.FC = () => {
                   View
                 </button>
 
-                {/* Second Column */}
                 <button
                   onClick={() => {
                     setSelectedVehicleForInvoice(vehicle._id);
@@ -374,7 +369,6 @@ const VehicleManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Modals */}
       <AddVehicleModal
         isOpen={isAddModalOpen}
         onClose={closeAddModal}
@@ -397,7 +391,6 @@ const VehicleManagement: React.FC = () => {
         </>
       )}
 
-      {/* Confirm Delete Dialog */}
       {isConfirmOpen && (
         <ConfirmDialog
           title="Delete Vehicle"
@@ -408,7 +401,6 @@ const VehicleManagement: React.FC = () => {
         />
       )}
 
-      {/* Image Modal */}
       {isImageModalOpen && imageUrl && (
         <ImageModal
           isOpen={isImageModalOpen}
@@ -417,7 +409,6 @@ const VehicleManagement: React.FC = () => {
         />
       )}
 
-      {/* Document Modal */}
       {isDocumentModalOpen && documentUrl && documentName && (
         <DocumentModal
           isOpen={isDocumentModalOpen}
@@ -439,7 +430,6 @@ const VehicleManagement: React.FC = () => {
         />
       )}
 
-      {/* Invoices Modal */}
       {selectedVehicleForInvoices && (
         <InvoicesModal
           isOpen={isInvoicesModalOpen}

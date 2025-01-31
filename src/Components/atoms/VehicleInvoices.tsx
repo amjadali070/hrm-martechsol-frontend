@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
 import {
   FaSpinner,
-  FaFileInvoice,
   FaSort,
   FaSortUp,
   FaSortDown,
+  FaTrashAlt,
+  FaPen,
 } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosConfig";
+import ConfirmDialog from "./ConfirmDialog";
 
 interface Invoice {
   _id: string;
@@ -50,8 +52,15 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     endDate: "",
   });
 
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(
+    null
+  );
+  const [loadingDelete, setLoadingDelete] = useState(false);
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
+  // Fetch invoices data
   const fetchInvoices = async () => {
     setLoading(true);
     try {
@@ -86,6 +95,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     }
   }, [isOpen, page, sortBy, sortOrder, dateRange]);
 
+  // Handle sorting
   const handleSort = (field: "date" | "amount") => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -104,6 +114,37 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     );
   };
 
+  const handleDelete = (invoiceId: string) => {
+    setDeletingInvoiceId(invoiceId);
+    setShowConfirmDialog(true);
+  };
+
+  const onConfirmDelete = async () => {
+    if (!deletingInvoiceId) return;
+    setLoadingDelete(true);
+    try {
+      await axiosInstance.delete(
+        `${backendUrl}/api/vehicles/${vehicleId}/invoices/${deletingInvoiceId}`
+      );
+      fetchInvoices(); // Re-fetch invoices after successful deletion
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to delete invoice");
+    } finally {
+      setLoadingDelete(false);
+      setShowConfirmDialog(false); // Close the dialog after action
+      setDeletingInvoiceId(null); // Reset invoice id
+    }
+  };
+
+  const onCancelDelete = () => {
+    setShowConfirmDialog(false);
+    setDeletingInvoiceId(null);
+  };
+
+  const handleUpdate = (invoiceId: string) => {
+    alert(`Update Invoice with ID: ${invoiceId}`);
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -114,14 +155,12 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
       aria-modal="true"
     >
       <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-        {/* Background overlay */}
         <div
           className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
           aria-hidden="true"
           onClick={onClose}
         ></div>
 
-        {/* Modal panel */}
         <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden  transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
           <div className="bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4">
             <div className="flex justify-between items-center mb-6">
@@ -142,7 +181,6 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
               </button>
             </div>
 
-            {/* Filters */}
             <div className="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
               <input
                 type="date"
@@ -167,7 +205,6 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
               />
             </div>
 
-            {/* Summary */}
             {summary && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                 <div className="bg-blue-50 p-4 rounded-lg">
@@ -202,7 +239,9 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                 <FaSpinner className="animate-spin text-blue-600 text-2xl" />
               </div>
             ) : error ? (
-              <div className="text-red-600 p-4 text-center">{error}</div>
+              <div className="text-gray-600 p-4 text-center">
+                No Vehicle Invoices Available
+              </div>
             ) : (
               <div className="overflow-x-auto bg-gray-100 rounded-lg">
                 <table className="w-full text-sm">
@@ -226,6 +265,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                       </th>
                       <th className="px-4 py-3 text-left">Description</th>
                       <th className="px-4 py-3 text-left">Invoice Image</th>
+                      <th className="px-4 py-3 text-left">Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -257,6 +297,20 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                             "-"
                           )}
                         </td>
+                        <td className="px-4 py-3">
+                          <button
+                            onClick={() => handleUpdate(invoice._id)}
+                            className="text-yellow-500 hover:text-yellow-700 mr-4"
+                          >
+                            <FaPen />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(invoice._id)}
+                            className="text-red-600 hover:text-red-800"
+                          >
+                            <FaTrashAlt />
+                          </button>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -264,7 +318,6 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
               </div>
             )}
 
-            {/* Pagination */}
             <div className="mt-6 flex justify-between items-center">
               <button
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
@@ -287,6 +340,15 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
           </div>
         </div>
       </div>
+      {showConfirmDialog && (
+        <ConfirmDialog
+          title="Delete Invoice"
+          message="Are you sure you want to delete this invoice?"
+          onConfirm={onConfirmDelete}
+          onCancel={onCancelDelete}
+          loading={loadingDelete}
+        />
+      )}
     </div>
   );
 };
