@@ -290,10 +290,11 @@ const PayrollFinanceAnalytics: React.FC = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold mb-2">Deductions</h3>
           <div className="text-3xl font-bold">
-            {formatCurrency(financeData.deductions.total)}
+            {formatCurrency(Number(financeData.deductions.total.toFixed(0)))}
           </div>
           <p className="text-sm text-gray-500">
-            Average: {formatCurrency(financeData.deductions.average)}
+            Average:{" "}
+            {formatCurrency(Number(financeData.deductions.average.toFixed(0)))}
           </p>
         </div>
       </div>

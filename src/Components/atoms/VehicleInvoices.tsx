@@ -9,6 +9,7 @@ import {
 } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosConfig";
 import ConfirmDialog from "./ConfirmDialog";
+import { toast } from "react-toastify";
 
 interface Invoice {
   _id: string;
@@ -37,6 +38,13 @@ interface InvoicesModalProps {
   vehicleId: string;
 }
 
+interface EditInvoiceState {
+  isOpen: boolean;
+  invoice: Partial<Invoice>;
+  previewImage?: string | null;
+  imageFile?: File;
+}
+
 const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,15 +60,21 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     endDate: "",
   });
 
+  const [editModal, setEditModal] = useState<EditInvoiceState>({
+    isOpen: false,
+    invoice: {},
+    previewImage: null,
+  });
+
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [deletingInvoiceId, setDeletingInvoiceId] = useState<string | null>(
     null
   );
   const [loadingDelete, setLoadingDelete] = useState(false);
+  const [loadingUpdate, setLoadingUpdate] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
-  // Fetch invoices data
   const fetchInvoices = async () => {
     setLoading(true);
     try {
@@ -95,7 +109,6 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     }
   }, [isOpen, page, sortBy, sortOrder, dateRange]);
 
-  // Handle sorting
   const handleSort = (field: "date" | "amount") => {
     if (sortBy === field) {
       setSortOrder(sortOrder === "asc" ? "desc" : "asc");
@@ -126,13 +139,14 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
       await axiosInstance.delete(
         `${backendUrl}/api/vehicles/${vehicleId}/invoices/${deletingInvoiceId}`
       );
-      fetchInvoices(); // Re-fetch invoices after successful deletion
+      toast.warning("Invoice deleted successfully");
+      fetchInvoices();
     } catch (err: any) {
       setError(err.response?.data?.message || "Failed to delete invoice");
     } finally {
       setLoadingDelete(false);
-      setShowConfirmDialog(false); // Close the dialog after action
-      setDeletingInvoiceId(null); // Reset invoice id
+      setShowConfirmDialog(false);
+      setDeletingInvoiceId(null);
     }
   };
 
@@ -141,8 +155,82 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     setDeletingInvoiceId(null);
   };
 
-  const handleUpdate = (invoiceId: string) => {
-    alert(`Update Invoice with ID: ${invoiceId}`);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditModal((prev) => ({
+          ...prev,
+          previewImage: reader.result as string,
+        }));
+      };
+      reader.readAsDataURL(file);
+
+      setEditModal((prev) => ({
+        ...prev,
+        imageFile: file,
+      }));
+    }
+  };
+
+  const handleUpdateInvoice = async () => {
+    const { _id, date, amount, description } = editModal.invoice;
+
+    if (!date || !amount) {
+      setError("Date and Amount are required");
+      return;
+    }
+
+    setLoadingUpdate(true);
+
+    const formData = new FormData();
+    formData.append("date", date!);
+    formData.append("amount", amount!.toString());
+
+    if (description) {
+      formData.append("description", description);
+    }
+
+    if (editModal.imageFile) {
+      formData.append("invoiceImage", editModal.imageFile);
+    }
+
+    try {
+      await axiosInstance.put(
+        `${backendUrl}/api/vehicles/${vehicleId}/invoices/${_id}`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      toast.success("Invoice updated successfully");
+      fetchInvoices();
+      setEditModal({
+        isOpen: false,
+        invoice: {},
+        previewImage: null,
+      });
+    } catch (err: any) {
+      setError(err.response?.data?.message || "Failed to update invoice");
+    } finally {
+      setLoadingUpdate(false);
+    }
+  };
+
+  const handleUpdate = (invoice: Invoice) => {
+    setEditModal({
+      isOpen: true,
+      invoice: {
+        _id: invoice._id,
+        date: new Date(invoice.date).toISOString().split("T")[0],
+        amount: invoice.amount,
+        description: invoice.description || "",
+      },
+      previewImage: invoice.invoiceImage || null,
+    });
   };
 
   if (!isOpen) return null;
@@ -299,7 +387,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                         </td>
                         <td className="px-4 py-3">
                           <button
-                            onClick={() => handleUpdate(invoice._id)}
+                            onClick={() => handleUpdate(invoice)}
                             className="text-yellow-500 hover:text-yellow-700 mr-4"
                           >
                             <FaPen />
@@ -340,6 +428,126 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
           </div>
         </div>
       </div>
+      {editModal.isOpen && (
+        <div className="w-full fixed inset-0 z-50 flex items-center justify-center">
+          <div
+            className="fixed inset-0 bg-black opacity-50"
+            onClick={() =>
+              setEditModal({ isOpen: false, invoice: {}, previewImage: null })
+            }
+          ></div>
+          <div className="bg-white rounded-lg p-6 z-50 w-[50%] relative">
+            <h2 className="text-xl font-semibold mb-4">Edit Invoice</h2>
+
+            {/* Date Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Date
+              </label>
+              <input
+                type="date"
+                value={editModal.invoice.date || ""}
+                onChange={(e) =>
+                  setEditModal((prev) => ({
+                    ...prev,
+                    invoice: { ...prev.invoice, date: e.target.value },
+                  }))
+                }
+                className="mt-1 block w-full border rounded-md px-3 py-2"
+              />
+            </div>
+
+            {/* Amount Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Amount
+              </label>
+              <input
+                type="number"
+                value={editModal.invoice.amount || ""}
+                onChange={(e) =>
+                  setEditModal((prev) => ({
+                    ...prev,
+                    invoice: {
+                      ...prev.invoice,
+                      amount: Number(e.target.value),
+                    },
+                  }))
+                }
+                className="mt-1 block w-full border rounded-md px-3 py-2"
+              />
+            </div>
+
+            {/* Description Input */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                value={editModal.invoice.description || ""}
+                onChange={(e) =>
+                  setEditModal((prev) => ({
+                    ...prev,
+                    invoice: { ...prev.invoice, description: e.target.value },
+                  }))
+                }
+                className="mt-1 block w-full border rounded-md px-3 py-2"
+                rows={3}
+              />
+            </div>
+
+            {/* Image Upload */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">
+                Invoice Image
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="mt-1 block w-full border rounded-md px-3 py-2"
+              />
+
+              {/* Image Preview */}
+              {(editModal.previewImage || editModal.invoice.invoiceImage) && (
+                <div className="mt-2">
+                  <img
+                    src={
+                      editModal.previewImage || editModal.invoice.invoiceImage
+                    }
+                    alt="Invoice Preview"
+                    className="max-w-full h-40 object-cover rounded-md"
+                  />
+                </div>
+              )}
+            </div>
+
+            {error && <div className="text-red-500 mb-4">{error}</div>}
+
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() =>
+                  setEditModal({
+                    isOpen: false,
+                    invoice: {},
+                    previewImage: null,
+                  })
+                }
+                className="px-4 py-2 bg-gray-200 rounded-md hover:bg-gray-300"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateInvoice}
+                disabled={loadingUpdate}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loadingUpdate ? "Updating..." : "Update Invoice"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       {showConfirmDialog && (
         <ConfirmDialog
           title="Delete Invoice"
