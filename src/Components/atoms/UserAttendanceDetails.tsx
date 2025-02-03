@@ -103,7 +103,7 @@ const UserAttendanceDetails: React.FC = () => {
     lateAndEarly: 0,
   });
 
-  const itemsPerPage = 20;
+  const itemsPerPage = 31;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
