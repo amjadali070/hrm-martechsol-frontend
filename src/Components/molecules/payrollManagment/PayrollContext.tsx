@@ -57,6 +57,7 @@ export interface PayrollData {
   eobi: number;
   employeePF: number;
   employerPF: number;
+  deductedLeavesFromLateIns?: number;
 }
 
 export interface MonthYear {
@@ -121,6 +122,8 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
             lateInDeductions:
               Math.floor(payroll.lateIns / 4) * (payroll.perDaySalary / 2),
             halfDayDeductions: payroll.halfDays * (payroll.perDaySalary / 2),
+            deductedLeavesFromLateIns: payroll.deductedLeavesFromLateIns || 0,
+
             user: {
               ...payroll.user,
               personalDetails: {
@@ -146,7 +149,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     [backendUrl]
   );
 
-  // Fetch distinct month/year combinations
   const fetchAllMonths = useCallback(async (): Promise<MonthYear[]> => {
     try {
       const response = await axiosInstance.get(
