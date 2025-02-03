@@ -477,6 +477,25 @@ const ViewPayroll: React.FC = () => {
                 </div>
               </div>
             </div>
+
+            <div className="text-gray-800 dark:text-gray-100 mt-3">
+              {payroll?.halfDayCasualLeavesDeduction &&
+                payroll.halfDayCasualLeavesDeduction.deductedCasualLeaves >
+                  0 && (
+                  <div>
+                    <label className="block text-sm font-medium">
+                      Casual Leaves Deducted Due to Half Days
+                    </label>
+                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                      {
+                        payroll.halfDayCasualLeavesDeduction
+                          .deductedCasualLeaves
+                      }{" "}
+                      Casual Leave(s)
+                    </div>
+                  </div>
+                )}
+            </div>
           </div>
 
           {/* NEW Section 5: Leave Dates */}

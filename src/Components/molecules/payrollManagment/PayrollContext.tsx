@@ -61,6 +61,10 @@ export interface PayrollData {
     totalLateIns: number;
     deductedCasualLeaves: number;
   };
+  halfDayCasualLeavesDeduction?: {
+    totalHalfDays: number;
+    deductedCasualLeaves: number;
+  };
 }
 
 export interface MonthYear {
@@ -134,8 +138,8 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
                   payroll.user.personalDetails.abbreviatedJobTitle,
               },
             },
-            // Add this line to include lateInCasualLeavesDeduction
             lateInCasualLeavesDeduction: payroll.lateInCasualLeavesDeduction,
+            halfDayCasualLeavesDeduction: payroll.halfDayCasualLeavesDeduction, // Add this line
           })
         );
 

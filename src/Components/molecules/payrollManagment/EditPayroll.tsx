@@ -377,17 +377,38 @@ const EditPayroll: React.FC = () => {
               ) : (
                 <p className="text-gray-500">No late in dates recorded.</p>
               )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Late In Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    (Math.floor((payroll?.lateIns ?? 0) / 4) *
-                      (payroll?.perDaySalary ?? 0)) /
-                      2
+              <div className="mt-4 space-y-4">
+                {payroll?.lateIns && payroll.lateIns > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium">
+                      Late In Salary Deductions (PKR)
+                    </label>
+                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                      {formatCurrency(
+                        (Math.floor((payroll?.lateIns ?? 0) / 4) *
+                          (payroll?.perDaySalary ?? 0)) /
+                          2
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {payroll?.lateInCasualLeavesDeduction &&
+                  payroll.lateInCasualLeavesDeduction.deductedCasualLeaves >
+                    0 && (
+                    <div>
+                      <label className="block text-sm font-medium">
+                        Casual Leaves Deducted Due to Late Ins
+                      </label>
+                      <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                        {
+                          payroll.lateInCasualLeavesDeduction
+                            .deductedCasualLeaves
+                        }{" "}
+                        Casual Leave(s)
+                      </div>
+                    </div>
                   )}
-                </div>
               </div>
             </div>
           </div>
