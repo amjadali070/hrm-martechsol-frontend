@@ -37,7 +37,7 @@ const PayrollManagement: React.FC = () => {
   const [nameFilter, setNameFilter] = useState<string>("");
   const [departmentFilter, setDepartmentFilter] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
   const [loading, setLoading] = useState<boolean>(false);
   const [notFound, setNotFound] = useState<boolean>(false);
   const [selectedPayroll, setSelectedPayroll] = useState<PayrollData | null>(
@@ -199,7 +199,7 @@ const PayrollManagement: React.FC = () => {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex space-x-4">
           <button
-            onClick={openProcessModal} // Updated to Process Modal
+            onClick={openProcessModal}
             className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center"
           >
             <FaCalendarCheck className="mr-2" /> Process Payroll
@@ -432,7 +432,7 @@ const PayrollManagement: React.FC = () => {
                     setCurrentPage(1);
                   }}
                 >
-                  {[5, 10, 20, 50].map((option) => (
+                  {[20, 30, 50].map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>

@@ -83,7 +83,7 @@ const PayrollManagement: React.FC = () => {
   const [yearFilter, setYearFilter] = useState<string>("All");
   const [monthFilter, setMonthFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
-  const [itemsPerPage, setItemsPerPage] = useState<number>(5);
+  const [itemsPerPage, setItemsPerPage] = useState<number>(20);
   const [userPayrolls, setUserPayrolls] = useState<PayrollDetails[]>([]);
   const [generateLoading, setGenerateLoading] = useState<boolean>(false);
   const navigate = useNavigate();
@@ -619,9 +619,6 @@ const PayrollManagement: React.FC = () => {
                   <th className="px-4 py-2 text-left text-sm font-medium text-white">
                     Net Salary
                   </th>
-                  {/* <th className="px-4 py-2 text-left text-sm font-medium text-white">
-                    Absent Dates
-                  </th> */}
                   <th className="px-4 py-2 text-left text-sm font-medium text-white">
                     Status
                   </th>
@@ -657,19 +654,7 @@ const PayrollManagement: React.FC = () => {
                     <td className="px-4 py-2 text-sm text-gray-800">
                       {payroll.netSalary.toLocaleString()} PKR
                     </td>
-                    {/* <td className="px-4 py-2 text-sm text-gray-800">
-                      {payroll.absentDates.length > 0
-                        ? payroll.absentDates
-                            .map((date) =>
-                              new Date(date).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              })
-                            )
-                            .join(", ")
-                        : "N/A"}
-                    </td> */}
+
                     <td className="px-4 py-2 text-sm text-gray-800 capitalize">
                       {payroll.status}
                     </td>
