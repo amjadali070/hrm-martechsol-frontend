@@ -60,7 +60,9 @@ const SalarySlip: React.FC = () => {
       }
       try {
         setPayrollLoading(true);
-        const response = await axiosInstance.get(`/api/payroll/user/${userId}`);
+        const response = await axiosInstance.get(
+          `/api/payroll/processed/user/${userId}`
+        );
         setPayrolls(response.data);
       } catch (err: any) {
         console.error("Error fetching payrolls:", err);
@@ -190,14 +192,6 @@ const SalarySlip: React.FC = () => {
     );
   }
 
-  //   if (error) {
-  //     return (
-  //       <div className="flex items-center justify-center h-screen">
-  //         <p className="text-gray-700">{error}</p>
-  //       </div>
-  //     );
-  //   }
-
   if (!selectedPayroll) {
     return (
       <div className=" bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
@@ -289,7 +283,6 @@ const SalarySlip: React.FC = () => {
         </div>
 
         <div className="space-y-8">
-          {/* Section 1: User Details */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaBuilding className="mr-2" /> User Details
@@ -318,7 +311,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 2: Payroll Period */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaRegCalendarCheck className="mr-2" /> Payroll Period
@@ -337,7 +329,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 3: Salary Details */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Salary Details
@@ -397,7 +388,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 4: Absent Dates */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Absent Dates
@@ -442,7 +432,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 8: Late In Dates and Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Late In Details
@@ -533,7 +522,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* NEW Section 5: Leave Dates */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Leave Dates
@@ -567,7 +555,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 6: Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Deductions
@@ -650,7 +637,6 @@ const SalarySlip: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 7: Extra Payments */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaMoneyBillWave className="mr-2" /> Extra Payments
@@ -683,7 +669,6 @@ const SalarySlip: React.FC = () => {
             )}
           </div>
 
-          {/* Section 8: Payroll Summary */}
           <div className="p-6 border rounded-lg bg-white dark:bg-gray-600">
             <h3 className="text-2xl font-bold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Payroll Summary

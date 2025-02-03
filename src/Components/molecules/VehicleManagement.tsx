@@ -1,5 +1,3 @@
-// VehicleManagement.tsx
-
 import React, { useState, useEffect } from "react";
 import { AiOutlineUpload, AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
 import {
@@ -220,7 +218,6 @@ const VehicleManagement: React.FC = () => {
               key={vehicle._id}
               className="rounded-lg overflow-hidden flex flex-col bg-white"
             >
-              {/* Vehicle Picture */}
               <div className="relative">
                 {vehicle.vehiclePicture ? (
                   <img
@@ -234,7 +231,7 @@ const VehicleManagement: React.FC = () => {
                     <FaCar className="text-gray-500 w-12 h-12" />
                   </div>
                 )}
-                {/* Badge for Assignment Status */}
+
                 <div
                   className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-full ${
                     vehicle.assignedTo
@@ -273,38 +270,22 @@ const VehicleManagement: React.FC = () => {
                   {vehicle.vehicleDocuments &&
                   vehicle.vehicleDocuments.length > 0 ? (
                     <ul className="space-y-1">
-                      {vehicle.vehicleDocuments.map((docUrl, index) => {
-                        if (!docUrl) {
-                          return (
-                            <li
-                              key={index}
-                              className="flex items-center space-x-2 text-gray-500"
-                            >
-                              <FaFileAlt className="w-4 h-4" />
-                              <span>Invalid Document</span>
-                            </li>
-                          );
-                        }
-
-                        const fileName =
-                          docUrl.split("/").pop() || `Document ${index + 1}`;
-                        return (
-                          <li
-                            key={index}
-                            className="flex items-center space-x-2"
+                      {vehicle.vehicleDocuments.map((docUrl, index) => (
+                        <li key={index} className="flex items-center space-x-2">
+                          {getFileIcon(docUrl)}
+                          <button
+                            onClick={() =>
+                              openDocumentModalHandler(
+                                docUrl,
+                                `Document ${index + 1}`
+                              )
+                            }
+                            className="text-blue-600 hover:underline text-sm focus:outline-none"
                           >
-                            {getFileIcon(docUrl)}
-                            <button
-                              onClick={() =>
-                                openDocumentModalHandler(docUrl, fileName)
-                              }
-                              className="text-blue-600 hover:underline text-sm focus:outline-none"
-                            >
-                              {fileName}
-                            </button>
-                          </li>
-                        );
-                      })}
+                            Document {index + 1}
+                          </button>
+                        </li>
+                      ))}
                     </ul>
                   ) : (
                     <p className="text-sm text-gray-500">

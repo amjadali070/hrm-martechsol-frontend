@@ -248,7 +248,6 @@ export const PayrollProvider: React.FC<PayrollProviderProps> = ({
     const currentYear = new Date().getFullYear();
     fetchPayrolls(currentMonth, currentYear);
     fetchPayrollSummary(currentMonth, currentYear);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

@@ -1,17 +1,17 @@
 import React, { useState } from "react";
-import { FaTimes, FaCalendarPlus } from "react-icons/fa";
+import { FaTimes, FaCalendarCheck } from "react-icons/fa";
 import { getMonthNumber } from "../../../utils/monthUtils";
 
-interface GeneratePayrollModalProps {
+interface ProcessPayrollModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onGenerate: (month: string, year: number) => Promise<void>;
+  onProcess: (month: string, year: number) => Promise<void>;
 }
 
-const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
+const ProcessPayrollModal: React.FC<ProcessPayrollModalProps> = ({
   isOpen,
   onClose,
-  onGenerate,
+  onProcess,
 }) => {
   const [month, setMonth] = useState<string>("");
   const [year, setYear] = useState<number>(new Date().getFullYear());
@@ -53,10 +53,10 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
     setError(null);
 
     try {
-      await onGenerate(month, year);
+      await onProcess(month, year);
       onClose();
     } catch (err: any) {
-      setError(err.message || "Failed to generate payroll.");
+      setError(err.message || "Failed to process payroll.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +65,7 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      aria-labelledby="generate-payroll-modal"
+      aria-labelledby="process-payroll-modal"
       role="dialog"
       aria-modal="true"
     >
@@ -78,8 +78,8 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
           <FaTimes size={20} />
         </button>
         <h2 className="text-2xl font-semibold mb-4 flex items-center text-gray-800 dark:text-gray-200">
-          <FaCalendarPlus className="mr-2" />
-          Generate Payroll
+          <FaCalendarCheck className="mr-2" />
+          Process Payroll
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -135,8 +135,8 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
               }`}
               disabled={loading}
             >
-              <FaCalendarPlus className="mr-2" />
-              {loading ? "Generating..." : "Generate"}
+              <FaCalendarCheck className="mr-2" />
+              {loading ? "Processing..." : "Process Payroll"}
             </button>
           </div>
         </form>
@@ -145,4 +145,4 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
   );
 };
 
-export default GeneratePayrollModal;
+export default ProcessPayrollModal;

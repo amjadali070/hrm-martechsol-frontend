@@ -1,5 +1,12 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { FaSpinner, FaInbox, FaEdit, FaEye, FaPlus } from "react-icons/fa";
+import {
+  FaSpinner,
+  FaInbox,
+  FaEdit,
+  FaEye,
+  FaPlus,
+  FaCalendarCheck,
+} from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoArrowBackCircle } from "react-icons/io5";
 import { Link, useSearchParams } from "react-router-dom";
@@ -7,6 +14,7 @@ import PayrollDetailModal, { PayrollData } from "./PayrollDetailModal";
 import GeneratePayrollModal from "./GeneratePayrollModal";
 import { usePayroll } from "./PayrollContext";
 import { getMonthName } from "../../../utils/monthUtils";
+import ProcessPayrollModal from "./ProcessPayrollModal";
 
 interface MonthYear {
   month: number;
@@ -14,8 +22,13 @@ interface MonthYear {
 }
 
 const PayrollManagement: React.FC = () => {
-  const { payrolls, fetchPayrolls, fetchAllMonths, generatePayroll } =
-    usePayroll();
+  const {
+    payrolls,
+    fetchPayrolls,
+    fetchAllMonths,
+    generatePayroll,
+    processPayroll,
+  } = usePayroll();
   const [monthYears, setMonthYears] = useState<MonthYear[]>([]);
   const [selectedMonth, setSelectedMonth] = useState<number | null>(null);
   const [selectedYear, setSelectedYear] = useState<number | null>(null);
@@ -33,6 +46,8 @@ const PayrollManagement: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState<boolean>(false);
   const [isGenerateModalOpen, setIsGenerateModalOpen] =
     useState<boolean>(false);
+
+  const [isProcessModalOpen, setIsProcessModalOpen] = useState<boolean>(false);
 
   const [searchParams] = useSearchParams();
 
@@ -163,6 +178,9 @@ const PayrollManagement: React.FC = () => {
   const openGenerateModal = () => setIsGenerateModalOpen(true);
   const closeGenerateModal = () => setIsGenerateModalOpen(false);
 
+  const openProcessModal = () => setIsProcessModalOpen(true);
+  const closeProcessModal = () => setIsProcessModalOpen(false);
+
   const handleSearchChange = (e: ChangeEvent<HTMLInputElement>) =>
     setSearchTerm(e.target.value);
   const handleYearFilterChange = (e: ChangeEvent<HTMLSelectElement>) =>
@@ -179,12 +197,20 @@ const PayrollManagement: React.FC = () => {
       </h2>
 
       <div className="mb-4 flex items-center justify-between">
-        <button
-          onClick={openGenerateModal}
-          className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center"
-        >
-          <FaPlus className="mr-2" /> Generate Payroll
-        </button>
+        <div className="flex space-x-4">
+          <button
+            onClick={openProcessModal} // Updated to Process Modal
+            className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors flex items-center"
+          >
+            <FaCalendarCheck className="mr-2" /> Process Payroll
+          </button>
+          <button
+            onClick={openGenerateModal}
+            className="px-4 py-2 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors flex items-center"
+          >
+            <FaPlus className="mr-2" /> Generate Payroll
+          </button>
+        </div>
         <button
           onClick={handleBackToMonths}
           className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors flex items-center"
@@ -307,6 +333,7 @@ const PayrollManagement: React.FC = () => {
                     "Department",
                     "Total Salary",
                     "Net Salary",
+                    "Status",
                     "Action",
                   ].map((header) => (
                     <th
@@ -366,21 +393,24 @@ const PayrollManagement: React.FC = () => {
                           )
                         ).toFixed(0)}
                       </td>
+                      <td className="px-6 py-4 text-sm text-center">
+                        {payroll.status}
+                      </td>
                       <td className="px-6 py-4 text-center">
                         <div className="flex justify-center space-x-2">
                           <Link
-                            to={`/view/${payroll.id}`}
-                            className="flex items-center px-3 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
-                            title="View Details"
-                          >
-                            <FaEye className="mr-1" /> View
-                          </Link>
-                          <Link
                             to={`/edit/${payroll.id}`}
-                            className="flex items-center px-3 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition-colors"
+                            className="flex items-center px-3 py-1 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition-colors"
                             title="Edit Payroll"
                           >
                             <FaEdit className="mr-1" /> Edit
+                          </Link>
+                          <Link
+                            to={`/view/${payroll.id}`}
+                            className="flex items-center px-3 py-1 bg-blue-500 text-white rounded-full hover:bg-blue-600 transition-colors"
+                            title="View Details"
+                          >
+                            <FaEye className="mr-1" /> View
                           </Link>
                         </div>
                       </td>
@@ -450,6 +480,14 @@ const PayrollManagement: React.FC = () => {
           isOpen={isGenerateModalOpen}
           onClose={closeGenerateModal}
           onGenerate={generatePayroll}
+        />
+      )}
+
+      {isProcessModalOpen && (
+        <ProcessPayrollModal
+          isOpen={isProcessModalOpen}
+          onClose={closeProcessModal}
+          onProcess={processPayroll}
         />
       )}
     </div>
