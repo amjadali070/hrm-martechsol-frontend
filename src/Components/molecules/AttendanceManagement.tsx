@@ -155,60 +155,69 @@ const AttendanceManagement: React.FC = () => {
     return checkDate >= startDate && checkDate <= endDate;
   };
 
-  // Function to get date range based on selected option
-  const getDateRange = (range: string) => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+  // Memoized getDateRange function
+  const getDateRange = useCallback(
+    (range: string) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    let start: Date | null = null;
-    let end: Date | null = null;
+      let start: Date | null = null;
+      let end: Date | null = null;
 
-    switch (range) {
-      case "Today": {
-        start = today;
-        end = new Date(today);
-        end.setHours(23, 59, 59, 999);
-        break;
-      }
-      case "Yesterday": {
-        start = new Date(today);
-        start.setDate(today.getDate() - 1);
-        end = new Date(start);
-        end.setHours(23, 59, 59, 999);
-        break;
-      }
-      case "This Week": {
-        start = new Date(today);
-        start.setDate(
-          today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
-        ); // Start from Monday
-        end = new Date(today);
-        end.setDate(start.getDate() + 6); // End on Sunday
-        end.setHours(23, 59, 59, 999);
-        break;
-      }
-      case "This Month": {
-        start = new Date(today.getFullYear(), today.getMonth(), 1);
-        end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-        end.setHours(23, 59, 59, 999);
-        break;
-      }
-      case "Custom": {
-        if (fromDate && toDate) {
-          start = new Date(fromDate);
-          end = new Date(toDate);
+      switch (range) {
+        case "Today": {
+          start = today;
+          end = new Date(today);
           end.setHours(23, 59, 59, 999);
+          break;
         }
-        break;
+        case "Yesterday": {
+          start = new Date(today);
+          start.setDate(today.getDate() - 1);
+          end = new Date(start);
+          end.setHours(23, 59, 59, 999);
+          break;
+        }
+        case "This Week": {
+          start = new Date(today);
+          start.setDate(
+            today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+          ); // Start from Monday
+          end = new Date(today);
+          end.setDate(start.getDate() + 6); // End on Sunday
+          end.setHours(23, 59, 59, 999);
+          break;
+        }
+        case "This Month": {
+          start = new Date(today.getFullYear(), today.getMonth(), 1);
+          end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+          end.setHours(23, 59, 59, 999);
+          break;
+        }
+        case "Last Month": {
+          start = new Date(today.getFullYear(), today.getMonth() - 1, 1);
+          end = new Date(today.getFullYear(), today.getMonth(), 0);
+          end.setHours(23, 59, 59, 999);
+          break;
+        }
+        case "Custom": {
+          if (fromDate && toDate) {
+            start = new Date(fromDate);
+            end = new Date(toDate);
+            end.setHours(23, 59, 59, 999);
+          }
+          break;
+        }
+        case "All":
+        default:
+          start = null;
+          end = null;
       }
-      case "All":
-      default:
-        start = null;
-        end = null;
-    }
 
-    return { start, end };
-  };
+      return { start, end };
+    },
+    [fromDate, toDate]
+  );
 
   useEffect(() => {
     let filteredData = attendanceData;
@@ -244,7 +253,6 @@ const AttendanceManagement: React.FC = () => {
     }
 
     setFilteredAttendanceData(filteredData);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     attendanceData,
     dateRange,
@@ -253,6 +261,7 @@ const AttendanceManagement: React.FC = () => {
     jobTitleFilter,
     debouncedSearchName,
     typeFilter,
+    getDateRange, // Include getDateRange in dependencies
   ]);
 
   const fetchAttendance = useCallback(async () => {
@@ -299,25 +308,6 @@ const AttendanceManagement: React.FC = () => {
       fetchAttendance();
     }
   }, [user_Id, fromDate, toDate, typeFilter, fetchAttendance, userLoading]);
-
-  useEffect(() => {
-    let filteredData = attendanceData;
-
-    if (jobTitleFilter !== "All") {
-      filteredData = filteredData.filter(
-        (log) => log.user.personalDetails?.jobTitle === jobTitleFilter
-      );
-    }
-
-    if (debouncedSearchName.trim() !== "") {
-      const searchLower = debouncedSearchName.toLowerCase();
-      filteredData = filteredData.filter((log) =>
-        log.user.name.toLowerCase().includes(searchLower)
-      );
-    }
-
-    setFilteredAttendanceData(filteredData);
-  }, [attendanceData, jobTitleFilter, debouncedSearchName]);
 
   useEffect(() => {
     const grouped: Record<string, Attendance[]> = {};
@@ -439,40 +429,39 @@ const AttendanceManagement: React.FC = () => {
                 className="w-full focus:outline-none text-sm text-gray-600"
               >
                 <option value="Today">Today</option>
-                <option value="All">All Dates</option>
                 <option value="Yesterday">Yesterday</option>
                 <option value="This Week">This Week</option>
                 <option value="This Month">This Month</option>
+                <option value="Last Month">Last Month</option>
+                <option value="All">All Dates</option>
                 <option value="Custom">Custom</option>
               </select>
             </div>
 
             {dateRange === "Custom" && (
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
-                <FaCalendarAlt className="text-gray-400 mr-3" />
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full focus:outline-none text-sm text-gray-600"
-                  placeholder="FROM"
-                />
-              </div>
+              <>
+                <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+                  <FaCalendarAlt className="text-gray-400 mr-3" />
+                  <input
+                    type="date"
+                    value={fromDate}
+                    onChange={(e) => setFromDate(e.target.value)}
+                    className="w-full focus:outline-none text-sm text-gray-600"
+                    placeholder="FROM"
+                  />
+                </div>
+                <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
+                  <FaCalendarAlt className="text-gray-400 mr-3" />
+                  <input
+                    type="date"
+                    value={toDate}
+                    onChange={(e) => setToDate(e.target.value)}
+                    className="w-full focus:outline-none text-sm text-gray-600"
+                    placeholder="TO"
+                  />
+                </div>
+              </>
             )}
-
-            {dateRange === "Custom" && (
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
-                <FaCalendarAlt className="text-gray-400 mr-3" />
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="w-full focus:outline-none text-sm text-gray-600"
-                  placeholder="TO"
-                />
-              </div>
-            )}
-
             <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
               <FaFilter className="text-gray-400 mr-3" />
               <select
