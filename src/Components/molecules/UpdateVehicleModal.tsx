@@ -372,7 +372,6 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                     {vehicle.vehicleDocuments.map((doc, idx) => {
                       if (!doc) {
-                        // Handle null or undefined document URLs
                         return (
                           <div
                             key={idx}
@@ -380,17 +379,16 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
                           >
                             <FaFilePdf className="text-gray-500 w-5 h-5" />
                             <span className="text-gray-500">
-                              Invalid Document
+                              Document {idx + 1}
                             </span>
                           </div>
                         );
                       }
-
                       const fullDocUrl = getFullUrl(doc);
-                      const fileName = fullDocUrl
-                        ? fullDocUrl.split("/").pop() || `Document ${idx + 1}`
-                        : `Document ${idx + 1}`;
-                      const isPDF = fileName.toLowerCase().endsWith(".pdf");
+                      const fileName = `Document ${idx + 1}`;
+                      const isPDF = fullDocUrl
+                        ? fullDocUrl.toLowerCase().endsWith(".pdf")
+                        : false;
                       const icon = isPDF ? (
                         <FaFilePdf className="text-red-500 w-5 h-5" />
                       ) : (
