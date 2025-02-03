@@ -224,9 +224,7 @@ const ViewPayroll: React.FC = () => {
           </div>
         </div>
 
-        {/* Payroll details in read-only mode */}
         <div className="space-y-8">
-          {/* Section 1: User Details */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaBuilding className="mr-2" /> User Details
@@ -374,7 +372,6 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 8: Late In Dates and Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Late In Details

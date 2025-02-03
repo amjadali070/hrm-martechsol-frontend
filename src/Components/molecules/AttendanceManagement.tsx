@@ -13,7 +13,6 @@ import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
 import useDebounce from "../../hooks/useDebounce";
-
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
 import { Link } from "react-router-dom";
 import AddAttendanceModal from "../atoms/AddAttendanceModal";

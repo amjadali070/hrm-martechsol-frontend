@@ -73,7 +73,19 @@ const AddAttendanceModal: React.FC<AddAttendanceModalProps> = ({
 
   // Handle attendance type change
   useEffect(() => {
-    if (type === "Absent") {
+    const leaveTypes = [
+      "Absent",
+      "Casual Leave",
+      "Sick Leave",
+      "Annual Leave",
+      "Maternity Leave",
+      "Paternity Leave",
+      "Bereavement Leave",
+      "Absence Without Pay",
+      "Public Holiday",
+    ];
+
+    if (leaveTypes.includes(type)) {
       setTimeIn(null);
       setTimeOut(null);
     } else {
