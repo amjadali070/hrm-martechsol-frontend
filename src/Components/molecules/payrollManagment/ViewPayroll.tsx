@@ -224,7 +224,9 @@ const ViewPayroll: React.FC = () => {
           </div>
         </div>
 
+        {/* Payroll details in read-only mode */}
         <div className="space-y-8">
+          {/* Section 1: User Details */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaBuilding className="mr-2" /> User Details
@@ -372,6 +374,7 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
+          {/* Section 8: Late In Dates and Deductions */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Late In Details
@@ -399,17 +402,38 @@ const ViewPayroll: React.FC = () => {
               ) : (
                 <p className="text-gray-500">No late in dates recorded.</p>
               )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Late In Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    (Math.floor((payroll?.lateIns ?? 0) / 4) *
-                      (payroll?.perDaySalary ?? 0)) /
-                      2
+              <div className="mt-4 space-y-4">
+                {payroll?.lateIns && payroll.lateIns > 0 && (
+                  <div>
+                    <label className="block text-sm font-medium">
+                      Late In Salary Deductions (PKR)
+                    </label>
+                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                      {formatCurrency(
+                        (Math.floor((payroll?.lateIns ?? 0) / 4) *
+                          (payroll?.perDaySalary ?? 0)) /
+                          2
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {payroll?.lateInCasualLeavesDeduction &&
+                  payroll.lateInCasualLeavesDeduction.deductedCasualLeaves >
+                    0 && (
+                    <div>
+                      <label className="block text-sm font-medium">
+                        Casual Leaves Deducted Due to Late Ins
+                      </label>
+                      <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
+                        {
+                          payroll.lateInCasualLeavesDeduction
+                            .deductedCasualLeaves
+                        }{" "}
+                        Casual Leave(s)
+                      </div>
+                    </div>
                   )}
-                </div>
               </div>
             </div>
           </div>
@@ -455,7 +479,7 @@ const ViewPayroll: React.FC = () => {
             </div>
           </div>
 
-          {/* Section 5: Leave Dates */}
+          {/* NEW Section 5: Leave Dates */}
           <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
             <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
               <FaFileInvoiceDollar className="mr-2" /> Leave Dates
@@ -484,18 +508,6 @@ const ViewPayroll: React.FC = () => {
                 </table>
               ) : (
                 <p className="text-gray-500">No leave dates recorded.</p>
-              )}
-
-              {payroll?.deductedLeavesFromLateIns && (
-                <div className="mt-4 bg-yellow-50 p-3 rounded">
-                  <label className="block text-sm font-medium text-yellow-800">
-                    Deducted Leaves from Late Ins
-                  </label>
-                  <div className="mt-1 font-bold text-yellow-900">
-                    {payroll.deductedLeavesFromLateIns} Leave(s) Deducted for
-                    Late Ins
-                  </div>
-                </div>
               )}
             </div>
           </div>
