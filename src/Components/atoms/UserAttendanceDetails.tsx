@@ -1,4 +1,3 @@
-// src/components/UserAttendanceDetails.tsx
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
@@ -9,7 +8,6 @@ import {
   FaArrowLeft,
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-
 import {
   startOfMonth,
   endOfMonth,
@@ -17,6 +15,7 @@ import {
   endOfWeek,
   startOfYear,
   endOfYear,
+  subMonths,
 } from "date-fns";
 import axiosInstance from "../../utils/axiosConfig";
 import AttendanceStats, { StatisticsProps } from "./AttendanceStats";
@@ -131,7 +130,6 @@ const UserAttendanceDetails: React.FC = () => {
           console.error("Response data:", error.response.data);
           console.error("Response status:", error.response.status);
         }
-        // toast.error("Failed to fetch attendance data");
       } finally {
         setLoading(false);
       }
@@ -206,6 +204,13 @@ const UserAttendanceDetails: React.FC = () => {
         const recordDate = new Date(record.createdAt);
         return recordDate >= start && recordDate <= end;
       });
+    } else if (dateRange === "Last Month") {
+      const start = startOfMonth(subMonths(today, 1));
+      const end = endOfMonth(subMonths(today, 1));
+      filtered = filtered.filter((record) => {
+        const recordDate = new Date(record.createdAt);
+        return recordDate >= start && recordDate <= end;
+      });
     } else if (dateRange === "This Week") {
       const start = startOfWeek(today);
       const end = endOfWeek(today);
@@ -221,7 +226,6 @@ const UserAttendanceDetails: React.FC = () => {
         return recordDate >= start && recordDate <= end;
       });
     } else if (dateRange === "All") {
-      // No filtering needed for all records
     }
 
     if (typeFilter !== "All") {
@@ -232,7 +236,6 @@ const UserAttendanceDetails: React.FC = () => {
     setTotalPages(Math.ceil(filtered.length / itemsPerPage));
     setCurrentPage(1);
 
-    // Update statistics based on filtered data
     calculateStatistics(filtered);
   }, [attendanceData, dateRange, fromDate, toDate, typeFilter]);
 
@@ -270,10 +273,9 @@ const UserAttendanceDetails: React.FC = () => {
 
       <AttendanceStats
         statistics={statistics}
-        attendanceData={attendanceData}
+        attendanceData={filteredAttendance}
       />
 
-      {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6 mt-5">
         <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
           <FaCalendarAlt className="text-gray-400 mr-3" />
@@ -283,6 +285,7 @@ const UserAttendanceDetails: React.FC = () => {
             className="w-full focus:outline-none text-sm text-gray-600"
           >
             <option value="This Month">This Month</option>
+            <option value="Last Month">Last Month</option>
             <option value="This Week">This Week</option>
             <option value="This Year">This Year</option>
             <option value="All">All</option>
