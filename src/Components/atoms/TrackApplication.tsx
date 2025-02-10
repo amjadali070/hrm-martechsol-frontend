@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import {
   FaFilter,
   FaSearch,
@@ -6,6 +6,10 @@ import {
   FaTimes,
   FaSpinner,
   FaInbox,
+  FaFileAlt,
+  FaClock,
+  FaCheckCircle,
+  FaTimesCircle,
 } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axios from "axios";
@@ -26,6 +30,178 @@ interface LeaveApplication {
   status: "Pending" | "Approved" | "Rejected";
 }
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL;
+
+interface LeaveApplicationDetailModalProps {
+  isOpen: boolean;
+  application: LeaveApplication | null;
+  onClose: () => void;
+  onOpenFile: (filePath: string) => void;
+}
+
+const LeaveApplicationDetailModal: React.FC<
+  LeaveApplicationDetailModalProps
+> = ({ isOpen, application, onClose, onOpenFile }) => {
+  if (!isOpen || !application) return null;
+
+  const getStatusConfig = (status: "Pending" | "Approved" | "Rejected") => {
+    switch (status) {
+      case "Approved":
+        return {
+          color: "bg-green-50 text-green-800 border-green-200",
+          icon: <FaCheckCircle className="text-green-600 mr-2" />,
+          label: "Approved",
+        };
+      case "Rejected":
+        return {
+          color: "bg-red-50 text-red-800 border-red-200",
+          icon: <FaTimesCircle className="text-red-600 mr-2" />,
+          label: "Rejected",
+        };
+      default:
+        return {
+          color: "bg-blue-50 text-blue-800 border-blue-200",
+          icon: null,
+          label: "Pending",
+        };
+    }
+  };
+
+  const statusConfig = getStatusConfig(application.status);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+      <div className="bg-white rounded-3xl w-11/12 md:w-3/4 lg:w-2/3 xl:w-1/2 max-h-[90vh] overflow-hidden transform transition-transform duration-300 scale-100 origin-center">
+        <div className="bg-purple-900 p-4 flex justify-between items-center text-white">
+          <h2 className="text-2xl font-bold flex items-center">
+            <FaFileAlt className="mr-3" /> Leave Application Details
+          </h2>
+          <button
+            onClick={onClose}
+            aria-label="Close application details"
+            className="text-white hover:bg-white/20 focus:outline-none focus:ring-2 focus:ring-white rounded-full p-2 transition-colors"
+          >
+            <FaTimes size={24} />
+          </button>
+        </div>
+
+        <div className="p-6 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center space-x-4">
+              <FaCalendar className="text-blue-500 text-2xl" />
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">
+                  Applied Dates
+                </p>
+                <p className="font-semibold text-gray-800 text-lg">
+                  {formatDate(application.startDate)}{" "}
+                  <span className="mx-1">-</span>{" "}
+                  {formatDate(application.endDate)}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center space-x-4">
+              <FaFileAlt className="text-green-500 text-2xl" />
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider">
+                  Leave Type
+                </p>
+                <p className="font-bold text-gray-900 text-lg">
+                  {application.leaveType}
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center space-x-4">
+              <FaClock className="text-purple-500 text-2xl" />
+              <div className="w-full">
+                <div className="flex justify-between">
+                  <p className="text-gray-500 uppercase text-xs tracking-wider">
+                    Last Day:
+                    <span className="font-semibold text-gray-800 ml-1">
+                      {formatDate(application.lastDayToWork)}
+                    </span>
+                  </p>
+                  <p className="text-gray-500 uppercase text-xs tracking-wider ml-3">
+                    Return:
+                    <span className="font-semibold text-gray-800 ml-1">
+                      {formatDate(application.returnToWork)}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 flex items-center space-x-4">
+              <div className="flex-grow">
+                <p className="text-xs text-gray-500 uppercase tracking-wider">
+                  Total Days
+                </p>
+                <p className="font-semibold text-gray-800 text-lg">
+                  {application.totalDays}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wider mb-1">
+                  Status
+                </p>
+                <span
+                  className={`px-3 py-1 rounded-full text-sm font-medium inline-flex items-center ${statusConfig.color}`}
+                >
+                  {statusConfig.icon}
+                  {statusConfig.label}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+              <FaFileAlt className="mr-2 text-gray-500" /> Reason
+            </h3>
+            <p className="text-gray-700 bg-white p-3 rounded-lg border border-gray-200">
+              {application.reason || "No reason provided."}
+            </p>
+          </div>
+
+          {/* Card for Comments */}
+          <div className="bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <h3 className="text-lg font-semibold text-gray-800 mb-2 flex items-center">
+              <FaFileAlt className="mr-2 text-gray-500" /> Comments
+            </h3>
+            <p className="text-gray-700 bg-white p-3 rounded-lg border border-gray-200">
+              {application.comments || "No additional comments provided."}
+            </p>
+          </div>
+
+          {/* Attachment Section */}
+          <div className="flex justify-between items-center bg-gray-50 p-4 rounded-xl border border-gray-100">
+            <p className="text-gray-600 flex items-center">
+              <FaFileAlt className="mr-2 text-gray-500" />
+              {application.handoverDocument
+                ? "Attachment available"
+                : "No attachment"}
+            </p>
+            {application.handoverDocument && (
+              <button
+                onClick={() =>
+                  onOpenFile(
+                    `${application.handoverDocument.replace(/\\/g, "/")}`
+                  )
+                }
+                className="bg-blue-600 text-white hover:bg-blue-700 px-4 py-2 rounded-full text-sm transition-colors flex items-center"
+              >
+                View Attachment
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const TrackApplication: React.FC = () => {
   const [leaveApplications, setLeaveApplications] = useState<
     LeaveApplication[]
@@ -41,31 +217,21 @@ const TrackApplication: React.FC = () => {
   const [dateTo, setDateTo] = useState<string>("");
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-  const [selectedPdfUrl, setSelectedPdfUrl] = useState<string>("");
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const [selectedApplication, setSelectedApplication] =
+    useState<LeaveApplication | null>(null);
   const { user } = useUser();
 
-  // Remove the hasFetched ref as we'll control refetching through dependencies
   useEffect(() => {
     const fetchLeaveApplications = async () => {
-      // Only proceed if we have a user ID
-      if (!user?._id) {
-        return;
-      }
-
+      if (!user?._id) return;
       setLoading(true);
       setError("");
-
       try {
         const response = await axios.get(
           `${backendUrl}/api/leave-applications/user/${user._id}`,
-          {
-            withCredentials: true,
-          }
+          { withCredentials: true }
         );
-
         const data = response.data;
-
         if (response.status === 200) {
           setLeaveApplications(data);
         } else {
@@ -80,7 +246,7 @@ const TrackApplication: React.FC = () => {
     };
 
     fetchLeaveApplications();
-  }, [user?._id, backendUrl]);
+  }, [user?._id]);
 
   const leaveTypes = [
     "All",
@@ -97,19 +263,16 @@ const TrackApplication: React.FC = () => {
     const matchesSearch =
       app.leaveType.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.reason.toLowerCase().includes(searchTerm.toLowerCase());
-
     const matchesMonth =
       selectedMonth === "All"
         ? true
         : new Date(app.startDate).getMonth() + 1 === parseInt(selectedMonth);
-
     const matchesDateFrom = dateFrom
       ? new Date(app.endDate) >= new Date(dateFrom)
       : true;
     const matchesDateTo = dateTo
       ? new Date(app.endDate) <= new Date(dateTo)
       : true;
-
     return (
       matchesStatus &&
       matchesLeaveType &&
@@ -142,33 +305,37 @@ const TrackApplication: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  const handleViewFile = (id: string) => {
-    const application = leaveApplications.find((app) => app._id === id);
-    if (application?.handoverDocument) {
-      const fullPdfUrl = `${backendUrl}/${application.handoverDocument.replace(
-        /\\/g,
-        "/"
-      )}`;
-      setSelectedPdfUrl(fullPdfUrl);
-      setIsModalOpen(true);
+  const handleViewFile = (app: LeaveApplication) => {
+    if (app.handoverDocument) {
+      const fullPdfUrl = `${app.handoverDocument.replace(/\\/g, "/")}`;
+      window.open(fullPdfUrl, "_blank");
     } else {
       toast.info("No document available");
-      setIsModalOpen(false);
     }
+  };
+
+  const handleViewApplicationDetails = (app: LeaveApplication) => {
+    setSelectedApplication(app);
+    setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
+    setSelectedApplication(null);
+  };
+
+  const onOpenFile = (filePath: string) => {
+    window.open(filePath, "_blank");
   };
 
   return (
-    <div className="w-full p-6 bg-white rounded-lg mb-1">
-      <h2 className="text-3xl font-bold text-center mb-6 text-black">
+    <div className="w-full p-6 bg-white rounded-lg mb-6">
+      <h2 className="text-3xl font-bold text-center mb-6 text-gray-800">
         Track Leave Applications
       </h2>
 
-      <div className="flex flex-wrap gap-4 mb-2">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+      <div className="flex flex-wrap gap-4 mb-4">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filterStatus}
@@ -185,7 +352,7 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaFilter className="text-gray-400 mr-2" />
           <select
             value={filterLeaveType}
@@ -203,11 +370,11 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaSearch className="text-gray-400 mr-2" />
           <input
             type="text"
-            placeholder="Search by Leave Type, Reason, or Officer"
+            placeholder="Search by Leave Type or Reason"
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
@@ -217,7 +384,7 @@ const TrackApplication: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <select
             value={selectedMonth}
@@ -243,60 +410,34 @@ const TrackApplication: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <input
-            type="text"
-            placeholder="FROM"
-            onFocus={(e) => {
-              e.target.type = "date";
-              e.target.showPicker();
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) {
-                e.target.type = "text";
-                e.target.value = "FROM";
-              }
-            }}
+            type="date"
+            value={dateFrom}
             onChange={(e) => {
               setDateFrom(e.target.value);
-              e.target.type = "text";
-              e.target.value = e.target.value
-                ? new Date(e.target.value).toLocaleDateString()
-                : "FROM";
+              setCurrentPage(1);
             }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           />
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
+        <div className="flex items-center bg-gray-50 rounded-lg px-3 py-2 border border-gray-300 flex-grow">
           <FaCalendar className="text-gray-400 mr-2" />
           <input
-            type="text"
-            placeholder="TO"
-            onFocus={(e) => {
-              e.target.type = "date";
-              e.target.showPicker();
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) {
-                e.target.type = "text";
-                e.target.value = "TO";
-              }
-            }}
+            type="date"
+            value={dateTo}
             onChange={(e) => {
               setDateTo(e.target.value);
-              e.target.type = "text";
-              e.target.value = e.target.value
-                ? new Date(e.target.value).toLocaleDateString()
-                : "TO";
+              setCurrentPage(1);
             }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+            className="w-full border-none focus:outline-none text-sm text-gray-600"
           />
         </div>
       </div>
 
-      {loading && (
+      {loading ? (
         <div className="flex flex-col items-center justify-center p-10">
           <FaSpinner
             size={30}
@@ -304,125 +445,109 @@ const TrackApplication: React.FC = () => {
             aria-hidden="true"
           />
         </div>
-      )}
-
-      {error && (
-        <div className="text-black text-center mb-4 mt-10">
+      ) : error ? (
+        <div className="text-gray-800 text-center mb-4 mt-10">
           <div className="flex flex-col items-center justify-center">
             <FaInbox size={30} className="text-gray-400 mb-2" />
             <span className="text-md font-medium">
-              {" "}
               No leave applications found.
             </span>
           </div>
         </div>
-      )}
-
-      {!loading && !error && (
+      ) : (
         <div className="overflow-x-auto">
           {filteredApplications.length > 0 ? (
             <>
-              <table className="min-w-full bg-white table-fixed border-collapse">
+              <table className="min-w-full bg-white rounded-lg overflow-hidden">
                 <thead>
-                  <tr>
-                    <th className="py-2 px-2 bg-purple-900 text-left text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                  <tr className="bg-purple-900 text-white text-center">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       Leave Type
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       From
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       To
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
-                      Last Day at Work
-                    </th>
-                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
-                      Return to Work
-                    </th>
-                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200 truncate">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       Total Days
                     </th>
-                    <th className="py-2 px-2 bg-purple-900 text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       File
                     </th>
-                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
-                      Reason
-                    </th>
-
-                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
-                      Comments
-                    </th>
-                    <th className="py-2 px-2 bg-purple-900  text-center text-xs font-medium text-white uppercase tracking-wider border border-gray-200">
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
                       Status
+                    </th>
+                    <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
+                      Action
                     </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentApplications.map((app, index) => (
-                    <tr key={app._id} className={`hover:bg-gray-50 bg-white`}>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200">
+                  {currentApplications.map((app) => (
+                    <tr
+                      key={app._id}
+                      className="hover:bg-gray-100 transition-colors"
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-700 text-center border-b">
                         {app.leaveType}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 text-center border-b">
                         {formatDate(app.startDate)}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 text-center border-b">
                         {formatDate(app.endDate)}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
-                        {formatDate(app.lastDayToWork)}
-                      </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 truncate border border-gray-200 text-center">
-                        {formatDate(app.returnToWork)}
-                      </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 text-center border-b">
                         {app.totalDays}
                       </td>
                       <td
-                        className={`py-2 px-2 text-sm border border-gray-200 text-center ${
+                        className={`py-3 px-4 text-sm text-center border-b cursor-pointer ${
                           app.handoverDocument
-                            ? "text-blue-600 cursor-pointer"
+                            ? "text-blue-600 hover:underline"
                             : "text-gray-400"
                         }`}
-                        onClick={() =>
-                          app.handoverDocument && handleViewFile(app._id)
-                        }
+                        onClick={() => handleViewFile(app)}
                       >
                         {app.handoverDocument ? "View" : "No file"}
                       </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                        {app.reason}
-                      </td>
-                      <td className="py-2 px-2 text-sm text-gray-700 border border-gray-200 text-center">
-                        {app.comments ? app.comments : "N/A"}
-                      </td>
-                      <td className="py-2 px-2 text-sm border border-gray-200 text-center">
+                      <td className="py-3 px-4 text-sm text-center border-b">
                         <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full text-center ${
+                          className={`px-2 inline-flex text-xs font-semibold rounded-full ${
                             app.status === "Approved"
                               ? "bg-green-100 text-green-800"
                               : app.status === "Pending"
-                              ? "bg-yellow-100 text-yellow-800"
+                              ? "bg-blue-100 text-blue-800"
                               : "bg-red-100 text-red-800"
                           }`}
-                          aria-label={`Status: ${app.status}`}
                         >
                           {app.status}
                         </span>
+                      </td>
+                      <td className="py-3 px-4 text-center border-b">
+                        <button
+                          onClick={() => handleViewApplicationDetails(app)}
+                          className="bg-blue-600 text-white px-3 py-1 rounded-full text-xs hover:bg-blue-700"
+                        >
+                          View Details
+                        </button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
 
-              <div className="flex justify-between items-center mt-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
                 <div className="flex items-center">
-                  <span className="text-sm text-gray-700 mr-2">Show:</span>
+                  <span className="text-sm text-gray-700 mr-3">Show:</span>
                   <select
-                    className="text-sm border border-gray-300 rounded-md p-0.5"
+                    className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                     value={rowsPerPage}
-                    onChange={(e) => setRowsPerPage(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      setRowsPerPage(parseInt(e.target.value));
+                      setCurrentPage(1);
+                    }}
                   >
                     {[5, 10, 20].map((option) => (
                       <option key={option} value={option}>
@@ -431,12 +556,10 @@ const TrackApplication: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-3">
                   <button
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      currentPage === 1
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-gray-200 text-black hover:bg-gray-300"
+                    className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+                      currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
                     }`}
                     disabled={currentPage === 1}
                     onClick={handlePrevious}
@@ -447,12 +570,12 @@ const TrackApplication: React.FC = () => {
                     Page {currentPage} of {totalPages}
                   </span>
                   <button
-                    className={`px-3 py-1 text-sm rounded-full ${
-                      currentPage === totalPages
-                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                        : "bg-blue-600 text-white hover:bg-blue-600"
+                    className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+                      currentPage === totalPages || totalPages === 0
+                        ? "cursor-not-allowed opacity-50"
+                        : ""
                     }`}
-                    disabled={currentPage === totalPages}
+                    disabled={currentPage === totalPages || totalPages === 0}
                     onClick={handleNext}
                   >
                     Next
@@ -461,10 +584,9 @@ const TrackApplication: React.FC = () => {
               </div>
             </>
           ) : (
-            <div className="flex flex-col items-center justify-center">
+            <div className="flex flex-col items-center justify-center py-8">
               <FaInbox size={30} className="text-gray-400 mb-2" />
               <span className="text-md font-medium">
-                {" "}
                 No leave applications found.
               </span>
             </div>
@@ -472,23 +594,12 @@ const TrackApplication: React.FC = () => {
         </div>
       )}
 
-      {isModalOpen && selectedPdfUrl && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-[80%] h-[80%] relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-[120px] text-white z-10"
-            >
-              <FaTimes size={24} />
-            </button>
-            <iframe
-              src={selectedPdfUrl}
-              className="w-full h-full rounded-lg"
-              title="Handover Document"
-            />
-          </div>
-        </div>
-      )}
+      <LeaveApplicationDetailModal
+        isOpen={isModalOpen}
+        application={selectedApplication}
+        onClose={closeModal}
+        onOpenFile={onOpenFile}
+      />
     </div>
   );
 };

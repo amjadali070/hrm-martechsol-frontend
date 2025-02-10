@@ -42,9 +42,6 @@ const EmployeeLetter: React.FC = () => {
           className="animate-spin text-purple-600 mb-6"
           aria-hidden="true"
         />
-        <h1 className="text-xl font-semibold text-gray-800">
-          Preparing Your Employment Letter...
-        </h1>
       </div>
     );
   }

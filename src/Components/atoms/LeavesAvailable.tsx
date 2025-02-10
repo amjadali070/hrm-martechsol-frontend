@@ -42,10 +42,12 @@ const LeavesAvailable: React.FC = () => {
             withCredentials: true,
           }
         );
+        // Filter approved leaves only
         const approvedLeaves = response.data.filter(
           (leave: LeaveDetail) => leave.status === "Approved"
         );
 
+        // Update leave balances with used days
         const updatedBalances = leaveBalances.map((balance) => {
           const usedDays = approvedLeaves
             .filter((leave: LeaveDetail) => leave.leaveType === balance.type)
@@ -53,7 +55,6 @@ const LeavesAvailable: React.FC = () => {
               (sum: number, leave: LeaveDetail) => sum + leave.totalDays,
               0
             );
-
           return { ...balance, used: usedDays };
         });
 
@@ -67,8 +68,10 @@ const LeavesAvailable: React.FC = () => {
     };
 
     fetchLeaveData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Filter leave details based on leave type and date range
   const filteredDetails = leaveDetails.filter((detail) => {
     const matchesLeaveType =
       selectedLeaveType === "All" || detail.leaveType === selectedLeaveType;
@@ -76,7 +79,6 @@ const LeavesAvailable: React.FC = () => {
       !fromDate || new Date(detail.startDate) >= new Date(fromDate);
     const matchesToDate =
       !toDate || new Date(detail.endDate) <= new Date(toDate);
-
     return matchesLeaveType && matchesFromDate && matchesToDate;
   });
 
@@ -101,51 +103,47 @@ const LeavesAvailable: React.FC = () => {
 
   return (
     <div className="w-full p-6 bg-white rounded-lg mb-8">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
+      <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">
         Available Leaves
       </h2>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center mt-20 mb-20">
-          <FaSpinner
-            size={30}
-            className="animate-spin text-blue-600 mb-2"
-            aria-hidden="true"
-          />
+        <div className="flex flex-col items-center justify-center py-20">
+          <FaSpinner size={30} className="animate-spin text-blue-600 mb-4" />
         </div>
       ) : (
         <>
-          <div className="overflow-x-auto mb-6">
-            <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
+          {/* Available Leaves Table */}
+          <div className="overflow-x-auto mb-8">
+            <table className="w-full table-fixed border-collapse bg-white rounded-lg overflow-hidden">
               <thead>
-                <tr>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-left">
+                <tr className="bg-purple-900 text-white text-center uppercase tracking-wider text-sm font-semibold">
+                  <th className="py-3 px-4 border border-gray-300">
                     Leave Type
                   </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Total
-                  </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Used
-                  </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
+                  <th className="py-3 px-4 border border-gray-300">Total</th>
+                  <th className="py-3 px-4 border border-gray-300">Used</th>
+                  <th className="py-3 px-4 border border-gray-300">
                     Remaining
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {leaveBalances.map((leave) => (
-                  <tr key={leave.type} className="hover:bg-gray-50">
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap">
+                  <tr
+                    key={leave.type}
+                    className="hover:bg-gray-50 transition-colors"
+                  >
+                    <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center whitespace-nowrap">
                       {leave.type}
                     </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
+                    <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center">
                       {leave.total}
                     </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
+                    <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center">
                       {leave.used}
                     </td>
-                    <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
+                    <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center">
                       {leave.total - leave.used}
                     </td>
                   </tr>
@@ -154,16 +152,21 @@ const LeavesAvailable: React.FC = () => {
             </table>
           </div>
 
-          <h2 className="text-xl md:text-2xl font-bold text-left mb-2 text-black">
+          <h2 className="text-2xl font-bold text-left mb-4 text-gray-800">
             Used Leaves Details
           </h2>
 
-          <div className="flex gap-4 mb-4 flex-nowrap overflow-x-auto">
+          {/* Filters */}
+          <div className="flex flex-wrap gap-4 mb-6 items-center">
+            {/* Leave Type Filter */}
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaFilter className="text-gray-400 mr-3" />
               <select
                 value={selectedLeaveType}
-                onChange={(e) => setSelectedLeaveType(e.target.value)}
+                onChange={(e) => {
+                  setSelectedLeaveType(e.target.value);
+                  setCurrentPage(1);
+                }}
                 className="w-full border-none focus:outline-none text-sm text-gray-600"
               >
                 <option value="All">All Leave Types</option>
@@ -179,30 +182,14 @@ const LeavesAvailable: React.FC = () => {
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaCalendarAlt className="text-gray-400 mr-3" />
               <input
-                type="text"
-                value={
-                  fromDate ? new Date(fromDate).toLocaleDateString() : "FROM"
-                }
-                onFocus={(e) => {
-                  e.target.type = "date";
-                  e.target.showPicker();
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = "FROM";
-                  }
-                }}
+                type="date"
+                value={fromDate}
                 onChange={(e) => {
                   setFromDate(e.target.value);
-                  if (e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = new Date(
-                      e.target.value
-                    ).toLocaleDateString();
-                  }
+                  setCurrentPage(1);
                 }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+                className="w-full border-none focus:outline-none text-sm text-gray-600"
+                placeholder="FROM"
               />
             </div>
 
@@ -210,74 +197,55 @@ const LeavesAvailable: React.FC = () => {
             <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300 flex-grow">
               <FaCalendarAlt className="text-gray-400 mr-3" />
               <input
-                type="text"
-                value={toDate ? new Date(toDate).toLocaleDateString() : "TO"}
-                onFocus={(e) => {
-                  e.target.type = "date";
-                  e.target.showPicker();
-                }}
-                onBlur={(e) => {
-                  if (!e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = "TO";
-                  }
-                }}
+                type="date"
+                value={toDate}
                 onChange={(e) => {
                   setToDate(e.target.value);
-                  if (e.target.value) {
-                    e.target.type = "text";
-                    e.target.value = new Date(
-                      e.target.value
-                    ).toLocaleDateString();
-                  }
+                  setCurrentPage(1);
                 }}
-                className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
+                className="w-full border-none focus:outline-none text-sm text-gray-600"
+                placeholder="TO"
               />
             </div>
           </div>
 
-          {/* Leave Details Table */}
+          {/* Used Leaves Details Table */}
           <div className="overflow-x-auto">
-            <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md mb-6">
+            <table className="w-full table-fixed border-collapse bg-white rounded-lg overflow-hidden mb-6">
               <thead>
-                <tr>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    S.No
-                  </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
+                <tr className="bg-purple-900 text-white text-center uppercase tracking-wider text-sm font-semibold">
+                  <th className="py-3 px-4 border border-gray-300">S.No</th>
+                  <th className="py-3 px-4 border border-gray-300">
                     Leave Type
                   </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
+                  <th className="py-3 px-4 border border-gray-300">
                     Start Date
                   </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    End Date
-                  </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Status
-                  </th>
-                  <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center">
-                    Days
-                  </th>
+                  <th className="py-3 px-4 border border-gray-300">End Date</th>
+                  <th className="py-3 px-4 border border-gray-300">Status</th>
+                  <th className="py-3 px-4 border border-gray-300">Days</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedDetails.length > 0 ? (
                   paginatedDetails.map((detail, index) => (
-                    <tr key={detail.id} className="hover:bg-gray-50">
-                      <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
+                    <tr
+                      key={detail.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="py-3 px-4 text-sm text-gray-700 border border-gray-300 text-center">
                         {(currentPage - 1) * rowsPerPage + index + 1}
                       </td>
-                      <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center">
                         {detail.leaveType}
                       </td>
-                      <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 border border-gray-300 text-center">
                         {new Date(detail.startDate).toLocaleDateString()}
                       </td>
-                      <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 border border-gray-300 text-center">
                         {new Date(detail.endDate).toLocaleDateString()}
                       </td>
-                      <td className="text-sm text-gray-700 px-4 py-2 border border-gray-300 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-700 border border-gray-300 text-center">
                         <span
                           className={`inline-block px-3 py-1 text-sm font-medium rounded-full ${
                             detail.status === "Approved"
@@ -290,7 +258,7 @@ const LeavesAvailable: React.FC = () => {
                           {detail.status}
                         </span>
                       </td>
-                      <td className="text-sm text-gray-800 px-4 py-2 border border-gray-300 text-center">
+                      <td className="py-3 px-4 text-sm text-gray-800 border border-gray-300 text-center">
                         {detail.totalDays}
                       </td>
                     </tr>
@@ -309,11 +277,12 @@ const LeavesAvailable: React.FC = () => {
             </table>
           </div>
 
-          <div className="flex justify-between items-center">
+          {/* Pagination Controls */}
+          <div className="flex flex-col sm:flex-row justify-between items-center">
             <div className="flex items-center">
               <span className="text-sm text-gray-700 mr-2">Show:</span>
               <select
-                className="text-sm border border-gray-300 rounded-md p-0.5"
+                className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
                 value={rowsPerPage}
                 onChange={handleRowsPerPageChange}
               >
@@ -324,10 +293,9 @@ const LeavesAvailable: React.FC = () => {
                 ))}
               </select>
             </div>
-
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 mt-4 sm:mt-0">
               <button
-                className={`px-3 py-1 text-sm rounded-full ${
+                className={`px-4 py-2 rounded-full text-sm ${
                   currentPage === 1
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-gray-200 text-black hover:bg-gray-300"
@@ -341,7 +309,7 @@ const LeavesAvailable: React.FC = () => {
                 Page {currentPage} of {totalPages}
               </span>
               <button
-                className={`px-3 py-1 text-sm rounded-full ${
+                className={`px-4 py-2 rounded-full text-sm ${
                   currentPage === totalPages || totalPages === 0
                     ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                     : "bg-blue-600 text-white hover:bg-blue-600"
