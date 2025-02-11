@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import { FaCar, FaSpinner, FaDownload, FaRegIdBadge } from "react-icons/fa";
+import {
+  FaCar,
+  FaSpinner,
+  FaRegIdBadge,
+  FaDownload,
+  FaTimes,
+} from "react-icons/fa";
 
 interface AssignedTo {
   _id: string;
@@ -27,9 +33,11 @@ interface VehicleCardProps {
 const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
   const imageUrl = vehicle.vehiclePicture;
 
+  // Download a single document using an anchor element
   const handleDownload = (documentUrl: string) => {
     const link = document.createElement("a");
     link.href = documentUrl;
@@ -42,13 +50,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
 
   return (
     <section className="flex flex-col w-full">
-      <div className="flex flex-col mx-auto w-full bg-white rounded-xl">
+      <div className="flex flex-col mx-auto w-full p-6">
         <div
           className="flex flex-col sm:flex-row items-center rounded-xl overflow-hidden"
           role="region"
           aria-label={`Vehicle ${vehicle.make} ${vehicle.model}`}
         >
-          <div className="w-full sm:w-1/3 h-48 sm:h-auto relative ">
+          <div className="w-full sm:w-1/3 h-48 sm:h-auto relative">
             {imageUrl && !hasError ? (
               <>
                 {isLoading && (
@@ -88,28 +96,69 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             </p>
 
             {vehicle.vehicleDocuments.length > 0 && (
-              <div className="mt-4">
-                <ul className="space-y-2">
-                  {vehicle.vehicleDocuments.map((doc, index) => (
-                    <li key={index} className="flex items-center">
-                      <button
-                        onClick={() => handleDownload(doc)}
-                        className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                        aria-label={`Download document ${doc.substring(
-                          doc.lastIndexOf("/") + 1
-                        )}`}
-                      >
-                        <FaDownload className="mr-2" />
-                        <span className="text-sm font-medium">Download</span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+              <div className="mt-2">
+                <button
+                  onClick={() => setShowModal(true)}
+                  className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200"
+                  aria-label="Download All Documents"
+                >
+                  <FaDownload size={16} className="mr-2" />
+                  <span className="text-sm font-medium">
+                    Download All Documents
+                  </span>
+                </button>
               </div>
             )}
           </div>
         </div>
       </div>
+
+      {showModal && (
+        <div className="fixed inset-0 flex items-center justify-center z-50">
+          <div
+            className="fixed inset-0 bg-black opacity-60"
+            onClick={() => setShowModal(false)}
+          ></div>
+
+          <div className="bg-white rounded-lg shadow-2xl p-8 z-10 max-w-lg w-full mx-4">
+            <div className="flex justify-between items-center mb-4 border-b pb-2">
+              <h3 className="text-2xl font-semibold text-gray-800">
+                Download Documents
+              </h3>
+              <button
+                onClick={() => setShowModal(false)}
+                className="text-gray-600 hover:text-gray-800"
+                aria-label="Close Modal"
+              >
+                <FaTimes size={20} />
+              </button>
+            </div>
+            <ul className="space-y-4">
+              {vehicle.vehicleDocuments.map((doc, index) => (
+                <li
+                  key={index}
+                  className="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-100 transition"
+                >
+                  <span className="text-gray-700 font-medium">{`Document ${
+                    index + 1
+                  }`}</span>
+                  <button
+                    onClick={() => {
+                      handleDownload(doc);
+                      setShowModal(false);
+                    }}
+                    className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition duration-200"
+                    aria-label={`Download Document ${index + 1}`}
+                  >
+                    <FaDownload size={16} className="mr-2" />
+                    <span className="text-sm">Download</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

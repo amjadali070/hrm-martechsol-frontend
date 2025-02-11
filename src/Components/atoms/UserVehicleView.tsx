@@ -1,4 +1,3 @@
-// src/components/vehicles/UserVehicleView.tsx
 import React, { useState, useEffect } from "react";
 import VehicleCard from "./VehicleCard";
 import axiosInstance from "../../utils/axiosConfig";
@@ -64,7 +63,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
         className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl"
         style={{ height: "280px" }}
       >
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
           <h2 className="text-2xl font-bold text-black">
             My Assigned Vehicles
           </h2>
