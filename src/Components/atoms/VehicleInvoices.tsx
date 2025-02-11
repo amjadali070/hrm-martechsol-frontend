@@ -249,7 +249,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
           onClick={onClose}
         ></div>
 
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden  transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
+        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-4xl sm:w-full">
           <div className="bg-white px-6 pt-6 pb-4 sm:p-6 sm:pb-4">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-3xl font-semibold text-gray-800">
@@ -352,7 +352,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                         </button>
                       </th>
                       <th className="px-4 py-3 text-left">Description</th>
-                      <th className="px-4 py-3 text-left">Invoice Image</th>
+                      <th className="px-4 py-3 text-left">Invoice File</th>
                       <th className="px-4 py-3 text-left">Actions</th>
                     </tr>
                   </thead>
@@ -379,7 +379,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
                               rel="noopener noreferrer"
                               className="text-blue-600 hover:underline"
                             >
-                              View Image
+                              View File
                             </a>
                           ) : (
                             "-"
@@ -496,30 +496,17 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
               />
             </div>
 
-            {/* Image Upload */}
+            {/* File Upload */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
-                Invoice Image
+                Invoice File
               </label>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,application/pdf"
                 onChange={handleImageUpload}
                 className="mt-1 block w-full border rounded-md px-3 py-2"
               />
-
-              {/* Image Preview */}
-              {(editModal.previewImage || editModal.invoice.invoiceImage) && (
-                <div className="mt-2">
-                  <img
-                    src={
-                      editModal.previewImage || editModal.invoice.invoiceImage
-                    }
-                    alt="Invoice Preview"
-                    className="max-w-full h-40 object-cover rounded-md"
-                  />
-                </div>
-              )}
             </div>
 
             {error && <div className="text-red-500 mb-4">{error}</div>}

@@ -9,9 +9,11 @@ import {
   FaFileAlt,
   FaFileInvoice,
 } from "react-icons/fa";
+import { MdEditSquare } from "react-icons/md";
 import AddVehicleModal from "./AddVehicleModal";
 import AssignVehicleModal from "./AssignVehicleModal";
 import UpdateVehicleModal from "./UpdateVehicleModal";
+import ViewVehicleModal from "./ViewVehicleModal"; // <-- New import
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosConfig";
 import ConfirmDialog from "../atoms/ConfirmDialog";
@@ -47,8 +49,14 @@ const VehicleManagement: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+  // New state for view modal
+  const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
+  // New state for view modal vehicle
+  const [selectedVehicleForView, setSelectedVehicleForView] =
+    useState<Vehicle | null>(null);
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
@@ -116,6 +124,16 @@ const VehicleManagement: React.FC = () => {
   const closeUpdateModal = () => {
     setSelectedVehicle(null);
     setIsUpdateModalOpen(false);
+  };
+
+  // New view modal handlers
+  const openViewModal = (vehicle: Vehicle) => {
+    setSelectedVehicleForView(vehicle);
+    setIsViewModalOpen(true);
+  };
+  const closeViewModal = () => {
+    setSelectedVehicleForView(null);
+    setIsViewModalOpen(false);
   };
 
   const openConfirmDialog = (vehicleId: string) => {
@@ -307,8 +325,17 @@ const VehicleManagement: React.FC = () => {
 
                 <button
                   onClick={() => openUpdateModal(vehicle)}
+                  className="flex items-center justify-center px-3 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
+                  aria-label="Update Vehicle"
+                >
+                  <MdEditSquare className="w-5 h-5 mr-2" />
+                  Update
+                </button>
+
+                <button
+                  onClick={() => openViewModal(vehicle)} // <-- Open view modal here
                   className="flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-                  aria-label="View or Update Vehicle"
+                  aria-label="View Vehicle"
                 >
                   <AiOutlineEye className="w-5 h-5 mr-2" />
                   View
@@ -370,6 +397,14 @@ const VehicleManagement: React.FC = () => {
             onUpdate={fetchVehicles}
           />
         </>
+      )}
+
+      {isViewModalOpen && selectedVehicleForView && (
+        <ViewVehicleModal
+          isOpen={isViewModalOpen}
+          onClose={closeViewModal}
+          vehicle={selectedVehicleForView}
+        />
       )}
 
       {isConfirmOpen && (

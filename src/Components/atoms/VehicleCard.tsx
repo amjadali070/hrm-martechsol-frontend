@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaCar, FaSpinner, FaDownload } from "react-icons/fa";
+import { FaCar, FaSpinner, FaDownload, FaRegIdBadge } from "react-icons/fa";
 
 interface AssignedTo {
   _id: string;
@@ -48,7 +48,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
           role="region"
           aria-label={`Vehicle ${vehicle.make} ${vehicle.model}`}
         >
-          <div className="w-full sm:w-1/3 h-48 sm:h-auto relative">
+          <div className="w-full sm:w-1/3 h-48 sm:h-auto relative ">
             {imageUrl && !hasError ? (
               <>
                 {isLoading && (
@@ -59,7 +59,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                 <img
                   src={imageUrl}
                   alt={`${vehicle.make} ${vehicle.model}`}
-                  className={`w-full h-full object-cover ${
+                  className={`w-full h-full object-cover rounded-xl ${
                     isLoading ? "hidden" : "block"
                   }`}
                   onLoad={() => setIsLoading(false)}
@@ -80,25 +80,27 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">
               {vehicle.make} {vehicle.model}
             </h2>
-            <p className="text-gray-600 mb-2">
-              <span className="font-medium">Registration No:</span>{" "}
-              {vehicle.registrationNo}
+            <p className="flex items-center text-gray-600 mb-2">
+              <FaRegIdBadge className="mr-2 text-blue-500" />
+              <span>
+                <strong>Reg No:</strong> {vehicle.registrationNo}
+              </span>
             </p>
 
             {vehicle.vehicleDocuments.length > 0 && (
-              <div className="mt-auto">
+              <div className="mt-4">
                 <ul className="space-y-2">
                   {vehicle.vehicleDocuments.map((doc, index) => (
                     <li key={index} className="flex items-center">
                       <button
                         onClick={() => handleDownload(doc)}
-                        className="flex items-center bg-blue-600 text-white px-4 py-2 rounded-lg"
+                        className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
                         aria-label={`Download document ${doc.substring(
                           doc.lastIndexOf("/") + 1
                         )}`}
                       >
-                        <FaDownload size={20} className="mr-2" />
-                        Download Document
+                        <FaDownload className="mr-2" />
+                        <span className="text-sm font-medium">Download</span>
                       </button>
                     </li>
                   ))}

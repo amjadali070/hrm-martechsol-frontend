@@ -109,7 +109,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
-                Invoice Image (Optional)
+                Invoice File (Optional)
               </label>
               <input
                 type="file"
@@ -117,7 +117,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
                   setInvoiceImage(e.target.files ? e.target.files[0] : null)
                 }
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-                accept="image/*"
+                accept="image/*,application/pdf"
               />
             </div>
           </div>
