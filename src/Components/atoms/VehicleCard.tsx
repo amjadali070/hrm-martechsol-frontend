@@ -50,13 +50,13 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
 
   return (
     <section className="flex flex-col w-full">
-      <div className="flex flex-col mx-auto w-full p-6">
+      <div className="flex flex-col mx-auto w-full mt-4">
         <div
           className="flex flex-col sm:flex-row items-center rounded-xl overflow-hidden"
           role="region"
           aria-label={`Vehicle ${vehicle.make} ${vehicle.model}`}
         >
-          <div className="w-full sm:w-1/3 h-48 sm:h-auto relative">
+          <div className="h-[180px]">
             {imageUrl && !hasError ? (
               <>
                 {isLoading && (
@@ -67,7 +67,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                 <img
                   src={imageUrl}
                   alt={`${vehicle.make} ${vehicle.model}`}
-                  className={`w-full h-full object-cover rounded-xl ${
+                  className={`w-full h-full object-cover rounded-lg ${
                     isLoading ? "hidden" : "block"
                   }`}
                   onLoad={() => setIsLoading(false)}
@@ -78,7 +78,7 @@ const VehicleCard: React.FC<VehicleCardProps> = ({ vehicle }) => {
                 />
               </>
             ) : (
-              <div className="w-full h-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center">
+              <div className="w-full h-full bg-purple-700 f flex items-center justify-center">
                 <FaCar className="text-white w-12 h-12" />
               </div>
             )}
