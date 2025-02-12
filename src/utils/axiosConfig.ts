@@ -11,7 +11,7 @@ const backendUrl =
 const axiosInstance = axios.create({
   baseURL: backendUrl,
   withCredentials: true,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 50000,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",
