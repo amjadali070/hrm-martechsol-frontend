@@ -146,7 +146,7 @@ const ViewHolidays: React.FC = () => {
   );
 
   return (
-    <div className="w-full p-6 sm:p-8 bg-gradient-to-r from-gray-100 to-white rounded-lg mb-8">
+    <div className="w-full p-6 sm:p-8 bg-white rounded-lg mb-8">
       {loading ? (
         <div className="p-20 flex flex-col items-center justify-center">
           <FaSpinner className="text-indigo-500 mb-4 animate-spin" size={40} />
