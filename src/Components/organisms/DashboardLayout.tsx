@@ -98,8 +98,9 @@ const DashboardLayout: React.FC = () => {
   };
 
   const handleViewAllAttendance = () => navigate("/attendance/view");
-  const handleViewAll = () => {
-    navigate("/organization/leave-management");
+
+  const handleViewLeaveApplications = () => {
+    navigate("/forms/track-application");
   };
 
   return (
@@ -130,7 +131,7 @@ const DashboardLayout: React.FC = () => {
           </div>
           <div className="flex flex-col md:flex-row gap-3 mt-3">
             <UserVehicleView userId={user._id} />
-            <LeaveManagementCard onViewAll={handleViewAll} />
+            <LeaveManagementCard onViewAll={handleViewLeaveApplications} />
           </div>
 
           {isAuthorized && (
