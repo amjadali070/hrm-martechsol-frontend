@@ -66,6 +66,11 @@ const additionalShiftTimings = [
   { label: "6:00 PM - 2:30 AM", start: "6:00 PM", end: "2:30 AM" },
   { label: "6:30 PM - 3:00 AM", start: "6:30 PM", end: "3:00 AM" },
   { label: "7:00 PM - 3:30 AM", start: "7:00 PM", end: "3:30 AM" },
+  {
+    label: "7:30 PM - 4:00 AM",
+    start: "7:30 PM",
+    end: "4:00 AM",
+  },
   { label: "8:00 PM - 4:30 AM", start: "8:00 PM", end: "4:30 AM" },
   { label: "9:00 PM - 5:30 AM", start: "9:00 PM", end: "5:30 AM" },
 ];
