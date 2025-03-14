@@ -9,7 +9,6 @@ import {
   FaTimes,
   FaTrash,
   FaCloudUploadAlt,
-  FaFileImage,
   FaFilePdf,
   FaFileWord,
 } from "react-icons/fa";

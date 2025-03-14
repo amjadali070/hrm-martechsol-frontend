@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import ReactQuill from "react-quill";
 import axios from "axios";
 import "react-quill/dist/quill.snow.css";
-import FormsModal from "./ViewFormsModal";
 
 const SuggestionForm: React.FC = () => {
   const [subject, setSubject] = useState("");

@@ -38,21 +38,6 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
     }));
   };
 
-  const handleSave = async () => {
-    await onUpdate(editedSalary);
-    setIsEditing(false);
-  };
-
-  const handleCancel = () => {
-    setEditedSalary({
-      basicSalary,
-      medicalAllowance,
-      mobileAllowance,
-      fuelAllowance,
-    });
-    setIsEditing(false);
-  };
-
   return (
     <div className="bg-white p-10 rounded-lg w-full mx-auto">
       <h2 className="text-lg font-semibold mb-4">Salary Details</h2>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
-import { FaSpinner, FaInbox, FaCar, FaCalendar } from "react-icons/fa";
+import { FaSpinner, FaInbox, FaCar } from "react-icons/fa";
 import {
   Chart as ChartJS,
   CategoryScale,

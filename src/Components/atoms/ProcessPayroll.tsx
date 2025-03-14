@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { PayrollDetails } from "../molecules/PayrollManagement";
-import { FaSpinner, FaCheckCircle } from "react-icons/fa";
+import { FaSpinner } from "react-icons/fa";
 import { toast } from "react-toastify";
 
 const ProcessPayroll: React.FC = () => {

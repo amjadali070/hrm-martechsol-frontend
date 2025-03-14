@@ -8,7 +8,6 @@ import {
   FaMoneyBillWave,
   FaCalendarTimes,
 } from "react-icons/fa";
-import { toast } from "react-toastify";
 
 interface PayrollDetails {
   payrollId: string;

@@ -55,7 +55,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
     };
 
     fetchUserVehicles();
-  }, [userId, backendUrl]);
+  }, [userId]);
 
   return (
     <section className="flex flex-col w-full md:w-6/12 max-md:w-full">

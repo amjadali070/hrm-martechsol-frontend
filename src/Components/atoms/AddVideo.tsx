@@ -62,9 +62,6 @@ const AddVideo: React.FC<AddVideoProps> = ({ onSuccess }) => {
         throw new Error("Failed to add video.");
       }
 
-      // Assuming the response contains the added video
-      const newVideo = await response.json();
-
       alert("Video added successfully!"); // Replace with toast
       onSuccess(); // Notify parent component to refresh or take other actions
     } catch (error: any) {

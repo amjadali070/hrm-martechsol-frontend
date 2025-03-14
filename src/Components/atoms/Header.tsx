@@ -12,10 +12,45 @@ import useNotifications from "../../hooks/useNotifications";
 import NotificationModal from "./NotificationModal";
 import axiosInstance from "../../utils/axiosConfig";
 
+interface ConfirmModalProps {
+  message: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+}
+const ConfirmModal: React.FC<ConfirmModalProps> = ({
+  message,
+  onConfirm,
+  onCancel,
+}) => {
+  return (
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white rounded shadow-lg p-6 max-w-sm w-full">
+        <p className="text-gray-800">{message}</p>
+        <div className="flex justify-end mt-4">
+          <button
+            onClick={onCancel}
+            className="px-4 py-2 mr-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-300"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={onConfirm}
+            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-300"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const Header: React.FC = () => {
   const [isTimedIn, setIsTimedIn] = useState(false);
   const [timer, setTimer] = useState(0);
   const [timeStatusChecked, setTimeStatusChecked] = useState(false);
+  const [isTimeToggleLoading, setIsTimeToggleLoading] = useState(false);
+  const [showTimeoutConfirm, setShowTimeoutConfirm] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const navigate = useNavigate();
   const { user, loading } = useUser();
@@ -47,9 +82,7 @@ const Header: React.FC = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
     }
-
     setTimer(initialSeconds);
-
     timerRef.current = setInterval(() => {
       setTimer((prevTimer) => prevTimer + 1);
     }, 1000);
@@ -60,16 +93,13 @@ const Header: React.FC = () => {
    */
   const checkActiveAttendance = async () => {
     if (!user?._id) return;
-
     try {
       const response = await axiosInstance.get(
         `${backendUrl}/api/attendance/user/${user._id}/active`,
         { withCredentials: true }
       );
-
       const activeLog = response.data;
       if (activeLog && activeLog.type !== "Absent") {
-        // Additional check
         setIsTimedIn(true);
         const elapsedTime = activeLog.timeIn
           ? Math.floor(
@@ -103,7 +133,6 @@ const Header: React.FC = () => {
       // mark time status as checked so we don't wait indefinitely.
       setTimeStatusChecked(true);
     }
-
     return () => {
       if (timerRef.current) {
         clearInterval(timerRef.current);
@@ -116,45 +145,79 @@ const Header: React.FC = () => {
    * Handles toggling between Time In and Time Out.
    */
   const handleTimeToggle = async () => {
-    if (!user?._id) {
-      toast.error("User information not available");
+    if (isTimeToggleLoading) return; // Prevent duplicate clicks
+
+    // If the user is currently timed in, ask for confirmation before timing out.
+    if (isTimedIn) {
+      setShowTimeoutConfirm(true);
       return;
     }
 
+    // Time In action
+    setIsTimeToggleLoading(true);
+    if (!user?._id) {
+      toast.error("User information not available");
+      setIsTimeToggleLoading(false);
+      return;
+    }
     try {
-      if (isTimedIn) {
-        const response = await axiosInstance.post(
-          `${backendUrl}/api/attendance/time-out`,
-          { userId: user._id },
-          { withCredentials: true }
-        );
-        if (response.status === 200) {
-          if (timerRef.current) {
-            clearInterval(timerRef.current);
-            timerRef.current = null;
-          }
-          setIsTimedIn(false);
-          toast.warning("Successfully Timed Out.");
-        }
-      } else {
-        const response = await axiosInstance.post(
-          `${backendUrl}/api/attendance/time-in`,
-          { userId: user._id },
-          { withCredentials: true }
-        );
-        if (response.status === 201) {
-          setIsTimedIn(true);
-          startTimer();
-          toast.success("Successfully Timed In.");
-        }
+      const response = await axiosInstance.post(
+        `${backendUrl}/api/attendance/time-in`,
+        { userId: user._id },
+        { withCredentials: true }
+      );
+      if (response.status === 201) {
+        setIsTimedIn(true);
+        startTimer();
+        toast.success("Successfully Timed In.");
       }
     } catch (error: any) {
       console.error("Error logging time:", error);
       const errorMessage =
         error.response?.data?.message ||
-        "An error occurred while trying to clock in/out.";
+        "An error occurred while trying to clock in.";
       toast.error(errorMessage);
+    } finally {
+      setIsTimeToggleLoading(false);
     }
+  };
+
+  /**
+   * Handles confirming the Time Out action.
+   */
+  const handleConfirmTimeout = async () => {
+    setIsTimeToggleLoading(true);
+    setShowTimeoutConfirm(false);
+    try {
+      const response = await axiosInstance.post(
+        `${backendUrl}/api/attendance/time-out`,
+        { userId: user?._id },
+        { withCredentials: true }
+      );
+      if (response.status === 200) {
+        if (timerRef.current) {
+          clearInterval(timerRef.current);
+          timerRef.current = null;
+        }
+        setIsTimedIn(false);
+        toast.warning("Successfully Timed Out.");
+      }
+    } catch (error: any) {
+      console.error("Error logging time:", error);
+      const errorMessage =
+        error.response?.data?.message ||
+        "An error occurred while trying to clock out.";
+      toast.error(errorMessage);
+    } finally {
+      setIsTimeToggleLoading(false);
+    }
+  };
+
+  /**
+   * Handles cancelling the Time Out confirmation.
+   */
+  const handleCancelTimeout = () => {
+    setShowTimeoutConfirm(false);
   };
 
   /**
@@ -286,6 +349,7 @@ const Header: React.FC = () => {
                 {/* Time In/Out Button */}
                 <button
                   onClick={handleTimeToggle}
+                  disabled={isTimeToggleLoading}
                   className={`flex items-center w-25 gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
                     isTimedIn
                       ? "bg-red-600 hover:bg-red-700"
@@ -322,6 +386,15 @@ const Header: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Confirmation Modal for Time Out */}
+      {showTimeoutConfirm && (
+        <ConfirmModal
+          message="Are you sure you want to Time Out?"
+          onConfirm={handleConfirmTimeout}
+          onCancel={handleCancelTimeout}
+        />
+      )}
     </header>
   );
 };

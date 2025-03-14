@@ -166,15 +166,14 @@ const TeamManagement: React.FC = () => {
 
   const handleAssign = async (managerId: string) => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `${backendUrl}/api/users/assign`,
         { managerId, userIds: selectedMembers },
         { withCredentials: true }
       );
 
-      toast.success("Team members assigned successfully!"); // Toast notification
+      toast.success("Team members assigned successfully!");
       closeModals();
-      // Optionally, refresh managers or team members
     } catch (error) {
       console.error("Error assigning team member:", error);
       toast.error("Failed to assign team members.");

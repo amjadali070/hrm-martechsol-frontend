@@ -97,16 +97,12 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
 
     try {
       setUploading(true);
-      const response = await axiosInstance.post(
-        `${backendUrl}/api/vehicles`,
-        formData,
-        {
-          withCredentials: true,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      await axiosInstance.post(`${backendUrl}/api/vehicles`, formData, {
+        withCredentials: true,
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
       toast.success("Vehicle added successfully.");
       onAdd();
       onClose();

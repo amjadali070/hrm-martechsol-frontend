@@ -10,7 +10,6 @@ import {
   FaEdit,
   FaCheckCircle,
   FaTimesCircle,
-  FaBriefcase,
   FaChevronLeft,
   FaChevronRight,
 } from "react-icons/fa";

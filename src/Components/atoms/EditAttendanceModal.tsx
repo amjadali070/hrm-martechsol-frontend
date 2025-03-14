@@ -120,24 +120,15 @@ const EditAttendanceModal: React.FC<Props> = ({
     let end = new Date(date);
     end.setHours(outHours, outMinutes, 0, 0);
 
-    // If end time is before or equal to start time, assume it's the next day
     if (end <= start) {
       end.setDate(end.getDate() + 1);
     }
-
-    const diffMs = end.getTime() - start.getTime();
-    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-
-    const calculatedTotalTime = `${diffHours
-      .toString()
-      .padStart(2, "0")}:${diffMinutes.toString().padStart(2, "0")}`;
 
     setLoading(true);
 
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
-      const response = await axios.put(
+      await axios.put(
         `${backendUrl}/api/attendance-tickets/${ticket._id}/edit`,
         {
           date,

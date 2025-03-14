@@ -305,17 +305,6 @@ const formatCurrency = (value: string | number): string => {
   );
 };
 
-const leaveShortForms: { [key: string]: string } = {
-  "Casual Leave": "CL",
-  "Sick Leave": "SL",
-  "Annual Leave": "AL",
-  "Maternity Leave": "ML",
-  "Paternity Leave": "PL",
-  "Bereavement Leave": "BL",
-  "Absence Without Pay": "AWP",
-  "Unapproved Absence": "UA",
-};
-
 const SalarySlipPDF: React.FC<SalarySlipPDFProps> = ({ data }) => {
   const totalDeductionsNumber =
     parseCurrency(data.tax) +

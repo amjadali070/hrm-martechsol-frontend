@@ -106,7 +106,6 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedEmployee, setEditedEmployee] = useState(employee);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   const handleEditClick = () => {
     if (isEditable) {
