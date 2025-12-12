@@ -22,7 +22,7 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
   fuelAllowance,
   onUpdate,
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing] = useState(false);
   const [editedSalary, setEditedSalary] = useState({
     basicSalary,
     medicalAllowance,

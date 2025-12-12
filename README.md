@@ -1,46 +1,90 @@
-# Getting Started with Create React App
+# HRM MartechSol Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, responsive Human Resource Management (HRM) dashboard application built with **React** and **TypeScript**. This application is designed to streamline HR processes including employee management, reporting, and data visualization.
 
-## Available Scripts
+![Project Status](https://img.shields.io/badge/status-active-success.svg)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-In the project directory, you can run:
+## 🚀 Tech Stack
 
-### `npm start`
+This project uses a robust stack of modern web technologies:
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+- **Core**: [React 18](https://reactjs.org/) (via Create React App), [TypeScript](https://www.typescriptlang.org/)
+- **Styling**: [Tailwind CSS](https://tailwindcss.com/), [Headless UI](https://headlessui.com/)
+- **Routing**: [React Router v6](https://reactrouter.com/)
+- **State & Utilities**: [Axios](https://axios-http.com/), [Date-fns](https://date-fns.org/)
+- **Visualization**: [Chart.js](https://www.chartjs.org/) with `react-chartjs-2`
+- **UI Components**: 
+  - `react-icons`: Comprehensive icon library
+  - `react-select`: Flexible select input
+  - `react-modal`: Accessible modal dialogs
+  - `react-toastify`: Toast notifications
+  - `react-tooltip`: Tooltips
+  - `react-quill`: Rich text editor
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 📄 Reporting & Exports
+- **PDF**: `react-pdf`, `jspdf`, `html2canvas`, `react-to-print`, `react-to-pdf`
+- **Excel**: `exceljs`, `file-saver`
 
-### `npm test`
+## 🛠️ Prerequisites
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Ensure you have the following installed on your local machine:
+- **Node.js**: v18.x or higher recommended
+- **npm**: v9.x or higher
 
-### `npm run build`
+## 📦 Installation
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Clone the repository** (if applicable) or navigate to the project folder.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Install Dependencies**:
+   Run the following command to install all required packages. 
+   
+   > **Note**: This project includes specific dependency overrides in `package.json` to ensure compatibility and security. simple `npm install` will work correctly.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   ```bash
+   npm install
+   ```
 
-### `npm run eject`
+## 🏃‍♂️ Running the Application
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+To start the development server, run:
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+> **Important**: This project uses **`npm start`**, not `npm run dev`.
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Open [http://localhost:3000](http://localhost:3000) to view it in your browser. The page will reload when you make changes.
 
-## Learn More
+## 🏗️ Building for Production
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+To create a production-ready build, run:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm run build
+```
+
+The build artifacts will be stored in the `build/` directory.
+
+## 🧪 Testing
+
+To launch the test runner:
+
+```bash
+npm test
+```
+
+## 📂 Project Configuration
+
+- **TypeScript**: configured in `tsconfig.json` with strict mode enabled.
+- **Tailwind**: configured in `tailwind.config.js` (assumed standard setup).
+- **Overrides**: `package.json` includes overrides for `nth-check`, `postcss`, `webpack-dev-server`, and `typescript` to resolve security vulnerabilities and peer dependency conflicts.
+
+## 🤝 Contributing
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request

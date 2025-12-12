@@ -192,7 +192,7 @@ const PayrollManagement: React.FC = () => {
 
   return (
     <div className="w-full p-6 bg-gray-50 rounded-xl">
-      <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800 dark:text-gray-200">
+      <h2 className="text-3xl font-semibold mb-6 text-center text-black">
         Payroll Management
       </h2>
 

@@ -30,7 +30,6 @@ const NetworkTicket: React.FC = () => {
     useState<NetworkTicketProps | null>(null);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
   const [errors, setErrors] = useState<{ subject?: string; message?: string }>(
     {}
   );
@@ -106,13 +105,11 @@ const NetworkTicket: React.FC = () => {
         },
         { withCredentials: true }
       );
-      setSubmitSuccess(true);
       setTickets([response.data.ticket, ...tickets]);
       setFormData({ subject: "", message: "" });
       toast.success("Ticket submitted successfully!");
     } catch (error) {
       console.error("Error submitting ticket:", error);
-      setSubmitSuccess(false);
       toast.error("Failed to submit ticket.");
     } finally {
       setIsSubmitting(false);

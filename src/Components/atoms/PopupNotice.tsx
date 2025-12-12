@@ -15,7 +15,6 @@ interface Notice {
 const PopupNotice: React.FC = () => {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [isClosing, setIsClosing] = useState<boolean>(false);
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -51,7 +50,6 @@ const PopupNotice: React.FC = () => {
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch unread notices", err);
-        setError("Failed to load the latest announcement.");
         setLoading(false);
       }
     };
