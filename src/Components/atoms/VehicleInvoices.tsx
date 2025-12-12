@@ -107,6 +107,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     if (isOpen) {
       fetchInvoices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, page, sortBy, sortOrder, dateRange]);
 
   const handleSort = (field: "date" | "amount") => {

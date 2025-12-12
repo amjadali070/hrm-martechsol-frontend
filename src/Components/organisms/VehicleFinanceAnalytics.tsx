@@ -114,6 +114,7 @@ const VehicleFinanceAnalytics = () => {
   useEffect(() => {
     fetchVehicleFinances();
     fetchVehiclesList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dateFilter]);
 
   const handleVehicleChange = async (e: ChangeEvent<HTMLSelectElement>) => {

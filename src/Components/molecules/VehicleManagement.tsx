@@ -102,6 +102,7 @@ const VehicleManagement: React.FC = () => {
 
   useEffect(() => {
     fetchVehicles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Modal handlers

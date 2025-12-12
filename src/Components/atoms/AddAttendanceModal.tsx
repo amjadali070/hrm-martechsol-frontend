@@ -69,6 +69,7 @@ const AddAttendanceModal: React.FC<AddAttendanceModalProps> = ({
     if (isOpen) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   // Handle attendance type change
@@ -92,6 +93,7 @@ const AddAttendanceModal: React.FC<AddAttendanceModalProps> = ({
       setTimeIn(timeIn || "09:00");
       setTimeOut(timeOut || "17:00");
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [type]);
 
   const fetchUsers = async () => {

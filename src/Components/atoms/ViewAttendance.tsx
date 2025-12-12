@@ -99,6 +99,7 @@ const ViewAttendance: React.FC = () => {
     if (!userLoading && user_Id) {
       fetchAttendance();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromDate, toDate, user_Id, userLoading, backendUrl]);
 
   // Apply filters whenever attendanceData or filters change

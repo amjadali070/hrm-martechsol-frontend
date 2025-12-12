@@ -22,7 +22,7 @@ const ViewHolidays: React.FC = () => {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [nameFilter, setNameFilter] = useState<string>("All");
-  const [userFilter, setUserFilter] = useState<string>("All");
+  const [userFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [loading, setLoading] = useState<boolean>(true);

@@ -114,6 +114,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
 
   useEffect(() => {
     fetchFinanceData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatCurrency = (value: number) => {

@@ -67,6 +67,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
     };
 
     loadRecentLeaveRequests();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.role]);
 
   const closePdfModal = () => {

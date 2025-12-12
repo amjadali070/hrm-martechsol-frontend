@@ -9,7 +9,7 @@ const TicketStatus: React.FC = () => {
     status: string;
   }
 
-  const [tickets, setTickets] = useState<Ticket[]>([
+  const [tickets] = useState<Ticket[]>([
     {
       id: 1,
       date: "2024-11-01",

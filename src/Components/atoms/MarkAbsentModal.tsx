@@ -31,6 +31,7 @@ const MarkAbsentModal: React.FC<MarkAbsentModalProps> = ({
     if (isOpen) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const fetchUsers = async () => {

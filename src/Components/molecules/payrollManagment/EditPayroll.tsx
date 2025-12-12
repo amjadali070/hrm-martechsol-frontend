@@ -26,7 +26,6 @@ const EditPayroll: React.FC = () => {
   const [eobi, setEobi] = useState<number>(0);
   const [employeePF, setEmployeePF] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const parseCurrency = (value: string): number => {
     return Number(value.replace(/[^0-9.-]+/g, ""));
@@ -50,7 +49,6 @@ const EditPayroll: React.FC = () => {
   useEffect(() => {
     const fetchPayroll = async () => {
       if (!id) {
-        setError("Invalid payroll ID.");
         return;
       }
       try {
@@ -65,7 +63,6 @@ const EditPayroll: React.FC = () => {
         setEmployeePF(fetchedPayroll.employeePF || 0);
       } catch (err: any) {
         console.error("Error fetching payroll:", err);
-        setError(err.response?.data?.message || "Failed to fetch payroll.");
       } finally {
         setLoading(false);
       }
@@ -139,7 +136,6 @@ const EditPayroll: React.FC = () => {
         );
       } catch (err: any) {
         console.error("Error updating payroll:", err);
-        setError(err.response?.data?.message || "Failed to update payroll.");
       } finally {
         setLoading(false);
       }

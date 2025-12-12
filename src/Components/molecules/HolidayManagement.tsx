@@ -51,6 +51,7 @@ const HolidayManagement: React.FC = () => {
 
   useEffect(() => {
     fetchHolidays();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddOrUpdate = async () => {

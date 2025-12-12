@@ -22,7 +22,6 @@ const CreateNotice: React.FC = () => {
     paragraph: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<boolean>(false);
 
   const backendUrl =
@@ -33,7 +32,6 @@ const CreateNotice: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       await axios.post(
@@ -48,7 +46,6 @@ const CreateNotice: React.FC = () => {
       toast.success("Notice created successfully");
       navigate("/organization/notice-management");
     } catch (err) {
-      setError("Failed to create notice");
       console.error(err);
     } finally {
       setLoading(false);

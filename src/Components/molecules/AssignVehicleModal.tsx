@@ -72,6 +72,7 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
     if (isOpen) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleAssign = async () => {
