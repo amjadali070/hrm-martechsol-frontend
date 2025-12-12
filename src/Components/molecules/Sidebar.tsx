@@ -5,7 +5,6 @@ import {
   FaBlog,
   FaChalkboardTeacher,
   FaChevronDown,
-  FaChevronUp,
   FaBars,
   FaTimes,
   FaClipboardList,
@@ -35,22 +34,22 @@ const menuItems: MenuItem[] = [
   { icon: MdSpaceDashboard, label: "Dashboard", path: "/dashboard" },
   {
     icon: PiNetworkFill,
-    label: "Ecosystems",
+    label: "Organization",
     path: "/organization",
     visibleTo: ["HR", "manager", "SuperAdmin", "test", "Finance"],
     subItems: [
       {
-        label: "Attendance Management",
+        label: "Attendance Data",
         path: "/organization/attendance-management",
         visibleTo: ["manager", "SuperAdmin", "HR"],
       },
       {
-        label: "Employee Management",
+        label: "Employees",
         path: "/organization/employee-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
-        label: "Payroll Management",
+        label: "Payroll Mgmt",
         path: "/organization/payroll-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
@@ -64,58 +63,53 @@ const menuItems: MenuItem[] = [
         path: "/organization/vehicle-finance",
         visibleTo: ["SuperAdmin", "Finance"],
       },
-      // {
-      //   label: "Finance Management",
-      //   path: "/organization/finance-management",
-      //   visibleTo: ["SuperAdmin", "Finance"],
-      // },
       {
-        label: "Leave Management",
+        label: "Leaves",
         path: "/organization/leave-management",
         visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
-        label: "Ticket Management",
+        label: "Tickets",
         path: "/organization/ticket-management",
         visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
-        label: "Holiday Management",
+        label: "Holidays",
         path: "/organization/holiday-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
-        label: "User Shift Management",
+        label: "Shifts",
         path: "/organization/user-shift-management",
         visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
-        label: "Team Management",
+        label: "Teams",
         path: "/organization/team-management",
         visibleTo: ["HR", "manager", "SuperAdmin"],
       },
       {
-        label: "Notice Management",
+        label: "Notices",
         path: "/organization/notice-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
-        label: "Forms Management",
+        label: "Forms",
         path: "/organization/forms-management",
         visibleTo: ["SuperAdmin"],
       },
       {
-        label: "Vehicle Management",
+        label: "Vehicles",
         path: "/organization/vehicle-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
-        label: "Password Manager",
+        label: "Passwords",
         path: "/admin/password-manager",
         visibleTo: ["SuperAdmin"],
       },
       {
-        label: "Attendance Manager",
+        label: "Attendance Mgr",
         path: "/organization/attendance-manager",
         visibleTo: ["test"],
       },
@@ -123,60 +117,60 @@ const menuItems: MenuItem[] = [
   },
   {
     icon: FaClipboardList,
-    label: "Forms",
+    label: "Requests",
     path: "/forms",
     subItems: [
-      { label: "Feedback Form", path: "/forms/feedback" },
-      { label: "Suggestion Form", path: "/forms/suggestion" },
+      { label: "Feedback", path: "/forms/feedback" },
+      { label: "Suggestion", path: "/forms/suggestion" },
       { label: "Leave Application", path: "/forms/leave-application" },
-      { label: "Track Application", path: "/forms/track-application" },
+      { label: "Track Status", path: "/forms/track-application" },
     ],
   },
   {
     icon: FaUserCheck,
-    label: "Attendance",
+    label: "My Attendance",
     path: "/attendance",
     subItems: [
-      { label: "View Attendance", path: "/attendance/view" },
+      { label: "View History", path: "/attendance/view" },
       {
-        label: "View Holidays",
+        label: "Holidays",
         path: "/attendance/view-holidays",
       },
     ],
   },
   {
     icon: RiCashFill,
-    label: "Payroll",
+    label: "My Payroll",
     path: "/payroll",
     subItems: [
-      { label: "View Payroll", path: "/payroll/view" },
-      { label: "Leaves Available", path: "/payroll/available-leaves" },
+      { label: "Payslips", path: "/payroll/view" },
+      { label: "Leave Balances", path: "/payroll/available-leaves" },
       { label: "Provident Fund", path: "/payroll/provident-fund" },
     ],
   },
   {
     icon: FaTicketAlt,
-    label: "Tickets",
+    label: "Support Tickets",
     path: "/tickets",
     subItems: [
-      { label: "Attendance Ticket", path: "/tickets/attendance" },
-      { label: "Network Ticket", path: "/tickets/network" },
-      { label: "HR Ticket", path: "/tickets/hr" },
-      { label: "Admin Ticket", path: "/tickets/admin" },
+      { label: "Attendance Support", path: "/tickets/attendance" },
+      { label: "Network Support", path: "/tickets/network" },
+      { label: "HR Support", path: "/tickets/hr" },
+      { label: "Admin Support", path: "/tickets/admin" },
     ],
   },
   {
     icon: IoDocumentText,
-    label: "Letters",
+    label: "Documents",
     path: "/letters",
     subItems: [
-      { label: "Employee Letter", path: "/letters/employee-letter" },
+      { label: "Employment Letter", path: "/letters/employee-letter" },
       { label: "Experience Letter", path: "/letters/experience-letter" },
     ],
   },
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
-  { icon: FaBlog, label: "Blog", path: "/blog" },
-  { icon: FaChalkboardTeacher, label: "Training Room", path: "/training-room" },
+  { icon: FaBlog, label: "Company Blog", path: "/blog" },
+  { icon: FaChalkboardTeacher, label: "Training", path: "/training-room" },
 ];
 
 interface SidebarProps {
@@ -202,10 +196,9 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     return location.pathname === item.path;
   };
 
-  // Filter menu items based on the role
   const filteredMenuItems =
     role === "Finance"
-      ? menuItems.filter((item) => item.label === "Ecosystems")
+      ? menuItems.filter((item) => item.label === "Organization")
       : menuItems.filter(
           (item) => !item.visibleTo || item.visibleTo.includes(role)
         );
@@ -214,119 +207,157 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     <>
       <button
         onClick={() => setIsSidebarOpen(true)}
-        className="md:hidden fixed top-16 left-4 z-20 p-2 text-white bg-blue-600 rounded-lg shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-40 p-2 text-white bg-gunmetal-800 rounded-lg shadow-lg hover:bg-gunmetal-700 transition-colors"
       >
-        <FaBars size={24} />
+        <FaBars size={20} />
       </button>
 
-      <div
-        className={`fixed z-30 inset-y-0 left-0 transform bg-zinc-800 text-white rounded-none transition-transform duration-300 ease-in-out ${
+      {/* Overlay */}
+      {isSidebarOpen && (
+        <div
+          onClick={() => setIsSidebarOpen(false)}
+          className="fixed inset-0 bg-carbon-black-900/60 backdrop-blur-sm z-40 md:hidden"
+        ></div>
+      )}
+
+      <aside
+        className={`fixed z-50 inset-y-0 left-0 transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 md:relative md:flex md:flex-col w-64 h-screen p-3`}
+        } md:translate-x-0 md:relative md:flex md:flex-col w-72 h-screen transition-transform duration-300 ease-in-out shadow-2xl bg-gunmetal-950 text-white border-r border-white/5`}
       >
-        <div className="flex justify-between items-center px-4 py-3 bg-purple-800 md:hidden">
-          <span className="text-lg font-semibold text-white">Menu</span>
+        {/* Logo Area */}
+        <div className="flex justify-between items-center px-6 py-8 border-b border-white/5">
+          <div className="flex flex-col">
+            <span className="text-2xl font-display font-bold tracking-tight text-white">
+              NEXUS<span className="text-platinum-400">HRM</span>
+            </span>
+            <span className="text-[10px] text-slate-grey-400 uppercase tracking-[0.2em] mt-1">
+              Enterprise Suite
+            </span>
+          </div>
           <button
             onClick={() => setIsSidebarOpen(false)}
-            className="text-white"
+            className="md:hidden text-slate-grey-400 hover:text-white transition-colors"
           >
             <FaTimes size={24} />
           </button>
         </div>
-        <nav className="flex flex-col pt-2 pb-10 mx-auto w-full text-lg overflow-y-auto custom-scroll">
+
+        {/* Scrollable Menu */}
+        <nav className="flex-1 overflow-y-auto py-6 px-4 space-y-1 [&::-webkit-scrollbar]:w-0 [&::-webkit-scrollbar]:bg-transparent [scrollbar-width:none]">
           {filteredMenuItems.map((item, index) => {
             const Icon = item.icon;
             const isActive = isMenuActive(item);
 
             return (
-              <div key={index}>
-                <div className="block">
-                  {item.subItems ? (
+              <div key={index} className="mb-2">
+                {item.subItems ? (
+                  <div>
                     <button
                       onClick={() => toggleMenu(item.label)}
-                      className={`flex items-center justify-between w-full px-4 py-3 ${
+                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 group ${
                         isActive
-                          ? "bg-sky-500"
-                          : "border border-solid border-white border-opacity-10 mt-2 mb-2"
-                      } rounded-md hover:bg-sky-600 transition-colors duration-200`}
+                          ? "bg-carbon-black-800 text-white shadow-xl shadow-black/10 border border-white/5"
+                          : "text-slate-grey-400 hover:bg-white/5 hover:text-white"
+                      }`}
                     >
-                      <div className="flex items-center gap-2">
-                        <Icon size={20} />
-                        <span className="text-md">{item.label}</span>
+                      <div className="flex items-center gap-3">
+                        <Icon
+                          size={18}
+                          className={`${
+                            isActive
+                              ? "text-white"
+                              : "text-slate-grey-500 group-hover:text-white"
+                          } transition-colors`}
+                        />
+                        <span className="font-medium text-sm">
+                          {item.label}
+                        </span>
                       </div>
-                      <div>
-                        {openMenus[item.label] ? (
-                          <FaChevronUp />
-                        ) : (
-                          <FaChevronDown />
-                        )}
+                      <div
+                        className={`text-slate-grey-500 transition-transform duration-200 ${
+                          openMenus[item.label] ? "rotate-180" : ""
+                        }`}
+                      >
+                        <FaChevronDown size={10} />
                       </div>
                     </button>
-                  ) : (
-                    <Link to={item.path}>
-                      <div
-                        className={`flex items-center gap-2 px-4 py-3 mb-2 mt-2 ${
-                          isActive
-                            ? "bg-sky-500"
-                            : "border border-solid border-white border-opacity-10"
-                        } rounded-md hover:bg-sky-600 transition-colors duration-200`}
-                      >
-                        <Icon size={20} />
-                        <span className="text-md">{item.label}</span>
-                      </div>
-                    </Link>
-                  )}
-                </div>
 
-                {item.subItems && openMenus[item.label] && (
-                  <div className="ml-8 mt-2 mb-2 flex flex-col space-y-2">
-                    {item.subItems
-                      .filter(
-                        (subItem) =>
-                          !subItem.visibleTo || subItem.visibleTo.includes(role)
-                      )
-                      .map((subItem, subIndex) => {
-                        const isSubActive = location.pathname === subItem.path;
-                        return (
-                          <Link to={subItem.path} key={subIndex}>
-                            <div
-                              className={`flex items-center gap-4 px-4 py-2 rounded-md ${
-                                isSubActive ? "bg-sky-400" : "bg-transparent"
-                              } hover:bg-sky-500 transition-colors duration-200`}
-                            >
-                              <span className="text-sm">{subItem.label}</span>
-                            </div>
-                          </Link>
-                        );
-                      })}
+                    {/* Submenu */}
+                    <div
+                      className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                        openMenus[item.label]
+                          ? "max-h-96 opacity-100 mt-2"
+                          : "max-h-0 opacity-0"
+                      }`}
+                    >
+                      <div className="pl-4 space-y-1">
+                        {item.subItems
+                          .filter(
+                            (subItem) =>
+                              !subItem.visibleTo ||
+                              subItem.visibleTo.includes(role)
+                          )
+                          .map((subItem, subIndex) => {
+                            const isSubActive =
+                              location.pathname === subItem.path;
+                            return (
+                              <Link
+                                to={subItem.path}
+                                key={subIndex}
+                                className={`block px-4 py-2.5 rounded-lg text-xs font-medium transition-all duration-200 ${
+                                  isSubActive
+                                    ? "bg-white/10 text-white"
+                                    : "text-slate-grey-400 hover:text-white hover:bg-white/5"
+                                }`}
+                              >
+                                {subItem.label}
+                              </Link>
+                            );
+                          })}
+                      </div>
+                    </div>
                   </div>
+                ) : (
+                  <Link
+                    to={item.path}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${
+                      isActive
+                        ? "bg-carbon-black-800 text-white shadow-xl shadow-black/10 border border-white/5"
+                        : "text-slate-grey-400 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <Icon
+                      size={18}
+                      className={`${
+                        isActive
+                          ? "text-white"
+                          : "text-slate-grey-500 group-hover:text-white"
+                      } transition-colors`}
+                    />
+                    <span className="font-medium text-sm">{item.label}</span>
+                  </Link>
                 )}
               </div>
             );
           })}
         </nav>
-      </div>
 
-      {isSidebarOpen && (
-        <div
-          onClick={() => setIsSidebarOpen(false)}
-          className="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden"
-        ></div>
-      )}
-
-      <style>{`
-        .custom-scroll::-webkit-scrollbar {
-          width: 0px;
-          background-color: transparent;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-          background-color: #6d6d6d;
-          border-radius: 5px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-          background-color: transparent;
-        }
-      `}</style>
+        {/* Footer */}
+        <div className="p-6 border-t border-white/5 bg-black/20">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="w-8 h-8 rounded-full bg-linear-to-br from-gunmetal-700 to-black flex items-center justify-center text-xs font-bold text-white border border-white/10">
+              NX
+            </div>
+            <div className="flex flex-col">
+              <span className="text-xs font-bold text-white">Nexus Corp</span>
+              <span className="text-[10px] text-slate-grey-500">
+                v2.5.0 Enterprise
+              </span>
+            </div>
+          </div>
+        </div>
+      </aside>
     </>
   );
 };

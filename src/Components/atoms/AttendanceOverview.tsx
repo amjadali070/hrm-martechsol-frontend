@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaInbox } from "react-icons/fa";
+import { FaSpinner, FaInbox, FaChevronRight } from "react-icons/fa";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 
@@ -9,61 +9,24 @@ interface TimeLog {
   timeIn: string;
   timeOut: string | null;
   duration: number;
-  type:
-    | "Present"
-    | "Completed"
-    | "Absent"
-    | "Late IN"
-    | "Half Day"
-    | "Early Out"
-    | "Late IN and Early Out"
-    | "Casual Leave"
-    | "Sick Leave"
-    | "Annual Leave"
-    | "Hajj Leave"
-    | "Maternity Leave"
-    | "Paternity Leave"
-    | "Bereavement Leave"
-    | "Unauthorized Leave"
-    | "Public Holiday";
+  type: string;
 }
 
 interface AttendanceOverviewProps {
   onViewAll: () => void;
 }
 
-// Updated status colors made consistent with your original ViewAttendance color scheme:
-// Here we assume that "Completed" should show in the same green as originally used for "Present" ("bg-green-100 text-green-800")
-// and that any record still marked as "Present" should use a neutral gray.
 const statusColors: Record<string, string> = {
-  Present: "bg-gray-100 text-gray-800",
-  Completed: "bg-green-100 text-green-800",
-  Absent: "bg-red-100 text-red-800",
-  "Late IN": "bg-yellow-100 text-yellow-800",
-  "Half Day": "bg-orange-100 text-orange-800",
-  "Early Out": "bg-pink-100 text-pink-800",
-  "Late IN and Early Out": "bg-violet-100 text-violet-800",
-  "Casual Leave": "bg-blue-100 text-blue-800",
-  "Sick Leave": "bg-lime-100 text-lime-800",
-  "Annual Leave": "bg-purple-100 text-purple-800",
-  "Hajj Leave": "bg-cyan-100 text-cyan-800",
-  "Maternity Leave": "bg-fuchsia-100 text-fuchsia-800",
-  "Paternity Leave": "bg-teal-100 text-teal-800",
-  "Bereavement Leave": "bg-slate-100 text-slate-800",
-  "Unauthorized Leave": "bg-red-200 text-red-900",
-  "Public Holiday": "bg-sky-100 text-sky-800",
+  Present: "bg-green-50 text-green-700 border border-green-200",
+  Completed: "bg-green-50 text-green-700 border border-green-200",
+  Absent: "bg-red-50 text-red-700 border border-red-200",
+  "Late IN": "bg-yellow-50 text-yellow-700 border border-yellow-200",
+  "Half Day": "bg-orange-50 text-orange-700 border border-orange-200",
+  default: "bg-surface-50 text-surface-700 border border-surface-200",
 };
 
 const getDayOfWeek = (dateString: string) => {
-  const days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const date = new Date(dateString);
   return days[date.getDay()];
 };
@@ -75,7 +38,6 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const { user } = useUser();
   const user_Id = user?._id;
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   useEffect(() => {
     const fetchAttendance = async () => {
@@ -83,16 +45,12 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       setLoading(true);
       try {
         const { data } = await axiosInstance.get(
-          `${backendUrl}/api/attendance/user/${user._id}`,
+          `/api/attendance/user/${user._id}`,
           {
-            withCredentials: true,
-            params: {
-              limit: 3,
-            },
+            params: { limit: 5 },
           }
         );
-        // Take the first 3 attendance records
-        setAttendanceRecords(data.slice(0, 3));
+        setAttendanceRecords(data.slice(0, 5));
       } catch (error) {
         console.error("Error fetching attendance:", error);
       } finally {
@@ -100,75 +58,74 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       }
     };
     fetchAttendance();
-  }, [user_Id, backendUrl, user]);
+  }, [user_Id, user]);
 
   return (
-    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-          <h2 className="text-2xl sm:text-2xl font-bold text-black">
-            Attendance Overview
-          </h2>
-          <button
-            onClick={onViewAll}
-            className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
-          >
-            View All
-          </button>
-        </div>
+    <section className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-bold text-gunmetal-900 tracking-tight">
+          Attendance Overview
+        </h2>
+        <button
+          onClick={onViewAll}
+          className="text-xs font-semibold text-gunmetal-600 hover:text-gunmetal-800 flex items-center gap-1 uppercase tracking-wider transition-colors"
+        >
+          View All <FaChevronRight size={8} />
+        </button>
+      </div>
+
+      <div className="flex-1 overflow-auto custom-scroll">
         {loading ? (
-          <div
-            className="flex justify-center items-center"
-            style={{ height: "180px" }}
-          >
-            <FaSpinner className="text-blue-500 animate-spin" size={30} />
+          <div className="flex justify-center items-center h-48">
+            <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
           </div>
         ) : attendanceRecords.length > 0 ? (
-          <div className="overflow-x-auto" style={{ height: "180px" }}>
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-purple-900">
+          <div className="w-full">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-alabaster-grey-50 text-slate-grey-500 font-semibold text-xs uppercase tracking-wider">
                 <tr>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md">
-                    Date
-                  </th>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Day
-                  </th>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Time In
-                  </th>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider">
-                    Time Out
-                  </th>
-                  <th className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md">
-                    Status
-                  </th>
+                  <th className="px-4 py-3 rounded-l-md font-medium">Date</th>
+                  <th className="px-4 py-3 font-medium">In</th>
+                  <th className="px-4 py-3 font-medium">Out</th>
+                  <th className="px-4 py-3 rounded-r-md text-right font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-platinum-100">
                 {attendanceRecords.map((record) => (
-                  <tr key={record._id} className="hover:bg-gray-100">
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                      {new Date(record.createdAt).toLocaleDateString()}
+                  <tr
+                    key={record._id}
+                    className="hover:bg-alabaster-grey-50/50 transition-colors group"
+                  >
+                    <td className="px-4 py-3.5">
+                       <div className="flex flex-col">
+                          <span className="font-semibold text-gunmetal-800 text-sm">
+                            {new Date(record.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                          </span>
+                          <span className="text-slate-grey-400 text-xs font-medium">
+                            {getDayOfWeek(record.createdAt)}
+                          </span>
+                       </div>
                     </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                      {getDayOfWeek(record.createdAt)}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <td className="px-4 py-3.5 font-mono text-gunmetal-600 text-xs font-medium">
                       {record.timeIn
-                        ? new Date(record.timeIn).toLocaleTimeString()
-                        : "N/A"}
+                        ? new Date(record.timeIn).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : <span className="text-slate-grey-300">-</span>}
                     </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                    <td className="px-4 py-3.5 font-mono text-gunmetal-600 text-xs font-medium">
                       {record.timeOut
-                        ? new Date(record.timeOut).toLocaleTimeString()
-                        : "N/A"}
+                        ? new Date(record.timeOut).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : <span className="text-slate-grey-300">-</span>}
                     </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
+                    <td className="px-4 py-3.5 text-right">
                       <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          statusColors[record.type] ||
-                          "bg-gray-100 text-gray-800"
+                        className={`px-2.5 py-1 inline-flex text-[10px] font-bold uppercase tracking-wider rounded-md border ${
+                          statusColors[record.type] || statusColors["default"]
                         }`}
                       >
                         {record.type}
@@ -180,14 +137,9 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
             </table>
           </div>
         ) : (
-          <div
-            className="flex flex-col items-center justify-center"
-            style={{ height: "180px" }}
-          >
-            <FaInbox size={30} className="text-gray-400 mb-2" />
-            <span className="text-md font-medium">
-              No recent attendance records found.
-            </span>
+          <div className="flex flex-col items-center justify-center h-48 text-slate-grey-400">
+            <FaInbox size={32} className="mb-3 opacity-30 text-gunmetal-300" />
+            <p className="text-sm font-medium">No recent records found</p>
           </div>
         )}
       </div>
