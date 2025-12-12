@@ -1,8 +1,6 @@
-// src/components/ViewHolidays.tsx
-
 import React, { useState, useEffect } from "react";
-import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
-import axiosInstance from "../../utils/axiosConfig"; // Centralized Axios instance
+import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner, FaUmbrellaBeach, FaRegCalendarCheck } from "react-icons/fa";
+import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
@@ -22,13 +20,13 @@ const ViewHolidays: React.FC = () => {
   const [fromDate, setFromDate] = useState<string>("");
   const [toDate, setToDate] = useState<string>("");
   const [nameFilter, setNameFilter] = useState<string>("All");
-  const [userFilter] = useState<string>("All");
+  const [userFilter] = useState<string>("All"); // Kept for logic consistency, though not fully used in UI
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(5);
   const [loading, setLoading] = useState<boolean>(true);
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
-  const userRole = user?.role; // Assuming user object contains role
+  const userRole = user?.role;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
   // Fetch holidays
@@ -43,12 +41,10 @@ const ViewHolidays: React.FC = () => {
         let endpoint = `${backendUrl}/api/holidays`;
         const params: any = {};
 
-        // If admin and userFilter is set
-
+        // Use the 'all' endpoint for broader access or specific filtering if needed
         endpoint = `${backendUrl}/api/holidays/all`;
         params.user = userFilter;
 
-        // Add date range filters
         if (fromDate) params.startDate = fromDate;
         if (toDate) params.endDate = toDate;
 
@@ -57,34 +53,21 @@ const ViewHolidays: React.FC = () => {
         setHolidays(data);
         setFilteredHolidays(data);
       } catch (error: any) {
-        const errorMessage =
-          error.response?.data?.message || "Failed to fetch holidays.";
-
-        console.error("Error fetching holidays:", error, errorMessage);
+        console.error("Error fetching holidays:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    // Fetch holidays only when user is loaded and user_Id is available
     if (!userLoading && user_Id) {
       fetchHolidays();
     }
-  }, [
-    fromDate,
-    toDate,
-    user_Id,
-    userLoading,
-    backendUrl,
-    userFilter,
-    userRole,
-  ]);
+  }, [fromDate, toDate, user_Id, userLoading, backendUrl, userFilter, userRole]);
 
-  // Apply filters whenever holidays or filters change
+  // Apply filters
   useEffect(() => {
     let data = [...holidays];
 
-    // Filter by date range if both dates are selected
     if (fromDate && toDate) {
       const start = new Date(fromDate);
       const end = new Date(toDate);
@@ -101,16 +84,15 @@ const ViewHolidays: React.FC = () => {
       });
     }
 
-    // Filter by holiday name
     if (nameFilter !== "All") {
       data = data.filter((holiday) => holiday.holidayName === nameFilter);
     }
 
     setFilteredHolidays(data);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [fromDate, toDate, nameFilter, userFilter, holidays, userRole]);
 
-  // Pagination calculations
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentData = filteredHolidays.slice(indexOfFirstItem, indexOfLastItem);
@@ -124,81 +106,97 @@ const ViewHolidays: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  // Calculate total days between two dates
   const calculateTotalDays = (start: string, end: string | null): number => {
     const startDate = new Date(start);
     const endDate = end ? new Date(end) : startDate;
     const diffTime = Math.abs(endDate.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // Inclusive of both start and end
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
     return diffDays;
   };
 
-  // Determine if the holiday is upcoming or passed
   const getHolidayStatus = (start: string, end: string | null): string => {
     const today = new Date();
-    const holidayEnd = end ? new Date(end) : new Date(start);
-    return holidayEnd >= today ? "Upcoming" : "Passed";
-  };
+    // Reset time to start of day for accurate comparison
+    today.setHours(0, 0, 0, 0); 
+    
+    // Parse start date
+    const holidayStart = new Date(start);
+    holidayStart.setHours(0, 0, 0, 0);
 
-  // Get unique holiday names for filter
+    // Parse end date (or default to start date)
+    const holidayEnd = end ? new Date(end) : new Date(start);
+    holidayEnd.setHours(23, 59, 59, 999); // End date includes the full day
+
+    if (today >= holidayStart && today <= holidayEnd) {
+        return "Ongoing";
+    } else if (today > holidayEnd) {
+        return "Passed";
+    } else {
+        return "Upcoming";
+    }
+};
+
   const uniqueHolidayNames = Array.from(
     new Set(holidays.map((holiday) => holiday.holidayName))
   );
 
   return (
-    <div className="w-full p-6 sm:p-8 bg-white rounded-lg mb-8">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 p-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+            <FaUmbrellaBeach className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              View Holidays
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Check upcoming public holidays and events.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
-        <div className="p-20 flex flex-col items-center justify-center">
-          <FaSpinner className="text-indigo-500 mb-4 animate-spin" size={40} />
+        <div className="flex flex-col items-center justify-center h-64">
+          <FaSpinner className="text-gunmetal-500 mb-4 animate-spin" size={40} />
+          <p className="text-slate-grey-500 font-medium">Loading holiday calendar...</p>
         </div>
       ) : (
         <>
-          {/* Title */}
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 text-gray-800">
-            View Holidays
-          </h2>
-
-          {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-6 mb-6 items-start sm:items-center">
-            {/* Date Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              {/* From Date Filter */}
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
-                <FaCalendarAlt className="text-black mr-3" />
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                  placeholder="FROM"
-                  aria-label="Filter from date"
-                />
-              </div>
-
-              {/* To Date Filter */}
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
-                <FaCalendarAlt className="text-black mr-3" />
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                  placeholder="TO"
-                  aria-label="Filter to date"
-                />
-              </div>
+           {/* Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+            <div className="relative group">
+               <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+                placeholder="From"
+              />
             </div>
 
-            {/* Name Filter */}
-            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200 w-full sm:w-auto">
-              <FaFilter className="text-black mr-3" />
-              <select
-                id="nameFilter"
-                value={nameFilter}
-                onChange={(e) => setNameFilter(e.target.value)}
-                className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                aria-label="Filter by holiday name"
-              >
+            <div className="relative group">
+               <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+                placeholder="To"
+              />
+            </div>
+
+            <div className="relative group">
+               <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <select
+                 value={nameFilter}
+                 onChange={(e) => setNameFilter(e.target.value)}
+                 className="w-full pl-9 pr-8 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+               >
                 <option value="All">All Holidays</option>
                 {uniqueHolidayNames.map((name) => (
                   <option key={name} value={name}>
@@ -209,159 +207,123 @@ const ViewHolidays: React.FC = () => {
             </div>
           </div>
 
-          {/* Holidays Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-purple-900 text-white">
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider text-center">
-                    S.No
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider text-left">
-                    Holiday Name
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider text-left">
-                    From Date
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider text-left">
-                    To Date
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider text-center">
-                    Total Days
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Description
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentData.length > 0 ? (
-                  currentData.map((holiday, index) => (
-                    <tr
-                      key={holiday._id}
-                      className={`${
-                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                      } hover:bg-gray-100 transition-colors`}
-                    >
-                      {/* Serial Number */}
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {indexOfFirstItem + index + 1}
-                      </td>
-
-                      {/* Holiday Name */}
-                      <td className="py-4 px-4 text-sm text-gray-700">
-                        {holiday.holidayName}
-                      </td>
-
-                      {/* From Date */}
-                      <td className="py-4 px-4 text-sm text-gray-700">
-                        {new Date(holiday.fromDate).toLocaleDateString()}
-                      </td>
-
-                      {/* To Date */}
-                      <td className="py-4 px-4 text-sm text-gray-700">
-                        {holiday.toDate
-                          ? new Date(holiday.toDate).toLocaleDateString()
-                          : "N/A"}
-                      </td>
-
-                      {/* Total Days */}
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {calculateTotalDays(holiday.fromDate, holiday.toDate)}
-                      </td>
-
-                      {/* Status */}
-                      <td className="py-4 px-4 text-sm text-center">
-                        <span
-                          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
-                            getHolidayStatus(
-                              holiday.fromDate,
-                              holiday.toDate
-                            ) === "Upcoming"
-                              ? "bg-green-400 text-white"
-                              : "bg-red-400 text-white"
-                          }`}
-                        >
-                          {getHolidayStatus(holiday.fromDate, holiday.toDate)}
-                        </span>
-                      </td>
-
-                      {/* Description */}
-                      <td className="py-4 px-4 text-sm text-gray-700">
-                        {holiday.description}
-                      </td>
+          {currentData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-platinum-200 rounded-xl bg-alabaster-grey-50/50">
+                <FaInbox size={48} className="text-slate-grey-300 mb-3" />
+                <h3 className="text-lg font-bold text-gunmetal-800">No holidays found</h3>
+                <p className="text-slate-grey-500 text-sm mt-1">
+                    There are no holidays matching your criteria.
+                </p>
+            </div>
+          ) : (
+            <>
+              {/* Table */}
+              <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+                <table className="w-full text-left bg-white border-collapse">
+                  <thead className="bg-alabaster-grey-50">
+                    <tr>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center w-16">No.</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Holiday Name</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Start Date</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">End Date</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Days</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Status</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Description</th>
                     </tr>
-                  ))
-                ) : (
-                  // No Records Found
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="py-8 px-4 text-sm text-gray-500 text-center"
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <FaInbox size={40} className="text-gray-400 mb-4" />
-                        <span className="text-lg font-medium">
-                          No holidays found.
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-platinum-100">
+                    {currentData.map((holiday, index) => {
+                        const status = getHolidayStatus(holiday.fromDate, holiday.toDate);
+                        return (
+                            <tr key={holiday._id} className="hover:bg-alabaster-grey-50/50 transition-colors">
+                                <td className="py-4 px-4 text-sm text-slate-grey-500 text-center font-mono">
+                                    {indexOfFirstItem + index + 1}
+                                </td>
+                                <td className="py-4 px-4 text-sm font-bold text-gunmetal-900">
+                                    {holiday.holidayName}
+                                </td>
+                                <td className="py-4 px-4 text-sm text-slate-grey-600 font-mono whitespace-nowrap">
+                                    {new Date(holiday.fromDate).toLocaleDateString()}
+                                </td>
+                                <td className="py-4 px-4 text-sm text-slate-grey-600 font-mono whitespace-nowrap">
+                                    {holiday.toDate ? new Date(holiday.toDate).toLocaleDateString() : "-"}
+                                </td>
+                                <td className="py-4 px-4 text-sm font-bold text-gunmetal-900 text-center">
+                                    {calculateTotalDays(holiday.fromDate, holiday.toDate)}
+                                </td>
+                                <td className="py-4 px-4 text-center">
+                                    <span
+                                    className={`inline-block px-3 py-1 text-xs font-bold rounded-full text-white shadow-sm ${
+                                        status === "Upcoming"
+                                        ? "bg-emerald-500"
+                                        : status === "Ongoing"
+                                        ? "bg-amber-500"
+                                        : "bg-slate-400"
+                                    }`}
+                                    >
+                                    {status}
+                                    </span>
+                                </td>
+                                <td className="py-4 px-4 text-sm text-slate-grey-600 max-w-xs truncate" title={holiday.description}>
+                                    {holiday.description}
+                                </td>
+                            </tr>
+                        );
+                    })}
+                  </tbody>
+                </table>
+              </div>
 
-          {/* Pagination and Items Per Page */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-3">Show:</span>
-              <select
-                className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(parseInt(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                {[5, 10, 20].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
-                }`}
-                disabled={currentPage === 1}
-                onClick={handlePrevious}
-              >
-                <FiChevronLeft className="mr-2" />
-                Previous
-              </button>
-              <span className="text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === totalPages || totalPages === 0
-                    ? "cursor-not-allowed opacity-50"
-                    : ""
-                }`}
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={handleNext}
-              >
-                Next
-                <FiChevronRight className="ml-2" />
-              </button>
-            </div>
-          </div>
+               {/* Pagination */}
+               <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                 <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+                    <span className="font-medium">Rows:</span>
+                    <select
+                        className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                        setItemsPerPage(parseInt(e.target.value));
+                        setCurrentPage(1);
+                        }}
+                    >
+                        {[5, 10, 20].map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                <button
+                    className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                    currentPage === 1 
+                        ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                        : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                    disabled={currentPage === 1}
+                    onClick={handlePrevious}
+                >
+                    <FiChevronLeft size={16} />
+                </button>
+                
+                <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-3">
+                    Page {currentPage} of {totalPages || 1}
+                </span>
+                
+                <button
+                    className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                    currentPage === totalPages || totalPages === 0
+                        ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                        : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    onClick={handleNext}
+                >
+                    <FiChevronRight size={16} />
+                </button>
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

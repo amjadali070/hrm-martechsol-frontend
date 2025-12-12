@@ -12,8 +12,10 @@ import {
   FaTimesCircle,
   FaChevronLeft,
   FaChevronRight,
+  FaEye,
+  FaCalendarAlt,
 } from "react-icons/fa";
-import { MdPending } from "react-icons/md";
+import { MdPending, MdOutlineBeachAccess } from "react-icons/md";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { LeaveRequest } from "../../types/LeaveRequest";
@@ -272,18 +274,64 @@ const LeaveManagement: React.FC = () => {
   const totalPages = Math.ceil(getFilteredRequests().length / itemsPerPage);
 
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-lg">
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
-          Leave Management
-        </h2>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-3">
+             <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+               <MdOutlineBeachAccess className="text-gunmetal-600 text-xl" />
+             </div>
+             <div>
+                <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Leave Management
+                </h2>
+                <p className="text-sm text-slate-grey-500">
+                    Review and manage employee time-off requests.
+                </p>
+             </div>
+        </div>
+        
+        {/* Filters */}
+        <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative group">
+               <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <input
+                type="text"
+                placeholder="Search by name..."
+                value={filters.name}
+                onChange={(e) => setFilters({ ...filters, name: e.target.value })}
+                className="w-full sm:w-64 pl-9 pr-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+               />
+            </div>
+            
+            <div className="relative group">
+               <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <select
+                value={filters.leaveType}
+                onChange={(e) =>
+                    setFilters({ ...filters, leaveType: e.target.value })
+                }
+                className="w-full sm:w-48 pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+               >
+                <option value="All">All Leave Types</option>
+                <option value="Casual Leave">Casual Leave</option>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Annual Leave">Annual Leave</option>
+                <option value="Maternity Leave">Maternity Leave</option>
+                <option value="Paternity Leave">Paternity Leave</option>
+                <option value="Bereavement Leave">Bereavement Leave</option>
+                <option value="Hajj Leave">Hajj Leave</option>
+                <option value="Unauthorized Leaves">Unauthorized Leaves</option>
+              </select>
+            </div>
+        </div>
       </div>
 
-      <div className="flex space-x-4 mb-4">
+      <div className="flex gap-2 mb-6 border-b border-platinum-200 pb-1">
         {[
-          { name: "Open", key: "open", icon: <MdPending /> },
-          { name: "Approved", key: "approved", icon: <FaCheckCircle /> },
-          { name: "Rejected", key: "rejected", icon: <FaTimesCircle /> },
+          { name: "Pending", key: "open", icon: <MdPending className="mb-0.5" /> },
+          { name: "Approved", key: "approved", icon: <FaCheckCircle className="mb-0.5" /> },
+          { name: "Rejected", key: "rejected", icon: <FaTimesCircle className="mb-0.5" /> },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -291,188 +339,141 @@ const LeaveManagement: React.FC = () => {
               setActiveTab(tab.key as "open" | "approved" | "rejected");
               setCurrentPage(1);
             }}
-            className={`flex items-center px-4 py-2 border rounded-lg transition-colors ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-sm font-semibold border-b-2 transition-all duration-200 ${
               activeTab === tab.key
-                ? "bg-blue-600 text-white"
-                : "bg-white text-gray-700 hover:bg-gray-200"
+                ? "border-gunmetal-900 text-gunmetal-900"
+                : "border-transparent text-slate-grey-500 hover:text-gunmetal-700 hover:border-platinum-300"
             }`}
           >
             {tab.icon}
-            <span className="ml-2">{tab.name}</span>
+            {tab.name}
+            <span className={`text-xs ml-1 px-1.5 py-0.5 rounded-full ${activeTab === tab.key ? 'bg-gunmetal-100' : 'bg-platinum-100'}`}>
+                {
+                    tab.key === 'open' ? leaveRequests.length : 
+                    tab.key === 'approved' ? approvedRequests.length : 
+                    rejectedRequests.length
+                }
+            </span>
           </button>
         ))}
       </div>
-      {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 mb-4">
-        {/* Search Input */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300 flex-grow min-w-[200px]">
-          <FaSearch className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            placeholder="Search by name..."
-            value={filters.name}
-            onChange={(e) => setFilters({ ...filters, name: e.target.value })}
-            className="w-full focus:outline-none text-sm text-gray-700 placeholder-gray-400"
-          />
-        </div>
-
-        {/* Leave Type Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300 flex-grow min-w-[200px]">
-          <FaFilter className="text-gray-400 mr-2" />
-          <select
-            value={filters.leaveType}
-            onChange={(e) =>
-              setFilters({ ...filters, leaveType: e.target.value })
-            }
-            className="w-full focus:outline-none text-sm text-gray-700"
-          >
-            <option value="All">All Leave Types</option>
-            <option value="Casual Leave">Casual Leave</option>
-            <option value="Sick Leave">Sick Leave</option>
-            <option value="Annual Leave">Annual Leave</option>
-            <option value="Maternity Leave">Maternity Leave</option>
-            <option value="Paternity Leave">Paternity Leave</option>
-            <option value="Bereavement Leave">Bereavement Leave</option>
-            <option value="Hajj Leave">Hajj Leave</option>
-            <option value="Unauthorized Leaves">Unauthorized Leaves</option>
-          </select>
-        </div>
-      </div>
 
       {/* Leave Requests Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg">
-          <thead>
-            <tr className="bg-purple-900 text-white">
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tl-lg">
-                S.No
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Name
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Leave Type
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                From
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                To
-              </th>
+      <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+        <table className="w-full text-left bg-white border-collapse">
+          <thead className="bg-alabaster-grey-50">
+            <tr>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">S.No</th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Employee</th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Type</th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Duration</th>
               {activeTab === "approved" || activeTab === "rejected" ? (
                 <>
-                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                    Last Day at Work
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                    Return to Work
-                  </th>
-                  <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                    Total Days
-                  </th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Timeline Details</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Days</th>
                 </>
               ) : null}
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Reason
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                File
-              </th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Reason</th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Document</th>
               {activeTab === "open" ? (
-                <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
-                  Actions
-                </th>
+                <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Actions</th>
               ) : activeTab === "approved" || activeTab === "rejected" ? (
-                <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
-                  Comments
-                </th>
+                <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Comments</th>
               ) : null}
             </tr>
           </thead>
 
-          <tbody>
+          <tbody className="divide-y divide-platinum-100">
             {paginatedData.length > 0 ? (
               paginatedData.map((request, index) => (
                 <tr
                   key={request._id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-alabaster-grey-50/50 transition-colors"
                 >
-                  <td className="py-3 px-4 text-sm text-gray-700 text-center">
+                  <td className="py-4 px-4 text-sm text-slate-grey-500 font-mono text-center w-12">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {request.user.name}
+                  <td className="py-4 px-4">
+                      <span className="text-sm font-semibold text-gunmetal-900 block">{request.user.name}</span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {request.leaveType}
+                  <td className="py-4 px-4">
+                     <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-alabaster-grey-100 text-slate-grey-600 border border-platinum-200">
+                        {request.leaveType}
+                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {formatDate(request.startDate)}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {formatDate(request.endDate)}
+                  <td className="py-4 px-4">
+                      <div className="flex flex-col text-sm text-slate-grey-600">
+                          <span className="flex items-center gap-1"><FaCalendarAlt size={10} className="text-slate-grey-400" /> {formatDate(request.startDate)}</span>
+                          <span className="text-xs text-slate-grey-400 pl-4">to {formatDate(request.endDate)}</span>
+                      </div>
                   </td>
                   {activeTab === "approved" || activeTab === "rejected" ? (
                     <>
-                      <td className="py-3 px-4 text-sm text-gray-700">
-                        {formatDate(request.lastDayToWork)}
+                      <td className="py-4 px-4 text-sm text-slate-grey-600">
+                          <div className="flex flex-col gap-1 text-xs">
+                             <span className="font-medium text-slate-grey-500">Last Day: <span className="text-gunmetal-700 font-normal">{formatDate(request.lastDayToWork)}</span></span>
+                             <span className="font-medium text-slate-grey-500">Return: <span className="text-gunmetal-700 font-normal">{formatDate(request.returnToWork)}</span></span>
+                          </div>
                       </td>
-                      <td className="py-3 px-4 text-sm text-gray-700">
-                        {formatDate(request.returnToWork)}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-700">
-                        {request.totalDays}
+                      <td className="py-4 px-4 text-center">
+                          <span className="font-mono text-sm font-bold text-gunmetal-800">{request.totalDays}</span>
                       </td>
                     </>
                   ) : null}
-                  <td className="py-3 px-4 text-sm text-gray-700">
+                  <td className="py-4 px-4 text-sm text-slate-grey-600 max-w-[200px] truncate" title={request.reason}>
                     {request.reason}
                   </td>
                   <td
-                    className="py-3 px-4 text-sm text-blue-600 cursor-pointer"
-                    onClick={() =>
-                      handleViewFile(
-                        request._id,
-                        activeTab === "open"
-                          ? "open"
-                          : activeTab === "approved"
-                          ? "approved"
-                          : "rejected"
-                      )
-                    }
+                    className="py-4 px-4 text-sm"
                   >
-                    {request.handoverDocument ? "View" : "No File"}
+                    {request.handoverDocument ? (
+                         <button 
+                            onClick={() =>
+                                handleViewFile(
+                                request._id,
+                                activeTab === "open"
+                                    ? "open"
+                                    : activeTab === "approved"
+                                    ? "approved"
+                                    : "rejected"
+                                )
+                            }
+                            className="flex items-center gap-1.5 text-gunmetal-600 hover:text-gunmetal-900 transition-colors font-medium text-xs border border-platinum-200 bg-white px-2 py-1 rounded shadow-sm hover:shadow"
+                         >
+                             <FaEye /> View PDF
+                         </button>
+                    ) : (
+                        <span className="text-slate-grey-400 text-xs italic">No Attachment</span>
+                    )}
                   </td>
                   {activeTab === "open" ? (
-                    <td className="py-3 px-4 text-sm flex justify-center space-x-2">
-                      <button
-                        onClick={() => handleEdit(request._id)}
-                        className="flex items-center px-3 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600 transition-colors"
-                      >
-                        <FaEdit className="mr-1" />
-                        Edit
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleApproveReject(request._id, "approve")
-                        }
-                        className="flex items-center px-3 py-1 bg-green-500 text-white rounded-full hover:bg-green-600 transition-colors"
-                      >
-                        <FaCheckCircle className="mr-1" />
-                        Approve
-                      </button>
-                      <button
-                        onClick={() =>
-                          handleApproveReject(request._id, "reject")
-                        }
-                        className="flex items-center px-3 py-1 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors"
-                      >
-                        <FaTimesCircle className="mr-1" />
-                        Reject
-                      </button>
+                    <td className="py-4 px-4 text-center">
+                       <div className="flex justify-center items-center gap-2">
+                            <button
+                                onClick={() => handleEdit(request._id)}
+                                className="p-1.5 text-amber-600 hover:text-amber-800 hover:bg-amber-50 rounded transition-colors"
+                                title="Edit Request"
+                            >
+                                <FaEdit size={16} />
+                            </button>
+                            <button
+                                onClick={() => handleApproveReject(request._id, "approve")}
+                                className="p-1.5 text-emerald-600 hover:text-emerald-800 hover:bg-emerald-50 rounded transition-colors"
+                                title="Approve"
+                            >
+                                <FaCheckCircle size={16} />
+                            </button>
+                            <button
+                                onClick={() => handleApproveReject(request._id, "reject")}
+                                className="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded transition-colors"
+                                title="Reject"
+                            >
+                                <FaTimesCircle size={16} />
+                            </button>
+                       </div>
                     </td>
                   ) : activeTab === "approved" || activeTab === "rejected" ? (
-                    <td className="py-3 px-4 text-sm text-gray-700">
+                    <td className="py-4 px-4 text-sm text-slate-grey-600 italic">
                       {request.comments || "N/A"}
                     </td>
                   ) : null}
@@ -480,43 +481,27 @@ const LeaveManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                {isLoading ? (
-                  <td
-                    className="py-8 px-4 text-center text-gray-500"
-                    colSpan={
-                      activeTab === "open"
-                        ? 10
-                        : activeTab === "approved" || activeTab === "rejected"
-                        ? 12
-                        : 10
-                    }
-                  >
-                    <div className="flex flex-col items-center justify-center">
-                      <FaSpinner
-                        size={30}
-                        className="text-blue-500 mb-2 animate-spin"
-                      />
-                    </div>
-                  </td>
-                ) : (
-                  <td
-                    className="py-8 px-4 text-center text-gray-500"
-                    colSpan={
-                      activeTab === "open"
-                        ? 10
-                        : activeTab === "approved" || activeTab === "rejected"
-                        ? 12
-                        : 10
-                    }
-                  >
-                    <div className="flex flex-col items-center justify-center">
-                      <FaInbox size={30} className="text-gray-400 mb-2" />
-                      <span className="text-md font-medium">
-                        No Leave Requests Found.
-                      </span>
-                    </div>
-                  </td>
-                )}
+                <td
+                  className="py-12 px-4 text-center text-slate-grey-400"
+                  colSpan={
+                    activeTab === "open"
+                      ? 10
+                      : activeTab === "approved" || activeTab === "rejected"
+                      ? 12
+                      : 10
+                  }
+                >
+                  <div className="flex flex-col items-center justify-center">
+                    {isLoading ? (
+                         <FaSpinner size={32} className="animate-spin text-gunmetal-500 mb-2" />
+                    ) : (
+                         <FaInbox size={32} className="opacity-50 mb-2" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isLoading ? "Loading requests..." : "No requests found."}
+                    </span>
+                  </div>
+                </td>
               </tr>
             )}
           </tbody>
@@ -524,16 +509,15 @@ const LeaveManagement: React.FC = () => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-6">
-        {/* Items Per Page */}
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-700">Show:</span>
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+        <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+          <span className="font-medium">Rows per page:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to first page when items per page changes
+              setCurrentPage(1);
             }}
           >
             {[5, 10, 20].map((option) => (
@@ -544,226 +528,146 @@ const LeaveManagement: React.FC = () => {
           </select>
         </div>
 
-        {/* Pagination Buttons */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center gap-2">
           <button
-            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+            className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+              currentPage === 1 
+                ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
             }`}
             disabled={currentPage === 1}
             onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
           >
-            <FaChevronLeft className="mr-1" />
-            Previous
+            <FaChevronLeft size={12} />
           </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+          
+          <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-2">
+            Page {currentPage} of {totalPages || 1}
           </span>
+          
           <button
-            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+            className={`p-2 rounded-lg border border-platinum-200 transition-all ${
               currentPage === totalPages || totalPages === 0
-                ? "cursor-not-allowed opacity-50"
-                : ""
+                ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
             }`}
             disabled={currentPage === totalPages || totalPages === 0}
-            onClick={() =>
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages))
-            }
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
           >
-            {" "}
-            Next
-            <FaChevronRight className="ml-1" />
+            <FaChevronRight size={12} />
           </button>
         </div>
       </div>
 
       {/* View PDF Modal */}
       {modalType === "viewPDF" && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg w-[90%] h-[90%] relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
-            >
-              <FaTimes size={24} />
-            </button>
-            <iframe
-              src={selectedPdfUrl}
-              className="w-full h-full rounded-lg"
-              title="Handover Document"
-            />
+        <div className="fixed inset-0 bg-gunmetal-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-4xl h-[85vh] relative flex flex-col shadow-2xl border border-platinum-200">
+             <div className="flex justify-between items-center px-6 py-4 border-b border-platinum-200">
+                <h3 className="font-bold text-gunmetal-900 text-lg">Document Viewer</h3>
+                <button
+                onClick={closeModal}
+                className="text-slate-grey-400 hover:text-gunmetal-900 transition-colors bg-platinum-50 rounded-full p-2"
+                >
+                <FaTimes size={18} />
+                </button>
+            </div>
+            <div className="flex-1 bg-alabaster-grey-50 overflow-hidden relative rounded-b-xl">
+                 <iframe
+                src={selectedPdfUrl}
+                className="w-full h-full"
+                title="Handover Document"
+                />
+            </div>
           </div>
         </div>
       )}
 
       {/* Approve/Reject/Edit Modal */}
       {modalType && selectedRequest && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-lg relative">
+        <div className="fixed inset-0 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm z-50 p-4">
+          <div className="bg-white rounded-xl p-6 w-full max-w-lg relative shadow-2xl border border-platinum-200 animate-in fade-in zoom-in duration-200">
             <button
               onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-700 hover:text-gray-900"
+              className="absolute top-4 right-4 text-slate-grey-400 hover:text-gunmetal-900 transition-colors"
             >
-              <FaTimes size={24} />
+              <FaTimes size={20} />
             </button>
-            <h2 className="text-lg font-bold mb-4">
-              {modalType === "approve"
-                ? "Approve Leave Request"
-                : modalType === "reject"
-                ? "Reject Leave Request"
-                : "Edit Leave Request"}
-            </h2>
-
-            {modalType !== "edit" ? (
+            
+            <div className={`mb-6 flex items-center gap-3 pb-4 border-b border-platinum-100`}>
+                 <div className={`p-2 rounded-lg ${
+                     modalType === 'approve' ? 'bg-emerald-50 text-emerald-600' : 
+                     modalType === 'reject' ? 'bg-rose-50 text-rose-600' : 
+                     'bg-amber-50 text-amber-600'
+                 }`}>
+                     {modalType === 'approve' ? <FaCheckCircle size={24} /> : 
+                     modalType === 'reject' ? <FaTimesCircle size={24} /> : 
+                     <FaEdit size={24} />}
+                 </div>
+                <h2 className="text-xl font-bold text-gunmetal-900">
+                {modalType === "approve"
+                    ? "Approve Request"
+                    : modalType === "reject"
+                    ? "Reject Request"
+                    : "Edit Request"}
+                </h2>
+            </div>
+            
+            {(modalType === "approve" || modalType === "reject") ? (
               <div>
-                <div className="mb-4">
-                  <p className="text-sm text-gray-700">
-                    <strong>Name:</strong> {selectedRequest.user.name}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>Leave Type:</strong> {selectedRequest.leaveType}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>From:</strong>{" "}
-                    {formatDate(selectedRequest.startDate)}
-                  </p>
-                  <p className="text-sm text-gray-700">
-                    <strong>To:</strong> {formatDate(selectedRequest.endDate)}
-                  </p>
-                  {modalType === "approve" && (
-                    <>
-                      <p className="text-sm text-gray-700">
-                        <strong>Last Day at Work:</strong>{" "}
-                        {formatDate(selectedRequest.lastDayToWork)}
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        <strong>Return to Work:</strong>{" "}
-                        {formatDate(selectedRequest.returnToWork)}
-                      </p>
-                      <p className="text-sm text-gray-700">
-                        <strong>Total Days:</strong> {selectedRequest.totalDays}
-                      </p>
-                    </>
-                  )}
-                  <p className="text-sm text-gray-700">
-                    <strong>Reason:</strong> {selectedRequest.reason}
-                  </p>
-                </div>
+                  <div className="mb-6 space-y-2 bg-alabaster-grey-50 p-4 rounded-lg border border-platinum-100">
+                    <div className="flex justify-between">
+                        <span className="text-sm text-slate-grey-500">Employee:</span>
+                        <span className="text-sm font-semibold text-gunmetal-900">{selectedRequest.user.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                        <span className="text-sm text-slate-grey-500">Leave Type:</span>
+                        <span className="text-sm font-medium text-gunmetal-900">{selectedRequest.leaveType}</span>
+                    </div>
+                    <div className="flex justify-between">
+                         <span className="text-sm text-slate-grey-500">Duration:</span>
+                         <span className="text-sm font-mono text-gunmetal-700">{formatDate(selectedRequest.startDate)} — {formatDate(selectedRequest.endDate)}</span>
+                    </div>
+                    <div className="flex justify-between border-t border-platinum-200 pt-2 mt-2">
+                        <span className="text-sm text-slate-grey-500">Total Days:</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedRequest.totalDays}</span>
+                    </div>
+                  </div>
+                
+                <label className="block text-sm font-bold text-slate-grey-500 uppercase tracking-wide mb-2">
+                    {modalType === 'reject' ? 'Rejection Reason (Required)' : 'Comments (Optional)'}
+                </label>
                 <textarea
-                  placeholder="Add your comments"
+                  placeholder="Add your notes here..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4"
+                  className="w-full border border-platinum-200 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all min-h-[100px] resize-none"
                 ></textarea>
+                
+                <div className="flex justify-end space-x-3 mt-6">
+                    <button
+                        onClick={closeModal}
+                        className="px-4 py-2 text-slate-grey-600 font-medium hover:text-gunmetal-900 transition-colors text-sm"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onClick={handleConfirmAction}
+                        className={`px-6 py-2 text-white font-semibold rounded-lg shadow-sm transition-all text-sm ${
+                            modalType === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                        }`}
+                    >
+                        Confirm Action
+                    </button>
+                </div>
               </div>
-            ) : (
-              <div>
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Leave Type
-                </label>
-                <select
-                  value={selectedRequest.leaveType}
-                  onChange={(e) =>
-                    setSelectedRequest((prev) =>
-                      prev ? { ...prev, leaveType: e.target.value } : null
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Leave Type</option>
-                  <option value="Casual Leave">Casual Leave</option>
-                  <option value="Sick Leave">Sick Leave</option>
-                  <option value="Annual Leave">Annual Leave</option>
-                  <option value="Maternity Leave">Maternity Leave</option>
-                  <option value="Paternity Leave">Paternity Leave</option>
-                  <option value="Bereavement Leave">Bereavement Leave</option>
-                  <option value="Hajj Leave">Hajj Leave</option>
-                  <option value="Unauthorized Leaves">
-                    Unauthorized Leaves
-                  </option>
-                  {/* Uncomment if needed */}
-                  {/* <option value="Unapproved Absence Without Pay">
-                    Unapproved Absence Without Pay
-                  </option> */}
-                </select>
+            ) : null} {/* The 'edit' case is handled via the separate EditLeaveRequestModal component rendered outside this block but triggered by same state logic structure in original code - keeping consistent */}
 
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  From
-                </label>
-                <input
-                  type="date"
-                  value={formatDate(selectedRequest.startDate)}
-                  onChange={(e) =>
-                    setSelectedRequest((prev) =>
-                      prev ? { ...prev, startDate: e.target.value } : null
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  To
-                </label>
-                <input
-                  type="date"
-                  value={formatDate(selectedRequest.endDate)}
-                  onChange={(e) =>
-                    setSelectedRequest((prev) =>
-                      prev ? { ...prev, endDate: e.target.value } : null
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Last Day at Work
-                </label>
-                <input
-                  type="date"
-                  value={formatDate(selectedRequest.lastDayToWork)}
-                  onChange={(e) =>
-                    setSelectedRequest((prev) =>
-                      prev ? { ...prev, lastDayToWork: e.target.value } : null
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-
-                <label className="block mb-2 text-sm font-medium text-gray-700">
-                  Return to Work
-                </label>
-                <input
-                  type="date"
-                  value={formatDate(selectedRequest.returnToWork)}
-                  onChange={(e) =>
-                    setSelectedRequest((prev) =>
-                      prev ? { ...prev, returnToWork: e.target.value } : null
-                    )
-                  }
-                  className="w-full border border-gray-300 rounded-lg p-2 mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            )}
-
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={closeModal}
-                className="px-4 py-2 bg-gray-300 rounded-full hover:bg-gray-400 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleConfirmAction}
-                className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors"
-              >
-                {modalType === "edit" ? "Update" : "Confirm"}
-              </button>
-            </div>
           </div>
         </div>
       )}
 
-      {/* Edit Leave Request Modal */}
+      {/* Edit Leave Request Modal - Rendered separately as in original design */}
       {editModalOpen && selectedRequest && (
         <EditLeaveRequestModal
           selectedRequest={selectedRequest}

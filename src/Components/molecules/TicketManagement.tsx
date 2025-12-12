@@ -1,12 +1,11 @@
-// TicketManagement.tsx
-
 import React, { useState, useEffect } from "react";
 import {
   FaUserClock,
   FaBriefcase,
   FaClipboardList,
   FaNetworkWired,
-  FaSpinner,
+  FaArrowLeft,
+  FaTicketAlt,
 } from "react-icons/fa";
 import AttendanceTicketManagement from "./AttendanceTicketManagement";
 import HRTicketManagement from "./HRTicketManagement";
@@ -19,6 +18,8 @@ interface TicketType {
   path: "Attendance" | "HR" | "Admin" | "Network";
   icon: React.ComponentType<{ size?: number; className?: string }>;
   visibleTo: string[];
+  description: string;
+  colorTheme: string;
 }
 
 const ticketTypes: TicketType[] = [
@@ -27,24 +28,32 @@ const ticketTypes: TicketType[] = [
     path: "Attendance",
     icon: FaUserClock,
     visibleTo: ["HR", "manager", "SuperAdmin"],
+    description: "Handle attendance corrections and work-from-home requests.",
+    colorTheme: "blue",
   },
   {
     label: "HR",
     path: "HR",
     icon: FaBriefcase,
     visibleTo: ["HR", "SuperAdmin"],
+    description: "Manage grievances, policy questions, and benefits inquiries.",
+    colorTheme: "emerald",
   },
   {
     label: "Admin",
     path: "Admin",
     icon: FaClipboardList,
     visibleTo: ["SuperAdmin"],
+    description: "Oversee system administration and facility management tasks.",
+    colorTheme: "purple",
   },
   {
     label: "Network",
     path: "Network",
     icon: FaNetworkWired,
     visibleTo: ["SuperAdmin"],
+    description: "Resolve connectivity, hardware, and IT infrastructure issues.",
+    colorTheme: "orange",
   },
 ];
 
@@ -67,129 +76,126 @@ const TicketManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full p-20 flex items-center justify-center">
-        <div className="flex flex-col items-center">
-          <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
-        </div>
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-platinum-200 border-t-gunmetal-900 rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-grey-500 font-medium text-sm animate-pulse">Initializing Dashboard...</p>
       </div>
     );
   }
 
   if (availableTicketTypes.length === 0) {
     return (
-      <div className="w-full min-h-screen bg-white flex items-center justify-center">
-        <h1 className="text-2xl font-semibold text-gray-800">
-          You do not have access to any ticket types.
-        </h1>
+      <div className="w-full h-[60vh] flex items-center justify-center p-6">
+        <div className="bg-white rounded-2xl shadow-xl border border-platinum-200 p-12 text-center max-w-md w-full">
+            <div className="w-20 h-20 bg-alabaster-grey-50 rounded-full flex items-center justify-center mb-6 mx-auto border border-platinum-200">
+                 <FaBriefcase className="text-slate-grey-400 text-3xl" />
+            </div>
+            <h1 className="text-2xl font-bold text-gunmetal-900 mb-3">Access Restricted</h1>
+            <p className="text-slate-grey-500 leading-relaxed">
+            You do not have the necessary permissions to view the ticket management dashboard.
+            </p>
+        </div>
       </div>
     );
   }
 
-  if (availableTicketTypes.length === 1 && selectedTicketType) {
+  // Active View
+  if (selectedTicketType) {
     return (
-      <>
-        {selectedTicketType === "Attendance" && <AttendanceTicketManagement />}
-        {selectedTicketType === "HR" && <HRTicketManagement />}
-        {selectedTicketType === "Admin" && <AdminTicketManagement />}
-        {selectedTicketType === "Network" && <NetworkTicketManagement />}
-      </>
+      <div className="w-full min-h-[85vh] flex flex-col animate-fadeIn">
+         {availableTicketTypes.length > 1 && (
+             <div className="bg-white border-b border-platinum-200 px-8 py-4 sticky top-0 z-10 flex items-center justify-between shadow-sm">
+                 <div className="flex items-center gap-4">
+                     <button 
+                      onClick={() => setSelectedTicketType(null)}
+                      className="w-10 h-10 rounded-full bg-alabaster-grey-50 flex items-center justify-center text-slate-grey-600 hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm border border-platinum-200"
+                     >
+                         <FaArrowLeft size={16} />
+                     </button>
+                     <div>
+                        <h2 className="text-lg font-bold text-gunmetal-900 flex items-center gap-2">
+                             {selectedTicketType} Management
+                        </h2>
+                        <span className="text-xs font-medium text-slate-grey-500">Return to Dashboard</span>
+                     </div>
+                 </div>
+                 
+                 {/* Optional: Add quick stats or toggle here if needed */}
+             </div>
+         )}
+         
+         <div className="flex-1 p-6 bg-alabaster-grey-50">
+            {selectedTicketType === "Attendance" && <AttendanceTicketManagement />}
+            {selectedTicketType === "HR" && <HRTicketManagement />}
+            {selectedTicketType === "Admin" && <AdminTicketManagement />}
+            {selectedTicketType === "Network" && <NetworkTicketManagement />}
+         </div>
+      </div>
     );
   }
 
+  // Dashboard View
   return (
-    <div className="w-full bg-gray-50 flex items-center justify-center p-6 rounded-lg">
-      {!selectedTicketType ? (
-        <div className="w-full">
-          <h1 className="text-3xl font-bold text-center text-gray-800 mb-8">
-            Select Ticket Type
-          </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+    <div className="w-full p-8 min-h-[85vh] bg-alabaster-grey-50">
+      <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-16">
+            <div className="inline-flex items-center justify-center p-3 bg-white rounded-2xl shadow-sm border border-platinum-200 mb-6">
+                <FaTicketAlt className="text-gunmetal-900 text-2xl" />
+            </div>
+            <h1 className="text-4xl font-extrabold text-gunmetal-900 mb-4 tracking-tight">
+                Ticket Management Center
+            </h1>
+            <p className="text-slate-grey-500 text-lg max-w-2xl mx-auto">
+                Centralized hub for managing support requests, grievances, and operational workflows across departments.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-4">
             {availableTicketTypes.map((ticket) => {
               const Icon = ticket.icon;
-              const colorClasses = {
-                Attendance: {
-                  bg: "bg-blue-50",
-                  border: "border-blue-200",
-                  hoverBorder: "hover:border-blue-400",
-                  text: "text-blue-600",
-                  title: "text-blue-700",
-                },
-                HR: {
-                  bg: "bg-green-50",
-                  border: "border-green-200",
-                  hoverBorder: "hover:border-green-400",
-                  text: "text-green-600",
-                  title: "text-green-700",
-                },
-                Admin: {
-                  bg: "bg-purple-50",
-                  border: "border-purple-200",
-                  hoverBorder: "hover:border-purple-400",
-                  text: "text-purple-600",
-                  title: "text-purple-700",
-                },
-                Network: {
-                  bg: "bg-orange-50",
-                  border: "border-orange-200",
-                  hoverBorder: "hover:border-orange-400",
-                  text: "text-orange-600",
-                  title: "text-orange-700",
-                },
-              };
-
-              const colors =
-                colorClasses[ticket.label as keyof typeof colorClasses];
-
+            
               return (
                 <div
                   key={ticket.path}
                   onClick={() => setSelectedTicketType(ticket.path)}
-                  className={`flex flex-col items-center justify-center ${colors.bg} border-2 ${colors.border} hover:${colors.hoverBorder} hover:shadow-lg p-6 rounded-lg cursor-pointer transition duration-200`}
+                  className="group relative bg-white border border-platinum-200 rounded-2xl p-8 cursor-pointer transition-all duration-300 hover:shadow-xl hover:shadow-gunmetal-500/10 hover:-translate-y-1 hover:border-gunmetal-300 overflow-hidden"
                 >
-                  <Icon size={70} className={colors.text} />
-                  <h2 className={`mt-4 text-xl font-semibold ${colors.title}`}>
-                    {ticket.label} Tickets Status
-                  </h2>
-                  <p className="text-gray-500 mt-2 text-sm text-center">
-                    {getTicketDescription(ticket.label)}
-                  </p>
+                  {/* Decorative Background Pattern */}
+                  <div className="absolute top-0 right-0 p-16 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity transform translate-x-10 -translate-y-10">
+                      <Icon size={200} className="text-gunmetal-900" />
+                  </div>
+
+                  <div className="relative flex items-start gap-6">
+                      <div className={`w-20 h-20 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-inner 
+                          ${ticket.colorTheme === 'blue' ? 'bg-blue-50 text-blue-600' : 
+                            ticket.colorTheme === 'emerald' ? 'bg-emerald-50 text-emerald-600' :
+                            ticket.colorTheme === 'purple' ? 'bg-purple-50 text-purple-600' :
+                            'bg-orange-50 text-orange-600'
+                          }
+                      `}>
+                          <Icon size={36} />
+                      </div>
+                      
+                      <div className="flex-1 pt-2">
+                          <h2 className="text-2xl font-bold text-gunmetal-900 mb-2 group-hover:text-gunmetal-700 transition-colors">
+                            {ticket.label}
+                          </h2>
+                          <p className="text-slate-grey-500 text-sm leading-relaxed mb-6">
+                            {ticket.description}
+                          </p>
+                          
+                          <div className="flex items-center gap-2 text-sm font-bold text-gunmetal-900 group-hover:underline decoration-2 underline-offset-4">
+                              Access Module <FaArrowLeft className="rotate-180 text-xs transition-transform group-hover:translate-x-1" />
+                          </div>
+                      </div>
+                  </div>
                 </div>
               );
             })}
           </div>
-        </div>
-      ) : (
-        <div className="w-full flex flex-col items-start">
-          {" "}
-          {/* Change items-center to items-start */}
-          {selectedTicketType === "Attendance" && (
-            <AttendanceTicketManagement />
-          )}
-          {selectedTicketType === "HR" && <HRTicketManagement />}
-          {selectedTicketType === "Admin" && <AdminTicketManagement />}
-          {selectedTicketType === "Network" && <NetworkTicketManagement />}
-          <button
-            className="mt-6 px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-500"
-            onClick={() => setSelectedTicketType(null)}
-          >
-            Back
-          </button>
-        </div>
-      )}
+      </div>
     </div>
   );
-};
-
-const getTicketDescription = (type: string): string => {
-  const descriptions: { [key: string]: string } = {
-    Attendance:
-      "Manage attendance-related tickets, including work-from-home requests.",
-    HR: "Manage HR-related tickets such as leave requests and benefits inquiries.",
-    Admin:
-      "Manage admin-related tickets, including system issues and requests.",
-    Network: "Manage network-related tickets, including connectivity issues.",
-  };
-  return descriptions[type] || "Manage your tickets effectively.";
 };
 
 export default TicketManagement;

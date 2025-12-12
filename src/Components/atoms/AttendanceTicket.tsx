@@ -1,8 +1,21 @@
-// components/AttendanceTicket.tsx
-
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
+import { 
+  FaFilter, 
+  FaInbox, 
+  FaSpinner, 
+  FaCalendarAlt, 
+  FaMapMarkerAlt, 
+  FaClock, 
+  FaCommentAlt, 
+  FaFileUpload, 
+  FaFileAlt,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaHourglassHalf,
+  FaEye 
+} from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
@@ -163,24 +176,19 @@ const AttendanceTicket: React.FC = () => {
     }
 
     const totalTimeMs = timeOutDate.getTime() - timeInDate.getTime();
-
     const totalHours = Math.floor(totalTimeMs / (1000 * 60 * 60));
     const totalMinutes = Math.floor(
       (totalTimeMs % (1000 * 60 * 60)) / (1000 * 60)
     );
 
-    // Format totalTime as "HH:MM" for consistency
     const totalTimeStr = `${totalHours
       .toString()
       .padStart(2, "0")}:${totalMinutes.toString().padStart(2, "0")}`;
 
     const formDataToSubmit = new FormData();
     formDataToSubmit.append("date", selectedDate.toISOString());
-
-    // **Updated Lines: Send "HH:MM" strings instead of ISO strings**
     formDataToSubmit.append("timeIn", timeIn);
     formDataToSubmit.append("timeOut", timeOut);
-
     formDataToSubmit.append("totalTime", totalTimeStr);
     formDataToSubmit.append("comments", comments || "");
     formDataToSubmit.append("workLocation", workLocation);
@@ -203,19 +211,11 @@ const AttendanceTicket: React.FC = () => {
         }
       );
 
-      // Assuming the response contains the newly created attendance ticket
       const newTicket: AttendanceRecord = response.data.attendanceTicket;
-
-      // Update the attendance list by adding the new ticket at the top
       setAttendanceList((prevList) => [newTicket, ...prevList]);
-
-      // Set notFound to false since there's at least one ticket now
       setNotFound(false);
-
-      // Reset to the first page to show the new ticket
       setCurrentPage(1);
 
-      // Reset form data
       setFormData({
         date: "",
         timeIn: "",
@@ -240,272 +240,294 @@ const AttendanceTicket: React.FC = () => {
     setModalOpen(true);
   };
 
-  const thClass =
-    "bg-purple-900 text-white text-sm font-semibold px-4 py-2 border border-gray-300 text-center";
-  const tdClass =
-    "text-sm text-gray-800 px-4 py-2 border border-gray-300 whitespace-nowrap text-center";
-
   return (
-    <div className="w-full p-6 bg-white rounded-lg mb-8">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mt-2 mb-3 text-black">
-        Submit New Attendance Ticket
-      </h2>
-
-      <form onSubmit={handleSubmit} className="mb-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Select Date
-            </label>
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 mb-8">
+      {/* Header */}
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaClock className="text-gunmetal-600 text-xl" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Work Location
-            </label>
-            <select
-              name="workLocation"
-              value={formData.workLocation}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Attendance Ticket
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Submit a request for attendance correction or update.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Form Section */}
+      <div className="p-8 border-b border-platinum-200">
+        <h3 className="text-lg font-bold text-gunmetal-900 mb-6">Create New Ticket</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                <FaCalendarAlt className="text-gunmetal-400" /> Date
+              </label>
+              <input
+                type="date"
+                name="date"
+                value={formData.date}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                required
+              />
+            </div>
+            
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                <FaMapMarkerAlt className="text-gunmetal-400" /> Location
+              </label>
+              <select
+                name="workLocation"
+                value={formData.workLocation}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none"
+                required
+              >
+                <option value="">Select Location</option>
+                <option value="Remote">Remote</option>
+                <option value="On-site">On-site</option>
+                <option value="Hybrid">Hybrid</option>
+              </select>
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                <FaClock className="text-gunmetal-400" /> Time In
+              </label>
+              <input
+                type="time"
+                name="timeIn"
+                value={formData.timeIn}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                <FaClock className="text-gunmetal-400" /> Time Out
+              </label>
+              <input
+                type="time"
+                name="timeOut"
+                value={formData.timeOut}
+                onChange={handleInputChange}
+                className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+             <div className="space-y-2">
+                <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                  <FaCommentAlt className="text-gunmetal-400" /> Comments
+                </label>
+                <textarea
+                  name="comments"
+                  rows={2}
+                  value={formData.comments}
+                  onChange={handleInputChange}
+                  placeholder="Additional details..."
+                  className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all resize-none"
+                ></textarea>
+             </div>
+
+             <div className="space-y-2">
+                <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2">
+                  <FaFileUpload className="text-gunmetal-400" /> Attachment
+                </label>
+                <div className="relative">
+                  <input
+                    type="file"
+                    onChange={handleFileChange}
+                    className="w-full px-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-600 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-gunmetal-50 file:text-gunmetal-700 hover:file:bg-gunmetal-100"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                  />
+                  <p className="text-xs text-slate-grey-400 mt-1 pl-1">Max 5MB (JPG, PNG, PDF)</p>
+                </div>
+             </div>
+          </div>
+
+          <div className="flex justify-end">
+             <button
+              type="submit"
+              className={`px-8 py-2.5 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20 flex items-center gap-2 ${
+                loading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+              disabled={loading}
             >
-              <option value="">Select Work Location</option>
-              <option value="Remote">Remote</option>
-              <option value="On-site">On-site</option>
-              <option value="Hybrid">Hybrid</option> {/* Added Hybrid option */}
-            </select>
+              {loading ? (
+                <>
+                  <FaSpinner className="animate-spin" /> Submitting...
+                </>
+              ) : (
+                "Submit Request"
+              )}
+            </button>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Time In
-            </label>
-            <input
-              type="time"
-              name="timeIn"
-              value={formData.timeIn}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Time Out
-            </label>
-            <input
-              type="time"
-              name="timeOut"
-              value={formData.timeOut}
-              onChange={handleInputChange}
-              className="w-full p-2 border border-gray-300 rounded-md"
-              required
-            />
-          </div>
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Comments
-          </label>
-          <textarea
-            name="comments"
-            rows={3}
-            value={formData.comments}
-            onChange={handleInputChange}
-            className="w-full p-2 border border-gray-300 rounded-md"
-          ></textarea>
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">
-            Select File
-          </label>
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="w-full p-2 border border-gray-300 rounded-md"
-            accept=".jpg,.jpeg,.png,.pdf" // Restrict file types
-          />
-        </div>
-        <button
-          type="submit"
-          className={`px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all ${
-            loading ? "opacity-50 cursor-not-allowed" : ""
-          }`}
-          disabled={loading}
-        >
-          {loading ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-
-      <div className="flex justify-between items-center mb-3 mt-6">
-        <h2 className="text-lg md:text-xl font-bold text-black">
-          Ticket Status
-        </h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaFilter className="text-gray-400 mr-2" />
-          <select
-            value={filteredStatus}
-            onChange={(e) => {
-              setFilteredStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          >
-            <option value="All">All Statuses</option>
-            <option value="Open">Open</option> {/* Changed to 'Open' */}
-            <option value="Approved">Approved</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-        </div>
+        </form>
       </div>
 
-      <div className="overflow-x-auto">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center mt-10 mb-10">
-            <FaSpinner
-              size={30}
-              className="animate-spin text-blue-600 mb-2"
-              aria-hidden="true"
-            />
-          </div>
-        ) : notFound ? (
-          <div className="flex flex-col items-center">
-            <FaInbox size={30} className="text-gray-400 mb-4" />
-            <span className="text-lg font-medium">No tickets available</span>
-          </div>
-        ) : paginatedList.length > 0 ? (
-          <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-            <colgroup>
-              <col style={{ width: "5%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "30%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "12%" }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className={thClass}>S.No</th>
-                <th className={thClass}>Date</th>
-                <th className={thClass}>Time In</th>
-                <th className={thClass}>Time Out</th>
-                <th className={thClass}>Total Time</th>
-                <th className={thClass}>Comments</th>
-                <th className={thClass}>File</th>
-                <th className={thClass}>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedList.map((record, index) => (
-                <tr key={record._id}>
-                  <td className={tdClass}>
-                    {index + 1 + (currentPage - 1) * itemsPerPage}
-                  </td>
-                  <td className={tdClass}>{formatDate(record.date)}</td>
-                  <td className={tdClass}>
-                    {formatAttendenceTicketTime(record.timeIn)}
-                  </td>
-                  <td className={tdClass}>
-                    {formatAttendenceTicketTime(record.timeOut)}
-                  </td>
-                  <td className={tdClass}>{record.totalTime}</td>
-                  <td
-                    className={`${tdClass} text-blue-600 cursor-pointer`}
-                    title={record.comments || "No Comments"} // Full comment on hover
-                  >
-                    {truncateComment(record.comments)}
-                  </td>
-                  <td className={tdClass}>
-                    {record.file ? (
-                      <button
-                        onClick={() =>
-                          handleViewFile(record.file!, record.fileName!)
-                        }
-                        className="text-blue-600 hover:underline"
-                      >
-                        View
-                      </button>
-                    ) : (
-                      "No File"
-                    )}
-                  </td>
-                  <td
-                    className={`${tdClass} ${
-                      record.status === "Rejected"
-                        ? "text-red-600"
-                        : record.status === "Approved"
-                        ? "text-green-600"
-                        : "text-yellow-600"
-                    }`}
-                  >
-                    {record.status}
-                  </td>
+      {/* Filter & List Section */}
+      <div className="p-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+           <h3 className="text-lg font-bold text-gunmetal-900">Request History</h3>
+           
+           <div className="relative group w-full md:w-64">
+               <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <select
+                 value={filteredStatus}
+                 onChange={(e) => {
+                   setFilteredStatus(e.target.value);
+                   setCurrentPage(1);
+                 }}
+                 className="w-full pl-9 pr-8 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+               >
+                 <option value="All">All Statuses</option>
+                 <option value="Open">Open</option>
+                 <option value="Approved">Approved</option>
+                 <option value="Rejected">Rejected</option>
+               </select>
+           </div>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+          {loading && attendanceList.length === 0 ? (
+             <div className="flex flex-col items-center justify-center py-16">
+               <FaSpinner className="animate-spin text-gunmetal-500 mb-3" size={28} />
+               <p className="text-slate-grey-500 text-sm">Loading tickets...</p>
+             </div>
+          ) : notFound && !loading ? (
+             <div className="flex flex-col items-center justify-center py-16 bg-alabaster-grey-50/50">
+               <FaInbox size={40} className="text-slate-grey-300 mb-3" />
+               <span className="text-sm font-medium text-slate-grey-500">No requests found.</span>
+             </div>
+          ) : (
+            <table className="w-full text-left bg-white border-collapse">
+              <thead className="bg-alabaster-grey-50">
+                <tr>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-16 text-center">No.</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Date</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">In</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Out</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Duration</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-1/4">Details</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">File</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Status</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="flex flex-col items-center">
-            <FaInbox size={30} className="text-gray-400 mb-4" />
-            <span className="text-lg font-medium">No tickets available</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md"
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1);
-            }}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
+              </thead>
+              <tbody className="divide-y divide-platinum-100">
+                {paginatedList.map((record, index) => (
+                  <tr key={record._id} className="hover:bg-alabaster-grey-50/50 transition-colors">
+                    <td className="py-4 px-4 text-sm text-slate-grey-500 text-center font-mono">
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
+                    </td>
+                    <td className="py-4 px-4 text-sm font-semibold text-gunmetal-900">
+                      {formatDate(record.date)}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-slate-grey-600 text-center font-mono">
+                      {formatAttendenceTicketTime(record.timeIn)}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-slate-grey-600 text-center font-mono">
+                      {formatAttendenceTicketTime(record.timeOut)}
+                    </td>
+                    <td className="py-4 px-4 text-sm font-bold text-gunmetal-800 text-center font-mono bg-alabaster-grey-50/30">
+                      {record.totalTime}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-slate-grey-600 truncate max-w-xs" title={record.comments}>
+                      {truncateComment(record.comments) || <span className="text-slate-grey-400 italic">No comments</span>}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                       {record.file ? (
+                         <button
+                           onClick={() => handleViewFile(record.file!, record.fileName!)}
+                           className="text-gunmetal-600 hover:text-gunmetal-900 transition-colors p-1.5 rounded-md hover:bg-platinum-100"
+                           title="View Attachment"
+                         >
+                           <FaEye size={14} />
+                         </button>
+                       ) : (
+                         <span className="text-slate-grey-300">-</span>
+                       )}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border ${
+                          record.status === 'Approved'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                            : record.status === 'Rejected'
+                            ? 'bg-rose-50 text-rose-700 border-rose-100'
+                            : 'bg-amber-50 text-amber-700 border-amber-100'
+                        }`}
+                      >
+                         {record.status === 'Approved' && <FaCheckCircle size={10} />}
+                         {record.status === 'Rejected' && <FaTimesCircle size={10} />}
+                         {record.status === 'Open' && <FaHourglassHalf size={10} />}
+                         {record.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }`}
-            disabled={currentPage === 1}
-            onClick={handlePrevious}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages || 1}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages || totalPages === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-            disabled={currentPage === totalPages || totalPages === 0}
-            onClick={handleNext}
-          >
-            Next
-          </button>
+
+        {/* Pagination */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+           <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+              <span className="font-medium">Rows:</span>
+              <select
+                  className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                      setItemsPerPage(parseInt(e.target.value));
+                      setCurrentPage(1);
+                  }}
+              >
+                  {[5, 10, 20].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                  ))}
+              </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === 1 
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                }`}
+                disabled={currentPage === 1}
+                onClick={handlePrevious}
+            >
+                <FiChevronLeft size={16} />
+            </button>
+            
+            <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-3">
+                Page {currentPage} of {totalPages || 1}
+            </span>
+            
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === totalPages || totalPages === 0
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={handleNext}
+            >
+                <FiChevronRight size={16} />
+            </button>
+          </div>
         </div>
       </div>
 

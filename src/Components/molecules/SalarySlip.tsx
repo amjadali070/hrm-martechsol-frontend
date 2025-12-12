@@ -3,11 +3,17 @@ import { useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
   FaBuilding,
-  FaRegCalendarCheck,
+  FaRegCalendarAlt,
   FaMoneyBillWave,
   FaFileInvoiceDollar,
   FaSpinner,
   FaDownload,
+  FaUserTie,
+  FaCalendarCheck,
+  FaWallet,
+  FaReceipt,
+  FaInbox,
+  FaArrowRight
 } from "react-icons/fa";
 import { PayrollData } from "./payrollManagment/PayrollContext";
 import useUser from "../../hooks/useUser";
@@ -54,7 +60,6 @@ const SalarySlip: React.FC = () => {
   const userId = user?._id;
   useEffect(() => {
     const fetchPayrolls = async () => {
-      console.log("userId", userId);
       if (!userId) {
         return;
       }
@@ -186,547 +191,333 @@ const SalarySlip: React.FC = () => {
 
   if (loading || payrollLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <FaSpinner className="animate-spin text-blue-500" size={50} />
+      <div className="flex items-center justify-center p-20">
+        <FaSpinner className="animate-spin text-gunmetal-600 mb-4" size={40} />
       </div>
     );
   }
 
+  // --- VIEW: LIST OF PAYROLLS ---
   if (!selectedPayroll) {
     return (
-      <div className=" bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-        <div className="w-full dark:bg-gray-800 p-6 rounded-lg">
-          <div className="flex justify-between items-center mb-8">
-            <div className="flex items-center space-x-3">
-              <h2 className="text-3xl font-bold text-black px-4 py-2">
-                Payroll Months
-              </h2>
-            </div>
-            <button
-              onClick={() => navigate(-1)}
-              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors"
-            >
-              <FaArrowLeft className="mr-2" /> Back
-            </button>
-          </div>
+      <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 overflow-hidden">
+        {/* Header */}
+        <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200">
+           <div className="flex items-center gap-3">
+              <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+                  <FaMoneyBillWave className="text-gunmetal-600 text-xl" />
+              </div>
+              <div>
+                  <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Payroll History
+                  </h2>
+                  <p className="text-sm text-slate-grey-500">
+                    View your salary slips and payment history.
+                  </p>
+              </div>
+           </div>
+        </div>
 
-          <div className="space-y-8">
-            <div className="p-6 border rounded-lg">
-              {payrolls.length > 0 ? (
-                <table className="w-full table-auto bg-white rounded-lg overflow-hidden">
-                  <thead className="bg-purple-900 text-white">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold rounded-l-lg">
-                        S.No
-                      </th>
-                      <th className="px-4 py-2 text-sm font-semibold ">
-                        Month
-                      </th>
-                      <th className="px-4 py-2 text-sm font-semibold rounded-r-lg">
-                        Year
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payrolls.map((payroll, idx) => (
-                      <tr
-                        key={payroll.id}
-                        className="cursor-pointer"
-                        onClick={() => handlePayrollClick(payroll)}
-                      >
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center text-blue-600">
-                          {getMonthName(payroll.month)}
-                        </td>
-                        <td className="px-4 py-2 text-center ">
-                          {payroll.year}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No payroll records found.</p>
-              )}
-            </div>
-          </div>
+        <div className="p-8">
+            {payrolls.length > 0 ? (
+                <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+                    <table className="w-full text-left bg-white border-collapse">
+                        <thead className="bg-alabaster-grey-50">
+                            <tr>
+                                <th className="py-3 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center w-20">
+                                S.No
+                                </th>
+                                <th className="py-3 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                                Month
+                                </th>
+                                <th className="py-3 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                                Year
+                                </th>
+                                 <th className="py-3 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-right">
+                                Actions
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-platinum-100">
+                            {payrolls.map((payroll, idx) => (
+                                <tr
+                                key={payroll.id}
+                                className="group hover:bg-alabaster-grey-50/50 transition-colors cursor-pointer"
+                                onClick={() => handlePayrollClick(payroll)}
+                                >
+                                    <td className="py-4 px-6 text-sm text-slate-grey-500 text-center font-mono">
+                                        {idx + 1}
+                                    </td>
+                                    <td className="py-4 px-6 text-sm font-semibold text-gunmetal-900">
+                                         {getMonthName(payroll.month)}
+                                    </td>
+                                    <td className="py-4 px-6 text-sm text-slate-grey-600">
+                                         {payroll.year}
+                                    </td>
+                                     <td className="py-4 px-6 text-right">
+                                        <button className="text-gunmetal-600 hover:text-gunmetal-900 group-hover:translate-x-1 transition-all">
+                                            <FaArrowRight size={14} />
+                                        </button>
+                                     </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                 <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-platinum-200 rounded-xl bg-alabaster-grey-50/50">
+                    <FaInbox size={48} className="text-slate-grey-300 mb-3" />
+                    <h3 className="text-lg font-bold text-gunmetal-800">No payroll records found</h3>
+                </div>
+            )}
         </div>
       </div>
     );
   }
 
+  // --- VIEW: SELECTED PAYROLL DETAIL (SALARY SLIP) ---
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="w-full dark:bg-gray-800 p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-3">
-            <h2 className="text-3xl font-bold text-black px-4 py-2">
-              Salary Slip
-            </h2>
-          </div>
-          <div className="flex justify-end space-x-4">
-            <button
-              onClick={() => setSelectedPayroll(null)}
-              className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors hover:bg-blue-700"
-            >
-              <FaArrowLeft className="mr-2" /> Back
-            </button>
-            <PDFDownloadLink
-              document={<SalarySlipPDF data={preparePDFData()!} />}
-              fileName={`salary-slip-${selectedPayroll.month}-${selectedPayroll.year}.pdf`}
-              className="flex items-center px-6 py-3 bg-green-600 text-white rounded-full transition-colors "
-            >
-              <FaDownload className="mr-2" />
-              Download PDF
-            </PDFDownloadLink>
-          </div>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 overflow-hidden">
+        {/* Header with Navigation */}
+         <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+           <div className="flex items-center gap-3">
+              <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+                  <FaFileInvoiceDollar className="text-gunmetal-600 text-xl" />
+              </div>
+              <div>
+                  <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Salary Slip
+                  </h2>
+                  <p className="text-sm text-slate-grey-500">
+                    {getMonthName(selectedPayroll.month)} {selectedPayroll.year}
+                  </p>
+              </div>
+           </div>
+           
+           <div className="flex items-center gap-3">
+               <button
+                  onClick={() => setSelectedPayroll(null)}
+                  className="flex items-center gap-2 px-4 py-2 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm"
+                >
+                  <FaArrowLeft size={12} /> Back
+               </button>
+                <PDFDownloadLink
+                document={<SalarySlipPDF data={preparePDFData()!} />}
+                fileName={`salary-slip-${selectedPayroll.month}-${selectedPayroll.year}.pdf`}
+                className="flex items-center gap-2 px-4 py-2 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20"
+                >
+                    {({ loading }) => (
+                         loading ? 'Generating...' : <><FaDownload size={12} /> Download PDF</>
+                     )}
+                </PDFDownloadLink>
+           </div>
         </div>
 
-        <div className="space-y-8">
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaBuilding className="mr-2" /> User Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Name</label>
-                <div className="mt-1">{selectedPayroll?.user.name}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Email</label>
-                <div className="mt-1">{selectedPayroll?.user.email}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Department</label>
-                <div className="mt-1">
-                  {selectedPayroll?.user.personalDetails?.department}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Job Title</label>
-                <div className="mt-1">
-                  {selectedPayroll?.user.personalDetails?.jobTitle || "N/A"}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaRegCalendarCheck className="mr-2" /> Payroll Period
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Month</label>
-                <div className="mt-1">
-                  {getMonthName(selectedPayroll!.month)}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Year</label>
-                <div className="mt-1">{selectedPayroll!.year}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaMoneyBillWave className="mr-2" /> Salary Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">
-                  Basic Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(selectedPayroll!.basicSalary.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Medical Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {(selectedPayroll as any)?.user?.salaryDetails
-                    ?.medicalAllowance || selectedPayroll!.allowances}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Mobile Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {(selectedPayroll as any)?.user?.salaryDetails
-                    ?.mobileAllowance || 0}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Fuel Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {(selectedPayroll as any)?.user?.salaryDetails
-                    ?.fuelAllowance || 0}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Per Day Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(selectedPayroll!.perDaySalary.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Gross Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold text-green-700">
-                  {formatCurrency(selectedPayroll!.totalSalary.toFixed(0))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Absent Dates
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {selectedPayroll?.absentDates &&
-              selectedPayroll.absentDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedPayroll.absentDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No absent dates recorded.</p>
-              )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Absent Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    (
-                      (selectedPayroll?.absentDates?.length || 0) *
-                      (selectedPayroll?.perDaySalary || 0)
-                    ).toFixed(0)
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Late In Details
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {selectedPayroll?.lateInDates &&
-              selectedPayroll.lateInDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedPayroll.lateInDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No late in dates recorded.</p>
-              )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Late In Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    (
-                      (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
-                        (selectedPayroll?.perDaySalary ?? 0)) /
-                      2
-                    ).toFixed(0)
-                  )}
-                </div>
-              </div>
-            </div>
-            {selectedPayroll?.lateInCasualLeavesDeduction &&
-              selectedPayroll?.lateInCasualLeavesDeduction
-                .deductedCasualLeaves > 0 && (
-                <div>
-                  <label className="block text-sm font-medium">
-                    Casual Leaves Deducted Due to Late Ins
-                  </label>
-                  <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                    {
-                      selectedPayroll?.lateInCasualLeavesDeduction
-                        .deductedCasualLeaves
-                    }{" "}
-                    Casual Leave(s)
-                  </div>
-                </div>
-              )}
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Half Days Details
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {selectedPayroll?.halfDayDates &&
-              selectedPayroll.halfDayDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedPayroll.halfDayDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No half day dates recorded.</p>
-              )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Half Days Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    (
-                      ((selectedPayroll?.halfDays || 0) *
-                        (selectedPayroll?.perDaySalary || 0)) /
-                      2
-                    ).toFixed(0)
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="text-gray-800 dark:text-gray-100 mt-3">
-              {selectedPayroll?.halfDayCasualLeavesDeduction &&
-                selectedPayroll?.halfDayCasualLeavesDeduction
-                  .deductedCasualLeaves > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Casual Leaves Deducted Due to Half Days
-                    </label>
-                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                      {
-                        selectedPayroll?.halfDayCasualLeavesDeduction
-                          .deductedCasualLeaves
-                      }{" "}
-                      Casual Leave(s)
+      <div className="p-8 space-y-8">
+        {/* Section: User & Period Info */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-6 border border-platinum-200 rounded-xl bg-alabaster-grey-50/50 relative overflow-hidden group">
+                 <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                     <FaUserTie className="text-6xl text-gunmetal-900" />
+                 </div>
+                <h3 className="text-sm font-bold text-slate-grey-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <FaUserTie className="text-gunmetal-600" /> Employee Details
+                </h3>
+                <div className="space-y-3">
+                    <div className="flex justify-between border-b border-platinum-200 pb-2">
+                        <span className="text-sm text-slate-grey-600">Name</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedPayroll?.user.name}</span>
                     </div>
-                  </div>
-                )}
+                     <div className="flex justify-between border-b border-platinum-200 pb-2">
+                        <span className="text-sm text-slate-grey-600">Email</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedPayroll?.user.email}</span>
+                    </div>
+                     <div className="flex justify-between border-b border-platinum-200 pb-2">
+                        <span className="text-sm text-slate-grey-600">Job Title</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedPayroll?.user.personalDetails?.jobTitle || "N/A"}</span>
+                    </div>
+                     <div className="flex justify-between pb-1">
+                        <span className="text-sm text-slate-grey-600">Department</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedPayroll?.user.personalDetails?.department}</span>
+                    </div>
+                </div>
             </div>
-          </div>
 
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Leave Dates
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {selectedPayroll?.leaveDates &&
-              selectedPayroll.leaveDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selectedPayroll.leaveDates.map((entry, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(entry.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-2 text-center">{entry.type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No leave dates recorded.</p>
-              )}
+            <div className="p-6 border border-platinum-200 rounded-xl bg-alabaster-grey-50/50 relative overflow-hidden group">
+                <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
+                     <FaCalendarCheck className="text-6xl text-gunmetal-900" />
+                 </div>
+                <h3 className="text-sm font-bold text-slate-grey-500 uppercase tracking-wide mb-4 flex items-center gap-2">
+                    <FaRegCalendarAlt className="text-gunmetal-600" /> Pay Period
+                </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between border-b border-platinum-200 pb-2">
+                        <span className="text-sm text-slate-grey-600">Month</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{getMonthName(selectedPayroll!.month)}</span>
+                    </div>
+                     <div className="flex justify-between pb-1">
+                        <span className="text-sm text-slate-grey-600">Year</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{selectedPayroll!.year}</span>
+                    </div>
+                </div>
             </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Deductions
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Tax (PKR)</label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(tax.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">EOBI (PKR)</label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(eobi.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Employee PF (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(employeePF.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Absent Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
-                    (selectedPayroll?.absentDates?.length || 0) *
-                      (selectedPayroll?.perDaySalary || 0)
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Late IN Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
-                    (Math.floor((selectedPayroll?.lateIns ?? 0) / 4) *
-                      (selectedPayroll?.perDaySalary ?? 0)) /
-                      2
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Half Days Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
-                    ((selectedPayroll?.halfDays || 0) *
-                      (selectedPayroll?.perDaySalary || 0)) /
-                      2
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium">
-                Total Deductions (PKR)
-              </label>
-              <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                {formatCurrency(
-                  selectedPayroll?.deductions + tax + eobi + employeePF
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaMoneyBillWave className="mr-2" /> Extra Payments
-            </h3>
-            {extraPayments.length > 0 ? (
-              <table className="min-w-full border divide-y divide-gray-300 rounded-lg overflow-hidden text-center">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2 text-sm font-semibold">
-                      Description
-                    </th>
-                    <th className="px-4 py-2 text-sm font-semibold">
-                      Amount (PKR)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {extraPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2">{payment.description}</td>
-                      <td className="px-4 py-2">
-                        {formatCurrency(payment.amount.toFixed(0))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-gray-500">No extra payments added.</p>
-            )}
-          </div>
-
-          <div className="p-6 border rounded-lg bg-white dark:bg-gray-600">
-            <h3 className="text-2xl font-bold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 bg-green-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">
-                  Gross Salary (PKR)
-                </span>
-                <div className="mt-2 text-2xl font-extrabold text-green-800">
-                  {formatCurrency(selectedPayroll!.totalSalary.toFixed(0))}
-                </div>
-              </div>
-              <div className="p-4 bg-yellow-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">
-                  Total Deductions (PKR)
-                </span>
-                <div className="mt-2 text-2xl font-extrabold text-yellow-800">
-                  {formatCurrency(
-                    selectedPayroll!.deductions + tax + eobi + employeePF
-                  )}
-                </div>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">Net Salary (PKR)</span>
-                <div className="mt-2 text-2xl font-extrabold text-blue-800">
-                  {formatCurrency(calculateNetSalary().toFixed(0))}
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
+
+        {/* Section: Financial Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Earnings */}
+             <div className="border border-platinum-200 rounded-xl overflow-hidden">
+                <div className="bg-alabaster-grey-50 px-6 py-4 border-b border-platinum-200 flex items-center gap-2">
+                    <FaWallet className="text-emerald-600" />
+                    <h3 className="text-sm font-bold text-gunmetal-900 uppercase tracking-wide">Earnings</h3>
+                </div>
+                <div className="p-6 space-y-3">
+                    <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Basic Salary</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{formatCurrency(selectedPayroll!.basicSalary.toFixed(0))}</span>
+                    </div>
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Medical Allowance</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{ (selectedPayroll as any)?.user?.salaryDetails?.medicalAllowance || selectedPayroll!.allowances}</span>
+                    </div>
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Mobile Allowance</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{ (selectedPayroll as any)?.user?.salaryDetails?.mobileAllowance || 0}</span>
+                    </div>
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Fuel Allowance</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{ (selectedPayroll as any)?.user?.salaryDetails?.fuelAllowance || 0}</span>
+                    </div>
+                    {/* Extra Payments */}
+                    {extraPayments.map((payment) => (
+                         <div key={payment.id} className="flex justify-between items-center py-2 border-b border-platinum-100">
+                            <span className="text-sm text-slate-grey-600">{payment.description}</span>
+                            <span className="text-sm font-bold text-gunmetal-900">{formatCurrency(payment.amount.toFixed(0))}</span>
+                        </div>
+                    ))}
+                    
+                    <div className="flex justify-between items-center pt-4 mt-2">
+                        <span className="text-base font-bold text-gunmetal-900">Total Earnings</span>
+                        <span className="text-base font-bold text-emerald-600">{formatCurrency(selectedPayroll!.totalSalary.toFixed(0))}</span>
+                    </div>
+                </div>
+             </div>
+
+             {/* Deductions */}
+            <div className="border border-platinum-200 rounded-xl overflow-hidden">
+                <div className="bg-alabaster-grey-50 px-6 py-4 border-b border-platinum-200 flex items-center gap-2">
+                    <FaReceipt className="text-rose-600" />
+                    <h3 className="text-sm font-bold text-gunmetal-900 uppercase tracking-wide">Deductions</h3>
+                </div>
+                <div className="p-6 space-y-3">
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Tax</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{formatCurrency(tax.toFixed(0))}</span>
+                    </div>
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">EOBI</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{formatCurrency(eobi.toFixed(0))}</span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Provident Fund</span>
+                        <span className="text-sm font-bold text-gunmetal-900">{formatCurrency(employeePF.toFixed(0))}</span>
+                    </div>
+                    {/* Attendance Based Deductions Calculation Display */}
+                     <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Absent Deductions <span className="text-xs text-rose-500">({selectedPayroll?.absentDates?.length || 0} days)</span></span>
+                        <span className="text-sm font-bold text-gunmetal-900">
+                            {formatCurrency(
+                                ((selectedPayroll?.absentDates?.length || 0) * (selectedPayroll?.perDaySalary || 0)).toFixed(0)
+                            )}
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Late IN Deductions</span>
+                        <span className="text-sm font-bold text-gunmetal-900">
+                             {formatCurrency(
+                                ((Math.floor((selectedPayroll?.lateIns ?? 0) / 4) * (selectedPayroll?.perDaySalary ?? 0)) / 2).toFixed(0)
+                            )}
+                        </span>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-platinum-100">
+                        <span className="text-sm text-slate-grey-600">Half Day Deductions</span>
+                        <span className="text-sm font-bold text-gunmetal-900">
+                             {formatCurrency(
+                                (((selectedPayroll?.halfDays || 0) * (selectedPayroll?.perDaySalary || 0)) / 2).toFixed(0)
+                            )}
+                        </span>
+                    </div>
+
+                    <div className="flex justify-between items-center pt-4 mt-2">
+                        <span className="text-base font-bold text-gunmetal-900">Total Deductions</span>
+                        <span className="text-base font-bold text-rose-600">{formatCurrency((selectedPayroll!.deductions + tax + eobi + employeePF).toFixed(0))}</span>
+                    </div>
+                </div>
+             </div>
+        </div>
+
+        {/* Section: Net Pay Banner */}
+        <div className="bg-gunmetal-900 rounded-xl p-8 text-white flex flex-col md:flex-row justify-between items-center shadow-lg shadow-gunmetal-500/20">
+            <div>
+                 <h2 className="text-2xl font-bold mb-1">Net Salary Payable</h2>
+                 <p className="text-platinum-400 text-sm">Transfered to bank account</p>
+            </div>
+            <div className="mt-4 md:mt-0 text-3xl md:text-4xl font-extrabold bg-gradient-to-r from-white to-platinum-300 bg-clip-text text-transparent">
+                 {formatCurrency(calculateNetSalary().toFixed(0))}
+            </div>
+        </div>
+
+        {/* Section: Detailed Breakdowns (Collapsible or just clear lists) */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+             {/* Absent Dates */}
+             <div className="border border-platinum-200 rounded-xl p-6 bg-alabaster-grey-50/30">
+                <h4 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-3">Absent Dates</h4>
+                 {selectedPayroll?.absentDates && selectedPayroll.absentDates.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                         {selectedPayroll.absentDates.map((date, idx) => (
+                             <span key={idx} className="px-2 py-1 bg-rose-50 border border-rose-100 text-rose-700 text-xs rounded font-mono">
+                                 {new Date(date).toLocaleDateString()}
+                             </span>
+                         ))}
+                    </div>
+                 ) : (
+                     <span className="text-sm text-slate-grey-400 italic">No absences</span>
+                 )}
+             </div>
+
+             {/* Late Ins */}
+              <div className="border border-platinum-200 rounded-xl p-6 bg-alabaster-grey-50/30">
+                <h4 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-3">Late Ins</h4>
+                 {selectedPayroll?.lateInDates && selectedPayroll.lateInDates.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                         {selectedPayroll.lateInDates.map((date, idx) => (
+                             <span key={idx} className="px-2 py-1 bg-amber-50 border border-amber-100 text-amber-700 text-xs rounded font-mono">
+                                 {new Date(date).toLocaleDateString()}
+                             </span>
+                         ))}
+                    </div>
+                 ) : (
+                     <span className="text-sm text-slate-grey-400 italic">No late ins</span>
+                 )}
+             </div>
+
+             {/* Half Days */}
+              <div className="border border-platinum-200 rounded-xl p-6 bg-alabaster-grey-50/30">
+                <h4 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-3">Half Days</h4>
+                 {selectedPayroll?.halfDayDates && selectedPayroll.halfDayDates.length > 0 ? (
+                    <div className="flex flex-wrap gap-2">
+                         {selectedPayroll.halfDayDates.map((date, idx) => (
+                             <span key={idx} className="px-2 py-1 bg-orange-50 border border-orange-100 text-orange-700 text-xs rounded font-mono">
+                                 {new Date(date).toLocaleDateString()}
+                             </span>
+                         ))}
+                    </div>
+                 ) : (
+                     <span className="text-sm text-slate-grey-400 italic">No half days</span>
+                 )}
+             </div>
+        </div>
+
       </div>
     </div>
   );

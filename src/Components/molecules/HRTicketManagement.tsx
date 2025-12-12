@@ -8,6 +8,10 @@ import {
   FaCheck,
   FaTimes,
   FaEye,
+  FaBriefcase,
+  FaCheckCircle,
+  FaTimesCircle,
+  FaRegCircle
 } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
@@ -124,135 +128,112 @@ const HRTicketManagement: React.FC = () => {
     setSelectedTicket(null);
   };
 
+  const StatusBadge = ({ status }: { status: string }) => {
+     const styles = {
+      Closed: "bg-emerald-50 text-emerald-600 border-emerald-100", // "Closed" is approval for generic tickets often
+      Rejected: "bg-rose-50 text-rose-600 border-rose-100",
+      Open: "bg-blue-50 text-blue-600 border-blue-100",
+    };
+    const icons = {
+      Closed: <FaCheckCircle size={12} />,
+      Rejected: <FaTimesCircle size={12} />,
+      Open: <FaRegCircle size={12} />,
+    };
+
+    return (
+      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${styles[status as keyof typeof styles] || styles.Open}`}>
+        {icons[status as keyof typeof icons] || icons.Open}
+        {status}
+      </span>
+    );
+  };
+
+
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-xl">
-      <h2 className="text-3xl font-semibold mb-6 text-center">
-        HR Tickets Management
-      </h2>
-
-      {/* Filters Section */}
-      <div className="grid gap-6 mb-6 sm:grid-cols-1 md:grid-cols-3">
-        {/* From Date */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
-          <FaCalendarAlt className="text-black mr-3" />
-          <input
-            type="text"
-            value={
-              filters.fromDate
-                ? new Date(filters.fromDate).toLocaleDateString()
-                : "FROM"
-            }
-            onFocus={(e) => {
-              e.target.type = "date";
-              e.target.showPicker();
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) {
-                e.target.type = "text";
-                e.target.value = "FROM";
-              }
-            }}
-            onChange={(e) => {
-              setFilters({ ...filters, fromDate: e.target.value });
-              e.target.type = "text";
-              e.target.value = new Date(e.target.value).toLocaleDateString();
-            }}
-            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
-            placeholder="From Date"
-          />
-        </div>
-
-        {/* To Date */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
-          <FaCalendarAlt className="text-black mr-3" />
-          <input
-            type="text"
-            value={
-              filters.toDate
-                ? new Date(filters.toDate).toLocaleDateString()
-                : "TO"
-            }
-            onFocus={(e) => {
-              e.target.type = "date";
-              e.target.showPicker();
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) {
-                e.target.type = "text";
-                e.target.value = "TO";
-              }
-            }}
-            onChange={(e) => {
-              setFilters({ ...filters, toDate: e.target.value });
-              e.target.type = "text";
-              e.target.value = new Date(e.target.value).toLocaleDateString();
-            }}
-            className="w-full border-none focus:outline-none text-sm text-gray-700 placeholder-gray-400"
-            placeholder="To Date"
-          />
-        </div>
-
-        {/* Status Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-300">
-          <FaFilter className="text-black mr-3" />
-          <select
-            value={filters.status}
-            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-700"
-          >
-            <option value="All">All Status</option>
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-        </div>
+    <div className="bg-white rounded-2xl shadow-xl border border-platinum-200 overflow-hidden">
+      <div className="p-6 border-b border-platinum-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 flex items-center gap-2">
+                HR Help Desk
+            </h2>
+            <p className="text-sm text-slate-grey-500">Manage employee grievances and policy inquiries</p>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-3">
+               <div className="relative group">
+                  <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+                  <input
+                    type="date"
+                    value={filters.fromDate}
+                    onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
+                    className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
+                  />
+               </div>
+               <div className="relative group">
+                  <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+                  <input
+                    type="date"
+                    value={filters.toDate}
+                    onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
+                    className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
+                  />
+               </div>
+               <div className="relative group">
+                  <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+                  <select
+                    value={filters.status}
+                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                    className="pl-10 pr-8 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all appearance-none cursor-pointer w-full sm:w-auto"
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Open">Open</option>
+                    <option value="Closed">Closed</option>
+                    <option value="Rejected">Rejected</option>
+                  </select>
+               </div>
+          </div>
       </div>
 
-      {/* Tickets Table */}
       <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg overflow-hidden">
-          <thead className="bg-purple-900 sticky top-0">
+        <table className="w-full">
+          <thead className="bg-gunmetal-900 text-white">
             <tr>
               {[
                 "S.No",
                 "Date",
-                "User Name",
-                "Department",
-                "Job Title",
+                "Employee",
+                "Dept.",
                 "Subject",
                 "Status",
-                "Action",
+                "Actions",
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-3 text-sm font-medium text-white uppercase tracking-wider text-center"
+                  className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-left first:pl-8 last:pr-8"
                 >
                   {header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-platinum-200">
             {loading ? (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaSpinner
-                      size={40}
-                      className="animate-spin text-blue-600 mb-2"
-                      aria-hidden="true"
-                    />
-                  </div>
+                <td colSpan={7} className="text-center py-16">
+                   <div className="flex flex-col items-center justify-center animate-pulse">
+                     <FaSpinner className="animate-spin text-gunmetal-500 text-3xl mb-3" />
+                     <span className="text-slate-grey-500 font-medium">Loading HR tickets...</span>
+                   </div>
                 </td>
               </tr>
             ) : notFound ? (
               <tr>
-                <td colSpan={8} className="text-center py-12 text-gray-500">
+                <td colSpan={7} className="text-center py-16">
                   <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-4" />
-                    <span className="text-lg font-medium">
-                      No HR Tickets Found.
-                    </span>
+                    <div className="w-16 h-16 bg-alabaster-grey-50 rounded-full flex items-center justify-center mb-4 border border-platinum-200">
+                         <FaBriefcase className="text-slate-grey-400 text-2xl" />
+                    </div>
+                    <span className="text-gunmetal-900 font-bold text-lg">No Tickets Found</span>
                   </div>
                 </td>
               </tr>
@@ -260,145 +241,106 @@ const HRTicketManagement: React.FC = () => {
               currentTickets.map((ticket, index) => (
                 <tr
                   key={ticket.id}
-                  className="hover:bg-gray-100 transition-colors"
+                  className="hover:bg-alabaster-grey-50 transition-colors group"
                 >
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
+                  <td className="px-6 py-4 text-sm font-medium text-slate-grey-600 pl-8">
                     {(currentPage - 1) * itemsPerPage + index + 1}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
+                  <td className="px-6 py-4 text-sm font-bold text-gunmetal-900">
                     {formatDate(ticket.date)}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.user.name}
+                  <td className="px-6 py-4">
+                     <div className="flex flex-col">
+                        <span className="text-sm font-bold text-gunmetal-900">{ticket.user.name}</span>
+                        <span className="text-xs text-slate-grey-500">{ticket.user.abbreviatedJobTitle}</span>
+                     </div>
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.user.department}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.user.abbreviatedJobTitle}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    {ticket.subject}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-700 text-center">
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        ticket.status === "Open"
-                          ? "bg-blue-100 text-blue-800"
-                          : ticket.status === "Closed"
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                      }`}
-                    >
-                      {ticket.status}
+                   <td className="px-6 py-4 text-sm text-slate-grey-600">
+                    <span className="bg-platinum-100 text-slate-grey-700 px-2 py-0.5 rounded text-xs font-semibold">
+                        {ticket.user.department}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-center space-x-2 flex items-center justify-center">
-                    {ticket.status === "Open" && (
-                      <>
-                        <button
-                          onClick={() => handleAction(ticket.id, "approve")}
-                          className="flex items-center px-3 py-1 bg-green-500 text-white text-sm rounded-full hover:bg-green-600 transition-colors"
-                          title="Approve"
-                        >
-                          <FaCheck className="mr-1" /> Approve
-                        </button>
-                        <button
-                          onClick={() => handleAction(ticket.id, "reject")}
-                          className="flex items-center px-3 py-1 bg-red-500 text-white text-sm rounded-full hover:bg-red-600 transition-colors"
-                          title="Reject"
-                        >
-                          <FaTimes className="mr-1" /> Reject
-                        </button>
-                      </>
-                    )}
+                  <td className="px-6 py-4 text-sm text-gunmetal-900 font-medium truncate max-w-[200px]">
+                    {ticket.subject}
+                  </td>
+                  <td className="px-6 py-4">
+                     <StatusBadge status={ticket.status} />
+                  </td>
+                  <td className="px-6 py-4 pr-8">
+                    <div className="flex items-center gap-2">
+                        {/* Action Buttons */}
+                        {ticket.status === "Open" && (
+                             <>
+                                <button
+                                    onClick={() => handleAction(ticket.id, "approve")}
+                                    className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+                                    title="Close/Resolve"
+                                >
+                                    <FaCheck size={14} />
+                                </button>
+                                <button
+                                    onClick={() => handleAction(ticket.id, "reject")}
+                                    className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
+                                    title="Reject"
+                                >
+                                    <FaTimes size={14} />
+                                </button>
+                             </>
+                        )}
 
-                    {ticket.status !== "Open" && (
-                      <span
-                        className={`px-3 py-1 text-sm rounded-full ${
-                          ticket.status === "Rejected"
-                            ? "bg-red-100 text-red-600"
-                            : "bg-green-100 text-green-600"
-                        }`}
-                      >
-                        {ticket.status}
-                      </span>
-                    )}
-
-                    <button
-                      onClick={() => openModal(ticket)}
-                      className="flex items-center px-3 py-1 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 transition-colors"
-                      title="View Details"
-                    >
-                      <FaEye className="mr-1" /> View
-                    </button>
+                        <button
+                            onClick={() => openModal(ticket)}
+                            className="p-2 bg-white border border-platinum-200 text-gunmetal-600 rounded-lg hover:bg-gunmetal-50 hover:border-gunmetal-300 transition-all shadow-sm"
+                            title="View Details"
+                        >
+                            <FaEye size={14} />
+                        </button>
+                    </div>
                   </td>
                 </tr>
               ))
-            ) : (
-              <tr>
-                <td colSpan={8} className="text-center py-12 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={40} className="text-gray-400 mb-4" />
-                    <span className="text-lg font-medium">
-                      No HR Tickets Found.
-                    </span>
-                  </div>
-                </td>
-              </tr>
-            )}
+            ) : null}
           </tbody>
         </table>
       </div>
-      {/* Pagination and Items Per Page */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-3">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1);
-            }}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
-            }`}
-            disabled={currentPage === 1}
-            onClick={handlePrevious}
-          >
-            <FiChevronLeft className="mr-2" />
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-              currentPage === totalPages || totalPages === 0
-                ? "cursor-not-allowed opacity-50"
-                : ""
-            }`}
-            disabled={currentPage === totalPages || totalPages === 0}
-            onClick={handleNext}
-          >
-            Next
-            <FiChevronRight className="ml-2" />
-          </button>
-        </div>
+
+       {/* Pagination Footer */}
+       <div className="bg-white border-t border-platinum-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+         <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-slate-grey-600">Rows per page:</span>
+            <select
+                className="bg-alabaster-grey-50 border border-platinum-200 text-sm rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gunmetal-500"
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(parseInt(e.target.value));
+                  setCurrentPage(1);
+                }}
+            >
+                {[5, 10, 20, 50].map(opt => <option key={opt} value={opt}>{opt}</option>)}
+            </select>
+         </div>
+
+         <div className="flex items-center gap-2">
+             <button
+                className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                disabled={currentPage === 1}
+                onClick={handlePrevious}
+             >
+                <FiChevronLeft />
+             </button>
+             <span className="text-sm font-bold text-gunmetal-900 px-2">
+                Page {currentPage} of {totalPages || 1}
+             </span>
+             <button
+                className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={handleNext}
+             >
+                <FiChevronRight />
+             </button>
+         </div>
       </div>
 
-      {/* Ticket Detail Modal */}
       <TicketDetailModal
         isOpen={isModalOpen}
         ticket={selectedTicket}

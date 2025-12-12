@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { FaLock, FaKey, FaShieldAlt } from 'react-icons/fa';
 
 const UpdatePassword: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -57,69 +58,89 @@ const UpdatePassword: React.FC = () => {
   };
 
   return (
-    <div className="bg-white p-10 rounded-lg w-full mx-auto relative">
-      <form onSubmit={handleSubmit}>
-        {message && <div className="bg-green-100 text-green-800 p-3 rounded mb-4">{message}</div>}
-        {error && <div className="bg-red-100 text-red-800 p-3 rounded mb-4">{error}</div>}
-
-        <div className="mb-6">
-          <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            Current Password
-          </label>
-          <input
-            type="password"
-            id="currentPassword"
-            name="currentPassword"
-            value={formData.currentPassword}
-            onChange={handleChange}
-            placeholder="Enter current password"
-            className="w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900"
-            required
-          />
+    <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden relative max-w-2xl mx-auto">
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 text-center">
+            <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center mx-auto mb-4 border border-platinum-200 shadow-sm text-gunmetal-900">
+                <FaShieldAlt size={28} />
+            </div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">Security Settings</h2>
+            <p className="text-sm text-slate-grey-500 mt-1">Update your account password to stay secure</p>
         </div>
 
-        <div className="mb-6">
-          <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            New Password
-          </label>
-          <input
-            type="password"
-            id="newPassword"
-            name="newPassword"
-            value={formData.newPassword}
-            onChange={handleChange}
-            placeholder="Enter new password"
-            className="w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900"
-            required
-          />
-        </div>
+      <div className="p-8 sm:p-12">
+        <form onSubmit={handleSubmit} className="space-y-6">
+            {message && <div className="bg-emerald-50 text-emerald-700 px-4 py-3 rounded-lg text-sm font-semibold border border-emerald-100 flex items-center gap-2"><FaShieldAlt /> {message}</div>}
+            {error && <div className="bg-rose-50 text-rose-700 px-4 py-3 rounded-lg text-sm font-semibold border border-rose-100 flex items-center gap-2"><FaShieldAlt /> {error}</div>}
 
-        <div className="mb-6">
-          <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-2">
-            Confirm New Password
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            placeholder="Confirm new password"
-            className="w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900"
-            required
-          />
-        </div>
+            <div>
+                 <label className="block text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-2 ml-1">Current Password</label>
+                 <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-grey-400">
+                        <FaLock />
+                    </span>
+                    <input
+                        type="password"
+                        name="currentPassword"
+                        value={formData.currentPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="w-full pl-11 pr-4 py-3 bg-white border border-platinum-300 rounded-xl text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 shadow-sm transition-all"
+                        required
+                    />
+                 </div>
+            </div>
 
-        <div className="flex justify-start">
-          <button
-            type="submit"
-            className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-600 transition-all text-lg font-semibold"
-            disabled={loading}
-          >
-            {loading ? 'Updating...' : 'Update'}
-          </button>
-        </div>
-      </form>
+            <div>
+                 <label className="block text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-2 ml-1">New Password</label>
+                 <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-grey-400">
+                        <FaKey />
+                    </span>
+                    <input
+                        type="password"
+                        name="newPassword"
+                        value={formData.newPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="w-full pl-11 pr-4 py-3 bg-white border border-platinum-300 rounded-xl text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 shadow-sm transition-all"
+                        required
+                    />
+                 </div>
+            </div>
+
+            <div>
+                 <label className="block text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-2 ml-1">Confirm New Password</label>
+                 <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-grey-400">
+                        <FaKey />
+                    </span>
+                    <input
+                        type="password"
+                        name="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        className="w-full pl-11 pr-4 py-3 bg-white border border-platinum-300 rounded-xl text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 shadow-sm transition-all"
+                        required
+                    />
+                 </div>
+            </div>
+
+            <div className="pt-4">
+                <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-gunmetal-900 text-white rounded-xl font-bold text-sm tracking-wide hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/30 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    {loading ? (
+                        <>Updating...</>
+                    ) : (
+                        <>Update Password</>
+                    )}
+                </button>
+            </div>
+        </form>
+      </div>
     </div>
   );
 };

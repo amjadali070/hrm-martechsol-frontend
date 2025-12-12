@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import { FaSpinner } from "react-icons/fa";
+import { FaSpinner, FaAward, FaStar, FaInfoCircle } from "react-icons/fa";
 import ExperienceLetterPDF, {
   ExperienceLetterProps,
 } from "../../html/ExperienceLetterPDF";
@@ -24,53 +24,79 @@ const ExperienceLetter: React.FC = () => {
       setFormData({
         date: formattedDate,
         employeeName: user.name || "",
-        companyName: "MartechSol Pvt. Ltd.",
+        companyName: "NEXUS Pvt. Ltd.",
         jobTitle: user.personalDetails?.fullJobTitle || "",
         startDate: formattedJoiningDate,
         endDate: formattedEndDate,
-        signatoryName: "Mirza Waqas Baig",
+        signatoryName: "Amjad Ali",
         signatoryTitle: "Chief Executive Officer",
       });
     }
   }, [userLoading, user]);
 
-  if (userLoading || !formData) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50">
-        <FaSpinner
-          size={30}
-          className="animate-spin text-purple-600 mb-6"
-          aria-hidden="true"
-        />
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-white">
-      <header className="text-black py-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-center mt-2 text-black">
-          Experience Letter
-        </h1>
-      </header>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 mb-8 overflow-hidden">
+      {/* Header */}
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaAward className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Experience Letter
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              View and download your official work experience certificate.
+            </p>
+          </div>
+        </div>
+      </div>
 
-      <main className="container mx-auto px-4 sm:px-6 lg:px-8 py-1">
-        <section className="rounded-lg">
-          <div className="rounded-lg overflow-hidden">
-            {formData ? (
+      {/* Content */}
+      <div className="p-8 bg-alabaster-grey-50/30">
+        {userLoading || !formData ? (
+          <div className="flex flex-col items-center justify-center p-20 bg-white rounded-xl border border-platinum-200 border-dashed">
+            <FaSpinner
+              size={32}
+              className="animate-spin text-gunmetal-500 mb-4"
+              aria-hidden="true"
+            />
+            <p className="text-slate-grey-500 font-medium">
+              Preparing document...
+            </p>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {/* Info Card */}
+            <div className="bg-white p-4 rounded-xl border border-platinum-200 shadow-sm flex items-start gap-4">
+              <div className="p-2 bg-amber-50 text-amber-600 rounded-lg">
+                <FaStar size={18} />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-gunmetal-900">
+                  Certificate Preview
+                </h4>
+                <p className="text-xs text-slate-grey-500 mt-1">
+                  This document certifies your tenure and designation at{" "}
+                  <strong>MartechSol Pvt. Ltd.</strong> It includes your start
+                  date, end date (if applicable), and role details.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl overflow-hidden border border-platinum-200 shadow-lg shadow-platinum-200/50 bg-white">
               <PDFViewer
-                style={{ width: "100%", height: "600px", maxWidth: "100%" }}
+                style={{ width: "100%", height: "700px" }}
+                className="w-full border-none"
+                showToolbar={true}
               >
                 <ExperienceLetterPDF data={formData} />
               </PDFViewer>
-            ) : (
-              <p className="text-center text-gray-500">
-                No data available to preview
-              </p>
-            )}
+            </div>
           </div>
-        </section>
-      </main>
+        )}
+      </div>
     </div>
   );
 };

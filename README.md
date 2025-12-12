@@ -1,4 +1,4 @@
-# HRM MartechSol Frontend
+# HRM Frontend
 
 A modern, responsive Human Resource Management (HRM) dashboard application built with **React** and **TypeScript**. This application is designed to streamline HR processes including employee management, reporting, and data visualization.
 
@@ -14,7 +14,7 @@ This project uses a robust stack of modern web technologies:
 - **Routing**: [React Router v6](https://reactrouter.com/)
 - **State & Utilities**: [Axios](https://axios-http.com/), [Date-fns](https://date-fns.org/)
 - **Visualization**: [Chart.js](https://www.chartjs.org/) with `react-chartjs-2`
-- **UI Components**: 
+- **UI Components**:
   - `react-icons`: Comprehensive icon library
   - `react-select`: Flexible select input
   - `react-modal`: Accessible modal dialogs
@@ -23,12 +23,14 @@ This project uses a robust stack of modern web technologies:
   - `react-quill`: Rich text editor
 
 ### 📄 Reporting & Exports
+
 - **PDF**: `react-pdf`, `jspdf`, `html2canvas`, `react-to-print`, `react-to-pdf`
 - **Excel**: `exceljs`, `file-saver`
 
 ## 🛠️ Prerequisites
 
 Ensure you have the following installed on your local machine:
+
 - **Node.js**: v18.x or higher recommended
 - **npm**: v9.x or higher
 
@@ -37,8 +39,8 @@ Ensure you have the following installed on your local machine:
 1. **Clone the repository** (if applicable) or navigate to the project folder.
 
 2. **Install Dependencies**:
-   Run the following command to install all required packages. 
-   
+   Run the following command to install all required packages.
+
    > **Note**: This project includes specific dependency overrides in `package.json` to ensure compatibility and security. simple `npm install` will work correctly.
 
    ```bash

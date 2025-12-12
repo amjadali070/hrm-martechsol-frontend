@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
+import { FaFilter, FaInbox, FaSpinner, FaUserShield, FaEdit, FaPaperPlane, FaCheckCircle, FaTimesCircle, FaEye } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoCloseCircle } from "react-icons/io5";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
@@ -159,246 +160,272 @@ const AdminTicket: React.FC = () => {
   };
 
   return (
-    <div className="w-full mx-auto p-6 bg-white rounded-lg">
-      <h2 className="text-2xl md:text-3xl font-bold text-center mb-6 text-black">
-        Submit Admin Ticket
-      </h2>
-      <form onSubmit={handleSubmit} className="mb-6">
-        <div className="mb-4">
-          <label
-            htmlFor="subject"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Subject
-          </label>
-          <input
-            type="text"
-            id="subject"
-            name="subject"
-            value={formData.subject}
-            onChange={handleInputChange}
-            className="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
-            placeholder="Enter the subject"
-            required
-          />
-        </div>
-
-        <div className="mb-4">
-          <label
-            htmlFor="message"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Message
-          </label>
-          <ReactQuill
-            value={formData.message}
-            onChange={handleMessageChange}
-            theme="snow"
-            placeholder="Write your message here..."
-            className="bg-white rounded-md"
-            style={{ height: "200px" }}
-          />
-        </div>
-
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className={`px-6 py-2 text-white rounded-full hover:bg-blue-700 transition-all w-auto font-semibold mt-12 ${
-            isSubmitting ? "bg-blue-400 cursor-not-allowed" : "bg-blue-600"
-          }`}
-        >
-          {isSubmitting ? "Submitting..." : "Submit"}
-        </button>
-      </form>
-
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg md:text-xl font-bold text-black">
-          Ticket Status
-        </h2>
-        <div className="flex items-center space-x-2 bg-white rounded-lg px-3 py-2 border border-gray-300 ">
-          <FaFilter className="text-gray-400 mr-2" />
-          <select
-            value={filteredStatus}
-            onChange={(e) => {
-              setFilteredStatus(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          >
-            <option value="All">All</option>
-            <option value="Open">Open</option>
-            <option value="Closed">Closed</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="overflow-x-auto">
-        {loading ? (
-          <div className="flex flex-col items-center justify-center mt-10 mb-10">
-            <FaSpinner
-              size={30}
-              className="animate-spin text-blue-600 mb-2"
-              aria-hidden="true"
-            />
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 mb-8">
+      {/* Header */}
+       <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 rounded-t-xl">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaUserShield className="text-gunmetal-600 text-xl" />
           </div>
-        ) : notFound ? (
-          <div className="flex flex-col items-center">
-            <FaInbox size={30} className="text-gray-400 mb-4" />
-            <span className="text-lg font-medium">No tickets available</span>
-          </div>
-        ) : paginatedTickets.length > 0 ? (
-          <table className="w-full table-fixed border-collapse bg-white border border-gray-300 rounded-md">
-            <colgroup>
-              <col style={{ width: "5%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "25%" }} />
-              <col style={{ width: "10%" }} />
-              <col style={{ width: "10%" }} />
-            </colgroup>
-            <thead>
-              <tr>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  S.No
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Date
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Subject
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Status
-                </th>
-                <th className="bg-purple-900 text-white text-sm font-semibold px-4 py-2">
-                  Action
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {paginatedTickets.map((ticket, index) => (
-                <tr key={ticket._id}>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {index + 1 + (currentPage - 1) * itemsPerPage}
-                  </td>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.date ? formatDate(ticket.date) : "N/A"}
-                  </td>
-                  <td className="text-sm text-gray-800 px-4 py-2 border text-center">
-                    {ticket.subject || "No Subject"}
-                  </td>
-                  <td
-                    className={`text-sm px-4 py-2 border text-center ${
-                      ticket.status === "Open"
-                        ? "text-green-600"
-                        : "text-red-600"
-                    }`}
-                  >
-                    {ticket.status || "Unknown"}
-                  </td>
-                  <td
-                    className="text-sm px-4 py-2 border text-blue-600 cursor-pointer hover:underline text-center"
-                    onClick={() => setSelectedTicket(ticket)}
-                  >
-                    View
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        ) : (
-          <div className="flex flex-col items-center">
-            <FaInbox size={30} className="text-gray-400 mb-4" />
-            <span className="text-lg font-medium">No tickets available</span>
-          </div>
-        )}
-      </div>
-
-      <div className="flex justify-between items-center mt-4">
-        <div className="flex items-center">
-          <span className="text-sm text-gray-700 mr-2">Show:</span>
-          <select
-            className="text-sm border border-gray-300 rounded-md"
-            value={itemsPerPage}
-            onChange={(e) => {
-              setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to first page when items per page change
-            }}
-          >
-            {[5, 10, 20].map((option) => (
-              <option key={option} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        </div>
-        <div className="flex items-center space-x-4">
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === 1
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-gray-200 text-black hover:bg-gray-300"
-            }`}
-            disabled={currentPage === 1}
-            onClick={handlePrevious}
-          >
-            Previous
-          </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages || 1}
-          </span>
-          <button
-            className={`px-3 py-1 text-sm rounded-full ${
-              currentPage === totalPages || totalPages === 0
-                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                : "bg-blue-600 text-white hover:bg-blue-700"
-            }`}
-            disabled={currentPage === totalPages || totalPages === 0}
-            onClick={handleNext}
-          >
-            Next
-          </button>
-        </div>
-      </div>
-      {selectedTicket && (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-8 w-full max-w-lg relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-blue-600 hover:text-blue-500 transition duration-200"
-              aria-label="Close Ticket Details"
-            >
-              <IoCloseCircle size={28} />
-            </button>
-            <h3 className="text-xl font-bold mb-4 text-purple-900">
-              Ticket Details
-            </h3>
-            <p>
-              <strong>Date:</strong>{" "}
-              {selectedTicket.date ? formatDate(selectedTicket.date) : "N/A"}
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Admin Support
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+               Direct line to administrative support and queries.
             </p>
-            <p>
-              <strong>Subject:</strong> {selectedTicket.subject || "No Subject"}
-            </p>
-            <div className="my-4 p-4 bg-gray-100 rounded-md">
-              <strong>Message:</strong>
-              <div
-                dangerouslySetInnerHTML={{
-                  __html: selectedTicket.message || "No Message",
-                }}
-              />
+          </div>
+        </div>
+      </div>
+
+       {/* Form Section */}
+      <div className="p-8 border-b border-platinum-200">
+         <h3 className="text-lg font-bold text-gunmetal-900 mb-6">Create New Ticket</h3>
+         <form onSubmit={handleSubmit}>
+            <div className="mb-6">
+                 <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2 mb-2">
+                    <FaEdit className="text-gunmetal-400" /> Subject
+                 </label>
+                 <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+                    placeholder="Enter the subject"
+                    required
+                 />
             </div>
-            <p>
-              <strong>Status:</strong>{" "}
-              <span
-                className={
-                  selectedTicket.status === "Open"
-                    ? "text-green-600"
-                    : "text-red-600"
-                }
+
+            <div className="mb-6">
+               <label className="text-sm font-semibold text-gunmetal-700 flex items-center gap-2 mb-2">
+                    <FaPaperPlane className="text-gunmetal-400" /> Message
+                 </label>
+                 <div className="bg-white border border-platinum-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-gunmetal-500/20 focus-within:border-gunmetal-500 transition-all">
+                    <ReactQuill
+                        value={formData.message}
+                        onChange={handleMessageChange}
+                        theme="snow"
+                        placeholder="Write your message here..."
+                         className="h-40 mb-10 border-none"
+                    />
+                </div>
+            </div>
+
+            <div className="flex justify-end">
+                <button
+                type="submit"
+                 className={`px-8 py-2.5 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20 flex items-center gap-2 ${
+                    isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                }`}
+                disabled={isSubmitting}
+                >
+                {isSubmitting ? (
+                    <>
+                    <FaSpinner className="animate-spin" /> Submitting...
+                    </>
+                ) : (
+                    "Submit Ticket"
+                )}
+                </button>
+            </div>
+         </form>
+      </div>
+
+       {/* List Section */}
+      <div className="p-8">
+        <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+           <h3 className="text-lg font-bold text-gunmetal-900">Ticket History</h3>
+           
+           <div className="relative group w-full md:w-64">
+               <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <select
+                 value={filteredStatus}
+                 onChange={(e) => {
+                   setFilteredStatus(e.target.value);
+                   setCurrentPage(1);
+                 }}
+                 className="w-full pl-9 pr-8 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+               >
+                 <option value="All">All Statuses</option>
+                 <option value="Open">Open</option>
+                 <option value="Closed">Closed</option>
+               </select>
+           </div>
+        </div>
+
+        <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+           {loading ? (
+             <div className="flex flex-col items-center justify-center py-16">
+               <FaSpinner className="animate-spin text-gunmetal-500 mb-3" size={28} />
+               <p className="text-slate-grey-500 text-sm">Loading tickets...</p>
+             </div>
+          ) : notFound ? (
+             <div className="flex flex-col items-center justify-center py-16 bg-alabaster-grey-50/50">
+               <FaInbox size={40} className="text-slate-grey-300 mb-3" />
+               <span className="text-sm font-medium text-slate-grey-500">No tickets available.</span>
+             </div>
+            ) : paginatedTickets && paginatedTickets.length > 0 ? (
+             <table className="w-full text-left bg-white border-collapse">
+              <thead className="bg-alabaster-grey-50">
+                <tr>
+                   <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-16 text-center">No.</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Date</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-1/3">Subject</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Status</th>
+                   <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Action</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-platinum-100">
+                {paginatedTickets.map((ticket, index) => (
+                  <tr key={ticket._id} className="hover:bg-alabaster-grey-50/50 transition-colors">
+                     <td className="py-4 px-4 text-sm text-slate-grey-500 text-center font-mono">
+                      {index + 1 + (currentPage - 1) * itemsPerPage}
+                    </td>
+                    <td className="py-4 px-4 text-sm font-semibold text-gunmetal-900">
+                       {ticket.date ? formatDate(ticket.date) : "N/A"}
+                    </td>
+                    <td className="py-4 px-4 text-sm text-slate-grey-700 font-medium">
+                      {ticket.subject || "No Subject"}
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                       <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border ${
+                          ticket.status === 'Open'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                            : 'bg-slate-50 text-slate-600 border-slate-200'
+                        }`}
+                      >
+                         {ticket.status === 'Open' ? <FaCheckCircle size={10} /> : <FaTimesCircle size={10} />}
+                         {ticket.status || "Unknown"}
+                      </span>
+                    </td>
+                    <td className="py-4 px-4 text-center">
+                         <button
+                           onClick={() => setSelectedTicket(ticket)}
+                           className="text-gunmetal-600 hover:text-gunmetal-900 transition-colors p-1.5 rounded-md hover:bg-platinum-100 flex items-center justify-center mx-auto"
+                           title="View Details"
+                         >
+                           <FaEye size={14} />
+                         </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+           ) : (
+             <div className="flex flex-col items-center justify-center py-16 bg-alabaster-grey-50/50">
+               <FaInbox size={40} className="text-slate-grey-300 mb-3" />
+               <span className="text-sm font-medium text-slate-grey-500">No tickets available.</span>
+             </div>
+           )}
+        </div>
+
+           {/* Pagination */}
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mt-6">
+           <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+              <span className="font-medium">Rows:</span>
+              <select
+                  className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+                  value={itemsPerPage}
+                  onChange={(e) => {
+                      setItemsPerPage(parseInt(e.target.value));
+                      setCurrentPage(1);
+                  }}
               >
-                {selectedTicket.status || "Unknown"}
-              </span>
-            </p>
+                  {[5, 10, 20].map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                  ))}
+              </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === 1 
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                }`}
+                disabled={currentPage === 1}
+                onClick={handlePrevious}
+            >
+                <FiChevronLeft size={16} />
+            </button>
+            
+            <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-3">
+                Page {currentPage} of {totalPages || 1}
+            </span>
+            
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === totalPages || totalPages === 0
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                disabled={currentPage === totalPages || totalPages === 0}
+                onClick={handleNext}
+            >
+                <FiChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {selectedTicket && (
+        <div className="fixed inset-0 bg-gunmetal-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg relative overflow-hidden flex flex-col max-h-[90vh]">
+             <div className="bg-alabaster-grey-50 px-6 py-4 border-b border-platinum-200 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-gunmetal-900">Ticket Details</h3>
+                 <button
+                    onClick={closeModal}
+                     className="text-slate-grey-400 hover:text-gunmetal-900 transition-colors"
+                  >
+                    <IoCloseCircle size={24} />
+                  </button>
+            </div>
+
+            <div className="p-6 overflow-y-auto">
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <span className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide">Date</span>
+                        <p className="text-sm font-semibold text-gunmetal-900">{selectedTicket.date ? formatDate(selectedTicket.date) : "N/A"}</p>
+                    </div>
+                     <div>
+                        <span className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide text-right block">Status</span>
+                        <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border mt-1 ${
+                            selectedTicket.status === 'Open'
+                                ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                                : 'bg-slate-50 text-slate-600 border-slate-200'
+                            }`}
+                        >
+                            {selectedTicket.status || "Unknown"}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="mb-6">
+                    <span className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-1 block">Subject</span>
+                    <p className="text-base font-bold text-gunmetal-900">{selectedTicket.subject || "No Subject"}</p>
+                </div>
+
+                <div>
+                    <span className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-2 block">Message</span>
+                    <div className="p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200 text-sm text-slate-grey-700 leading-relaxed">
+                        <div dangerouslySetInnerHTML={{ __html: selectedTicket.message || "No Message" }} />
+                    </div>
+                </div>
+            </div>
+
+             <div className="p-6 border-t border-platinum-200 bg-alabaster-grey-50">
+                 <button
+                    onClick={closeModal}
+                    className="w-full py-2.5 bg-white border border-platinum-300 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm"
+                  >
+                    Close
+                  </button>
+            </div>
           </div>
         </div>
       )}

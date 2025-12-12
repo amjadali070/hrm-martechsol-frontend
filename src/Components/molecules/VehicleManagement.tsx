@@ -8,12 +8,15 @@ import {
   FaFileWord,
   FaFileAlt,
   FaFileInvoice,
+  FaPlus,
+  FaHashtag,
+  FaUser,
 } from "react-icons/fa";
 import { MdEditSquare } from "react-icons/md";
 import AddVehicleModal from "./AddVehicleModal";
 import AssignVehicleModal from "./AssignVehicleModal";
 import UpdateVehicleModal from "./UpdateVehicleModal";
-import ViewVehicleModal from "./ViewVehicleModal"; // <-- New import
+import ViewVehicleModal from "./ViewVehicleModal";
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosConfig";
 import ConfirmDialog from "../atoms/ConfirmDialog";
@@ -49,11 +52,9 @@ const VehicleManagement: React.FC = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
   const [isAssignModalOpen, setIsAssignModalOpen] = useState<boolean>(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
-  // New state for view modal
   const [isViewModalOpen, setIsViewModalOpen] = useState<boolean>(false);
 
   const [selectedVehicle, setSelectedVehicle] = useState<Vehicle | null>(null);
-  // New state for view modal vehicle
   const [selectedVehicleForView, setSelectedVehicleForView] =
     useState<Vehicle | null>(null);
 
@@ -62,7 +63,6 @@ const VehicleManagement: React.FC = () => {
   const [isConfirmOpen, setIsConfirmOpen] = useState<boolean>(false);
   const [vehicleToDelete, setVehicleToDelete] = useState<string | null>(null);
 
-  // New state for image and document modals
   const [isImageModalOpen, setIsImageModalOpen] = useState<boolean>(false);
   const [imageUrl, setImageUrl] = useState<string | null>(null);
 
@@ -87,7 +87,7 @@ const VehicleManagement: React.FC = () => {
     try {
       const response = await axiosInstance.get(`${backendUrl}/api/vehicles`, {
         params: {
-          limit: 1000, // Adjust as needed
+          limit: 1000, 
         },
       });
       setVehicles(response.data.vehicles);
@@ -102,10 +102,8 @@ const VehicleManagement: React.FC = () => {
 
   useEffect(() => {
     fetchVehicles();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Modal handlers
   const openAddModal = () => setIsAddModalOpen(true);
   const closeAddModal = () => setIsAddModalOpen(false);
 
@@ -127,7 +125,6 @@ const VehicleManagement: React.FC = () => {
     setIsUpdateModalOpen(false);
   };
 
-  // New view modal handlers
   const openViewModal = (vehicle: Vehicle) => {
     setSelectedVehicleForView(vehicle);
     setIsViewModalOpen(true);
@@ -187,196 +184,206 @@ const VehicleManagement: React.FC = () => {
   };
 
   const getFileIcon = (url: string | null | undefined) => {
-    if (!url) return <FaFileAlt className="w-4 h-4 text-gray-600" />;
+    if (!url) return <FaFileAlt className="w-4 h-4 text-slate-grey-500" />;
 
     const extension = url.split(".").pop()?.toLowerCase();
     if (extension === "pdf")
-      return <FaFilePdf className="w-4 h-4 text-red-600" />;
+      return <FaFilePdf className="w-4 h-4 text-rose-500" />;
     if (["doc", "docx"].includes(extension || ""))
-      return <FaFileWord className="w-4 h-4 text-blue-600" />;
-    return <FaFileAlt className="w-4 h-4 text-gray-600" />;
+      return <FaFileWord className="w-4 h-4 text-blue-500" />;
+    return <FaFileAlt className="w-4 h-4 text-slate-grey-500" />;
   };
 
   return (
-    <div className="bg-gray-50 min-h-screen p-6 rounded-lg">
-      <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-6">
-        <h1 className="text-3xl font-bold text-gray-800">Vehicle Management</h1>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 mb-8 overflow-hidden">
+       {/* Header */}
+       <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaCar className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Vehicle Fleet
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+               Manage company vehicles, assignments, and documentation.
+            </p>
+          </div>
+        </div>
+        
         <button
-          onClick={openAddModal}
-          className="mt-4 md:mt-0 px-5 py-2 bg-green-600 text-white rounded-full flex items-center space-x-2 hover:bg-green-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-          aria-label="Add Vehicle"
+            onClick={openAddModal}
+            className="flex items-center gap-2 px-5 py-2.5 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20"
         >
-          <FaCar className="w-5 h-5" />
-          <span className="font-medium">Add Vehicle</span>
+            <FaPlus size={12} /> Add Vehicle
         </button>
       </div>
 
-      {loading ? (
-        <div className="flex flex-col items-center justify-center mt-20 mb-20">
-          <FaSpinner
-            size={40}
-            className="animate-spin text-blue-600 mb-4"
-            aria-hidden="true"
-          />
-        </div>
-      ) : error ? (
-        <div className="bg-red-100 text-red-700 p-4 rounded-md">
-          <p>{error}</p>
-        </div>
-      ) : vehicles.length === 0 ? (
-        <div className="flex flex-col items-center">
-          <FaInbox size={40} className="text-gray-400 mb-4" />
-          <span className="text-xl font-medium text-gray-600">
-            No vehicles found.
-          </span>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ">
-          {vehicles.map((vehicle) => (
-            <div
-              key={vehicle._id}
-              className="rounded-lg overflow-hidden flex flex-col bg-white"
-            >
-              <div className="relative">
-                {vehicle.vehiclePicture ? (
-                  <img
-                    src={vehicle.vehiclePicture}
-                    alt={`${vehicle.make} ${vehicle.model}`}
-                    className="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition duration-200"
-                    onClick={() => openImageModal(vehicle.vehiclePicture!)}
-                  />
-                ) : (
-                  <div className="w-full h-48 bg-gray-200 flex items-center justify-center">
-                    <FaCar className="text-gray-500 w-12 h-12" />
-                  </div>
-                )}
-
-                <div
-                  className={`absolute top-2 left-2 px-3 py-1 text-xs font-semibold rounded-full ${
-                    vehicle.assignedTo
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-400 text-white"
-                  }`}
-                >
-                  {vehicle.assignedTo ? "Assigned" : "Unassigned"}
-                </div>
-              </div>
-
-              <div className="p-4 flex-1 flex flex-col">
-                <h2 className="text-xl font-semibold text-gray-800">
-                  {vehicle.make} {vehicle.model}
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  <strong>Registration:</strong> {vehicle.registrationNo}
-                </p>
-
-                <p className="text-sm text-gray-600 mt-1">
-                  <strong>Assigned To:</strong>{" "}
-                  {vehicle.assignedTo ? (
-                    <>
-                      {vehicle.assignedTo.name} (
-                      {vehicle.assignedTo.personalDetails.fullJobTitle})
-                    </>
-                  ) : (
-                    "Unassigned"
-                  )}
-                </p>
-
-                <div className="mt-3">
-                  <h3 className="text-sm font-medium text-gray-700 mb-1">
-                    Documents:
-                  </h3>
-                  {vehicle.vehicleDocuments &&
-                  vehicle.vehicleDocuments.length > 0 ? (
-                    <ul className="space-y-1">
-                      {vehicle.vehicleDocuments.map((docUrl, index) => (
-                        <li key={index} className="flex items-center space-x-2">
-                          {getFileIcon(docUrl)}
-                          <button
-                            onClick={() =>
-                              openDocumentModalHandler(
-                                docUrl,
-                                `Document ${index + 1}`
-                              )
-                            }
-                            className="text-blue-600 hover:underline text-sm focus:outline-none"
-                          >
-                            Document {index + 1}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-gray-500">
-                      No documents uploaded.
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-4 grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => openAssignModal(vehicle)}
-                  className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  aria-label="Assign Vehicle"
-                >
-                  <AiOutlineUpload className="w-5 h-5 mr-2" />
-                  Assign
-                </button>
-
-                <button
-                  onClick={() => openUpdateModal(vehicle)}
-                  className="flex items-center justify-center px-3 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-                  aria-label="Update Vehicle"
-                >
-                  <MdEditSquare className="w-5 h-5 mr-2" />
-                  Update
-                </button>
-
-                <button
-                  onClick={() => openViewModal(vehicle)} // <-- Open view modal here
-                  className="flex items-center justify-center px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-                  aria-label="View Vehicle"
-                >
-                  <AiOutlineEye className="w-5 h-5 mr-2" />
-                  View
-                </button>
-
-                <button
-                  onClick={() => {
-                    setSelectedVehicleForInvoice(vehicle._id);
-                    setIsAddInvoiceModalOpen(true);
-                  }}
-                  className="flex items-center justify-center px-3 py-2 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-purple-400"
-                  aria-label="Add Invoice"
-                >
-                  <FaFileInvoice className="w-5 h-5 mr-2" />
-                  Add Invoice
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedVehicleForInvoices(vehicle._id);
-                    setIsInvoicesModalOpen(true);
-                  }}
-                  className="flex items-center justify-center px-3 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  aria-label="View Invoices"
-                >
-                  <FaFileInvoice className="w-5 h-5 mr-2" />
-                  View Invoices
-                </button>
-                <button
-                  onClick={() => openConfirmDialog(vehicle._id)}
-                  className="flex items-center justify-center px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-red-400"
-                  aria-label="Delete Vehicle"
-                >
-                  <AiOutlineDelete className="w-5 h-5 mr-2" />
-                  Delete
-                </button>
-              </div>
+       <div className="p-8">
+        {loading ? (
+            <div className="flex flex-col items-center justify-center py-20">
+            <FaSpinner className="animate-spin text-gunmetal-600 mb-4" size={32} />
+            <p className="text-slate-grey-500 font-medium">Loading fleet data...</p>
             </div>
-          ))}
-        </div>
-      )}
+        ) : error ? (
+            <div className="bg-rose-50 text-rose-600 p-6 rounded-xl border border-rose-100 text-center">
+            <p>{error}</p>
+            </div>
+        ) : vehicles.length === 0 ? (
+           <div className="text-center py-20 bg-alabaster-grey-50/50 rounded-xl border border-dashed border-platinum-200">
+                <FaInbox size={40} className="mx-auto text-platinum-300 mb-4" />
+                <h3 className="text-lg font-bold text-gunmetal-900">No vehicles found</h3>
+                 <p className="text-slate-grey-500 text-sm mt-1">Add a vehicle to manage your fleet.</p>
+            </div>
+        ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+            {vehicles.map((vehicle) => (
+                <div
+                key={vehicle._id}
+                className="group bg-white rounded-xl border border-platinum-200 shadow-sm hover:shadow-md hover:border-gunmetal-200 transition-all flex flex-col overflow-hidden"
+                >
+                <div className="relative h-48 bg-alabaster-grey-50 border-b border-platinum-200">
+                    {vehicle.vehiclePicture ? (
+                    <img
+                        src={vehicle.vehiclePicture}
+                        alt={`${vehicle.make} ${vehicle.model}`}
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-95 transition-opacity"
+                        onClick={() => openImageModal(vehicle.vehiclePicture!)}
+                    />
+                    ) : (
+                    <div className="w-full h-full flex items-center justify-center text-platinum-300">
+                        <FaCar size={48} />
+                    </div>
+                    )}
+
+                    <div className="absolute top-3 left-3">
+                         <span
+                            className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold rounded-full border shadow-sm ${
+                            vehicle.assignedTo
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                : "bg-slate-50 text-slate-600 border-slate-200"
+                            }`}
+                        >
+                            <span className={`w-1.5 h-1.5 rounded-full ${vehicle.assignedTo ? 'bg-emerald-500' : 'bg-slate-400'}`}></span>
+                            {vehicle.assignedTo ? "Assigned" : "Available"}
+                        </span>
+                    </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col">
+                    <div className="mb-4">
+                         <h2 className="text-lg font-bold text-gunmetal-900 line-clamp-1">
+                            {vehicle.make} {vehicle.model}
+                        </h2>
+                        <div className="flex items-center gap-2 text-sm text-slate-grey-500 mt-1 font-mono bg-alabaster-grey-50 inline-block px-2 py-0.5 rounded border border-platinum-200 w-fit">
+                             <FaHashtag size={10} className="text-slate-grey-400" />
+                             {vehicle.registrationNo}
+                        </div>
+                    </div>
+
+                    <div className="space-y-3 mb-6">
+                        <div className="flex items-start gap-2 text-sm">
+                             <div className="mt-0.5 min-w-[16px] text-slate-grey-400"><FaUser />   </div>
+                             <div>
+                                 <span className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide block mb-0.5">Assigned Driver</span>
+                                  {vehicle.assignedTo ? (
+                                    <div className="text-gunmetal-800 font-medium">
+                                        {vehicle.assignedTo.name} 
+                                        <span className="text-slate-grey-400 text-xs font-normal block">
+                                            {vehicle.assignedTo.personalDetails.fullJobTitle}
+                                        </span>
+                                    </div>
+                                ) : (
+                                    <span className="text-slate-grey-400 italic">No driver assigned</span>
+                                )}
+                             </div>
+                        </div>
+
+                         <div className="flex items-start gap-2 text-sm">
+                             <div className="mt-0.5 min-w-[16px] text-slate-grey-400"><FaFileAlt />   </div>
+                             <div className="w-full">
+                                 <span className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide block mb-1">Documents</span>
+                                 {vehicle.vehicleDocuments && vehicle.vehicleDocuments.length > 0 ? (
+                                     <div className="flex flex-wrap gap-2">
+                                          {vehicle.vehicleDocuments.map((docUrl, index) => (
+                                              <button
+                                                key={index}
+                                                onClick={() => openDocumentModalHandler(docUrl, `Document ${index + 1}`)}
+                                                className="inline-flex items-center gap-1.5 px-2 py-1 bg-alabaster-grey-50 border border-platinum-200 rounded text-xs text-gunmetal-600 hover:text-blue-600 hover:border-blue-200 transition-colors"
+                                              >
+                                                  {getFileIcon(docUrl)}
+                                                  <span>Doc {index + 1}</span>
+                                              </button>
+                                          ))}
+                                     </div>
+                                 ) : (
+                                     <span className="text-slate-grey-400 text-xs">No documents</span>
+                                 )}
+                             </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="p-4 border-t border-platinum-200 bg-alabaster-grey-50 grid grid-cols-3 gap-2">
+                     <button
+                        onClick={() => openAssignModal(vehicle)}
+                        className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-platinum-200 text-slate-grey-600 hover:text-blue-600 hover:border-blue-200 hover:shadow-sm transition-all text-xs font-medium gap-1"
+                        title="Assign Driver"
+                    >
+                        <AiOutlineUpload size={16} />
+                        Assign
+                    </button>
+                    <button
+                        onClick={() => openUpdateModal(vehicle)}
+                        className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-platinum-200 text-slate-grey-600 hover:text-amber-600 hover:border-amber-200 hover:shadow-sm transition-all text-xs font-medium gap-1"
+                        title="Edit Details"
+                    >
+                        <MdEditSquare size={16} />
+                        Edit
+                    </button>
+                    <button
+                        onClick={() => openViewModal(vehicle)}
+                        className="flex flex-col items-center justify-center p-2 rounded-lg bg-white border border-platinum-200 text-slate-grey-600 hover:text-emerald-600 hover:border-emerald-200 hover:shadow-sm transition-all text-xs font-medium gap-1"
+                         title="View Details"
+                    >
+                        <AiOutlineEye size={16} />
+                        View
+                    </button>
+                     
+                    {/* Invoice Actions Row */}
+                     <button
+                         onClick={() => {
+                            setSelectedVehicleForInvoice(vehicle._id);
+                            setIsAddInvoiceModalOpen(true);
+                        }}
+                        className="col-span-1.5 flex items-center justify-center p-2 rounded-lg bg-white border border-platinum-200 text-slate-grey-600 hover:text-purple-600 hover:border-purple-200 hover:shadow-sm transition-all text-xs font-medium gap-1 mt-2"
+                        title="Add Invoice"
+                     >
+                         <FaPlus size={10} /> Invoice
+                     </button>
+                      <button
+                         onClick={() => {
+                            setSelectedVehicleForInvoices(vehicle._id);
+                            setIsInvoicesModalOpen(true);
+                        }}
+                        className="col-span-1.5 flex items-center justify-center p-2 rounded-lg bg-white border border-platinum-200 text-slate-grey-600 hover:text-indigo-600 hover:border-indigo-200 hover:shadow-sm transition-all text-xs font-medium gap-1 mt-2"
+                        title="View Invoices"
+                     >
+                         <FaFileInvoice size={12} /> Invoices
+                     </button>
+
+                     <button
+                        onClick={() => openConfirmDialog(vehicle._id)}
+                        className="col-span-3 mt-2 flex items-center justify-center p-2 rounded-lg border border-transparent text-rose-600 hover:bg-rose-50 transition-all text-xs font-bold gap-1"
+                    >
+                         <AiOutlineDelete size={14} /> Remove Vehicle
+                    </button>
+                </div>
+                </div>
+            ))}
+            </div>
+        )}
 
       <AddVehicleModal
         isOpen={isAddModalOpen}
@@ -457,6 +464,7 @@ const VehicleManagement: React.FC = () => {
           vehicleId={selectedVehicleForInvoices}
         />
       )}
+      </div>
     </div>
   );
 };

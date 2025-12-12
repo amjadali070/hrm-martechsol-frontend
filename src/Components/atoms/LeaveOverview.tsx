@@ -37,15 +37,32 @@ const getLeaveIcon = (name: string) => {
 const getIconStyles = (name: string) => {
    switch (name) {
     case "Annual Leave":
-      return "bg-blue-50 text-blue-600 border-blue-100";
+      return "bg-indigo-50 text-indigo-600 border-indigo-100";
     case "Sick Leave":
-      return "bg-rose-50 text-rose-600 border-rose-100";
+      return "bg-teal-50 text-teal-600 border-teal-100";
     case "Casual Leave":
-      return "bg-amber-50 text-amber-600 border-amber-100";
+      return "bg-blue-50 text-blue-600 border-blue-100";
     default:
       return "bg-gunmetal-50 text-gunmetal-600 border-gunmetal-100";
   }
 }
+
+const getProgressColor = (name: string, percentage: number) => {
+    if (percentage >= 100) return "bg-rose-500 shadow-rose-200";
+    if (percentage > 75) return "bg-amber-500 shadow-amber-200";
+    
+     switch (name) {
+        case "Annual Leave":
+        return "bg-indigo-500 shadow-indigo-200";
+        case "Sick Leave":
+        return "bg-teal-500 shadow-teal-200";
+        case "Casual Leave":
+        return "bg-blue-500 shadow-blue-200";
+        default:
+        return "bg-gunmetal-500 shadow-gunmetal-200";
+    }
+}
+
 
 const LeaveOverview: React.FC = () => {
   const [leaveBalances, setLeaveBalances] = useState<LeaveType[]>(leaveTypes);
@@ -92,59 +109,57 @@ const LeaveOverview: React.FC = () => {
         <h2 className="text-lg font-bold text-gunmetal-900 tracking-tight">
           Leave Balance
         </h2>
-        <span className="text-xs font-medium text-slate-grey-400 bg-alabaster-grey-50 px-2 py-1 rounded border border-platinum-200">
-           {new Date().getFullYear()}
+        <span className="text-[10px] font-bold text-slate-grey-500 bg-alabaster-grey-50 px-2 py-1 rounded border border-platinum-200 uppercase tracking-wide">
+           FY {new Date().getFullYear()}
         </span>
       </div>
       
-      <div className="flex flex-col gap-5 flex-1">
+      <div className="flex flex-col gap-6 flex-1">
         {leaveBalances.map((leave, index) => {
           const used = leave.used;
           const total = leave.total;
-          const remaining = total - used;
-          const usagePercentage = Math.min((used / total) * 100, 100);
+          const remaining = Math.max(0, total - used);
+          // Ensure percentage doesn't exceed 100 visually for bar
+          const usagePercentage = Math.min((used / total) * 100, 100); 
           
-          let progressColor = "bg-emerald-500";
-          if (usagePercentage > 50) progressColor = "bg-amber-500";
-          if (usagePercentage > 85) progressColor = "bg-rose-500";
+          const progressClass = getProgressColor(leave.name, usagePercentage);
 
           return (
-            <div key={index} className="flex flex-col gap-3 group">
+            <div key={index} className="flex flex-col gap-2.5 group">
               {/* Header Row */}
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-end">
                  <div className="flex items-center gap-3">
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center border shadow-sm ${getIconStyles(leave.name)}`}>
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center border shadow-sm transition-transform group-hover:scale-105 duration-200 ${getIconStyles(leave.name)}`}>
                        {getLeaveIcon(leave.name)}
                     </div>
                     <div className="flex flex-col">
-                       <span className="text-sm font-bold text-gunmetal-800">{leave.name}</span>
-                       <span className="text-[10px] font-medium text-slate-grey-400 uppercase tracking-wide">
-                          Allowed: <span className="text-gunmetal-600 font-mono">{total}</span>
+                       <span className="text-sm font-bold text-gunmetal-900 leading-tight">{leave.name}</span>
+                       <span className="text-[10px] font-medium text-slate-grey-400 uppercase tracking-wide mt-0.5">
+                          Total Allowance: <span className="text-gunmetal-700 font-mono font-bold">{total}</span>
                        </span>
                     </div>
                  </div>
                  
                  <div className="text-right">
-                    <span className={`block text-lg font-bold font-mono leading-none ${remaining === 0 ? 'text-rose-500' : 'text-gunmetal-900'}`}>{remaining}</span>
-                    <span className="text-[9px] font-bold text-slate-grey-400 uppercase tracking-wider">Days Left</span>
+                    <span className={`block text-xl font-bold font-mono leading-none tracking-tight ${remaining === 0 ? 'text-rose-500' : 'text-gunmetal-900'}`}>{remaining}</span>
+                    <span className="text-[9px] font-bold text-slate-grey-400 uppercase tracking-wider block mt-0.5">Available</span>
                  </div>
               </div>
 
-              {/* Progress Bar */}
-              <div className="relative h-2.5 w-full bg-alabaster-grey-100 rounded-full overflow-hidden border border-platinum-200">
-                 {/* Optional: Pattern background for empty space */}
-                 <div className="absolute inset-0 opacity-30" style={{backgroundImage: 'linear-gradient(45deg, #e2e8f0 25%, transparent 25%, transparent 50%, #e2e8f0 50%, #e2e8f0 75%, transparent 75%, transparent)', backgroundSize: '8px 8px'}}></div>
-                 
-                 <div
-                   className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out shadow-sm ${progressColor}`}
-                   style={{ width: `${usagePercentage}%` }}
-                 />
-              </div>
-              
-              <div className="flex justify-between items-center text-[10px] uppercase font-bold text-slate-grey-400 tracking-wider">
-                 <span>0</span>
-                 <span>{Math.round(usagePercentage)}% Used</span>
-                 <span>{total}</span>
+              {/* Progress Bar Container */}
+              <div className="relative">
+                  <div className="h-2 w-full bg-alabaster-grey-100 rounded-full overflow-hidden border border-platinum-100 shadow-inner">
+                    <div
+                        className={`h-full rounded-full transition-all duration-1000 ease-out shadow-[0_2px_4px_rgba(0,0,0,0.1)] ${progressClass}`}
+                        style={{ width: `${usagePercentage}%` }}
+                    />
+                  </div>
+                  
+                  {/* Tooltip-like percentage indicator */}
+                  <div className="flex justify-between items-center mt-1.5 px-0.5">
+                      <span className="text-[9px] font-bold text-slate-grey-400 uppercase tracking-wider">Used: {used}</span>
+                      <span className="text-[9px] font-bold text-slate-grey-500">{Math.round((used/total)*100)}%</span>
+                  </div>
               </div>
             </div>
           );

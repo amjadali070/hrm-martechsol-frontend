@@ -49,7 +49,7 @@ const menuItems: MenuItem[] = [
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
-        label: "Payroll Mgmt",
+        label: "Payroll Management",
         path: "/organization/payroll-management",
         visibleTo: ["HR", "SuperAdmin"],
       },
@@ -109,7 +109,7 @@ const menuItems: MenuItem[] = [
         visibleTo: ["SuperAdmin"],
       },
       {
-        label: "Attendance Mgr",
+        label: "Attendance Manager",
         path: "/organization/attendance-manager",
         visibleTo: ["test"],
       },
@@ -287,7 +287,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                     <div
                       className={`overflow-hidden transition-all duration-300 ease-in-out ${
                         openMenus[item.label]
-                          ? "max-h-96 opacity-100 mt-2"
+                          ? "max-h-[600px] opacity-100 mt-2"
                           : "max-h-0 opacity-0"
                       }`}
                     >

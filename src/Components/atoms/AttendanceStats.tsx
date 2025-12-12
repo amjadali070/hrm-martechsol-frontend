@@ -4,7 +4,7 @@ import { IoCloseCircle } from "react-icons/io5";
 interface StatsCardProps {
   label: string;
   value: number;
-  color: string;
+  colorClass: string;
   onClick: () => void;
 }
 
@@ -45,55 +45,56 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, records }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-11/12 md:w-1/2 p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{title}</h2>
+    <div className="fixed inset-0 bg-gunmetal-900/60 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white rounded-xl w-11/12 md:w-1/2 p-6 shadow-2xl border border-platinum-200">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-bold text-gunmetal-900">{title}</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-grey-400 hover:text-gunmetal-800 transition-colors"
           >
-            <IoCloseCircle size={24} />
-            {/* &times; */}
+            <IoCloseCircle size={28} />
           </button>
         </div>
-        <div className="overflow-y-auto max-h-96">
+        <div className="overflow-y-auto max-h-[60vh] custom-scroll">
           <table className="w-full">
-            <thead>
-              <tr>
-                <th className="px-4 py-2 text-left">Date</th>
-                <th className="px-4 py-2 text-left">Day</th>
-                <th className="px-4 py-2 text-left">Time In</th>
-                <th className="px-4 py-2 text-left">Time Out</th>
+            <thead className="sticky top-0 bg-white">
+              <tr className="border-b border-platinum-200">
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-grey-500 uppercase">Date</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-grey-500 uppercase">Day</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-grey-500 uppercase">Time In</th>
+                <th className="px-4 py-3 text-left text-xs font-bold text-slate-grey-500 uppercase">Time Out</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-platinum-100">
               {records.map((record, index) => (
-                <tr key={index} className="border-b">
-                  <td className="px-4 py-2">
-                    {new Date(record.createdAt).toLocaleDateString()}
+                <tr key={index} className="hover:bg-alabaster-grey-50 transition-colors">
+                  <td className="px-4 py-3 text-sm font-medium text-gunmetal-900">
+                    {new Date(record.createdAt).toLocaleDateString(undefined, {
+                        month: 'short', day: 'numeric', year: 'numeric'
+                    })}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 text-sm text-slate-grey-600">
                     {new Date(record.createdAt).toLocaleDateString(undefined, {
                       weekday: "long",
                     })}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 text-sm font-mono text-gunmetal-700">
                     {record.timeIn
-                      ? new Date(record.timeIn).toLocaleTimeString()
-                      : "N/A"}
+                      ? new Date(record.timeIn).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                      : "-"}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-3 text-sm font-mono text-gunmetal-700">
                     {record.timeOut
-                      ? new Date(record.timeOut).toLocaleTimeString()
-                      : "N/A"}
+                      ? new Date(record.timeOut).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                      : "-"}
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
           {records.length === 0 && (
-            <p className="text-gray-500 text-center">No records found</p>
+            <div className="py-8 text-center text-slate-grey-400 text-sm">No records found</div>
           )}
         </div>
       </div>
@@ -101,13 +102,13 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, records }) => {
   );
 };
 
-const StatsCard = ({ label, value, color, onClick }: StatsCardProps) => (
+const StatsCard = ({ label, value, colorClass, onClick }: StatsCardProps) => (
   <div
-    className={`${color} bg-opacity-15 p-1.5 rounded-lg flex items-center justify-between cursor-pointer hover:bg-opacity-25 transition-all`}
+    className={`${colorClass} p-3 rounded-lg flex items-center justify-between cursor-pointer hover:shadow-sm hover:scale-[1.02] transition-all duration-200 border border-transparent hover:border-black/5`}
     onClick={onClick}
   >
-    <h3 className="text-gray-700 text-sm font-medium ml-2">{label}</h3>
-    <p className={`text-xl font-bold mr-2 ${color.replace("bg-", "text-")}`}>
+    <h3 className="text-sm font-semibold truncate mr-2 opacity-90">{label}</h3>
+    <p className="text-lg font-bold">
       {value}
     </p>
   </div>
@@ -134,43 +135,43 @@ const AttendanceStats = ({
     {
       label: "Present Days",
       value: statistics.present || 0,
-      color: "bg-green-500",
+      colorClass: "bg-emerald-50 text-emerald-700",
       type: "Present",
     },
     {
       label: "Completed Days",
       value: statistics.completed || 0,
-      color: "bg-green-500",
+      colorClass: "bg-emerald-50 text-emerald-700",
       type: "Completed",
     },
     {
       label: "Absent Days",
       value: statistics.absent,
-      color: "bg-red-600",
+      colorClass: "bg-rose-50 text-rose-700",
       type: "Absent",
     },
     {
       label: "Late IN",
       value: statistics.lateArrivals,
-      color: "bg-yellow-500",
+      colorClass: "bg-amber-50 text-amber-700",
       type: "Late IN",
     },
     {
       label: "Early Out",
       value: statistics.earlyDepartures,
-      color: "bg-pink-500",
+      colorClass: "bg-rose-50 text-rose-700",
       type: "Early Out",
     },
     {
       label: "Half Days",
       value: statistics.halfDays || 0,
-      color: "bg-orange-600",
+      colorClass: "bg-orange-50 text-orange-700",
       type: "Half Day",
     },
     {
       label: "Late IN & Early Out",
       value: statistics.lateAndEarly || 0,
-      color: "bg-violet-700",
+      colorClass: "bg-purple-50 text-purple-700",
       type: "Late IN and Early Out",
     },
   ];
@@ -179,123 +180,129 @@ const AttendanceStats = ({
     {
       label: "Casual Leaves",
       value: statistics.casualLeaves || 0,
-      color: "bg-blue-600",
+      colorClass: "bg-blue-50 text-blue-700",
       type: "Casual Leave",
     },
     {
       label: "Sick Leaves",
       value: statistics.sickLeaves || 0,
-      color: "bg-lime-600",
+      colorClass: "bg-teal-50 text-teal-700",
       type: "Sick Leave",
     },
     {
       label: "Annual Leaves",
       value: statistics.annualLeaves || 0,
-      color: "bg-purple-400",
+      colorClass: "bg-indigo-50 text-indigo-700",
       type: "Annual Leave",
     },
     {
       label: "Hajj Leaves",
       value: statistics.hajjLeaves || 0,
-      color: "bg-cyan-500",
+      colorClass: "bg-cyan-50 text-cyan-700",
       type: "Hajj Leave",
     },
     {
       label: "Maternity Leaves",
       value: statistics.maternityLeaves || 0,
-      color: "bg-fuchsia-800",
+      colorClass: "bg-fuchsia-50 text-fuchsia-700",
       type: "Maternity Leave",
     },
     {
       label: "Paternity Leaves",
       value: statistics.paternityLeaves || 0,
-      color: "bg-teal-600",
+      colorClass: "bg-teal-50 text-teal-700",
       type: "Paternity Leave",
     },
     {
       label: "Bereavement Leaves",
       value: statistics.bereavementLeaves || 0,
-      color: "bg-slate-700",
+      colorClass: "bg-slate-50 text-slate-700",
       type: "Bereavement Leave",
     },
     {
       label: "Unauthorized Leaves",
       value: statistics.unauthorizedLeaves || 0,
-      color: "bg-red-900",
+      colorClass: "bg-rose-50 text-rose-800",
       type: "Unauthorized Leave",
     },
     {
       label: "Public Holidays",
       value: statistics.publicHolidays || 0,
-      color: "bg-sky-700",
+      colorClass: "bg-sky-50 text-sky-700",
       type: "Public Holiday",
     },
   ];
 
+  const attendanceRate = statistics.totalDays > 0 ? (
+    ((statistics.completed +
+      statistics.publicHolidays +
+      statistics.lateAndEarly +
+      statistics.lateArrivals +
+      statistics.present +
+      statistics.leaves +
+      statistics.earlyDepartures +
+      statistics.halfDays) /
+      statistics.totalDays) *
+    100
+  ) : 0;
+
+  const leaveRate = statistics.totalDays > 0 ? (
+      (statistics.leaves / statistics.totalDays) * 100
+  ) : 0;
+
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <div>
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {mainStats.map((stat, index) => (
             <StatsCard
-              key={index}
+              key={`main-${index}`}
               label={stat.label}
               value={stat.value}
-              color={stat.color}
+              colorClass={stat.colorClass}
               onClick={() => handleStatsCardClick(stat.label, stat.type)}
             />
           ))}
           {leaveStats.map((stat, index) => (
             <StatsCard
-              key={index}
+              key={`leave-${index}`}
               label={stat.label}
               value={stat.value}
-              color={stat.color}
+              colorClass={stat.colorClass}
               onClick={() => handleStatsCardClick(stat.label, stat.type)}
             />
           ))}
         </div>
       </div>
 
-      <div className="bg-white p-4 rounded-lg">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">
-          Attendence Summary
+      <div className="pt-2">
+        <h2 className="text-lg font-bold text-gunmetal-900 mb-4 tracking-tight">
+          Attendance Summary
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <div className="text-sm text-gray-600">Total Records</div>
-            <p className="text-xl font-bold text-gray-700">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200">
+            <div className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-1">Total Records</div>
+            <p className="text-2xl font-bold text-gunmetal-900">
               {statistics.totalDays}
             </p>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Total Leaves</p>
-            <p className="text-xl font-bold text-blue-600">
+          <div className="p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200">
+            <div className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-1">Total Leaves</div>
+            <p className="text-2xl font-bold text-blue-600">
               {statistics.leaves}
             </p>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Attendance Rate</p>
-            <p className="text-xl font-bold text-green-600">
-              {(
-                ((statistics.completed +
-                  statistics.publicHolidays +
-                  statistics.lateAndEarly +
-                  statistics.lateArrivals +
-                  statistics.present +
-                  statistics.leaves +
-                  statistics.earlyDepartures +
-                  statistics.halfDays) /
-                  statistics.totalDays) *
-                100
-              ).toFixed(1)}
-              %
+          <div className="p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200">
+            <div className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-1">Attendance Rate</div>
+            <p className="text-2xl font-bold text-emerald-600">
+              {attendanceRate.toFixed(1)}%
             </p>
           </div>
-          <div className="p-3 bg-gray-50 rounded-lg">
-            <p className="text-sm text-gray-600">Leave Rate</p>
-            <p className="text-xl font-bold text-purple-600">
-              {((statistics.leaves / statistics.totalDays) * 100).toFixed(1)}%
+          <div className="p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200">
+            <div className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-1">Leave Rate</div>
+            <p className="text-2xl font-bold text-purple-600">
+              {leaveRate.toFixed(1)}%
             </p>
           </div>
         </div>

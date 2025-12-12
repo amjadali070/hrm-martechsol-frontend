@@ -1,9 +1,17 @@
-// components/LeaveApplication.tsx
-
 import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Like from "../../assets/like.png";
 import axios from "axios";
+import { 
+  FaCalendarAlt, 
+  FaRegCalendarAlt,
+  FaFileAlt,
+  FaPaperclip,
+  FaPaperPlane,
+  FaUndo,
+  FaFileMedical,
+  FaInfoCircle
+} from "react-icons/fa";
 
 const LeaveApplication: React.FC = () => {
   const [leaveType, setLeaveType] = useState<string>("Annual Leave");
@@ -95,20 +103,13 @@ const LeaveApplication: React.FC = () => {
       if (!allowedTypes.includes(file.type)) {
         toast.error(
           "Invalid file type. Please upload a PDF, JPG, PNG, or DOCX file.",
-          {
-            position: "top-center",
-            autoClose: 3000,
-          }
         );
         setHandoverFile(null);
         return;
       }
 
       if (file.size > maxSize) {
-        toast.error("File size exceeds 5MB.", {
-          position: "top-center",
-          autoClose: 3000,
-        });
+        toast.error("File size exceeds 5MB.");
         setHandoverFile(null);
         return;
       }
@@ -182,25 +183,18 @@ const LeaveApplication: React.FC = () => {
     e.preventDefault();
 
     if (standardLeaves.includes(leaveType) && jobStatus === "Probation") {
-      toast.error("Probationary employees cannot apply for standard leaves.", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      toast.error("Probationary employees cannot apply for standard leaves.");
       return;
     }
 
     if (!validateForm()) {
-      toast.error("Please fill all felds in the form.", {
-        position: "top-center",
-        autoClose: 3000,
-      });
+      toast.error("Please fill all fields in the form.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // Create a FormData object to handle file upload
       const formData = new FormData();
       formData.append("leaveType", leaveType);
       formData.append("startDate", startDate);
@@ -223,15 +217,9 @@ const LeaveApplication: React.FC = () => {
       if (axios.isAxiosError(error)) {
         const errorMsg =
           error.response?.data?.message || "Failed to submit leave application";
-        toast.error(errorMsg, {
-          position: "top-center",
-          autoClose: 3000,
-        });
+        toast.error(errorMsg);
       } else {
-        toast.error("An unexpected error occurred", {
-          position: "top-center",
-          autoClose: 3000,
-        });
+        toast.error("An unexpected error occurred");
       }
       console.error("Error submitting leave application:", error);
     } finally {
@@ -246,303 +234,262 @@ const LeaveApplication: React.FC = () => {
   const standardLeaves = ["Sick Leave", "Casual Leave", "Annual Leave"];
 
   return (
-    <div className="w-full md:p-8 bg-white rounded-lg mb-8">
-      <h2 className="text-3xl font-bold text-center mb-4 text-purple-900">
-        Leave Application
-      </h2>
-      <p className="text-center mb-6 text-gray-600">
-        Fill in the required fields below to apply for leave.
-      </p>
-
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div>
-          <label
-            htmlFor="leaveType"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Leave Type <span className="text-red-500">*</span>
-          </label>
-          <select
-            id="leaveType"
-            name="leaveType"
-            value={leaveType}
-            onChange={(e) => {
-              setLeaveType(e.target.value);
-              // Reset file when leave type changes
-              setHandoverFile(null);
-            }}
-            className={`w-full p-3 border ${
-              errors.leaveType ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-            required
-            aria-describedby={errors.leaveType ? "leaveType-error" : undefined}
-          >
-            <option value="">Select Leave Type</option>
-            <option value="Casual Leave">Casual Leave</option>
-            <option value="Sick Leave">Sick Leave</option>
-            <option value="Annual Leave">Annual Leave</option>
-          </select>
-          {errors.leaveType && (
-            <p className="mt-1 text-sm text-red-600" id="leaveType-error">
-              {errors.leaveType}
-            </p>
-          )}
-        </div>
-
-        {/* Start and End Dates */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Start Date */}
-          <div>
-            <label
-              htmlFor="startDate"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Start Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="startDate"
-              name="startDate"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className={`w-full p-3 border ${
-                errors.startDate ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-              required
-              aria-describedby={
-                errors.startDate ? "startDate-error" : undefined
-              }
-            />
-            {errors.startDate && (
-              <p className="mt-1 text-sm text-red-600" id="startDate-error">
-                {errors.startDate}
-              </p>
-            )}
-          </div>
-
-          {/* End Date */}
-          <div>
-            <label
-              htmlFor="endDate"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              End Date <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="endDate"
-              name="endDate"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className={`w-full p-3 border ${
-                errors.endDate ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-              required
-              aria-describedby={errors.endDate ? "endDate-error" : undefined}
-            />
-            {errors.endDate && (
-              <p className="mt-1 text-sm text-red-600" id="endDate-error">
-                {errors.endDate}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Last Day to Work and Return to Work */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Last Day to Work */}
-          <div>
-            <label
-              htmlFor="lastDayToWork"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Last Day to Work <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="lastDayToWork"
-              name="lastDayToWork"
-              value={lastDayToWork}
-              onChange={(e) => setLastDayToWork(e.target.value)}
-              className={`w-full p-3 border ${
-                errors.lastDayToWork ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-              required
-              aria-describedby={
-                errors.lastDayToWork ? "lastDayToWork-error" : undefined
-              }
-            />
-            {errors.lastDayToWork && (
-              <p className="mt-1 text-sm text-red-600" id="lastDayToWork-error">
-                {errors.lastDayToWork}
-              </p>
-            )}
-          </div>
-
-          {/* Return to Work */}
-          <div>
-            <label
-              htmlFor="returnToWork"
-              className="block text-gray-700 font-medium mb-1"
-            >
-              Return to Work <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="returnToWork"
-              name="returnToWork"
-              value={returnToWork}
-              onChange={(e) => setReturnToWork(e.target.value)}
-              className={`w-full p-3 border ${
-                errors.returnToWork ? "border-red-500" : "border-gray-300"
-              } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-              required
-              aria-describedby={
-                errors.returnToWork ? "returnToWork-error" : undefined
-              }
-            />
-            {errors.returnToWork && (
-              <p className="mt-1 text-sm text-red-600" id="returnToWork-error">
-                {errors.returnToWork}
-              </p>
-            )}
-          </div>
-        </div>
-
-        {/* Reason for Leave */}
-        <div>
-          <label
-            htmlFor="reason"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Reason for Leave <span className="text-red-500">*</span>
-          </label>
-          <textarea
-            id="reason"
-            name="reason"
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            className={`w-full p-3 border ${
-              errors.reason ? "border-red-500" : "border-gray-300"
-            } rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500`}
-            rows={4}
-            placeholder="Provide a brief reason for your leave"
-            required
-            aria-describedby={errors.reason ? "reason-error" : undefined}
-          ></textarea>
-          {errors.reason && (
-            <p className="mt-1 text-sm text-red-600" id="reason-error">
-              {errors.reason}
-            </p>
-          )}
-        </div>
-
-        {/* Attach Document */}
-        <div>
-          <label
-            htmlFor="handoverFile"
-            className="block text-gray-700 font-medium mb-1"
-          >
-            Attach Document{" "}
-            {leaveType === "Sick Leave" && (
-              <span className="text-red-500">*</span>
-            )}
-            {leaveType === "Sick Leave" && (
-              <span className="text-sm text-gray-500 ml-2">
-                (Medical certificate required)
-              </span>
-            )}
-          </label>
-          <input
-            type="file"
-            id="handoverFile"
-            name="handoverFile"
-            onChange={handleFileChange}
-            className="w-full text-gray-700"
-            accept=".pdf, .jpg, .jpeg, .png, .docx"
-          />
-          {errors.handoverFile && (
-            <p className="mt-1 text-sm text-red-600" id="handoverFile-error">
-              {errors.handoverFile}
-            </p>
-          )}
-          {handoverFile && (
-            <div className="mt-2 flex items-center">
-              {handoverFile.type.startsWith("image/") && (
-                <img
-                  src={URL.createObjectURL(handoverFile)}
-                  alt="Handover Document Preview"
-                  className="w-16 h-16 object-cover rounded-md mr-4"
-                />
-              )}
-              <span className="text-sm text-gray-600">{handoverFile.name}</span>
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-start space-x-4">
-          <button
-            type="submit"
-            className={`bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 ${
-              isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <div className="flex items-center justify-center">
-                <svg
-                  className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                  ></circle>
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v8H4z"
-                  ></path>
-                </svg>
-                Submitting...
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 overflow-hidden">
+        {/* Header */}
+         <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200">
+           <div className="flex items-center gap-3">
+              <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+                  <FaRegCalendarAlt className="text-gunmetal-600 text-xl" />
               </div>
-            ) : (
-              "Submit"
-            )}
-          </button>
-          <button
-            type="button"
-            onClick={handleReset}
-            className="bg-red-600 hover:bg-red-500 text-white font-semibold py-3 px-8 rounded-full transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-red-500"
-          >
-            Reset
-          </button>
+              <div>
+                  <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Leave Application
+                  </h2>
+                  <p className="text-sm text-slate-grey-500">
+                    Fill in the details below to request a leave.
+                  </p>
+              </div>
+           </div>
         </div>
-      </form>
 
+      <div className="p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
+            
+            {/* Leave Type */}
+            <div className="flex flex-col">
+                 <label htmlFor="leaveType" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                    Leave Type <span className="text-rose-500">*</span>
+                 </label>
+                 <div className="relative group">
+                    <FaFileAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                    <select
+                        id="leaveType"
+                        name="leaveType"
+                        value={leaveType}
+                        onChange={(e) => {
+                            setLeaveType(e.target.value);
+                            setHandoverFile(null);
+                        }}
+                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                            errors.leaveType ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all appearance-none cursor-pointer placeholder:text-slate-grey-400`}
+                        >
+                        <option value="">Select Leave Type</option>
+                        <option value="Casual Leave">Casual Leave</option>
+                        <option value="Sick Leave">Sick Leave</option>
+                        <option value="Annual Leave">Annual Leave</option>
+                    </select>
+                </div>
+                {errors.leaveType && (
+                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.leaveType}</p>
+                )}
+            </div>
+
+            {/* Dates Grid */}
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                 {/* Start Date */}
+                <div className="flex flex-col">
+                    <label htmlFor="startDate" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                        Start Date <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative group">
+                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                        <input
+                        type="date"
+                        id="startDate"
+                        name="startDate"
+                        value={startDate}
+                        onChange={(e) => setStartDate(e.target.value)}
+                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                            errors.startDate ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                        />
+                    </div>
+                     {errors.startDate && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.startDate}</p>
+                    )}
+                </div>
+
+                {/* End Date */}
+                 <div className="flex flex-col">
+                    <label htmlFor="endDate" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                         End Date <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative group">
+                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                        <input
+                        type="date"
+                        id="endDate"
+                        name="endDate"
+                        value={endDate}
+                        onChange={(e) => setEndDate(e.target.value)}
+                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                            errors.endDate ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                        />
+                    </div>
+                     {errors.endDate && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.endDate}</p>
+                    )}
+                </div>
+             </div>
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Last Day */}
+                <div className="flex flex-col">
+                    <label htmlFor="lastDayToWork" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                        Last Day of Work <span className="text-rose-500">*</span>
+                    </label>
+                    <div className="relative group">
+                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                         <input
+                        type="date"
+                        id="lastDayToWork"
+                        name="lastDayToWork"
+                        value={lastDayToWork}
+                        onChange={(e) => setLastDayToWork(e.target.value)}
+                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                            errors.lastDayToWork ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                        />
+                    </div>
+                     {errors.lastDayToWork && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.lastDayToWork}</p>
+                    )}
+                </div>
+
+                {/* Return */}
+                 <div className="flex flex-col">
+                    <label htmlFor="returnToWork" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                         Return to Work <span className="text-rose-500">*</span>
+                    </label>
+                   <div className="relative group">
+                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                         <input
+                        type="date"
+                        id="returnToWork"
+                        name="returnToWork"
+                         value={returnToWork}
+                        onChange={(e) => setReturnToWork(e.target.value)}
+                         className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                            errors.returnToWork ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                        />
+                    </div>
+                    {errors.returnToWork && (
+                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.returnToWork}</p>
+                    )}
+                </div>
+             </div>
+
+             {/* Reason */}
+             <div className="flex flex-col">
+                 <label htmlFor="reason" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                    Reason <span className="text-rose-500">*</span>
+                 </label>
+                 <textarea
+                    id="reason"
+                    name="reason"
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    className={`w-full p-4 bg-white border ${
+                        errors.reason ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                    } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all placeholder:text-slate-grey-400`}
+                    rows={4}
+                    placeholder="Please explain the reason for your leave request..."
+                 ></textarea>
+                 {errors.reason && (
+                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.reason}</p>
+                )}
+             </div>
+
+             {/* Attachment */}
+             <div className="flex flex-col">
+                 <label htmlFor="handoverFile" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
+                     Attachment 
+                     {leaveType === "Sick Leave" && <span className="text-rose-500">*</span>}
+                     {leaveType === "Sick Leave" && <span className="text-xs font-normal text-slate-grey-500 ml-1">(Medical Certificate Required)</span>}
+                 </label>
+                 
+                 <div className="relative">
+                    <input
+                        type="file"
+                        id="handoverFile"
+                        name="handoverFile"
+                        onChange={handleFileChange}
+                        className="hidden"
+                        accept=".pdf, .jpg, .jpeg, .png, .docx"
+                    />
+                    <label htmlFor="handoverFile" className="flex items-center justify-center w-full p-4 border-2 border-dashed border-platinum-300 rounded-lg cursor-pointer bg-alabaster-grey-50 hover:bg-white hover:border-gunmetal-400 transition-all group">
+                         <div className="flex flex-col items-center">
+                            <FaPaperclip className="text-slate-grey-400 mb-2 group-hover:text-gunmetal-600 transition-colors" size={20} />
+                            <span className="text-sm font-medium text-slate-grey-600 group-hover:text-gunmetal-800 transition-colors">
+                                {handoverFile ? handoverFile.name : "Click to upload a document"}
+                            </span>
+                            {!handoverFile && <span className="text-xs text-slate-grey-400 mt-1">PDF, DOCX, JPG or PNG (Max 5MB)</span>}
+                         </div>
+                    </label>
+                 </div>
+                 
+                  {errors.handoverFile && (
+                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.handoverFile}</p>
+                )}
+
+                 {handoverFile && handoverFile.type.startsWith("image/") && (
+                    <div className="mt-4 p-2 border border-platinum-200 rounded-lg bg-alabaster-grey-50 inline-block w-fit">
+                        <img
+                        src={URL.createObjectURL(handoverFile)}
+                        alt="Preview"
+                        className="h-20 w-auto object-cover rounded"
+                        />
+                    </div>
+                )}
+             </div>
+
+            {/* Actions */}
+             <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-platinum-200">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className={`flex items-center justify-center gap-2 px-8 py-3 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20 hover:translate-y-[-1px] active:translate-y-[1px] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto`}
+                >
+                    {isSubmitting ? (
+                        <>Submitting...</>
+                    ) : (
+                        <>
+                         <FaPaperPlane size={12} /> Submit Application
+                        </>
+                    )}
+                </button>
+                <button
+                    type="button"
+                    onClick={handleReset}
+                    className="flex items-center justify-center gap-2 px-8 py-3 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-alabaster-grey-50 hover:text-gunmetal-900 transition-all shadow-sm w-full sm:w-auto"
+                >
+                    <FaUndo size={12} /> Reset
+                </button>
+             </div>
+        </form>
+      </div>
+
+      {/* Success Modal */}
       {showSuccess && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-6 rounded-lg text-center w-96">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200">
+          <div className="bg-white p-8 rounded-2xl text-center w-full max-w-sm border border-platinum-200 shadow-2xl">
             <img
               src={Like}
-              alt="Success Icon"
-              className="mx-auto mb-4 w-40 h-40 object-contain"
+              alt="Success"
+              className="mx-auto mb-6 w-32 h-32 object-contain animate-in zoom-in spin-in-3"
             />
-            <h3 className="text-xl font-semibold mb-2 text-purple-900">
-              Great Job!
+            <h3 className="text-xl font-bold text-gunmetal-900 mb-2">
+              Application Submitted!
             </h3>
-            <p className="text-gray-700 mb-4">
-              Your leave application would be reviewed by the admin.
+            <p className="text-sm text-slate-grey-600 mb-6 leading-relaxed">
+              Your leave request has been sent for approval. You can track its status in the "Track Application" tab.
             </p>
             <button
               onClick={closeSuccessModal}
-              className="bg-purple-900 hover:bg-purple-600 text-white font-semibold py-2 px-6 rounded-full transition-colors duration-300"
+              className="w-full py-2.5 bg-gunmetal-900 text-white font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-md"
             >
               Close
             </button>

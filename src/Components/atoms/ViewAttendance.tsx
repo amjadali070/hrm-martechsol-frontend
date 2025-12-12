@@ -1,26 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner } from "react-icons/fa";
-import axiosInstance from "../../utils/axiosConfig"; // Centralized Axios instance
+import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner, FaHistory } from "react-icons/fa";
+import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
-import { toast } from "react-toastify"; // For user-friendly notifications
+import { toast } from "react-toastify";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 
 const statusColors: Record<string, string> = {
-  // Present: "bg-gray-400", // changed from bg-green-500 to bg-gray-400
-  Completed: "bg-green-500", // new type: Completed uses former present color
-  Absent: "bg-red-600",
-  "Late IN": "bg-yellow-500",
+  Completed: "bg-emerald-500",
+  Present: "bg-emerald-500",
+  Absent: "bg-rose-600",
+  "Late IN": "bg-amber-500",
   "Half Day": "bg-orange-600",
   "Early Out": "bg-pink-500",
   "Late IN and Early Out": "bg-violet-700",
   "Casual Leave": "bg-blue-600",
   "Sick Leave": "bg-lime-600",
-  "Annual Leave": "bg-purple-400",
+  "Annual Leave": "bg-purple-500",
   "Hajj Leave": "bg-cyan-500",
   "Maternity Leave": "bg-fuchsia-800",
   "Paternity Leave": "bg-teal-600",
   "Bereavement Leave": "bg-slate-700",
-  "Unauthorized Leave": "bg-red-900",
+  "Unauthorized Leave": "bg-rose-900",
   "Public Holiday": "bg-sky-700",
 };
 
@@ -30,23 +30,7 @@ interface TimeLog {
   timeIn: string | null;
   timeOut: string | null;
   duration: number;
-  type:
-    | "Present"
-    | "Completed"
-    | "Absent"
-    | "Late IN"
-    | "Half Day"
-    | "Early Out"
-    | "Late IN and Early Out"
-    | "Casual Leave"
-    | "Sick Leave"
-    | "Annual Leave"
-    | "Hajj Leave"
-    | "Maternity Leave"
-    | "Paternity Leave"
-    | "Bereavement Leave"
-    | "Unauthorized Leave"
-    | "Public Holiday";
+  type: string;
   createdAt: string;
   leaveApplication?: string | null;
 }
@@ -95,18 +79,15 @@ const ViewAttendance: React.FC = () => {
       }
     };
 
-    // Fetch attendance only when user is loaded and user_Id is available
     if (!userLoading && user_Id) {
       fetchAttendance();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fromDate, toDate, user_Id, userLoading, backendUrl]);
 
-  // Apply filters whenever attendanceData or filters change
+  // Apply filters
   useEffect(() => {
     let data = [...attendanceData];
 
-    // Filter by date range if both dates are selected
     if (fromDate && toDate) {
       const start = new Date(fromDate);
       const end = new Date(toDate);
@@ -117,16 +98,15 @@ const ViewAttendance: React.FC = () => {
       );
     }
 
-    // Filter by attendance type
     if (typeFilter !== "All") {
       data = data.filter((record) => record.type === typeFilter);
     }
 
     setFilteredData(data);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [fromDate, toDate, typeFilter, attendanceData]);
 
-  // Pagination calculations
+  // Pagination
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentData = filteredData.slice(indexOfFirstItem, indexOfLastItem);
@@ -140,7 +120,6 @@ const ViewAttendance: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   };
 
-  // Format duration from seconds to "Xh Ym"
   const formatDuration = (seconds: number) => {
     if (!seconds) return "N/A";
     const hours = Math.floor(seconds / 3600);
@@ -148,7 +127,6 @@ const ViewAttendance: React.FC = () => {
     return `${hours}h ${minutes}m`;
   };
 
-  // Get day of the week from date string
   const getDayOfWeek = (dateString: string) => {
     const days = [
       "Sunday",
@@ -164,78 +142,78 @@ const ViewAttendance: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 sm:p-8 bg-white rounded-lg mb-8">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 p-6">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+            <FaHistory className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              View Attendance
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Check your attendance history and details.
+            </p>
+          </div>
+        </div>
+      </div>
+
+       {/* Legend */}
+       <div className="mb-8 p-4 bg-alabaster-grey-50 rounded-xl border border-platinum-200">
+            <h4 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide mb-3">Status Legend</h4>
+            <div className="flex flex-wrap gap-3">
+                {Object.entries(statusColors).map(([type, color]) => (
+                  <div key={type} className="flex items-center gap-2 bg-white px-2 py-1 rounded border border-platinum-200 shadow-sm">
+                    <span className={`w-2.5 h-2.5 rounded-full ${color}`}></span>
+                    <span className="text-xs font-medium text-slate-grey-600">{type}</span>
+                  </div>
+                ))}
+            </div>
+      </div>
+
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64">
-          <FaSpinner className="text-indigo-500 mb-4 animate-spin" size={40} />
+          <FaSpinner className="text-gunmetal-500 mb-4 animate-spin" size={40} />
+          <p className="text-slate-grey-500 font-medium">Loading attendance records...</p>
         </div>
       ) : (
         <>
-          <div className="mt-2 flex justify-center mb-8">
-            <div className="w-full">
-              <div className="grid grid-cols-5 sm:grid-cols-5 gap-3">
-                {Object.entries(statusColors).map(([type, color]) => (
-                  <div
-                    key={type}
-                    className="flex items-center space-x-2 bg-gray-100 p-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-                  >
-                    <span
-                      className={`w-4 h-4 inline-block rounded-full ${color}`}
-                    ></span>
-                    <span className="text-gray-700 text-sm font-medium">
-                      {type}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-          {/* Title */}
-          <h2 className="text-3xl sm:text-4xl font-extrabold text-center mb-8 text-gray-800">
-            View Attendance
-          </h2>
-
           {/* Filters */}
-          <div className="flex flex-col sm:flex-row gap-6 mb-8 items-start sm:items-center">
-            {/* Date Filters */}
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              {/* From Date Filter */}
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
-                <FaCalendarAlt className="text-black mr-3" />
-                <input
-                  type="date"
-                  value={fromDate}
-                  onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                  placeholder="FROM"
-                  aria-label="Filter from date"
-                />
-              </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+             {/* From Date */}
+            <div className="relative group">
+               <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+                placeholder="From Date"
+              />
+            </div>
 
-              {/* To Date Filter */}
-              <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200">
-                <FaCalendarAlt className="text-black mr-3" />
-                <input
-                  type="date"
-                  value={toDate}
-                  onChange={(e) => setToDate(e.target.value)}
-                  className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                  placeholder="TO"
-                  aria-label="Filter to date"
-                />
-              </div>
+            {/* To Date */}
+            <div className="relative group">
+               <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
+                placeholder="To Date"
+              />
             </div>
 
             {/* Type Filter */}
-            <div className="flex items-center bg-white rounded-lg px-4 py-3 border border-gray-200 w-full sm:w-auto">
-              <FaFilter className="text-black mr-3" />
-              <select
-                id="typeFilter"
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full border-none focus:ring-0 text-sm text-gray-700"
-                aria-label="Filter by attendance type"
-              >
+            <div className="relative group">
+               <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+               <select
+                 value={typeFilter}
+                 onChange={(e) => setTypeFilter(e.target.value)}
+                 className="w-full pl-9 pr-8 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+               >
                 <option value="All">All Types</option>
                 {Object.keys(statusColors).map((type) => (
                   <option key={type} value={type}>
@@ -246,159 +224,126 @@ const ViewAttendance: React.FC = () => {
             </div>
           </div>
 
-          {/* Attendance Table */}
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-purple-900 text-white text-center">
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    S.No
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Day
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Time In
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Time Out
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Total Time
-                  </th>
-                  <th className="py-3 px-4 text-sm font-semibold uppercase tracking-wider">
-                    Type
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentData.length > 0 ? (
-                  currentData.map((record, index) => (
-                    <tr
-                      key={record._id}
-                      className={`${
-                        index % 2 === 0 ? "bg-gray-50" : "bg-white"
-                      } hover:bg-gray-100 transition-colors`}
-                    >
-                      {/* Serial Number */}
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {indexOfFirstItem + index + 1}
-                      </td>
-
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {new Date(record.createdAt).toLocaleDateString()}
-                      </td>
-
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {getDayOfWeek(record.createdAt)}
-                      </td>
-
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {record.timeIn
-                          ? new Date(record.timeIn).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </td>
-
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {record.timeOut
-                          ? new Date(record.timeOut).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : "N/A"}
-                      </td>
-
-                      {/* Total Time */}
-                      <td className="py-4 px-4 text-sm text-gray-700 text-center">
-                        {record.duration
-                          ? formatDuration(record.duration)
-                          : "N/A"}
-                      </td>
-
-                      {/* Type */}
-                      <td className="py-4 px-4 text-sm text-center">
-                        <span
-                          className={`inline-block px-3 py-1 text-sm font-medium rounded-full text-white ${
-                            statusColors[record.type] || "bg-gray-400"
-                          }`}
-                        >
-                          {record.type}
-                        </span>
-                      </td>
+          {currentData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-platinum-200 rounded-xl bg-alabaster-grey-50/50">
+                <FaInbox size={48} className="text-slate-grey-300 mb-3" />
+                <h3 className="text-lg font-bold text-gunmetal-800">No records found</h3>
+                <p className="text-slate-grey-500 text-sm mt-1">
+                    Try adjusting your filters to see more results.
+                </p>
+            </div>
+          ) : (
+            <>
+              {/* Table */}
+              <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+                <table className="w-full text-left bg-white border-collapse">
+                  <thead className="bg-alabaster-grey-50">
+                    <tr>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center w-16">No.</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Date</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Day</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">In</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Out</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Duration</th>
+                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Status</th>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="py-8 px-4 text-sm text-gray-500 text-center"
-                    >
-                      <div className="flex flex-col items-center justify-center">
-                        <FaInbox size={40} className="text-gray-400 mb-4" />
-                        <span className="text-lg font-medium">
-                          No records found.
-                        </span>
-                      </div>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                  </thead>
+                  <tbody className="divide-y divide-platinum-100">
+                    {currentData.map((record, index) => (
+                      <tr key={record._id} className="hover:bg-alabaster-grey-50/50 transition-colors">
+                        <td className="py-4 px-4 text-sm text-slate-grey-500 text-center font-mono">
+                          {indexOfFirstItem + index + 1}
+                        </td>
+                        <td className="py-4 px-4 text-sm font-semibold text-gunmetal-900 whitespace-nowrap">
+                            {new Date(record.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="py-4 px-4 text-sm text-slate-grey-600">
+                           {getDayOfWeek(record.createdAt)}
+                        </td>
+                        <td className="py-4 px-4 text-sm text-slate-grey-700 font-mono text-center">
+                           {record.timeIn
+                            ? new Date(record.timeIn).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "-"}
+                        </td>
+                        <td className="py-4 px-4 text-sm text-slate-grey-700 font-mono text-center">
+                           {record.timeOut
+                            ? new Date(record.timeOut).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              })
+                            : "-"}
+                        </td>
+                        <td className="py-4 px-4 text-sm text-gunmetal-900 font-bold font-mono text-center">
+                           {record.duration ? formatDuration(record.duration) : "-"}
+                        </td>
+                        <td className="py-4 px-4 text-center">
+                            <span
+                            className={`inline-block px-3 py-1 text-xs font-bold rounded-full text-white shadow-sm whitespace-nowrap ${
+                                statusColors[record.type] || "bg-gray-400"
+                            }`}
+                            >
+                            {record.type}
+                            </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-          {/* Pagination and Items Per Page */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-3">Show:</span>
-              <select
-                className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(parseInt(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                {[5, 10, 20].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex items-center space-x-3">
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
-                }`}
-                disabled={currentPage === 1}
-                onClick={handlePrevious}
-              >
-                <FiChevronLeft className="mr-2" />
-                Previous
-              </button>
-              <span className="text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === totalPages || totalPages === 0
-                    ? "cursor-not-allowed opacity-50"
-                    : ""
-                }`}
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={handleNext}
-              >
-                Next
-                <FiChevronRight className="ml-2" />
-              </button>
-            </div>
-          </div>
+               {/* Pagination */}
+              <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+                 <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+                    <span className="font-medium">Rows:</span>
+                    <select
+                        className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+                        value={itemsPerPage}
+                        onChange={(e) => {
+                        setItemsPerPage(parseInt(e.target.value));
+                        setCurrentPage(1);
+                        }}
+                    >
+                        {[5, 10, 20].map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                <button
+                    className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                    currentPage === 1 
+                        ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                        : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                    disabled={currentPage === 1}
+                    onClick={handlePrevious}
+                >
+                    <FiChevronLeft size={16} />
+                </button>
+                
+                <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-3">
+                    Page {currentPage} of {totalPages || 1}
+                </span>
+                
+                <button
+                    className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                    currentPage === totalPages || totalPages === 0
+                        ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                        : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+                    }`}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    onClick={handleNext}
+                >
+                    <FiChevronRight size={16} />
+                </button>
+                </div>
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

@@ -1,6 +1,5 @@
-// SalaryDetails.tsx
-
 import React, { useState } from "react";
+import { FaMoneyBillWave, FaEdit, FaHeartbeat, FaMobileAlt, FaGasPump } from "react-icons/fa";
 
 interface SalaryDetailsProps {
   basicSalary: number;
@@ -22,128 +21,54 @@ const SalaryDetails: React.FC<SalaryDetailsProps> = ({
   fuelAllowance,
   onUpdate,
 }) => {
-  const [isEditing] = useState(false);
-  const [editedSalary, setEditedSalary] = useState({
-    basicSalary,
-    medicalAllowance,
-    mobileAllowance,
-    fuelAllowance,
-  });
+  const [isEditing] = useState(false); // Locked for now as per original code logic (no setIsEditing)
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditedSalary((prev) => ({
-      ...prev,
-      [name]: Number(value),
-    }));
-  };
+  // NOTE: Original code did not implement toggle editing properly (it had comments). 
+  // Given user request is "redesign each and everything", I will keep it read-only for now 
+  // unless I see backend support or user wants it editable. 
+  // Assuming HR modifies this elsewhere or it is just a view.
+  // The original file had commented out edit buttons. I will display it as premium view.
+
+  const renderField = (label: string, icon: React.ReactNode, value: number) => (
+      <div className="bg-alabaster-grey-50 p-5 rounded-xl border border-platinum-200 hover:shadow-md transition-all group">
+          <div className="flex items-center gap-3 mb-3">
+              <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gunmetal-500 shadow-sm border border-platinum-100 group-hover:text-gunmetal-900 group-hover:border-gunmetal-200 transition-colors">
+                 {icon}
+              </div>
+              <p className="text-sm font-bold text-slate-grey-600 uppercase tracking-wide">{label}</p>
+          </div>
+          <p className="text-2xl font-bold text-gunmetal-900 pl-1">
+            {value.toLocaleString()} <span className="text-xs text-slate-grey-400 font-normal">PKR</span>
+          </p>
+      </div>
+  );
 
   return (
-    <div className="bg-white p-10 rounded-lg w-full mx-auto">
-      <h2 className="text-lg font-semibold mb-4">Salary Details</h2>
+    <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden relative">
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200">
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">Salary & Allowances</h2>
+            <p className="text-sm text-slate-grey-500 mt-1">Breakdown of your current compensation package</p>
+        </div>
 
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Basic Salary
-        </label>
-        {isEditing ? (
-          <input
-            type="number"
-            name="basicSalary"
-            value={editedSalary.basicSalary}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        ) : (
-          <p className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-            {basicSalary}
-          </p>
-        )}
+      <div className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {renderField("Basic Salary", <FaMoneyBillWave />, basicSalary)}
+            {renderField("Medical Allowance", <FaHeartbeat />, medicalAllowance)}
+            {renderField("Mobile Allowance", <FaMobileAlt />, mobileAllowance)}
+            {renderField("Fuel Allowance", <FaGasPump />, fuelAllowance)}
+        </div>
+        
+        <div className="mt-8 p-6 bg-gunmetal-900 rounded-xl text-white flex flex-col md:flex-row justify-between items-center">
+            <div>
+                <p className="text-gunmetal-300 text-sm font-medium uppercase tracking-wider mb-1">Total Monthly Compensation</p>
+                <p className="text-3xl font-bold">
+                    {(basicSalary + medicalAllowance + mobileAllowance + fuelAllowance).toLocaleString()} 
+                    <span className="text-lg text-gunmetal-400 font-normal ml-2">PKR</span>
+                </p>
+            </div>
+            {/* Placeholder for future actions like "Download Slip" */}
+        </div>
       </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Medical Allowance
-        </label>
-        {isEditing ? (
-          <input
-            type="number"
-            name="medicalAllowance"
-            value={editedSalary.medicalAllowance}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        ) : (
-          <p className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-            {medicalAllowance}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Mobile Allowance
-        </label>
-        {isEditing ? (
-          <input
-            type="number"
-            name="mobileAllowance"
-            value={editedSalary.mobileAllowance}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        ) : (
-          <p className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-            {mobileAllowance}
-          </p>
-        )}
-      </div>
-
-      <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Fuel Allowance
-        </label>
-        {isEditing ? (
-          <input
-            type="number"
-            name="fuelAllowance"
-            value={editedSalary.fuelAllowance}
-            onChange={handleChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-          />
-        ) : (
-          <p className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-            {fuelAllowance}
-          </p>
-        )}
-      </div>
-
-      {/* Edit/Save Buttons
-      <div className="flex space-x-4">
-        {isEditing ? (
-          <>
-            <button
-              onClick={handleSave}
-              className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-500 transition-colors"
-            >
-              Save
-            </button>
-            <button
-              onClick={handleCancel}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-400 transition-colors"
-            >
-              Cancel
-            </button>
-          </>
-        ) : (
-          <button
-            onClick={() => setIsEditing(true)}
-            className="bg-purple-600 text-white px-4 py-2 rounded-full hover:bg-purple-500 transition-colors"
-          >
-            Edit
-          </button>
-        )}
-      </div> */}
     </div>
   );
 };
