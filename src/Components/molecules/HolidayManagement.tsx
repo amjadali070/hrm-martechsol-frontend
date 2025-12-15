@@ -10,7 +10,10 @@ import {
   FaEdit,
   FaTrashAlt,
   FaUmbrellaBeach,
+  FaSave,
+  FaTimes
 } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { formatDate } from "../../utils/formatDate";
 import { toast } from "react-toastify";
 
@@ -193,18 +196,19 @@ const HolidayManagement: React.FC = () => {
   }
 
   return (
-    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8 gap-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-         <div className="flex items-center gap-3">
-             <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
-               <FaUmbrellaBeach className="text-gunmetal-600 text-xl" />
+    <div className="w-full bg-white rounded-2xl shadow-xl border border-platinum-200 p-6 flex flex-col mb-8 gap-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-platinum-200 pb-6">
+         <div className="flex items-center gap-4">
+             <div className="bg-gunmetal-50 p-3.5 rounded-2xl border border-platinum-200 shadow-inner">
+               <FaUmbrellaBeach className="text-gunmetal-600 text-2xl" />
              </div>
              <div>
-                <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                <h2 className="text-2xl font-extrabold text-gunmetal-900 tracking-tight">
                     Holiday Management
                 </h2>
-                <p className="text-sm text-slate-grey-500">
-                    Configure and manage the company holiday calendar.
+                <p className="text-sm text-slate-grey-500 font-medium">
+                    Configure and manage the annual company holiday calendar.
                 </p>
              </div>
         </div>
@@ -213,15 +217,22 @@ const HolidayManagement: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Form Section */}
         <div className="lg:col-span-1">
-            <div className="bg-alabaster-grey-50 rounded-xl p-5 border border-platinum-200 shadow-sm sticky top-6">
-               <h3 className="font-bold text-gunmetal-900 mb-4 flex items-center gap-2">
-                 {isEditing ? <FaEdit className="text-amber-500" /> : <FaPlus className="text-emerald-500" />}
-                 {isEditing ? "Edit Holiday" : "Add New Holiday"}
-               </h3>
+            <div className="bg-alabaster-grey-50 rounded-2xl p-6 border border-platinum-200 shadow-sm sticky top-6">
+               <div className="flex items-center justify-between mb-6">
+                   <h3 className="font-bold text-gunmetal-900 flex items-center gap-2 text-lg">
+                     {isEditing ? <FaEdit className="text-amber-500" /> : <FaPlus className="text-emerald-500" />}
+                     {isEditing ? "Edit Holiday" : "New Holiday"}
+                   </h3>
+                   {isEditing && (
+                       <button onClick={handleCancelEdit} className="text-xs font-bold text-slate-grey-500 hover:text-rose-500 flex items-center gap-1 transition-colors">
+                           <FaTimes /> Cancel
+                       </button>
+                   )}
+               </div>
                
-               <div className="space-y-4">
+               <div className="space-y-5">
                   <div>
-                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
                       Event Name
                     </label>
                     <input
@@ -231,37 +242,37 @@ const HolidayManagement: React.FC = () => {
                       onChange={(e) =>
                         setForm({ ...form, holidayName: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-platinum-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                      className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all shadow-sm placeholder:text-slate-grey-300"
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-2 gap-4">
                      <div>
-                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1">
+                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
                           Start Date
                         </label>
                         <input
                           type="date"
                           value={form.fromDate}
                           onChange={(e) => setForm({ ...form, fromDate: e.target.value })}
-                          className="w-full px-3 py-2 bg-white border border-platinum-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono"
+                          className="w-full px-3 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono shadow-sm"
                         />
                      </div>
                      <div>
-                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1">
+                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
                           End Date <span className="text-slate-grey-400 font-normal lowercase">(opt)</span>
                         </label>
                         <input
                           type="date"
                           value={form.toDate}
                           onChange={(e) => setForm({ ...form, toDate: e.target.value })}
-                          className="w-full px-3 py-2 bg-white border border-platinum-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono"
+                          className="w-full px-3 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono shadow-sm"
                         />
                      </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1">
+                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
                       Description
                     </label>
                     <textarea
@@ -270,40 +281,32 @@ const HolidayManagement: React.FC = () => {
                       onChange={(e) =>
                         setForm({ ...form, description: e.target.value })
                       }
-                      className="w-full px-3 py-2 bg-white border border-platinum-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all min-h-[80px] resize-none"
+                      className="w-full px-4 py-3 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all min-h-[100px] resize-none shadow-sm placeholder:text-slate-grey-300"
                     />
                   </div>
                   
-                  <div className="flex gap-2 pt-2">
+                  <div className="pt-2">
                       <button
                         onClick={handleAddOrUpdate}
                         disabled={!form.holidayName || !form.fromDate}
-                        className={`flex-1 py-2 text-white font-semibold rounded-lg shadow-sm transition-all text-sm ${
+                        className={`w-full py-3 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 ${
                             isEditing
-                            ? "bg-amber-500 hover:bg-amber-600"
-                            : "bg-gunmetal-900 hover:bg-gunmetal-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                            ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+                            : "bg-gunmetal-900 hover:bg-gunmetal-800 shadow-gunmetal-500/20 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
                         }`}
                         >
+                        {isEditing ? <FaSave /> : <FaPlus />}
                         {isEditing ? "Update Event" : "Create Event"}
                       </button>
-                      
-                      {isEditing && (
-                          <button 
-                             onClick={handleCancelEdit}
-                             className="px-4 py-2 bg-white border border-platinum-200 text-slate-grey-600 font-semibold rounded-lg hover:bg-platinum-50 transition-all text-sm"
-                          >
-                              Cancel
-                          </button>
-                      )}
                   </div>
                </div>
             </div>
         </div>
 
         {/* List Section */}
-        <div className="lg:col-span-2 flex flex-col gap-4">
+        <div className="lg:col-span-2 flex flex-col gap-6">
              {/* Filters */}
-             <div className="flex flex-col sm:flex-row gap-3 bg-white p-1">
+             <div className="flex flex-col sm:flex-row gap-4 bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
                 <div className="relative group flex-1">
                    <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
                    <input
@@ -312,22 +315,22 @@ const HolidayManagement: React.FC = () => {
                     placeholder="Search holidays..."
                     value={filters.search}
                     onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-                    className="w-full pl-9 pr-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
                   />
                 </div>
                 
-                <div className="relative group sm:w-40">
+                <div className="relative group sm:w-48">
                    <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
                    <select
                     value={filters.month}
                     onChange={(e) => setFilters({ ...filters, month: e.target.value })}
-                    className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+                    className="w-full pl-10 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
                   >
                     <option value="">All Months</option>
                     {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
                       <option key={month} value={month}>
                         {new Date(2024, month - 1).toLocaleString("default", {
-                          month: "short",
+                          month: "long",
                         })}
                       </option>
                     ))}
@@ -336,59 +339,62 @@ const HolidayManagement: React.FC = () => {
              </div>
 
             {/* Table */}
-            <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+            <div className="overflow-hidden rounded-xl border border-platinum-200 shadow-sm bg-white">
                 <table className="w-full text-left bg-white border-collapse">
-                  <thead className="bg-alabaster-grey-50">
+                  <thead className="bg-alabaster-grey-50 border-b border-platinum-200">
                     <tr>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Date</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Event Details</th>
-                      <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-24 text-center">Actions</th>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider">Date</th>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider">Event Details</th>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider text-center w-32">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-platinum-100">
                     {loading ? (
                       <tr>
-                        <td colSpan={3} className="text-center py-12 text-slate-grey-400">
-                           <FaSpinner className="animate-spin h-6 w-6 mx-auto mb-2 text-gunmetal-500" />
-                           <span className="text-sm">Loading calendar...</span>
+                        <td colSpan={3} className="text-center py-16 text-slate-grey-400">
+                           <div className="flex flex-col items-center justify-center animate-pulse gap-3">
+                               <FaSpinner className="animate-spin text-gunmetal-500 text-2xl" />
+                               <span className="text-sm font-medium">Loading calendar...</span>
+                           </div>
                         </td>
                       </tr>
                     ) : currentHolidays.length > 0 ? (
                       currentHolidays.map((holiday) => (
                         <tr key={holiday._id} className="hover:bg-alabaster-grey-50/50 transition-colors group">
-                          <td className="py-4 px-4 align-top w-48">
-                             <div className="flex flex-col gap-1">
-                                 <span className="text-sm font-bold text-gunmetal-900 font-mono">
-                                     {formatDate(holiday.fromDate)}
-                                 </span>
+                          <td className="py-5 px-6 align-top w-56">
+                             <div className="flex flex-col gap-1.5">
+                                 <div className="flex items-center gap-2 text-gunmetal-900 font-bold font-mono">
+                                    <FaCalendarAlt className="text-slate-grey-400 text-xs" />
+                                    {formatDate(holiday.fromDate)}
+                                 </div>
                                  {holiday.toDate && (
-                                     <span className="text-xs text-slate-grey-500 font-mono">
+                                     <span className="text-xs text-slate-grey-500 font-mono ml-5 border-l-2 border-platinum-200 pl-2">
                                          to {formatDate(holiday.toDate)}
                                      </span>
                                  )}
                                  {!holiday.toDate && (
-                                     <span className="text-[10px] uppercase font-bold tracking-wider text-slate-grey-400 bg-platinum-100 px-1.5 py-0.5 rounded w-fit">
+                                     <span className="ml-5 text-[10px] uppercase font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full w-fit border border-emerald-100">
                                          Single Day
                                      </span>
                                  )}
                              </div>
                           </td>
-                          <td className="py-4 px-4 align-top">
-                            <h4 className="text-sm font-bold text-gunmetal-800 mb-1">{holiday.holidayName}</h4>
-                            <p className="text-sm text-slate-grey-600 leading-relaxed">{holiday.description}</p>
+                          <td className="py-5 px-6 align-top">
+                            <h4 className="text-base font-bold text-gunmetal-900 mb-1.5">{holiday.holidayName}</h4>
+                            <p className="text-sm text-slate-grey-600 leading-relaxed max-w-prose">{holiday.description}</p>
                           </td>
-                          <td className="py-4 px-4 align-top text-center">
-                            <div className="flex justify-center gap-2 opacity-50 group-hover:opacity-100 transition-opacity">
+                          <td className="py-5 px-6 align-top text-center">
+                            <div className="flex justify-center gap-2">
                               <button
                                 onClick={() => handleEdit(holiday)}
-                                className="p-1.5 text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                                className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-200"
                                 title="Edit"
                               >
                                 <FaEdit />
                               </button>
                               <button
                                 onClick={() => handleDelete(holiday._id)}
-                                className="p-1.5 text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                                className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
                                 title="Delete"
                               >
                                 <FaTrashAlt />
@@ -399,10 +405,15 @@ const HolidayManagement: React.FC = () => {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={3} className="text-center py-12 text-slate-grey-400">
-                           <div className="flex flex-col items-center">
-                               <FaInbox size={32} className="opacity-50 mb-2" />
-                               <span className="text-sm font-medium">No holidays scheduled.</span>
+                        <td colSpan={3} className="text-center py-16 text-slate-grey-400">
+                           <div className="flex flex-col items-center justify-center">
+                               <div className="w-16 h-16 bg-alabaster-grey-50 rounded-full flex items-center justify-center mb-4 border border-platinum-200">
+                                   <FaInbox className="text-slate-grey-300 text-3xl" />
+                               </div>
+                               <span className="text-gunmetal-900 font-bold text-lg">No holidays found</span>
+                               <p className="text-slate-grey-500 text-sm mt-1 max-w-xs mx-auto">
+                                   No holidays match your search or none have been added yet.
+                               </p>
                            </div>
                         </td>
                       </tr>
@@ -413,28 +424,39 @@ const HolidayManagement: React.FC = () => {
 
             {/* Pagination controls */}
             {filteredHolidays.length > 0 && (
-                <div className="flex justify-between items-center border-t border-platinum-200 pt-4">
-                     <span className="text-xs text-slate-grey-500">
-                         Showing {indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredHolidays.length)} of {filteredHolidays.length}
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-platinum-200 pt-2 px-1">
+                     <span className="text-sm font-medium text-slate-grey-500">
+                         Showing <span className="font-bold text-gunmetal-900">{indexOfFirstItem + 1}</span> to <span className="font-bold text-gunmetal-900">{Math.min(indexOfLastItem, filteredHolidays.length)}</span> of <span className="font-bold text-gunmetal-900">{filteredHolidays.length}</span> entries
                      </span>
                      <div className="flex items-center gap-2">
                          <button
-                           className={`px-3 py-1 text-xs font-semibold rounded border border-platinum-200 transition-all ${
-                             currentPage === 1 ? "bg-platinum-50 text-slate-grey-400 cursor-not-allowed" : "bg-white text-gunmetal-600 hover:bg-platinum-50"
+                           className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                             currentPage === 1 
+                                ? "bg-platinum-50 text-slate-grey-300 cursor-not-allowed" 
+                                : "bg-white text-slate-grey-600 hover:bg-gunmetal-50 hover:text-gunmetal-900 hover:border-gunmetal-200 shadow-sm"
                            }`}
                            disabled={currentPage === 1}
                            onClick={handlePrevious}
+                           aria-label="Previous Page"
                          >
-                           Previous
+                           <FiChevronLeft size={18} />
                          </button>
+                         
+                         <span className="text-sm font-bold text-gunmetal-900 px-2">
+                            Page {currentPage} of {totalPages}
+                         </span>
+
                          <button
-                           className={`px-3 py-1 text-xs font-semibold rounded border border-platinum-200 transition-all ${
-                             currentPage === totalPages ? "bg-platinum-50 text-slate-grey-400 cursor-not-allowed" : "bg-white text-gunmetal-600 hover:bg-platinum-50"
+                           className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                             currentPage === totalPages 
+                                ? "bg-platinum-50 text-slate-grey-300 cursor-not-allowed" 
+                                : "bg-white text-slate-grey-600 hover:bg-gunmetal-50 hover:text-gunmetal-900 hover:border-gunmetal-200 shadow-sm"
                            }`}
                            disabled={currentPage === totalPages}
                            onClick={handleNext}
+                           aria-label="Next Page"
                          >
-                           Next
+                           <FiChevronRight size={18} />
                          </button>
                      </div>
                 </div>

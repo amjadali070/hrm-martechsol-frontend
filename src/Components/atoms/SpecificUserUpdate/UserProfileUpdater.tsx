@@ -228,14 +228,21 @@ const UserProfileUpdater: React.FC = () => {
         }
       );
 
-      setEmployee((prev) =>
-        prev
-          ? {
-              ...prev,
-              profilePicture: response.data.personalDetails.profilePicture,
-            }
-          : null
-      );
+      // Handle response structure which might be { user: ... } or direct
+      const updatedData = response.data.user || response.data;
+      const newProfilePicture = updatedData.personalDetails?.profilePicture;
+
+      if (newProfilePicture) {
+        setEmployee((prev) =>
+            prev
+            ? {
+                ...prev,
+                profilePicture: newProfilePicture,
+                }
+            : null
+        );
+      }
+
 
       toast.success("Profile picture updated successfully");
     } catch (error) {
@@ -369,7 +376,7 @@ const UserProfileUpdater: React.FC = () => {
         return employee ? <UserProfileDetails userProfile={employee} /> : null;
       case "Edit Data":
         return (
-          <div>
+          <div className="animate-fadeIn">
             <Tab
               tabs={editSubTabs}
               activeTab={activeEditSubTab}
@@ -385,16 +392,30 @@ const UserProfileUpdater: React.FC = () => {
 
   if (!employee) {
     return (
-      <div className="flex p-20 flex-col items-center">
-        <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
+      <div className="w-full h-[60vh] flex flex-col items-center justify-center">
+        <div className="w-12 h-12 border-4 border-platinum-200 border-t-gunmetal-900 rounded-full animate-spin mb-4"></div>
+        <p className="text-slate-grey-500 font-medium text-sm animate-pulse">
+          Loading Employee Profile...
+        </p>
       </div>
     );
   }
 
   return (
-    <div>
-      <Tab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
-      {renderTabContent()}
+    <div className="w-full min-h-screen bg-alabaster-grey-50 p-6 md:p-12">
+      <div className="max-w-auto mx-auto">
+        <div className="mb-8">
+          <h1 className="text-3xl font-extrabold text-gunmetal-900 tracking-tight">
+            User Management
+          </h1>
+          <p className="text-slate-grey-500 mt-2">
+            View and update employee information and compensation details.
+          </p>
+        </div>
+
+        <Tab tabs={tabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        {renderTabContent()}
+      </div>
     </div>
   );
 };

@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import {
-  FaSpinner,
-  FaFileSignature,
-  FaBriefcase,
-  FaDownload,
-} from "react-icons/fa";
+import { FaSpinner, FaFileSignature, FaBriefcase } from "react-icons/fa";
 import EmploymentLetterPDF, {
   EmploymentCertificateProps,
 } from "../../html/EmploymentLetterPDF";

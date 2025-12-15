@@ -2,15 +2,13 @@ import React, { useState, useEffect } from "react";
 import { toast } from "react-toastify";
 import Like from "../../assets/like.png";
 import axios from "axios";
-import { 
-  FaCalendarAlt, 
+import {
+  FaCalendarAlt,
   FaRegCalendarAlt,
   FaFileAlt,
   FaPaperclip,
   FaPaperPlane,
   FaUndo,
-  FaFileMedical,
-  FaInfoCircle
 } from "react-icons/fa";
 
 const LeaveApplication: React.FC = () => {
@@ -102,7 +100,7 @@ const LeaveApplication: React.FC = () => {
 
       if (!allowedTypes.includes(file.type)) {
         toast.error(
-          "Invalid file type. Please upload a PDF, JPG, PNG, or DOCX file.",
+          "Invalid file type. Please upload a PDF, JPG, PNG, or DOCX file."
         );
         setHandoverFile(null);
         return;
@@ -235,240 +233,304 @@ const LeaveApplication: React.FC = () => {
 
   return (
     <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 flex flex-col mb-8 overflow-hidden">
-        {/* Header */}
-         <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200">
-           <div className="flex items-center gap-3">
-              <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
-                  <FaRegCalendarAlt className="text-gunmetal-600 text-xl" />
-              </div>
-              <div>
-                  <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
-                    Leave Application
-                  </h2>
-                  <p className="text-sm text-slate-grey-500">
-                    Fill in the details below to request a leave.
-                  </p>
-              </div>
-           </div>
+      {/* Header */}
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaRegCalendarAlt className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Leave Application
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Fill in the details below to request a leave.
+            </p>
+          </div>
         </div>
+      </div>
 
       <div className="p-8">
         <form onSubmit={handleSubmit} className="space-y-6">
-            
-            {/* Leave Type */}
+          {/* Leave Type */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="leaveType"
+              className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+            >
+              Leave Type <span className="text-rose-500">*</span>
+            </label>
+            <div className="relative group">
+              <FaFileAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+              <select
+                id="leaveType"
+                name="leaveType"
+                value={leaveType}
+                onChange={(e) => {
+                  setLeaveType(e.target.value);
+                  setHandoverFile(null);
+                }}
+                className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                  errors.leaveType
+                    ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                    : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all appearance-none cursor-pointer placeholder:text-slate-grey-400`}
+              >
+                <option value="">Select Leave Type</option>
+                <option value="Casual Leave">Casual Leave</option>
+                <option value="Sick Leave">Sick Leave</option>
+                <option value="Annual Leave">Annual Leave</option>
+              </select>
+            </div>
+            {errors.leaveType && (
+              <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                {errors.leaveType}
+              </p>
+            )}
+          </div>
+
+          {/* Dates Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Start Date */}
             <div className="flex flex-col">
-                 <label htmlFor="leaveType" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                    Leave Type <span className="text-rose-500">*</span>
-                 </label>
-                 <div className="relative group">
-                    <FaFileAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-                    <select
-                        id="leaveType"
-                        name="leaveType"
-                        value={leaveType}
-                        onChange={(e) => {
-                            setLeaveType(e.target.value);
-                            setHandoverFile(null);
-                        }}
-                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
-                            errors.leaveType ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all appearance-none cursor-pointer placeholder:text-slate-grey-400`}
-                        >
-                        <option value="">Select Leave Type</option>
-                        <option value="Casual Leave">Casual Leave</option>
-                        <option value="Sick Leave">Sick Leave</option>
-                        <option value="Annual Leave">Annual Leave</option>
-                    </select>
-                </div>
-                {errors.leaveType && (
-                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.leaveType}</p>
-                )}
+              <label
+                htmlFor="startDate"
+                className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+              >
+                Start Date <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative group">
+                <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                <input
+                  type="date"
+                  id="startDate"
+                  name="startDate"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                    errors.startDate
+                      ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                      : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                  } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                />
+              </div>
+              {errors.startDate && (
+                <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                  {errors.startDate}
+                </p>
+              )}
             </div>
 
-            {/* Dates Grid */}
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                 {/* Start Date */}
-                <div className="flex flex-col">
-                    <label htmlFor="startDate" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                        Start Date <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="relative group">
-                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-                        <input
-                        type="date"
-                        id="startDate"
-                        name="startDate"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
-                            errors.startDate ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
-                        />
-                    </div>
-                     {errors.startDate && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.startDate}</p>
-                    )}
+            {/* End Date */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="endDate"
+                className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+              >
+                End Date <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative group">
+                <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                <input
+                  type="date"
+                  id="endDate"
+                  name="endDate"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                    errors.endDate
+                      ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                      : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                  } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                />
+              </div>
+              {errors.endDate && (
+                <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                  {errors.endDate}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Last Day */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="lastDayToWork"
+                className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+              >
+                Last Day of Work <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative group">
+                <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                <input
+                  type="date"
+                  id="lastDayToWork"
+                  name="lastDayToWork"
+                  value={lastDayToWork}
+                  onChange={(e) => setLastDayToWork(e.target.value)}
+                  className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                    errors.lastDayToWork
+                      ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                      : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                  } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                />
+              </div>
+              {errors.lastDayToWork && (
+                <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                  {errors.lastDayToWork}
+                </p>
+              )}
+            </div>
+
+            {/* Return */}
+            <div className="flex flex-col">
+              <label
+                htmlFor="returnToWork"
+                className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+              >
+                Return to Work <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative group">
+                <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                <input
+                  type="date"
+                  id="returnToWork"
+                  name="returnToWork"
+                  value={returnToWork}
+                  onChange={(e) => setReturnToWork(e.target.value)}
+                  className={`w-full pl-9 pr-4 py-3 bg-white border ${
+                    errors.returnToWork
+                      ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                      : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+                  } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
+                />
+              </div>
+              {errors.returnToWork && (
+                <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                  {errors.returnToWork}
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Reason */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="reason"
+              className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+            >
+              Reason <span className="text-rose-500">*</span>
+            </label>
+            <textarea
+              id="reason"
+              name="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className={`w-full p-4 bg-white border ${
+                errors.reason
+                  ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20"
+                  : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
+              } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all placeholder:text-slate-grey-400`}
+              rows={4}
+              placeholder="Please explain the reason for your leave request..."
+            ></textarea>
+            {errors.reason && (
+              <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                {errors.reason}
+              </p>
+            )}
+          </div>
+
+          {/* Attachment */}
+          <div className="flex flex-col">
+            <label
+              htmlFor="handoverFile"
+              className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1"
+            >
+              Attachment
+              {leaveType === "Sick Leave" && (
+                <span className="text-rose-500">*</span>
+              )}
+              {leaveType === "Sick Leave" && (
+                <span className="text-xs font-normal text-slate-grey-500 ml-1">
+                  (Medical Certificate Required)
+                </span>
+              )}
+            </label>
+
+            <div className="relative">
+              <input
+                type="file"
+                id="handoverFile"
+                name="handoverFile"
+                onChange={handleFileChange}
+                className="hidden"
+                accept=".pdf, .jpg, .jpeg, .png, .docx"
+              />
+              <label
+                htmlFor="handoverFile"
+                className="flex items-center justify-center w-full p-4 border-2 border-dashed border-platinum-300 rounded-lg cursor-pointer bg-alabaster-grey-50 hover:bg-white hover:border-gunmetal-400 transition-all group"
+              >
+                <div className="flex flex-col items-center">
+                  <FaPaperclip
+                    className="text-slate-grey-400 mb-2 group-hover:text-gunmetal-600 transition-colors"
+                    size={20}
+                  />
+                  <span className="text-sm font-medium text-slate-grey-600 group-hover:text-gunmetal-800 transition-colors">
+                    {handoverFile
+                      ? handoverFile.name
+                      : "Click to upload a document"}
+                  </span>
+                  {!handoverFile && (
+                    <span className="text-xs text-slate-grey-400 mt-1">
+                      PDF, DOCX, JPG or PNG (Max 5MB)
+                    </span>
+                  )}
                 </div>
+              </label>
+            </div>
 
-                {/* End Date */}
-                 <div className="flex flex-col">
-                    <label htmlFor="endDate" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                         End Date <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="relative group">
-                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-                        <input
-                        type="date"
-                        id="endDate"
-                        name="endDate"
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
-                            errors.endDate ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
-                        />
-                    </div>
-                     {errors.endDate && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.endDate}</p>
-                    )}
-                </div>
-             </div>
+            {errors.handoverFile && (
+              <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">
+                {errors.handoverFile}
+              </p>
+            )}
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Last Day */}
-                <div className="flex flex-col">
-                    <label htmlFor="lastDayToWork" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                        Last Day of Work <span className="text-rose-500">*</span>
-                    </label>
-                    <div className="relative group">
-                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-                         <input
-                        type="date"
-                        id="lastDayToWork"
-                        name="lastDayToWork"
-                        value={lastDayToWork}
-                        onChange={(e) => setLastDayToWork(e.target.value)}
-                        className={`w-full pl-9 pr-4 py-3 bg-white border ${
-                            errors.lastDayToWork ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
-                        />
-                    </div>
-                     {errors.lastDayToWork && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.lastDayToWork}</p>
-                    )}
-                </div>
+            {handoverFile && handoverFile.type.startsWith("image/") && (
+              <div className="mt-4 p-2 border border-platinum-200 rounded-lg bg-alabaster-grey-50 inline-block w-fit">
+                <img
+                  src={URL.createObjectURL(handoverFile)}
+                  alt="Preview"
+                  className="h-20 w-auto object-cover rounded"
+                />
+              </div>
+            )}
+          </div>
 
-                {/* Return */}
-                 <div className="flex flex-col">
-                    <label htmlFor="returnToWork" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                         Return to Work <span className="text-rose-500">*</span>
-                    </label>
-                   <div className="relative group">
-                        <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-                         <input
-                        type="date"
-                        id="returnToWork"
-                        name="returnToWork"
-                         value={returnToWork}
-                        onChange={(e) => setReturnToWork(e.target.value)}
-                         className={`w-full pl-9 pr-4 py-3 bg-white border ${
-                            errors.returnToWork ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                        } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all`}
-                        />
-                    </div>
-                    {errors.returnToWork && (
-                        <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.returnToWork}</p>
-                    )}
-                </div>
-             </div>
-
-             {/* Reason */}
-             <div className="flex flex-col">
-                 <label htmlFor="reason" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                    Reason <span className="text-rose-500">*</span>
-                 </label>
-                 <textarea
-                    id="reason"
-                    name="reason"
-                    value={reason}
-                    onChange={(e) => setReason(e.target.value)}
-                    className={`w-full p-4 bg-white border ${
-                        errors.reason ? "border-rose-500 focus:border-rose-500 focus:ring-rose-500/20" : "border-platinum-200 focus:border-gunmetal-500 focus:ring-gunmetal-500/20"
-                    } rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-4 transition-all placeholder:text-slate-grey-400`}
-                    rows={4}
-                    placeholder="Please explain the reason for your leave request..."
-                 ></textarea>
-                 {errors.reason && (
-                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.reason}</p>
-                )}
-             </div>
-
-             {/* Attachment */}
-             <div className="flex flex-col">
-                 <label htmlFor="handoverFile" className="text-sm font-bold text-gunmetal-700 mb-2 flex items-center gap-1">
-                     Attachment 
-                     {leaveType === "Sick Leave" && <span className="text-rose-500">*</span>}
-                     {leaveType === "Sick Leave" && <span className="text-xs font-normal text-slate-grey-500 ml-1">(Medical Certificate Required)</span>}
-                 </label>
-                 
-                 <div className="relative">
-                    <input
-                        type="file"
-                        id="handoverFile"
-                        name="handoverFile"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        accept=".pdf, .jpg, .jpeg, .png, .docx"
-                    />
-                    <label htmlFor="handoverFile" className="flex items-center justify-center w-full p-4 border-2 border-dashed border-platinum-300 rounded-lg cursor-pointer bg-alabaster-grey-50 hover:bg-white hover:border-gunmetal-400 transition-all group">
-                         <div className="flex flex-col items-center">
-                            <FaPaperclip className="text-slate-grey-400 mb-2 group-hover:text-gunmetal-600 transition-colors" size={20} />
-                            <span className="text-sm font-medium text-slate-grey-600 group-hover:text-gunmetal-800 transition-colors">
-                                {handoverFile ? handoverFile.name : "Click to upload a document"}
-                            </span>
-                            {!handoverFile && <span className="text-xs text-slate-grey-400 mt-1">PDF, DOCX, JPG or PNG (Max 5MB)</span>}
-                         </div>
-                    </label>
-                 </div>
-                 
-                  {errors.handoverFile && (
-                    <p className="mt-1.5 text-xs font-semibold text-rose-600 animate-in slide-in-from-left-1">{errors.handoverFile}</p>
-                )}
-
-                 {handoverFile && handoverFile.type.startsWith("image/") && (
-                    <div className="mt-4 p-2 border border-platinum-200 rounded-lg bg-alabaster-grey-50 inline-block w-fit">
-                        <img
-                        src={URL.createObjectURL(handoverFile)}
-                        alt="Preview"
-                        className="h-20 w-auto object-cover rounded"
-                        />
-                    </div>
-                )}
-             </div>
-
-            {/* Actions */}
-             <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-platinum-200">
-                <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={`flex items-center justify-center gap-2 px-8 py-3 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20 hover:translate-y-[-1px] active:translate-y-[1px] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto`}
-                >
-                    {isSubmitting ? (
-                        <>Submitting...</>
-                    ) : (
-                        <>
-                         <FaPaperPlane size={12} /> Submit Application
-                        </>
-                    )}
-                </button>
-                <button
-                    type="button"
-                    onClick={handleReset}
-                    className="flex items-center justify-center gap-2 px-8 py-3 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-alabaster-grey-50 hover:text-gunmetal-900 transition-all shadow-sm w-full sm:w-auto"
-                >
-                    <FaUndo size={12} /> Reset
-                </button>
-             </div>
+          {/* Actions */}
+          <div className="flex flex-col sm:flex-row items-center gap-4 pt-6 border-t border-platinum-200">
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className={`flex items-center justify-center gap-2 px-8 py-3 bg-gunmetal-900 text-white text-sm font-bold rounded-lg hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20 hover:translate-y-[-1px] active:translate-y-[1px] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0 w-full sm:w-auto`}
+            >
+              {isSubmitting ? (
+                <>Submitting...</>
+              ) : (
+                <>
+                  <FaPaperPlane size={12} /> Submit Application
+                </>
+              )}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="flex items-center justify-center gap-2 px-8 py-3 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-alabaster-grey-50 hover:text-gunmetal-900 transition-all shadow-sm w-full sm:w-auto"
+            >
+              <FaUndo size={12} /> Reset
+            </button>
+          </div>
         </form>
       </div>
 
@@ -485,7 +547,8 @@ const LeaveApplication: React.FC = () => {
               Application Submitted!
             </h3>
             <p className="text-sm text-slate-grey-600 mb-6 leading-relaxed">
-              Your leave request has been sent for approval. You can track its status in the "Track Application" tab.
+              Your leave request has been sent for approval. You can track its
+              status in the "Track Application" tab.
             </p>
             <button
               onClick={closeSuccessModal}

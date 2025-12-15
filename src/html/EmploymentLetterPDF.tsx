@@ -10,95 +10,127 @@ import {
 import logo from "../assets/LogoMartechSol.png";
 
 const colors = {
-  black: "#000000",
+  gunmetal900: "#101928",
+  gunmetal500: "#475569",
+  platinum200: "#e2e8f0",
+  alabaster50: "#f8fafc",
   white: "#FFFFFF",
-  gray600: "#6B7280",
-  gray800: "#1F2937",
-  purple900: "#4C1D95",
 };
 
 const styles = StyleSheet.create({
   page: {
-    paddingTop: 25,
+    paddingTop: 30,
     paddingLeft: 50,
     paddingRight: 50,
-    paddingBottom: 10,
+    paddingBottom: 20,
     fontFamily: "Helvetica",
-    fontSize: 9,
-    lineHeight: 1.2,
-    color: colors.gray800,
+    fontSize: 10,
+    lineHeight: 1.5,
+    color: colors.gunmetal900,
     flexDirection: "column",
     justifyContent: "space-between",
     height: "100%",
-    backgroundSize: "cover",
-    backgroundPosition: "center",
   },
   content: {
     flexGrow: 1,
     flexDirection: "column",
   },
   header: {
-    textAlign: "center",
-    marginBottom: 16,
-    position: "relative",
+    marginBottom: 20,
+    alignItems: "center",
   },
   logo: {
-    width: 120,
-    marginBottom: 4,
+    width: 140,
+    marginBottom: 10,
+  },
+  titleContainer: {
+    marginTop: 20,
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.platinum200,
+    paddingBottom: 10,
+    width: "100%",
+    alignItems: "center",
   },
   title: {
-    fontSize: 20,
+    fontSize: 22,
     fontFamily: "Helvetica-Bold",
-    color: colors.black,
+    color: colors.gunmetal900,
+    textTransform: "uppercase",
+    letterSpacing: 1,
+  },
+  metaData: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
     marginBottom: 20,
-    marginTop: 40,
+    width: "100%",
   },
   date: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    fontSize: 9,
-    color: colors.gray600,
-    fontStyle: "italic",
+    fontSize: 10,
+    color: colors.gunmetal500,
+    fontFamily: "Helvetica",
   },
   section: {
-    marginTop: 5,
-    marginBottom: 5,
+    marginBottom: 15,
   },
   sectionTitle: {
-    backgroundColor: colors.purple900,
+    backgroundColor: colors.gunmetal900,
     color: colors.white,
-    paddingVertical: 4,
-    paddingHorizontal: 6,
+    paddingVertical: 6,
+    paddingHorizontal: 12,
     fontSize: 11,
+    fontFamily: "Helvetica-Bold",
     textAlign: "center",
+    borderRadius: 2,
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
   },
   body: {
     marginTop: 10,
-    lineHeight: 1.8,
-    fontSize: 12,
+    fontSize: 11,
     textAlign: "justify",
+    color: colors.gunmetal900,
+  },
+  boldText: {
+    fontFamily: "Helvetica-Bold",
+  },
+  paragraph: {
+    marginBottom: 12,
+    textIndent: 20,
   },
   signature: {
-    marginTop: 50,
+    marginTop: 60,
     flexDirection: "column",
     alignItems: "flex-start",
   },
+  signatureName: {
+    marginTop: 40,
+    fontSize: 11,
+    fontFamily: "Helvetica-Bold",
+    color: colors.gunmetal900,
+    borderTopWidth: 1,
+    borderTopColor: colors.platinum200,
+    paddingTop: 5,
+    minWidth: 150,
+  },
+  signatureTitle: {
+    fontSize: 10,
+    color: colors.gunmetal500,
+    marginTop: 2,
+  },
   footerDivider: {
     height: 1,
-    backgroundColor: colors.purple900,
+    backgroundColor: colors.platinum200,
     marginBottom: 10,
   },
   footer: {
     textAlign: "center",
-    fontSize: 9,
-    color: colors.black,
-    paddingTop: 10,
-    paddingBottom: 10,
+    fontSize: 8,
+    color: colors.gunmetal500,
+    paddingTop: 5,
   },
   footerText: {
-    marginBottom: 6,
-    fontSize: 12,
+    marginBottom: 4,
   },
 });
 
@@ -122,8 +154,12 @@ const EmploymentCertificatePDF: React.FC<EmploymentCertificateProps> = ({
       <View style={styles.content}>
         <View style={styles.header}>
           <Image src={logo} style={styles.logo} />
-          <Text style={styles.title}>Employment Letter</Text>
-          <Text style={styles.date}>Date: {data.date}</Text>
+          <View style={styles.titleContainer}>
+            <Text style={styles.title}>Employment Certificate</Text>
+          </View>
+          <View style={styles.metaData}>
+            <Text style={styles.date}>Date: {data.date}</Text>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -131,60 +167,23 @@ const EmploymentCertificatePDF: React.FC<EmploymentCertificateProps> = ({
         </View>
 
         <View style={styles.body}>
-          <Text>
-            This is to certify that{" "}
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>
-              {data.employeeName}
-            </Text>
-            , has been employed with{" "}
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>
-              {data.companyName}
-            </Text>{" "}
-            as a{" "}
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>
-              {data.jobTitle}
-            </Text>{" "}
-            from{" "}
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>
-              {data.startDate} to Present.
-            </Text>
+          <Text style={styles.paragraph}>
+            This is to certify that <Text style={styles.boldText}>{data.employeeName}</Text> has been employed with <Text style={styles.boldText}>{data.companyName}</Text> as a <Text style={styles.boldText}>{data.jobTitle}</Text> from <Text style={styles.boldText}>{data.startDate} to Present</Text>.
           </Text>
 
-          <Text style={{ marginTop: 10 }}>
-            During their tenure,{" "}
-            <Text style={{ fontFamily: "Helvetica-Bold" }}>
-              {data.employeeName}
-            </Text>{" "}
-            was diligent, professional, and contributed significantly to the
-            success of the organization.
+          <Text style={styles.paragraph}>
+            During this tenure, <Text style={styles.boldText}>{data.employeeName}</Text> was diligent, professional, and contributed significantly to the success of the organization. We found them to be sincere, honest, and dedicated to their duties.
           </Text>
 
-          <Text style={{ marginTop: 10 }}>
+          <Text style={styles.paragraph}>
             We wish them the best in their future endeavors.
           </Text>
         </View>
 
         <View style={styles.signature}>
-          <Text style={{ marginTop: 20, fontSize: 12 }}>Sincerely,</Text>
-          <Text
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              fontFamily: "Helvetica-Bold",
-            }}
-          >
-            {data.signatoryName}
-          </Text>
-          <Text
-            style={{
-              marginTop: 10,
-              fontSize: 12,
-              fontFamily: "Helvetica-Bold",
-            }}
-          >
-            {data.signatoryTitle}
-          </Text>
-          {/* <View style={styles.signatureLine}></View> */}
+          <Text style={{ fontSize: 11, color: colors.gunmetal500 }}>Sincerely,</Text>
+          <Text style={styles.signatureName}>{data.signatoryName}</Text>
+          <Text style={styles.signatureTitle}>{data.signatoryTitle}</Text>
         </View>
       </View>
 

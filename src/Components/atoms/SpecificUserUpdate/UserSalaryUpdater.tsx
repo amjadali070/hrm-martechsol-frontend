@@ -50,90 +50,85 @@ const UserSalaryUpdater: React.FC<UserSalaryUpdaterProps> = ({
     setIsEditing((prev) => !prev);
   };
 
+  const SalaryInput = ({ label, name, value, disabled }: { label: string; name: string; value: number | undefined; disabled: boolean }) => (
+      <div>
+        <label className="block text-xs font-bold text-slate-grey-500 uppercase tracking-widest mb-2">
+          {label}
+        </label>
+        <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 font-medium">PKR</span>
+            <input
+            type="number"
+            name={name}
+            value={value}
+            onChange={handleChange}
+            disabled={disabled}
+            className={`w-full pl-12 pr-4 py-3 border rounded-xl font-semibold text-gunmetal-900 bg-alabaster-grey-50 transition-all
+                ${!disabled 
+                    ? "border-platinum-200 focus:border-gunmetal-500 focus:ring-2 focus:ring-gunmetal-200" 
+                    : "border-transparent cursor-not-allowed opacity-80"
+                }
+            `}
+            />
+        </div>
+      </div>
+  );
+
   return (
-    <div className="bg-white p-6 rounded-lg w-full mx-auto relative">
+    <div className="bg-white p-8 rounded-2xl border border-platinum-200 shadow-xl max-w-4xl mx-auto relative">
       <button
         onClick={toggleEdit}
-        className="absolute top-4 right-4 text-blue-600 hover:text-blue-500 transition-all"
+        className={`absolute top-6 right-6 p-2 rounded-full transition-all shadow-sm border border-platinum-200 flex items-center justify-center
+            ${isEditing 
+                ? 'bg-gunmetal-900 text-white' 
+                : 'bg-alabaster-grey-50 text-gunmetal-600 hover:bg-gunmetal-900 hover:text-white'
+            }
+        `}
         aria-label="Edit Salary Details"
       >
-        <FaEdit size={24} />
+        <FaEdit size={18} />
       </button>
 
-      <h2 className="text-lg font-semibold mb-4">Salary Details</h2>
+      <div className="mb-8 border-b border-platinum-200 pb-4">
+        <h2 className="text-xl font-bold text-gunmetal-900">Compensation & Benefits</h2>
+        <p className="text-sm text-slate-grey-500 mt-1">Manage salary breakdown and allowances</p>
+      </div>
 
       <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Basic Salary
-            </label>
-            <input
-              type="number"
-              name="basicSalary"
-              value={formData.basicSalary}
-              onChange={handleChange}
-              required
-              className="w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <SalaryInput 
+                label="Basic Salary" 
+                name="basicSalary" 
+                value={formData.basicSalary} 
+                disabled={!isEditing} 
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Medical Allowance
-              </label>
-              <input
-                type="number"
-                name="medicalAllowance"
-                value={formData.medicalAllowance}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? "cursor-not-allowed" : ""
-                }`}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Mobile Allowance
-              </label>
-              <input
-                type="number"
-                name="mobileAllowance"
-                value={formData.mobileAllowance}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? "cursor-not-allowed" : ""
-                }`}
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fuel Allowance
-              </label>
-              <input
-                type="number"
-                name="fuelAllowance"
-                value={formData.fuelAllowance}
-                onChange={handleChange}
-                disabled={!isEditing}
-                className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                  !isEditing ? "cursor-not-allowed" : ""
-                }`}
-              />
-            </div>
-          </div>
+            <SalaryInput 
+                label="Medical Allowance" 
+                name="medicalAllowance" 
+                value={formData.medicalAllowance} 
+                disabled={!isEditing} 
+            />
+             <SalaryInput 
+                label="Mobile Allowance" 
+                name="mobileAllowance" 
+                value={formData.mobileAllowance} 
+                disabled={!isEditing} 
+            />
+             <SalaryInput 
+                label="Fuel Allowance" 
+                name="fuelAllowance" 
+                value={formData.fuelAllowance} 
+                disabled={!isEditing} 
+            />
         </div>
 
         {isEditing && (
-          <div className="flex justify-start mt-6">
+          <div className="flex justify-end mt-8 pt-6 border-t border-platinum-200 animate-fadeIn">
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all text-lg font-semibold"
+              className="px-8 py-3 bg-gunmetal-900 text-white rounded-xl hover:bg-gunmetal-800 transition-all text-sm font-bold shadow-lg hover:shadow-gunmetal-500/20 transform hover:-translate-y-0.5"
             >
-              Update
+              Save Changes
             </button>
           </div>
         )}

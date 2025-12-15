@@ -1,5 +1,5 @@
 import React from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaFileAlt } from "react-icons/fa";
 
 interface DocumentViewerModalProps {
   isOpen: boolean;
@@ -25,7 +25,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
           <img
             src={fileUrl}
             alt={fileName}
-            className="max-w-full max-h-[80vh] object-contain mx-auto"
+            className="max-w-full max-h-[75vh] object-contain mx-auto rounded-lg shadow-sm"
           />
         );
       case "pdf":
@@ -33,31 +33,47 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
           <iframe
             src={fileUrl}
             title={fileName}
-            className="w-full h-[80vh]"
+            className="w-full h-[75vh] rounded-lg border border-platinum-200"
             frameBorder="0"
           />
         );
       default:
-        return null;
+        return (
+             <div className="flex flex-col items-center justify-center p-12 text-slate-grey-500">
+                 <p>Unsupported file type</p>
+             </div>
+        );
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg max-w-4xl w-full relative">
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 z-60 text-gray-700 hover:text-black"
-          aria-label="Close"
-        >
-          <FaTimes size={24} />
-        </button>
-
-        <div className="p-4 bg-gray-100 rounded-t-lg border-b mt-1">
-          <h2 className="text-xl font-semibold text-left ml-3">{fileName}</h2>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/80 backdrop-blur-sm p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-platinum-200 shrink-0">
+           <div className="flex items-center gap-3 overflow-hidden">
+               <div className="bg-gunmetal-50 p-2 rounded-lg text-gunmetal-600 shrink-0">
+                   <FaFileAlt />
+               </div>
+               <h2 className="text-lg font-bold text-gunmetal-900 truncate" title={fileName}>
+                   {fileName}
+               </h2>
+           </div>
+           
+           <button
+             onClick={onClose}
+             className="ml-4 p-2 text-slate-grey-400 hover:text-gunmetal-900 hover:bg-platinum-50 rounded-full transition-colors"
+           >
+             <FaTimes size={18} />
+           </button>
         </div>
 
-        <div className="p-4">{renderContent()}</div>
+        {/* Content Area */}
+        <div className="p-6 bg-alabaster-grey-50/50 flex-1 overflow-auto flex items-center justify-center">
+            {renderContent()}
+        </div>
+
       </div>
     </div>
   );

@@ -196,7 +196,7 @@ const HRTicketManagement: React.FC = () => {
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gunmetal-900 text-white">
+          <thead className="bg-alabaster-grey-50 border-b border-platinum-200">
             <tr>
               {[
                 "S.No",
@@ -209,7 +209,7 @@ const HRTicketManagement: React.FC = () => {
               ].map((header) => (
                 <th
                   key={header}
-                  className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-left first:pl-8 last:pr-8"
+                  className="px-6 py-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider text-left first:pl-8 last:pr-8"
                 >
                   {header}
                 </th>
