@@ -8,6 +8,7 @@ import {
   FaBars,
   FaTimes,
   FaClipboardList,
+  FaCog,
 } from "react-icons/fa";
 import { PiNetworkFill } from "react-icons/pi";
 import { RiCashFill } from "react-icons/ri";
@@ -171,6 +172,7 @@ const menuItems: MenuItem[] = [
   { icon: MdRuleFolder, label: "Policies", path: "/policies" },
   { icon: FaBlog, label: "Company Blog", path: "/blog" },
   { icon: FaChalkboardTeacher, label: "Training", path: "/training-room" },
+  { icon: FaCog, label: "Settings", path: "/settings" },
 ];
 
 interface SidebarProps {

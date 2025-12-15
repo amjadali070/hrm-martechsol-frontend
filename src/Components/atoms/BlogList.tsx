@@ -20,7 +20,7 @@ const BlogList: React.FC = () => {
               Company Blog
             </h2>
             <p className="text-sm text-slate-grey-500">
-               Latest updates, news, and articles from MartechSol.
+               Latest updates, news, and articles from NEXUS.
             </p>
           </div>
         </div>

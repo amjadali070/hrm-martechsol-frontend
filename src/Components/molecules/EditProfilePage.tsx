@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import profilePlaceHolder from "../../assets/placeholder.png";
 import BankAccountDetails from "../atoms/EditProfile/BankAccountDetails";
 import ContactDetails from "../atoms/EditProfile/ContactDetails";
@@ -12,10 +13,23 @@ import useUser from "../../hooks/useUser";
 import axios from "axios";
 import { toast } from "react-toastify";
 import SalaryDetails from "../atoms/EditProfile/SalaryDetails";
-import { FaUser, FaPhoneAlt, FaGraduationCap, FaHeartbeat, FaFileAlt, FaFolderOpen, FaMoneyCheckAlt, FaMoneyBillWave, FaLock, FaChevronRight } from "react-icons/fa";
+import { 
+  FaUser, 
+  FaPhoneAlt, 
+  FaGraduationCap, 
+  FaHeartbeat, 
+  FaFileAlt, 
+  FaFolderOpen, 
+  FaMoneyCheckAlt, 
+  FaMoneyBillWave, 
+  FaLock, 
+  FaChevronRight,
+  FaCog 
+} from "react-icons/fa";
 
 const EditProfilePage: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState("Personal Details");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "Personal Details";
   const { user, refetchUser } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -51,6 +65,10 @@ const EditProfilePage: React.FC = () => {
       });
     }
   }, [user]);
+
+  const handleTabChange = (tabName: string) => {
+      setSearchParams({ tab: tabName });
+  };
 
   const handleUpdatePersonalDetails = async (
     updatedEmployee: typeof employee
@@ -240,7 +258,7 @@ const EditProfilePage: React.FC = () => {
   ];
 
   const renderContent = () => {
-    switch (selectedMenu) {
+    switch (activeTab) {
       case "Personal Details":
         return <PersonalDetails
             employee={employee}
@@ -278,6 +296,7 @@ const EditProfilePage: React.FC = () => {
             GPA={user?.education?.[0]?.GPA || "N/A"}
             yearOfCompletion={String(user?.education?.[0]?.yearOfCompletion) || "N/A"}
             onUpdate={handleUpdateEducation}
+            // Add isEditable prop if Education component supports it, otherwise assumes it does or handles it internally
           />;
       case "Emergency Contact":
         return <EmergencyContact
@@ -318,40 +337,51 @@ const EditProfilePage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-8 items-start">
+    <div className="flex flex-col lg:flex-row gap-8 items-start animate-fadeIn max-w-[1600px] mx-auto p-6">
+      {/* Sidebar */}
       <div className="w-full lg:w-72 shrink-0">
-          <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden sticky top-8">
-               <div className="p-6 bg-alabaster-grey-50 border-b border-platinum-200">
-                    <h3 className="font-bold text-gunmetal-900">Profile Settings</h3>
-                    <p className="text-sm text-slate-grey-500">Manage your information</p>
+          <div className="bg-white rounded-2xl shadow-xl border border-platinum-200 overflow-hidden sticky top-8">
+               <div className="p-6 bg-white border-b border-platinum-200">
+                   <div className="flex items-center gap-3 mb-2">
+                       <div className="p-2 bg-gunmetal-50 rounded-lg text-gunmetal-600">
+                           <FaCog className="text-xl" />
+                       </div>
+                       <h3 className="font-extrabold text-gunmetal-900 text-lg tracking-tight">Settings</h3>
+                   </div>
+                    <p className="text-sm font-medium text-slate-grey-500">Manage your profile & preferences</p>
                </div>
-               <ul className="p-3 space-y-1">
+               <nav className="p-3 space-y-1">
                 {menuItems.map((item) => (
-                    <li key={item.name}>
-                        <button
-                            onClick={() => setSelectedMenu(item.name)}
-                            className={`w-full flex items-center justify-between px-4 py-3 rounded-lg text-sm font-semibold transition-all duration-200 group ${
-                            selectedMenu === item.name
-                                ? "bg-gunmetal-900 text-white shadow-md shadow-gunmetal-500/20"
-                                : "text-slate-grey-600 hover:bg-gunmetal-50 hover:text-gunmetal-900"
-                            }`}
-                        >
-                            <span className="flex items-center gap-3">
-                                <span className={`text-lg transition-colors ${selectedMenu === item.name ? "text-gunmetal-100" : "text-slate-grey-400 group-hover:text-gunmetal-500"}`}>
-                                    {item.icon}
-                                </span>
-                                {item.name}
+                    <button
+                        key={item.name}
+                        onClick={() => handleTabChange(item.name)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group relative ${
+                        activeTab === item.name
+                            ? "bg-gunmetal-900 text-white shadow-lg shadow-gunmetal-500/20"
+                            : "text-slate-grey-600 hover:bg-alabaster-grey-50 hover:text-gunmetal-900"
+                        }`}
+                    >
+                        <span className="flex items-center gap-3 relative z-10">
+                            <span className={`text-lg transition-colors ${activeTab === item.name ? "text-gunmetal-100" : "text-slate-grey-400 group-hover:text-gunmetal-500"}`}>
+                                {item.icon}
                             </span>
-                             {selectedMenu === item.name && <FaChevronRight size={12} />}
-                        </button>
-                    </li>
+                            {item.name}
+                        </span>
+                         {activeTab === item.name && <FaChevronRight size={12} className="text-gunmetal-100" />}
+                    </button>
                 ))}
-            </ul>
+            </nav>
         </div>
       </div>
 
+      {/* Main Content Area */}
       <div className="flex-1 w-full min-w-0">
-         {renderContent()}
+          {/* We render content directly. The containers are inside the atoms mostly, but we can ensure a wrapper if needed. 
+              The atoms (Education, etc.) seem to be full components. We'll wrap them in a consistent fade-in div.
+          */}
+         <div key={activeTab} className="animate-fadeIn">
+             {renderContent()}
+         </div>
       </div>
     </div>
   );

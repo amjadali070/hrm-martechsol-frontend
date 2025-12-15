@@ -168,11 +168,20 @@ const EmploymentCertificatePDF: React.FC<EmploymentCertificateProps> = ({
 
         <View style={styles.body}>
           <Text style={styles.paragraph}>
-            This is to certify that <Text style={styles.boldText}>{data.employeeName}</Text> has been employed with <Text style={styles.boldText}>{data.companyName}</Text> as a <Text style={styles.boldText}>{data.jobTitle}</Text> from <Text style={styles.boldText}>{data.startDate} to Present</Text>.
+            This is to certify that{" "}
+            <Text style={styles.boldText}>{data.employeeName}</Text> has been
+            employed with{" "}
+            <Text style={styles.boldText}>{data.companyName}</Text> as a{" "}
+            <Text style={styles.boldText}>{data.jobTitle}</Text> from{" "}
+            <Text style={styles.boldText}>{data.startDate} to Present</Text>.
           </Text>
 
           <Text style={styles.paragraph}>
-            During this tenure, <Text style={styles.boldText}>{data.employeeName}</Text> was diligent, professional, and contributed significantly to the success of the organization. We found them to be sincere, honest, and dedicated to their duties.
+            During this tenure,{" "}
+            <Text style={styles.boldText}>{data.employeeName}</Text> was
+            diligent, professional, and contributed significantly to the success
+            of the organization. We found them to be sincere, honest, and
+            dedicated to their duties.
           </Text>
 
           <Text style={styles.paragraph}>
@@ -181,7 +190,9 @@ const EmploymentCertificatePDF: React.FC<EmploymentCertificateProps> = ({
         </View>
 
         <View style={styles.signature}>
-          <Text style={{ fontSize: 11, color: colors.gunmetal500 }}>Sincerely,</Text>
+          <Text style={{ fontSize: 11, color: colors.gunmetal500 }}>
+            Sincerely,
+          </Text>
           <Text style={styles.signatureName}>{data.signatoryName}</Text>
           <Text style={styles.signatureTitle}>{data.signatoryTitle}</Text>
         </View>
@@ -195,7 +206,7 @@ const EmploymentCertificatePDF: React.FC<EmploymentCertificateProps> = ({
             Block 2, Karachi
           </Text>
           <Text style={styles.footerText}>
-            +92 331 2269643 | contact@martechsol.com | www.martechsol.com
+            +92 331 2269643 | contact@nexus.com | www.nexus.com
           </Text>
         </View>
       </View>

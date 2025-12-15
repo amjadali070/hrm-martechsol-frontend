@@ -79,8 +79,8 @@ const ExperienceLetter: React.FC = () => {
                 </h4>
                 <p className="text-xs text-slate-grey-500 mt-1">
                   This document certifies your tenure and designation at{" "}
-                  <strong>MartechSol Pvt. Ltd.</strong> It includes your start
-                  date, end date (if applicable), and role details.
+                  <strong>NEXUS Pvt. Ltd.</strong> It includes your start date,
+                  end date (if applicable), and role details.
                 </p>
               </div>
             </div>

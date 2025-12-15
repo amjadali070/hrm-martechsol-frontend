@@ -120,6 +120,7 @@ const App: React.FC = () => {
                 <Route path="/policies" element={<Policies />} />
                 <Route path="/announcements" element={<Notices />} />
                 <Route path="/edit-profile" element={<EditProfilePage />} />
+                <Route path="/settings" element={<EditProfilePage />} />
                 <Route path="/create-ticket" element={<SubmitATicket />} />
                 <Route
                   path="/blog"
