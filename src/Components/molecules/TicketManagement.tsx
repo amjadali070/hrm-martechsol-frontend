@@ -12,6 +12,7 @@ import HRTicketManagement from "./HRTicketManagement";
 import AdminTicketManagement from "./AdminTicketManagement";
 import NetworkTicketManagement from "./NetworkTicketManagement";
 import useUser from "../../hooks/useUser";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface TicketType {
   label: string;
@@ -76,10 +77,7 @@ const TicketManagement: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="w-full h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-12 h-12 border-4 border-platinum-200 border-t-gunmetal-900 rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-grey-500 font-medium text-sm animate-pulse">Initializing Dashboard...</p>
-      </div>
+      <LoadingSpinner className="h-[60vh]" size="xl" text="Initializing Dashboard..." />
     );
   }
 

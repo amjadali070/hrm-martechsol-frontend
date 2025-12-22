@@ -4,7 +4,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { 
   FaInbox, 
-  FaSpinner, 
   FaEye, 
   FaSearch, 
   FaRegFileAlt, 
@@ -20,6 +19,7 @@ import useUser from "../../hooks/useUser";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface UserInfo {
   name: string;
@@ -177,10 +177,7 @@ const FormsManagement: React.FC = () => {
 
   if (userLoading || loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <FaSpinner className="animate-spin text-4xl text-gunmetal-600 mb-4" />
-        <p className="text-slate-grey-500 font-medium">Loading forms...</p>
-      </div>
+      <LoadingSpinner className="h-96" size="xl" text="Loading forms..." />
     );
   }
 

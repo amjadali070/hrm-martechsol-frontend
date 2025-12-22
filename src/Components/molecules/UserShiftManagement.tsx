@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { 
-  FaFilter, 
-  FaSearch, 
-  FaSpinner, 
-  FaInbox, 
-  FaEdit, 
-  FaUserClock, 
-  FaCheckCircle 
+import {
+  FaFilter,
+  FaSearch,
+  FaInbox,
+  FaUserClock,
+  FaCheckCircle,
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import useUser from "../../hooks/useUser";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface UserShiftData {
   _id: string;
@@ -23,18 +22,42 @@ interface UserShiftData {
 }
 
 const departmentOptions = [
-  "Account Management", "Project Management", "Content Production", "Book Marketing",
-  "Design Production", "SEO", "Creative Media", "Web Development", "Paid Advertising",
-  "Software Production", "IT & Networking", "Human Resource", "Training & Development",
-  "Admin", "Finance", "Brand Development", "Corporate Communication", "Lead Generation",
+  "Account Management",
+  "Project Management",
+  "Content Production",
+  "Book Marketing",
+  "Design Production",
+  "SEO",
+  "Creative Media",
+  "Web Development",
+  "Paid Advertising",
+  "Software Production",
+  "IT & Networking",
+  "Human Resource",
+  "Training & Development",
+  "Admin",
+  "Finance",
+  "Brand Development",
+  "Corporate Communication",
+  "Lead Generation",
   "Administration",
 ];
 
 const jobTitleOptions = [
-  "Executive", "Senior Executive", "Assistant Manager", "Associate Manager",
-  "Manager", "Senior Manager", "Assistant Vice President", "Associate Vice President",
-  "Vice President", "Senior Vice President", "President", "Head of Department",
-  "Head Of Project Management", "Chief Executive Officer",
+  "Executive",
+  "Senior Executive",
+  "Assistant Manager",
+  "Associate Manager",
+  "Manager",
+  "Senior Manager",
+  "Assistant Vice President",
+  "Associate Vice President",
+  "Vice President",
+  "Senior Vice President",
+  "President",
+  "Head of Department",
+  "Head Of Project Management",
+  "Chief Executive Officer",
 ];
 
 const additionalShiftTimings = [
@@ -63,13 +86,17 @@ const UserShiftManagement: React.FC = () => {
     jobTitle: "",
     shiftTimings: "",
   });
-  const [editedShifts, setEditedShifts] = useState<{ [key: string]: string }>({});
+  const [editedShifts, setEditedShifts] = useState<{ [key: string]: string }>(
+    {}
+  );
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [shiftOptions, setShiftOptions] = useState<{ label: string; start: string; end: string }[]>(additionalShiftTimings);
+  const [shiftOptions, setShiftOptions] = useState<
+    { label: string; start: string; end: string }[]
+  >(additionalShiftTimings);
   const [loading, setLoading] = useState<boolean>(false);
   const [updating, setUpdating] = useState<{ [key: string]: boolean }>({});
-  
+
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const user = useUser();
   const currentUserId = user.user?._id;
@@ -78,9 +105,12 @@ const UserShiftManagement: React.FC = () => {
     const fetchUserShifts = async () => {
       setLoading(true);
       try {
-        const response = await axios.get(`${backendUrl}/api/users/getAllUserShifts`, {
-          withCredentials: true,
-        });
+        const response = await axios.get(
+          `${backendUrl}/api/users/getAllUserShifts`,
+          {
+            withCredentials: true,
+          }
+        );
         setData(response.data.users);
       } catch (error: any) {
         console.error("Error fetching user shifts:", error);
@@ -93,13 +123,18 @@ const UserShiftManagement: React.FC = () => {
     fetchUserShifts();
   }, [backendUrl]);
 
-  const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleFilterChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setFilters((prev) => ({ ...prev, [name]: value }));
     setCurrentPage(1);
   };
 
-  const handleShiftChange = (id: string, shift: { start: string; end: string }) => {
+  const handleShiftChange = (
+    id: string,
+    shift: { start: string; end: string }
+  ) => {
     setEditedShifts((prev) => ({
       ...prev,
       [id]: `${shift.start} - ${shift.end}`,
@@ -137,11 +172,19 @@ const UserShiftManagement: React.FC = () => {
   };
 
   const filteredData = data.filter((user) => {
-    const matchesSearch = user.name.toLowerCase().includes(filters.search.toLowerCase());
-    const matchesDepartment = !filters.department || user.department === filters.department;
-    const matchesJobTitle = !filters.jobTitle || user.jobTitle === filters.jobTitle;
-    const matchesShift = !filters.shiftTimings || `${user.shiftStartTime} - ${user.shiftEndTime}` === filters.shiftTimings;
-    return matchesSearch && matchesDepartment && matchesJobTitle && matchesShift;
+    const matchesSearch = user.name
+      .toLowerCase()
+      .includes(filters.search.toLowerCase());
+    const matchesDepartment =
+      !filters.department || user.department === filters.department;
+    const matchesJobTitle =
+      !filters.jobTitle || user.jobTitle === filters.jobTitle;
+    const matchesShift =
+      !filters.shiftTimings ||
+      `${user.shiftStartTime} - ${user.shiftEndTime}` === filters.shiftTimings;
+    return (
+      matchesSearch && matchesDepartment && matchesJobTitle && matchesShift
+    );
   });
 
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
@@ -151,34 +194,35 @@ const UserShiftManagement: React.FC = () => {
   );
 
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
-  const handleNext = () => setCurrentPage((prev) => Math.min(prev + 1, totalPages));
+  const handleNext = () =>
+    setCurrentPage((prev) => Math.min(prev + 1, totalPages));
 
   return (
     <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
       <ToastContainer position="top-center" />
-      
+
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div className="flex items-center gap-3">
-             <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
-               <FaUserClock className="text-gunmetal-600 text-xl" />
-             </div>
-             <div>
-                <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
-                    Shift Management
-                </h2>
-                <p className="text-sm text-slate-grey-500">
-                    Assign and update employee working hours.
-                </p>
-             </div>
+          <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+            <FaUserClock className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Shift Management
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Assign and update employee working hours.
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="relative group">
-           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-           <input
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+          <input
             type="text"
             name="search"
             placeholder="Search by name..."
@@ -189,8 +233,8 @@ const UserShiftManagement: React.FC = () => {
         </div>
 
         <div className="relative group">
-           <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-           <select
+          <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+          <select
             name="department"
             value={filters.department}
             onChange={handleFilterChange}
@@ -198,14 +242,16 @@ const UserShiftManagement: React.FC = () => {
           >
             <option value="">All Departments</option>
             {departmentOptions.map((dept) => (
-              <option key={dept} value={dept}>{dept}</option>
+              <option key={dept} value={dept}>
+                {dept}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="relative group">
-           <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-           <select
+          <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+          <select
             name="jobTitle"
             value={filters.jobTitle}
             onChange={handleFilterChange}
@@ -213,14 +259,16 @@ const UserShiftManagement: React.FC = () => {
           >
             <option value="">All Job Titles</option>
             {jobTitleOptions.map((title) => (
-              <option key={title} value={title}>{title}</option>
+              <option key={title} value={title}>
+                {title}
+              </option>
             ))}
           </select>
         </div>
 
-         <div className="relative group">
-           <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
-           <select
+        <div className="relative group">
+          <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+          <select
             name="shiftTimings"
             value={filters.shiftTimings}
             onChange={handleFilterChange}
@@ -228,7 +276,9 @@ const UserShiftManagement: React.FC = () => {
           >
             <option value="">All Shifts</option>
             {shiftOptions.map((shift) => (
-              <option key={shift.label} value={shift.label}>{shift.label}</option>
+              <option key={shift.label} value={shift.label}>
+                {shift.label}
+              </option>
             ))}
           </select>
         </div>
@@ -239,28 +289,40 @@ const UserShiftManagement: React.FC = () => {
         <table className="w-full text-left bg-white border-collapse">
           <thead className="bg-alabaster-grey-50">
             <tr>
-              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">User</th>
-              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Department</th>
-              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Job Title</th>
-              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-64">Shift Timings</th>
-              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center w-32">Status</th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                User
+              </th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                Department
+              </th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                Job Title
+              </th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-64">
+                Shift Timings
+              </th>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center w-32">
+                Status
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-platinum-100">
             {loading ? (
               <tr>
                 <td colSpan={5} className="text-center py-12">
-                   <div className="flex flex-col items-center justify-center text-gunmetal-500">
-                      <FaSpinner size={32} className="animate-spin mb-3" />
-                      <p className="text-sm font-medium">Loading shifts...</p>
-                    </div>
+                  <LoadingSpinner size="lg" text="Loading shifts..." />
                 </td>
               </tr>
             ) : currentData.length > 0 ? (
               currentData.map((user) => (
-                <tr key={user._id} className="hover:bg-alabaster-grey-50/50 transition-colors">
+                <tr
+                  key={user._id}
+                  className="hover:bg-alabaster-grey-50/50 transition-colors"
+                >
                   <td className="py-4 px-4">
-                     <span className="text-sm font-semibold text-gunmetal-900">{user.name}</span>
+                    <span className="text-sm font-semibold text-gunmetal-900">
+                      {user.name}
+                    </span>
                   </td>
                   <td className="py-4 px-4 text-sm text-slate-grey-600">
                     {user.department}
@@ -270,22 +332,34 @@ const UserShiftManagement: React.FC = () => {
                   </td>
                   <td className="py-4 px-4">
                     <select
-                      value={editedShifts[user._id] || (user.shiftStartTime && user.shiftEndTime ? `${user.shiftStartTime} - ${user.shiftEndTime}` : "")}
+                      value={
+                        editedShifts[user._id] ||
+                        (user.shiftStartTime && user.shiftEndTime
+                          ? `${user.shiftStartTime} - ${user.shiftEndTime}`
+                          : "")
+                      }
                       onChange={(e) => {
                         const selectedLabel = e.target.value;
-                        const selectedShift = shiftOptions.find((s) => s.label === selectedLabel);
+                        const selectedShift = shiftOptions.find(
+                          (s) => s.label === selectedLabel
+                        );
                         if (selectedShift) {
-                          handleShiftChange(user._id, { start: selectedShift.start, end: selectedShift.end });
+                          handleShiftChange(user._id, {
+                            start: selectedShift.start,
+                            end: selectedShift.end,
+                          });
                         }
                       }}
                       disabled={user._id === currentUserId}
                       className="w-full text-sm border border-platinum-300 rounded-lg px-3 py-2 text-gunmetal-900 focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono"
                     >
                       <option value="" disabled>
-                         {user.shiftStartTime ? "Select Shift" : "Select Shift"}
+                        {user.shiftStartTime ? "Select Shift" : "Select Shift"}
                       </option>
                       {shiftOptions.map((shift) => (
-                        <option key={shift.label} value={shift.label}>{shift.label}</option>
+                        <option key={shift.label} value={shift.label}>
+                          {shift.label}
+                        </option>
                       ))}
                     </select>
                   </td>
@@ -300,11 +374,23 @@ const UserShiftManagement: React.FC = () => {
                         disabled={updating[user._id]}
                         className="flex items-center justify-center gap-2 w-full px-3 py-1.5 bg-gunmetal-900 text-white rounded-lg hover:bg-gunmetal-800 transition-all shadow-sm text-xs font-semibold disabled:opacity-70 disabled:cursor-not-allowed"
                       >
-                         {updating[user._id] ? <FaSpinner className="animate-spin" /> : <><FaCheckCircle /> Save</>}
+                        {updating[user._id] ? (
+                          <LoadingSpinner size="sm" color="white" />
+                        ) : (
+                          <>
+                            <FaCheckCircle /> Save
+                          </>
+                        )}
                       </button>
                     ) : (
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-semibold border ${user.shiftStartTime ? "bg-emerald-50 text-emerald-700 border-emerald-100" : "bg-amber-50 text-amber-700 border-amber-100"}`}>
-                         {user.shiftStartTime ? "Assigned" : "Unassigned"}
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-semibold border ${
+                          user.shiftStartTime
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                            : "bg-amber-50 text-amber-700 border-amber-100"
+                        }`}
+                      >
+                        {user.shiftStartTime ? "Assigned" : "Unassigned"}
                       </span>
                     )}
                   </td>
@@ -312,11 +398,14 @@ const UserShiftManagement: React.FC = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={5} className="text-center py-12 text-slate-grey-400">
-                   <div className="flex flex-col items-center">
-                       <FaInbox size={32} className="opacity-50 mb-2" />
-                       <span className="text-sm font-medium">No users found.</span>
-                   </div>
+                <td
+                  colSpan={5}
+                  className="text-center py-12 text-slate-grey-400"
+                >
+                  <div className="flex flex-col items-center">
+                    <FaInbox size={32} className="opacity-50 mb-2" />
+                    <span className="text-sm font-medium">No users found.</span>
+                  </div>
                 </td>
               </tr>
             )}
@@ -326,52 +415,54 @@ const UserShiftManagement: React.FC = () => {
 
       {/* Pagination Controls */}
       {filteredData.length > 0 && (
-         <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
-            <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+        <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+          <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
             <span className="font-medium">Rows per page:</span>
             <select
-                className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
-                value={itemsPerPage}
-                onChange={(e) => {
+              className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+              value={itemsPerPage}
+              onChange={(e) => {
                 setItemsPerPage(parseInt(e.target.value));
                 setCurrentPage(1);
-                }}
+              }}
             >
-                {[5, 10, 20, 50].map((option) => (
-                <option key={option} value={option}>{option}</option>
-                ))}
+              {[5, 10, 20, 50].map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
             </select>
-            </div>
+          </div>
 
-            <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <button
-                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
-                currentPage === 1 
-                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
-                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
-                }`}
-                disabled={currentPage === 1}
-                onClick={handlePrevious}
+              className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === 1
+                  ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed"
+                  : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+              }`}
+              disabled={currentPage === 1}
+              onClick={handlePrevious}
             >
-                <FiChevronLeft size={12} />
+              <FiChevronLeft size={12} />
             </button>
-            
+
             <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-2">
-                Page {currentPage} of {totalPages || 1}
+              Page {currentPage} of {totalPages || 1}
             </span>
-            
+
             <button
-                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+              className={`p-2 rounded-lg border border-platinum-200 transition-all ${
                 currentPage === totalPages || totalPages === 0
-                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
-                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
-                }`}
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={handleNext}
+                  ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed"
+                  : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
+              }`}
+              disabled={currentPage === totalPages || totalPages === 0}
+              onClick={handleNext}
             >
-                <FiChevronRight size={12} />
+              <FiChevronRight size={12} />
             </button>
-            </div>
+          </div>
         </div>
       )}
     </div>

@@ -4,7 +4,8 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import SalarySlipPDF from "../../html/SalarySlipPDF";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
-import { FaInbox, FaSpinner } from "react-icons/fa";
+import { FaInbox } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { getMonthName } from "../../utils/monthUtils";
 
 interface PayrollDetails {
@@ -260,11 +261,7 @@ const PayrollView: React.FC = () => {
   if (loading || userLoading) {
     return (
       <div className="flex flex-col items-center justify-center mt-40">
-        <FaSpinner
-          size={30}
-          className="animate-spin text-blue-600 mb-6"
-          aria-hidden="true"
-        />
+        <LoadingSpinner size="md" />
       </div>
     );
   }

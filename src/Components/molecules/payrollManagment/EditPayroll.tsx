@@ -6,7 +6,6 @@ import {
   FaRegCalendarCheck,
   FaMoneyBillWave,
   FaFileInvoiceDollar,
-  FaSpinner,
   FaArrowLeft,
   FaSave,
   FaBriefcase,
@@ -16,6 +15,7 @@ import { PayrollData, ExtraPayment } from "./PayrollContext";
 import axiosInstance from "../../../utils/axiosConfig";
 import { getMonthName } from "../../../utils/monthUtils";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../../atoms/LoadingSpinner";
 
 const EditPayroll: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -179,42 +179,41 @@ const EditPayroll: React.FC = () => {
     </div>
   );
 
-  const StatCard = ({
-    label,
-    value,
-    type = "neutral",
-  }: {
-    label: string;
-    value: string;
-    type?: "success" | "warning" | "neutral" | "danger";
-  }) => {
-    const colorClasses = {
-      success: "border-l-4 border-l-emerald-500 bg-emerald-50/50",
-      warning: "border-l-4 border-l-amber-500 bg-amber-50/50",
-      danger: "border-l-4 border-l-rose-500 bg-rose-50/50",
-      neutral: "border-l-4 border-l-gunmetal-500 bg-alabaster-grey-50",
-    };
+  // const StatCard = ({
+  //   label,
+  //   value,
+  //   type = "neutral",
+  // }: {
+  //   label: string;
+  //   value: string;
+  //   type?: "success" | "warning" | "neutral" | "danger";
+  // }) => {
+  //   const colorClasses = {
+  //     success: "border-l-4 border-l-emerald-500 bg-emerald-50/50",
+  //     warning: "border-l-4 border-l-amber-500 bg-amber-50/50",
+  //     danger: "border-l-4 border-l-rose-500 bg-rose-50/50",
+  //     neutral: "border-l-4 border-l-gunmetal-500 bg-alabaster-grey-50",
+  //   };
 
-    return (
-      <div
-        className={`p-4 rounded-r-xl shadow-sm border border-platinum-200 ${colorClasses[type]}`}
-      >
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-grey-500 mb-1">
-          {label}
-        </p>
-        <p className="text-lg font-mono font-bold text-gunmetal-900">{value}</p>
-      </div>
-    );
-  };
+  //   return (
+  //     <div
+  //       className={`p-4 rounded-r-xl shadow-sm border border-platinum-200 ${colorClasses[type]}`}
+  //     >
+  //       <p className="text-xs font-bold uppercase tracking-wider text-slate-grey-500 mb-1">
+  //         {label}
+  //       </p>
+  //       <p className="text-lg font-mono font-bold text-gunmetal-900">{value}</p>
+  //     </div>
+  //   );
+  // };
 
   if (loading && !payroll) {
     return (
-      <div className="flex flex-col items-center justify-center h-[80vh]">
-        <div className="w-12 h-12 border-4 border-platinum-200 border-t-gunmetal-900 rounded-full animate-spin mb-4"></div>
-        <p className="text-slate-grey-500 font-medium text-sm animate-pulse">
-          Loading Payroll Data...
-        </p>
-      </div>
+      <LoadingSpinner
+        className="h-[80vh]"
+        size="xl"
+        text="Loading Payroll Data..."
+      />
     );
   }
 
@@ -600,8 +599,12 @@ const EditPayroll: React.FC = () => {
               disabled={loading}
               className="px-8 py-3 bg-gunmetal-900 text-white font-bold rounded-xl hover:bg-gunmetal-800 transition-all shadow-lg hover:shadow-gunmetal-500/30 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {loading ? <FaSpinner className="animate-spin" /> : <FaSave />}
-              {loading ? "Saving Changes..." : "Update Payroll Record"}
+              {loading ? (
+                <LoadingSpinner size="sm" color="white" />
+              ) : (
+                <FaSave />
+              )}
+              {loading ? " Saving..." : "Update Payroll Record"}
             </button>
           </div>
         </form>

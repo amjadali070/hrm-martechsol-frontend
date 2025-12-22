@@ -5,7 +5,6 @@ import { formatDate } from "../../utils/formatDate";
 import {
   FaEdit,
   FaInbox,
-  FaSpinner,
   FaTrash,
   FaBullhorn,
   FaPlus,
@@ -17,6 +16,7 @@ import {
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const MAX_WORDS = 5;
 export const truncateComment = (comment: string) => {
@@ -201,10 +201,7 @@ const NoticesManagement: React.FC = () => {
 
   if (loading)
     return (
-      <div className="flex flex-col items-center justify-center min-h-[400px]">
-        <FaSpinner className="text-gunmetal-600 animate-spin mb-4" size={32} />
-        <p className="text-slate-grey-500 font-medium">Loading notices...</p>
-      </div>
+      <LoadingSpinner className="min-h-[400px]" size="lg" text="Loading notices..." />
     );
 
   if (error)

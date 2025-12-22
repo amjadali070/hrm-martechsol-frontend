@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaInbox, FaTimes, FaChevronRight } from "react-icons/fa";
+import { FaInbox, FaTimes, FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { LeaveRequest } from "../../types/LeaveRequest";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
@@ -83,7 +84,7 @@ const LeaveManagementCard: React.FC<LeaveManagementCardProps> = ({
       <div className="flex-1 overflow-auto custom-scroll -mr-2 pr-2">
         {isLoading ? (
           <div className="flex justify-center items-center h-full min-h-[150px]">
-            <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
+            <LoadingSpinner size="md" />
           </div>
         ) : recentLeaveRequests.length > 0 ? (
           <div className="w-full">

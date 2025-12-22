@@ -10,7 +10,6 @@ import { AuthContext } from "./AuthContext";
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
 import {
-  FaSpinner,
   FaMoneyBillWave,
   FaCar,
   FaCalendarPlus,
@@ -24,6 +23,7 @@ import {
 } from "react-icons/fa";
 import UserVehicleView from "../atoms/UserVehicleView";
 import LeaveManagementCard from "../atoms/LeaveManagementCard";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -33,16 +33,10 @@ const DashboardLayout: React.FC = () => {
   if (!user) {
     return (
       <div className="flex justify-center items-center h-[calc(100vh-200px)]">
-        <div className="flex flex-col items-center justify-center">
-          <FaSpinner
-            size={40}
-            className="animate-spin text-gunmetal-600 mb-4"
-            aria-hidden="true"
-          />
-          <p className="text-slate-grey-500 font-medium tracking-wide">
-            Initializing Workspace...
-          </p>
-        </div>
+        <LoadingSpinner
+          text="Initializing Workspace..."
+          className="text-gunmetal-600 mb-4"
+        />
       </div>
     );
   }
@@ -62,10 +56,6 @@ const DashboardLayout: React.FC = () => {
   };
 
   const getActions = (): QuickActionItem[] => {
-    // Professional Monochrome Style: Standardized colors
-    const baseActionStyle =
-      "bg-white border border-platinum-200 text-gunmetal-700 hover:border-gunmetal-300 hover:shadow-md transition-all";
-
     if (isFinance) {
       return [
         {

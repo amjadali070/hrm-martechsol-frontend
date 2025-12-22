@@ -3,7 +3,6 @@ import axios from "axios";
 import { 
   FaFilter, 
   FaInbox, 
-  FaSpinner, 
   FaCalendarAlt, 
   FaMapMarkerAlt, 
   FaClock, 
@@ -15,6 +14,7 @@ import {
   FaHourglassHalf,
   FaEye 
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { formatDate } from "../../utils/formatDate";
@@ -366,7 +366,7 @@ const AttendanceTicket: React.FC = () => {
             >
               {loading ? (
                 <>
-                  <FaSpinner className="animate-spin" /> Submitting...
+                  <LoadingSpinner size="sm" color="white" /> Submitting...
                 </>
               ) : (
                 "Submit Request"
@@ -402,8 +402,8 @@ const AttendanceTicket: React.FC = () => {
         <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
           {loading && attendanceList.length === 0 ? (
              <div className="flex flex-col items-center justify-center py-16">
-               <FaSpinner className="animate-spin text-gunmetal-500 mb-3" size={28} />
-               <p className="text-slate-grey-500 text-sm">Loading tickets...</p>
+               <LoadingSpinner size="md" />
+               <p className="text-slate-grey-500 text-sm mt-4">Loading tickets...</p>
              </div>
           ) : notFound && !loading ? (
              <div className="flex flex-col items-center justify-center py-16 bg-alabaster-grey-50/50">

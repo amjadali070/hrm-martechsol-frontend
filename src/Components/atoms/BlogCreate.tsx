@@ -3,7 +3,8 @@ import React, { useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 // import { useBlogContext } from "../organisms/BlogContext";
 import { useNavigate } from "react-router-dom";
-import { FaPenNib, FaArrowLeft, FaHeading, FaImage, FaAlignLeft, FaSpinner } from "react-icons/fa";
+import { FaPenNib, FaArrowLeft, FaHeading, FaImage, FaAlignLeft } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 const CreateBlog: React.FC = () => {
   //   const { fetchBlogs } = useBlogContext(); // So we can refetch upon success
@@ -152,7 +153,7 @@ const CreateBlog: React.FC = () => {
                 >
                     {isLoading ? (
                         <>
-                        <FaSpinner className="animate-spin" /> Publishing...
+                        <LoadingSpinner size="sm" color="white" /> Publishing...
                         </>
                     ) : (
                         "Publish Post"

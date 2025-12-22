@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaSpinner, FaSave, FaExclamationCircle } from "react-icons/fa";
+import { FaTimes, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaSave, FaExclamationCircle } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { formatAttendenceTicketTime } from "../../utils/formateTime";
@@ -106,7 +107,7 @@ const EditAttendanceModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-platinum-200 overflow-hidden">
         
         {/* Header */}
@@ -216,7 +217,7 @@ const EditAttendanceModal: React.FC<Props> = ({
                 disabled={loading}
                 className="w-full py-3 bg-gunmetal-900 hover:bg-gunmetal-800 text-white font-bold rounded-xl shadow-lg hover:shadow-gunmetal-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
               >
-                  {loading ? <FaSpinner className="animate-spin" /> : <FaSave />}
+                  {loading ? <LoadingSpinner size="sm" color="white" /> : <FaSave />}
                   {loading ? "Updating Ticket..." : "Save Changes"}
               </button>
            </div>

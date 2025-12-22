@@ -93,7 +93,7 @@ const AttendanceTicketDetailModal: React.FC<
   } = ticket;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl border border-platinum-200 flex flex-col max-h-[90vh] overflow-hidden">
         
         {/* Header */}

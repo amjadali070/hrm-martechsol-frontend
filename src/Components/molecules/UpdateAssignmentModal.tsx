@@ -89,8 +89,8 @@ const UpdateAssignmentModal: React.FC<UpdateAssignmentModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1050] overflow-auto">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4">Reassign Vehicle</h2>
         <p className="mb-2">
           <strong>Vehicle:</strong> {vehicle.make} {vehicle.model} (

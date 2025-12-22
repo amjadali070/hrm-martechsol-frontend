@@ -6,6 +6,7 @@ import EditablePayroll from "./EditablePayroll";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import { PayrollDetails } from "../../types/payrollDetails";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const EditablePayrollPage: React.FC = () => {
   const location = useLocation();
@@ -140,7 +141,7 @@ const EditablePayrollPage: React.FC = () => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner className="h-[80vh]" size="xl" text="Loading payroll data..." />;
   }
 
   if (error) {

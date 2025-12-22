@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { FaFilter, FaInbox, FaSpinner, FaNetworkWired, FaEdit, FaPaperPlane, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaEye } from "react-icons/fa";
+import { FaFilter, FaInbox, FaNetworkWired, FaEdit, FaPaperPlane, FaCheckCircle, FaTimesCircle, FaHourglassHalf, FaEye } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { IoCloseCircle } from "react-icons/io5";
 import ReactQuill from "react-quill";
@@ -195,7 +196,7 @@ const NetworkTicket: React.FC = () => {
                 >
                 {isSubmitting ? (
                     <>
-                    <FaSpinner className="animate-spin" /> Submitting...
+                    <LoadingSpinner size="sm" color="white" /> Submitting...
                     </>
                 ) : (
                     "Submit Ticket"
@@ -229,10 +230,10 @@ const NetworkTicket: React.FC = () => {
 
         <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
            {loading ? (
-             <div className="flex flex-col items-center justify-center py-16">
-               <FaSpinner className="animate-spin text-gunmetal-500 mb-3" size={28} />
-               <p className="text-slate-grey-500 text-sm">Loading tickets...</p>
-             </div>
+              <div className="flex flex-col items-center justify-center py-16">
+                <LoadingSpinner size="md" />
+                <p className="text-slate-grey-500 text-sm mt-4">Loading tickets...</p>
+              </div>
           ) : paginatedTickets.length === 0 ? (
              <div className="flex flex-col items-center justify-center py-16 bg-alabaster-grey-50/50">
                <FaInbox size={40} className="text-slate-grey-300 mb-3" />

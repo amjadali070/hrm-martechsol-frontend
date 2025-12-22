@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import { FaSpinner, FaAward, FaStar, FaInfoCircle } from "react-icons/fa";
+import { FaAward, FaStar, FaInfoCircle } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import ExperienceLetterPDF, {
   ExperienceLetterProps,
 } from "../../html/ExperienceLetterPDF";
@@ -57,11 +58,7 @@ const ExperienceLetter: React.FC = () => {
       <div className="p-8 bg-alabaster-grey-50/30">
         {userLoading || !formData ? (
           <div className="flex flex-col items-center justify-center p-20 bg-white rounded-xl border border-platinum-200 border-dashed">
-            <FaSpinner
-              size={32}
-              className="animate-spin text-gunmetal-500 mb-4"
-              aria-hidden="true"
-            />
+            <LoadingSpinner size="md" />
             <p className="text-slate-grey-500 font-medium">
               Preparing document...
             </p>

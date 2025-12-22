@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import {
-  FaInbox,
   FaCalendarAlt,
   FaFilter,
-  FaSpinner,
   FaCheck,
   FaTimes,
   FaEye,
@@ -17,6 +15,7 @@ import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
 import { toast } from "react-toastify";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 export interface AdminTicket {
   id: string;
@@ -216,10 +215,7 @@ const AdminTicketManagement: React.FC = () => {
             {loading ? (
               <tr>
                 <td colSpan={7} className="text-center py-16">
-                   <div className="flex flex-col items-center justify-center animate-pulse">
-                     <FaSpinner className="animate-spin text-gunmetal-500 text-3xl mb-3" />
-                     <span className="text-slate-grey-500 font-medium">Loading Admin tickets...</span>
-                   </div>
+                   <LoadingSpinner size="lg" text="Loading Admin tickets..." />
                 </td>
               </tr>
             ) : notFound ? (

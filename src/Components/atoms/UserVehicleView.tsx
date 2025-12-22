@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import VehicleCard from "./VehicleCard";
 import axiosInstance from "../../utils/axiosConfig";
-import { FaInbox, FaSpinner } from "react-icons/fa";
+import { FaInbox } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface AssignedTo {
   _id: string;
@@ -61,7 +62,7 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
 
       {loading ? (
         <div className="flex justify-center items-center flex-1 h-48">
-          <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
+          <LoadingSpinner size="md" />
         </div>
       ) : error ? (
         <div className="flex flex-col items-center justify-center flex-1 text-red-500 h-48">

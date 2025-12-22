@@ -4,9 +4,9 @@ import {
   FaCalendarAlt,
   FaFilter,
   FaInbox,
-  FaSpinner,
   FaArrowLeft,
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import {
   startOfMonth,
@@ -249,7 +249,7 @@ const UserAttendanceDetails: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[500px]">
-        <FaSpinner className="text-gunmetal-600 animate-spin" size={32} />
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

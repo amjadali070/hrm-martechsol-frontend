@@ -6,9 +6,9 @@ import {
   FaUserTag,
   FaCalendarAlt,
   FaBirthdayCake,
-  FaSpinner,
   FaInbox,
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface User {
   _id: string;
@@ -222,10 +222,8 @@ const AllUpcomingBirthdays: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="text-center text-gray-500">
-          <div className="flex flex-col items-center">
-            <FaSpinner size={30} className="text-blue-500 mb-4 animate-spin" />
-          </div>
+        <div className="flex justify-center items-center py-10">
+          <LoadingSpinner size="md" />
         </div>
       ) : notFound ? (
         <div className="flex flex-col items-center">

@@ -2,7 +2,6 @@ import React from "react";
 import {
   FaTimes,
   FaCalendar,
-  FaUser,
   FaClipboardCheck,
   FaCheckCircle,
   FaTimesCircle,
@@ -86,7 +85,7 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
+      className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
       aria-modal="true"
       role="dialog"
     >
@@ -120,58 +119,68 @@ const TicketDetailModal: React.FC<TicketDetailModalProps> = ({
         <div className="overflow-y-auto p-6 bg-alabaster-grey-50/50 space-y-6">
           {/* User & Meta Info Card */}
           <div className="bg-white rounded-xl p-5 border border-platinum-200 shadow-sm relative overflow-hidden">
-             
-             <div className="flex flex-col sm:flex-row justify-between items-start gap-6 relative z-10">
-                 {/* Employee Info */}
-                 <div className="flex items-start gap-4">
-                     <div className="w-12 h-12 rounded-full bg-gunmetal-100 flex items-center justify-center text-gunmetal-600 font-bold text-lg ring-4 ring-alabaster-grey-50 shrink-0">
-                         {user?.name?.charAt(0) || "U"}
-                     </div>
-                     <div>
-                         <p className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-1">Requested By</p>
-                         <h3 className="text-lg font-bold text-gunmetal-900 leading-tight mb-1">{user?.name || "Unknown"}</h3>
-                         <div className="flex items-center gap-2 text-sm text-slate-grey-600">
-                             <span className="bg-platinum-100 px-2 py-0.5 rounded text-xs font-semibold">{user?.abbreviatedJobTitle || "N/A"}</span>
-                             {user?.department && (
-                                <span className="flex items-center gap-1">
-                                    <FaBuilding size={10} className="text-slate-grey-400" />
-                                    {user.department}
-                                </span>
-                             )}
-                         </div>
-                     </div>
-                 </div>
+            <div className="flex flex-col sm:flex-row justify-between items-start gap-6 relative z-10">
+              {/* Employee Info */}
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 rounded-full bg-gunmetal-100 flex items-center justify-center text-gunmetal-600 font-bold text-lg ring-4 ring-alabaster-grey-50 shrink-0">
+                  {user?.name?.charAt(0) || "U"}
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-1">
+                    Requested By
+                  </p>
+                  <h3 className="text-lg font-bold text-gunmetal-900 leading-tight mb-1">
+                    {user?.name || "Unknown"}
+                  </h3>
+                  <div className="flex items-center gap-2 text-sm text-slate-grey-600">
+                    <span className="bg-platinum-100 px-2 py-0.5 rounded text-xs font-semibold">
+                      {user?.abbreviatedJobTitle || "N/A"}
+                    </span>
+                    {user?.department && (
+                      <span className="flex items-center gap-1">
+                        <FaBuilding size={10} className="text-slate-grey-400" />
+                        {user.department}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
 
-                 {/* Date & Status */}
-                 <div className="flex flex-col items-end gap-3 min-w-[140px]">
-                      <div className="text-right">
-                          <p className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-1">Submitted</p>
-                          <div className="flex items-center justify-end gap-2 text-gunmetal-900 font-medium text-sm">
-                             <FaCalendar className="text-gunmetal-400" />
-                             {formatDate(date)}
-                          </div>
-                      </div>
-                      <div>
-                         {getStatusBadge(status)}
-                      </div>
-                 </div>
-             </div>
+              {/* Date & Status */}
+              <div className="flex flex-col items-end gap-3 min-w-[140px]">
+                <div className="text-right">
+                  <p className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-1">
+                    Submitted
+                  </p>
+                  <div className="flex items-center justify-end gap-2 text-gunmetal-900 font-medium text-sm">
+                    <FaCalendar className="text-gunmetal-400" />
+                    {formatDate(date)}
+                  </div>
+                </div>
+                <div>{getStatusBadge(status)}</div>
+              </div>
+            </div>
           </div>
 
           {/* Message Content */}
           <div className="bg-white rounded-xl border border-platinum-200 shadow-sm overflow-hidden">
-              <div className="px-6 py-4 border-b border-platinum-100 bg-alabaster-grey-50 flex items-center gap-2">
-                  <span className="font-bold text-gunmetal-900 text-sm uppercase tracking-wide">Subject:</span>
-                  <span className="text-slate-grey-700 font-medium text-sm">{subject}</span>
+            <div className="px-6 py-4 border-b border-platinum-100 bg-alabaster-grey-50 flex items-center gap-2">
+              <span className="font-bold text-gunmetal-900 text-sm uppercase tracking-wide">
+                Subject:
+              </span>
+              <span className="text-slate-grey-700 font-medium text-sm">
+                {subject}
+              </span>
+            </div>
+            <div className="p-6">
+              <h4 className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-3">
+                Description / Message
+              </h4>
+              <div className="prose prose-sm max-w-none text-slate-grey-700 leading-relaxed bg-alabaster-grey-50 p-4 rounded-lg border border-platinum-100">
+                <div dangerouslySetInnerHTML={{ __html: message }} />
               </div>
-              <div className="p-6">
-                  <h4 className="text-xs font-bold text-slate-grey-400 uppercase tracking-wide mb-3">Description / Message</h4>
-                  <div className="prose prose-sm max-w-none text-slate-grey-700 leading-relaxed bg-alabaster-grey-50 p-4 rounded-lg border border-platinum-100">
-                     <div dangerouslySetInnerHTML={{ __html: message }} />
-                  </div>
-              </div>
+            </div>
           </div>
-
         </div>
 
         {/* Footer */}

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import ReactDOM from "react-dom";
 import { format } from "date-fns";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
@@ -104,8 +105,8 @@ const MarkAbsentModal: React.FC<MarkAbsentModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gunmetal-900/60 backdrop-blur-sm">
+  return ReactDOM.createPortal(
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center p-4 bg-gunmetal-900/60 backdrop-blur-sm">
       <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl overflow-hidden border border-platinum-200 flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="px-6 py-4 border-b border-platinum-200 flex justify-between items-center bg-rose-50/50">
@@ -219,7 +220,8 @@ const MarkAbsentModal: React.FC<MarkAbsentModalProps> = ({
             </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

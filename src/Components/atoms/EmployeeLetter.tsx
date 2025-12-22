@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import { FaSpinner, FaFileSignature, FaBriefcase } from "react-icons/fa";
+import { FaFileSignature, FaBriefcase } from "react-icons/fa";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 import EmploymentLetterPDF, {
   EmploymentCertificateProps,
 } from "../../html/EmploymentLetterPDF";
@@ -56,16 +57,11 @@ const EmployeeLetter: React.FC = () => {
       {/* Content */}
       <div className="p-8 bg-alabaster-grey-50/30">
         {userLoading || !formData ? (
-          <div className="flex flex-col items-center justify-center p-20 bg-white rounded-xl border border-platinum-200 border-dashed">
-            <FaSpinner
-              size={32}
-              className="animate-spin text-gunmetal-500 mb-4"
-              aria-hidden="true"
-            />
-            <p className="text-slate-grey-500 font-medium">
-              Generating document...
-            </p>
-          </div>
+          <LoadingSpinner 
+            size="lg" 
+            text="Generating document..." 
+            className="p-20 bg-white rounded-xl border border-platinum-200 border-dashed"
+          />
         ) : (
           <div className="flex flex-col gap-6">
             {/* Info Card - Optional context */}

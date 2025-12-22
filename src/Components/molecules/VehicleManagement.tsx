@@ -3,7 +3,6 @@ import { AiOutlineUpload, AiOutlineEye, AiOutlineDelete } from "react-icons/ai";
 import {
   FaCar,
   FaInbox,
-  FaSpinner,
   FaFilePdf,
   FaFileWord,
   FaFileAlt,
@@ -24,6 +23,7 @@ import ImageModal from "../atoms/ImageModal";
 import DocumentModal from "../atoms/DocumentModal";
 import AddInvoiceModal from "../atoms/AddInvoiceModal";
 import InvoicesModal from "../atoms/VehicleInvoices";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface AssignedTo {
   _id: string;
@@ -222,10 +222,7 @@ const VehicleManagement: React.FC = () => {
 
        <div className="p-8">
         {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-            <FaSpinner className="animate-spin text-gunmetal-600 mb-4" size={32} />
-            <p className="text-slate-grey-500 font-medium">Loading fleet data...</p>
-            </div>
+            <LoadingSpinner className="py-20" size="lg" text="Loading fleet data..." />
         ) : error ? (
             <div className="bg-rose-50 text-rose-600 p-6 rounded-xl border border-rose-100 text-center">
             <p>{error}</p>

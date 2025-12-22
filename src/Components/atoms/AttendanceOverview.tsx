@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaSpinner, FaInbox, FaChevronRight } from "react-icons/fa";
+import { FaInbox, FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 
@@ -77,7 +78,7 @@ const AttendanceOverview: React.FC<AttendanceOverviewProps> = ({
       <div className="flex-1 overflow-auto custom-scroll">
         {loading ? (
           <div className="flex justify-center items-center h-48">
-            <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
+            <LoadingSpinner size="md" />
           </div>
         ) : attendanceRecords.length > 0 ? (
           <div className="w-full">

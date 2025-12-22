@@ -5,7 +5,6 @@ import {
   FaFilter,
   FaInbox,
   FaSearch,
-  FaSpinner,
   FaPlus,
   FaEdit,
   FaTrashAlt,
@@ -16,6 +15,7 @@ import {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { formatDate } from "../../utils/formatDate";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface Holiday {
   _id: number;
@@ -352,10 +352,7 @@ const HolidayManagement: React.FC = () => {
                     {loading ? (
                       <tr>
                         <td colSpan={3} className="text-center py-16 text-slate-grey-400">
-                           <div className="flex flex-col items-center justify-center animate-pulse gap-3">
-                               <FaSpinner className="animate-spin text-gunmetal-500 text-2xl" />
-                               <span className="text-sm font-medium">Loading calendar...</span>
-                           </div>
+                               <LoadingSpinner size="md" text="Loading calendar..." />
                         </td>
                       </tr>
                     ) : currentHolidays.length > 0 ? (

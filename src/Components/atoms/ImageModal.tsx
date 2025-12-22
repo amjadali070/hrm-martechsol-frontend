@@ -17,7 +17,7 @@ const ImageModal: React.FC<ImageModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black bg-opacity-50">
       <div className="relative bg-white p-4 rounded-lg max-w-3xl w-full">
         <button
           onClick={onClose}

@@ -4,7 +4,6 @@ import {
   FaSearch,
   FaCalendarAlt,
   FaTimes,
-  FaSpinner,
   FaInbox,
   FaFileAlt,
   FaClock,
@@ -15,6 +14,7 @@ import {
   FaDownload,
   FaExclamationCircle
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import useUser from "../../hooks/useUser";
 import axios from "axios";
@@ -391,8 +391,8 @@ const TrackApplication: React.FC = () => {
 
       {loading ? (
          <div className="flex flex-col items-center justify-center h-48">
-            <FaSpinner size={32} className="animate-spin mb-3 text-gunmetal-500" />
-            <span className="text-sm text-slate-grey-500">Loading applications...</span>
+            <LoadingSpinner size="md" />
+            <span className="text-sm text-slate-grey-500 mt-3">Loading applications...</span>
         </div>
       ) : filteredApplications.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-platinum-200 rounded-xl bg-alabaster-grey-50/50">

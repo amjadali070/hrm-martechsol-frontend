@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import useUser from "../../hooks/useUser";
-import { FaInbox, FaSpinner, FaPiggyBank, FaUser, FaRegCalendarAlt, FaFilter } from "react-icons/fa";
+import { FaInbox, FaPiggyBank, FaUser, FaRegCalendarAlt, FaFilter } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { formatDate } from "../../utils/formatDate";
 
@@ -93,8 +94,8 @@ const ProvidentFund: React.FC = () => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center h-48">
-          <FaSpinner className="text-gunmetal-500 mb-3 animate-spin" size={32} />
-          <p className="text-slate-grey-500 text-sm">Loading fund details...</p>
+          <LoadingSpinner size="md" />
+          <p className="text-slate-grey-500 text-sm mt-3">Loading fund details...</p>
         </div>
       ) : (
         <>

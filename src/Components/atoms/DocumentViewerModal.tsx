@@ -47,7 +47,7 @@ const DocumentViewerModal: React.FC<DocumentViewerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/80 backdrop-blur-sm p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/80 backdrop-blur-sm p-4 animate-fadeIn">
       <div className="bg-white rounded-2xl max-w-5xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* Header */}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaTimes, FaCalendarPlus, FaSpinner } from "react-icons/fa";
+import { FaTimes, FaCalendarPlus } from "react-icons/fa";
+import LoadingSpinner from "../../atoms/LoadingSpinner";
 import { getMonthNumber } from "../../../utils/monthUtils";
 
 interface GeneratePayrollModalProps {
@@ -54,7 +55,7 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
+      className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
       aria-labelledby="generate-payroll-modal"
       role="dialog"
       aria-modal="true"
@@ -128,8 +129,8 @@ const GeneratePayrollModal: React.FC<GeneratePayrollModalProps> = ({
                         disabled={loading}
                         className="flex-1 px-4 py-3 bg-gunmetal-900 text-white font-bold rounded-xl hover:bg-gunmetal-800 transition-all shadow-lg hover:shadow-gunmetal-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                      >
-                         {loading ? <FaSpinner className="animate-spin" /> : null}
-                         {loading ? "Generating..." : "Generate"}
+                         {loading ? <LoadingSpinner size="sm" color="white" /> : null}
+                         {loading ? " Generating..." : "Generate"}
                      </button>
                  </div>
             </form>

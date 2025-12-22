@@ -4,7 +4,6 @@ import {
   FaCalendarAlt,
   FaFilter,
   FaInbox,
-  FaSpinner,
   FaEdit,
   FaEye,
   FaCheck,
@@ -20,6 +19,7 @@ import { toast } from "react-toastify";
 import EditAttendanceModal from "../atoms/EditAttendanceModal";
 import useUser from "../../hooks/useUser";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface AttendanceTicket {
   _id: string;
@@ -292,10 +292,7 @@ const AttendanceTicketManagement: React.FC = () => {
             {loading ? (
               <tr>
                 <td colSpan={7} className="text-center py-16">
-                   <div className="flex flex-col items-center justify-center animate-pulse">
-                     <FaSpinner className="animate-spin text-gunmetal-500 text-3xl mb-3" />
-                     <span className="text-slate-grey-500 font-medium">Loading tickets...</span>
-                   </div>
+                   <LoadingSpinner size="lg" text="Loading tickets..." />
                 </td>
               </tr>
             ) : notFound ? (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaSpinner, FaInbox, FaChartLine, FaChartPie, FaChartBar, FaCalendarAlt } from "react-icons/fa";
+import { FaInbox, FaChartLine, FaChartPie, FaChartBar, FaCalendarAlt } from "react-icons/fa";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import {
 import { Line, Pie, Bar } from "react-chartjs-2";
 import { getMonthName } from "../../utils/monthUtils";
 import axiosInstance from "../../utils/axiosConfig";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -210,10 +211,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <FaSpinner className="animate-spin text-4xl text-gunmetal-600 mb-4" />
-        <p className="text-slate-grey-500 font-medium">Loading financial data...</p>
-      </div>
+      <LoadingSpinner className="h-96" size="lg" text="Loading financial data..." />
     );
   }
 

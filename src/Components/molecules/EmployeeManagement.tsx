@@ -10,7 +10,6 @@ import {
   FaSearch,
   FaUsers,
   FaUserTag,
-  FaSpinner,
   FaPlus,
   FaFileExport,
   FaEdit,
@@ -20,6 +19,7 @@ import {
 import axios from "axios";
 import { toast } from "react-toastify";
 import UserStatusToggleConfirmation from "../atoms/UserStatusToggleConfirmation";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface Employee {
   _id: string;
@@ -554,10 +554,7 @@ const EmployeeManagement: React.FC = () => {
               <tr>
                 <td className="py-12 text-center" colSpan={8}>
                   {isLoading ? (
-                    <div className="flex flex-col items-center justify-center text-gunmetal-500">
-                      <FaSpinner size={32} className="animate-spin mb-3" />
-                      <p className="text-sm font-medium">Loading records...</p>
-                    </div>
+                    <LoadingSpinner size="md" text="Loading records..." />
                   ) : (
                     <div className="flex flex-col items-center justify-center text-slate-grey-400">
                       <FaInbox size={40} className="mb-3 opacity-50" />

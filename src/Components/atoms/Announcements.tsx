@@ -3,7 +3,8 @@ import axiosInstance from "../../utils/axiosConfig";
 import { IoEye, IoCloseCircle } from "react-icons/io5";
 import { formatDate } from "../../utils/formatDate";
 import { useNavigate } from "react-router";
-import { FaSpinner, FaChevronRight } from "react-icons/fa";
+import { FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface Announcement {
   _id: string;
@@ -104,7 +105,7 @@ const Announcements: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center items-center flex-1 min-h-[150px]">
-          <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
+          <LoadingSpinner size="md" />
         </div>
       ) : (
         <div className="flex flex-col gap-3 flex-1 overflow-y-auto custom-scroll pr-1">

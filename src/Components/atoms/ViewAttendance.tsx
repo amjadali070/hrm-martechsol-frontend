@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendarAlt, FaFilter, FaInbox, FaSpinner, FaHistory } from "react-icons/fa";
+import { FaCalendarAlt, FaFilter, FaInbox, FaHistory } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
 import { toast } from "react-toastify";
@@ -175,8 +176,8 @@ const ViewAttendance: React.FC = () => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center h-64">
-          <FaSpinner className="text-gunmetal-500 mb-4 animate-spin" size={40} />
-          <p className="text-slate-grey-500 font-medium">Loading attendance records...</p>
+          <LoadingSpinner size="lg" />
+          <p className="text-slate-grey-500 font-medium mt-4">Loading attendance records...</p>
         </div>
       ) : (
         <>

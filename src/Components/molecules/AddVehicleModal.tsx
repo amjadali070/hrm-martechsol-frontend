@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosConfig";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface AddVehicleModalProps {
   isOpen: boolean;
@@ -117,8 +118,8 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1050] overflow-auto">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4">Add New Vehicle</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -209,7 +210,14 @@ const AddVehicleModal: React.FC<AddVehicleModalProps> = ({
                   : "bg-green-600 hover:bg-green-700"
               }`}
             >
-              {uploading ? "Uploading..." : "Add Vehicle"}
+              {uploading ? (
+                <div className="flex items-center gap-2">
+                  <LoadingSpinner size="sm" color="white" />
+                  <span>Uploading...</span>
+                </div>
+              ) : (
+                "Add Vehicle"
+              )}
             </button>
           </div>
         </form>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
 import {
-  FaSpinner,
   FaInbox,
   FaEdit,
   FaEye,
@@ -19,6 +18,7 @@ import GeneratePayrollModal from "./GeneratePayrollModal";
 import { usePayroll, PayrollData } from "./PayrollContext";
 import { getMonthName } from "../../../utils/monthUtils";
 import ProcessPayrollModal from "./ProcessPayrollModal";
+import LoadingSpinner from "../../atoms/LoadingSpinner";
 
 interface MonthYear {
   month: number;
@@ -292,13 +292,7 @@ const PayrollManagement: React.FC = () => {
           </div>
 
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-20">
-              <FaSpinner
-                size={40}
-                className="animate-spin mb-4 text-gunmetal-500"
-              />
-               <p className="text-slate-grey-500 font-medium">Loading payroll periods...</p>
-            </div>
+            <LoadingSpinner className="py-20" size="lg" text="Loading payroll periods..." />
           ) : filteredMonthYears.length === 0 ? (
             <div className="text-center py-20 text-slate-grey-400 bg-white rounded-2xl border border-dashed border-platinum-300">
                <FaInbox size={48} className="mx-auto mb-4 opacity-50 text-slate-grey-300" />
@@ -408,8 +402,7 @@ const PayrollManagement: React.FC = () => {
                     {loading ? (
                       <tr>
                         <td colSpan={6} className="text-center py-16">
-                            <FaSpinner className="animate-spin h-8 w-8 text-gunmetal-500 mx-auto" />
-                            <p className="text-slate-grey-400 mt-2 text-sm font-medium">Fetching records...</p>
+                            <LoadingSpinner size="md" text="Fetching records..." />
                         </td>
                       </tr>
                     ) : notFound || finalFilteredPayrolls.length === 0 ? (

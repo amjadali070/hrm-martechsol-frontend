@@ -3,7 +3,6 @@ import {
   FaCalendarAlt,
   FaFilter,
   FaInbox,
-  FaSpinner,
   FaSearch,
   FaUserTimes,
   FaUserPlus,
@@ -11,11 +10,13 @@ import {
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axiosInstance from "../../utils/axiosConfig";
 import useUser from "../../hooks/useUser";
+import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import useDebounce from "../../hooks/useDebounce";
 import MarkAbsentModal from "../atoms/MarkAbsentModal";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import AddAttendanceModal from "../atoms/AddAttendanceModal";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 // Helper for status styles
 const getStatusStyles = (status: string) => {
@@ -101,6 +102,7 @@ const AttendanceManagement: React.FC = () => {
   const { user, loading: userLoading } = useUser();
   const user_Id = user?._id;
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
+  const navigate = useNavigate();
 
   const [dateRange, setDateRange] = useState<string>("Today");
   const [fromDate, setFromDate] = useState<string>("");
@@ -373,10 +375,7 @@ const AttendanceManagement: React.FC = () => {
   return (
     <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
       {loading && (
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <FaSpinner className="text-gunmetal-600 mb-4 animate-spin" size={32} />
-          <p className="text-slate-grey-500 font-medium">Loading attendance records...</p>
-        </div>
+        <LoadingSpinner className="min-h-[400px]" size="lg" text="Loading attendance records..." />
       )}
 
       {!loading && (
@@ -582,12 +581,12 @@ const AttendanceManagement: React.FC = () => {
                         className="hover:bg-alabaster-grey-50/50 transition-colors"
                         >
                         <td className="py-3 px-4">
-                            <Link
-                            to={`/attendance/user/${record.user._id}`}
-                            className="text-sm font-semibold text-gunmetal-900 hover:text-gunmetal-600 transition-colors"
+                            <span
+                            onClick={() => navigate(`/attendance/user/${record.user._id}`)}
+                            className="text-sm font-semibold text-gunmetal-900 hover:text-gunmetal-600 transition-colors cursor-pointer"
                             >
                             {record.user.name}
-                            </Link>
+                            </span>
                         </td>
                         <td className="py-3 px-4 text-sm text-slate-grey-600">
                             {record.user.personalDetails?.jobTitle || "N/A"}

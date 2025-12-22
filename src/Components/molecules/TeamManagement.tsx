@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 import {
   FaInbox,
   FaListUl,
   FaPlus,
-  FaSpinner,
   FaTimes,
   FaTrash,
   FaUsersCog,
@@ -198,10 +198,7 @@ const TeamManagement: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="flex flex-col items-center justify-center py-12">
-            <FaSpinner size={32} className="animate-spin mb-3 text-gunmetal-500" />
-            <p className="text-slate-grey-500 font-medium">Loading managers...</p>
-        </div>
+        <LoadingSpinner className="py-12" size="lg" text="Loading managers..." />
       ) : (
         <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
           <table className="w-full text-left bg-white border-collapse">
@@ -287,10 +284,7 @@ const TeamManagement: React.FC = () => {
             
             <div className="flex-1 overflow-y-auto p-6 bg-alabaster-grey-50/30">
                 {viewLoading ? (
-                    <div className="flex flex-col items-center justify-center h-48">
-                        <FaSpinner size={32} className="animate-spin mb-3 text-gunmetal-500" />
-                        <span className="text-sm text-slate-grey-500">Loading team...</span>
-                    </div>
+                    <LoadingSpinner className="h-48" size="md" text="Loading team..." />
                 ) : (
                 <ul className="space-y-3">
                     {assignedUsers.length > 0 ? (

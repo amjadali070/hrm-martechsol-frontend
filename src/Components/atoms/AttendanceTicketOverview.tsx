@@ -3,7 +3,8 @@ import axiosInstance from "../../utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { formatDate } from "../../utils/formatDate";
-import { FaSpinner, FaInbox, FaChevronRight } from "react-icons/fa";
+import { FaInbox, FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { truncateComment } from "../../utils/truncateComment";
 
 interface AttendanceRecord {
@@ -61,7 +62,7 @@ const AttendanceTicketOverview: React.FC = () => {
       <div className="flex-1 overflow-auto custom-scroll">
         {loading ? (
           <div className="flex justify-center items-center h-48">
-            <FaSpinner className="text-gunmetal-500 animate-spin" size={24} />
+            <LoadingSpinner size="md" />
           </div>
         ) : attendanceTickets.length > 0 ? (
           <div className="w-full">

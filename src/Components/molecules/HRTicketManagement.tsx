@@ -1,17 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 import {
-  FaInbox,
   FaCalendarAlt,
   FaFilter,
-  FaSpinner,
   FaCheck,
   FaTimes,
   FaEye,
   FaBriefcase,
   FaCheckCircle,
   FaTimesCircle,
-  FaRegCircle
+  FaRegCircle,
 } from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import TicketDetailModal from "../atoms/TicketDetailModal";
@@ -129,7 +128,7 @@ const HRTicketManagement: React.FC = () => {
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
-     const styles = {
+    const styles = {
       Closed: "bg-emerald-50 text-emerald-600 border-emerald-100", // "Closed" is approval for generic tickets often
       Rejected: "bg-rose-50 text-rose-600 border-rose-100",
       Open: "bg-blue-50 text-blue-600 border-blue-100",
@@ -141,57 +140,68 @@ const HRTicketManagement: React.FC = () => {
     };
 
     return (
-      <span className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${styles[status as keyof typeof styles] || styles.Open}`}>
+      <span
+        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+          styles[status as keyof typeof styles] || styles.Open
+        }`}
+      >
         {icons[status as keyof typeof icons] || icons.Open}
         {status}
       </span>
     );
   };
 
-
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-platinum-200 overflow-hidden">
       <div className="p-6 border-b border-platinum-200 bg-white flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h2 className="text-xl font-bold text-gunmetal-900 flex items-center gap-2">
-                HR Help Desk
-            </h2>
-            <p className="text-sm text-slate-grey-500">Manage employee grievances and policy inquiries</p>
+        <div>
+          <h2 className="text-xl font-bold text-gunmetal-900 flex items-center gap-2">
+            HR Help Desk
+          </h2>
+          <p className="text-sm text-slate-grey-500">
+            Manage employee grievances and policy inquiries
+          </p>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="relative group">
+            <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+            <input
+              type="date"
+              value={filters.fromDate}
+              onChange={(e) =>
+                setFilters({ ...filters, fromDate: e.target.value })
+              }
+              className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
+            />
           </div>
-          
-          <div className="flex flex-col sm:flex-row gap-3">
-               <div className="relative group">
-                  <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
-                  <input
-                    type="date"
-                    value={filters.fromDate}
-                    onChange={(e) => setFilters({ ...filters, fromDate: e.target.value })}
-                    className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
-                  />
-               </div>
-               <div className="relative group">
-                  <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
-                  <input
-                    type="date"
-                    value={filters.toDate}
-                    onChange={(e) => setFilters({ ...filters, toDate: e.target.value })}
-                    className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
-                  />
-               </div>
-               <div className="relative group">
-                  <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
-                  <select
-                    value={filters.status}
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                    className="pl-10 pr-8 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all appearance-none cursor-pointer w-full sm:w-auto"
-                  >
-                    <option value="All">All Status</option>
-                    <option value="Open">Open</option>
-                    <option value="Closed">Closed</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-               </div>
+          <div className="relative group">
+            <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+            <input
+              type="date"
+              value={filters.toDate}
+              onChange={(e) =>
+                setFilters({ ...filters, toDate: e.target.value })
+              }
+              className="pl-10 pr-4 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all w-full sm:w-auto"
+            />
           </div>
+          <div className="relative group">
+            <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-hover:text-gunmetal-500 transition-colors" />
+            <select
+              value={filters.status}
+              onChange={(e) =>
+                setFilters({ ...filters, status: e.target.value })
+              }
+              className="pl-10 pr-8 py-2 bg-alabaster-grey-50 border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all appearance-none cursor-pointer w-full sm:w-auto"
+            >
+              <option value="All">All Status</option>
+              <option value="Open">Open</option>
+              <option value="Closed">Closed</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -220,10 +230,7 @@ const HRTicketManagement: React.FC = () => {
             {loading ? (
               <tr>
                 <td colSpan={7} className="text-center py-16">
-                   <div className="flex flex-col items-center justify-center animate-pulse">
-                     <FaSpinner className="animate-spin text-gunmetal-500 text-3xl mb-3" />
-                     <span className="text-slate-grey-500 font-medium">Loading HR tickets...</span>
-                   </div>
+                  <LoadingSpinner size="lg" text="Loading HR tickets..." />
                 </td>
               </tr>
             ) : notFound ? (
@@ -231,9 +238,11 @@ const HRTicketManagement: React.FC = () => {
                 <td colSpan={7} className="text-center py-16">
                   <div className="flex flex-col items-center justify-center">
                     <div className="w-16 h-16 bg-alabaster-grey-50 rounded-full flex items-center justify-center mb-4 border border-platinum-200">
-                         <FaBriefcase className="text-slate-grey-400 text-2xl" />
+                      <FaBriefcase className="text-slate-grey-400 text-2xl" />
                     </div>
-                    <span className="text-gunmetal-900 font-bold text-lg">No Tickets Found</span>
+                    <span className="text-gunmetal-900 font-bold text-lg">
+                      No Tickets Found
+                    </span>
                   </div>
                 </td>
               </tr>
@@ -250,51 +259,55 @@ const HRTicketManagement: React.FC = () => {
                     {formatDate(ticket.date)}
                   </td>
                   <td className="px-6 py-4">
-                     <div className="flex flex-col">
-                        <span className="text-sm font-bold text-gunmetal-900">{ticket.user.name}</span>
-                        <span className="text-xs text-slate-grey-500">{ticket.user.abbreviatedJobTitle}</span>
-                     </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-bold text-gunmetal-900">
+                        {ticket.user.name}
+                      </span>
+                      <span className="text-xs text-slate-grey-500">
+                        {ticket.user.abbreviatedJobTitle}
+                      </span>
+                    </div>
                   </td>
-                   <td className="px-6 py-4 text-sm text-slate-grey-600">
+                  <td className="px-6 py-4 text-sm text-slate-grey-600">
                     <span className="bg-platinum-100 text-slate-grey-700 px-2 py-0.5 rounded text-xs font-semibold">
-                        {ticket.user.department}
+                      {ticket.user.department}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-sm text-gunmetal-900 font-medium truncate max-w-[200px]">
                     {ticket.subject}
                   </td>
                   <td className="px-6 py-4">
-                     <StatusBadge status={ticket.status} />
+                    <StatusBadge status={ticket.status} />
                   </td>
                   <td className="px-6 py-4 pr-8">
                     <div className="flex items-center gap-2">
-                        {/* Action Buttons */}
-                        {ticket.status === "Open" && (
-                             <>
-                                <button
-                                    onClick={() => handleAction(ticket.id, "approve")}
-                                    className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
-                                    title="Close/Resolve"
-                                >
-                                    <FaCheck size={14} />
-                                </button>
-                                <button
-                                    onClick={() => handleAction(ticket.id, "reject")}
-                                    className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
-                                    title="Reject"
-                                >
-                                    <FaTimes size={14} />
-                                </button>
-                             </>
-                        )}
+                      {/* Action Buttons */}
+                      {ticket.status === "Open" && (
+                        <>
+                          <button
+                            onClick={() => handleAction(ticket.id, "approve")}
+                            className="p-2 bg-emerald-100 text-emerald-600 rounded-lg hover:bg-emerald-200 transition-colors"
+                            title="Close/Resolve"
+                          >
+                            <FaCheck size={14} />
+                          </button>
+                          <button
+                            onClick={() => handleAction(ticket.id, "reject")}
+                            className="p-2 bg-rose-100 text-rose-600 rounded-lg hover:bg-rose-200 transition-colors"
+                            title="Reject"
+                          >
+                            <FaTimes size={14} />
+                          </button>
+                        </>
+                      )}
 
-                        <button
-                            onClick={() => openModal(ticket)}
-                            className="p-2 bg-white border border-platinum-200 text-gunmetal-600 rounded-lg hover:bg-gunmetal-50 hover:border-gunmetal-300 transition-all shadow-sm"
-                            title="View Details"
-                        >
-                            <FaEye size={14} />
-                        </button>
+                      <button
+                        onClick={() => openModal(ticket)}
+                        className="p-2 bg-white border border-platinum-200 text-gunmetal-600 rounded-lg hover:bg-gunmetal-50 hover:border-gunmetal-300 transition-all shadow-sm"
+                        title="View Details"
+                      >
+                        <FaEye size={14} />
+                      </button>
                     </div>
                   </td>
                 </tr>
@@ -304,41 +317,47 @@ const HRTicketManagement: React.FC = () => {
         </table>
       </div>
 
-       {/* Pagination Footer */}
-       <div className="bg-white border-t border-platinum-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-         <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-grey-600">Rows per page:</span>
-            <select
-                className="bg-alabaster-grey-50 border border-platinum-200 text-sm rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gunmetal-500"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(parseInt(e.target.value));
-                  setCurrentPage(1);
-                }}
-            >
-                {[5, 10, 20, 50].map(opt => <option key={opt} value={opt}>{opt}</option>)}
-            </select>
-         </div>
+      {/* Pagination Footer */}
+      <div className="bg-white border-t border-platinum-200 px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium text-slate-grey-600">
+            Rows per page:
+          </span>
+          <select
+            className="bg-alabaster-grey-50 border border-platinum-200 text-sm rounded-lg px-2 py-1 focus:outline-none focus:ring-1 focus:ring-gunmetal-500"
+            value={itemsPerPage}
+            onChange={(e) => {
+              setItemsPerPage(parseInt(e.target.value));
+              setCurrentPage(1);
+            }}
+          >
+            {[5, 10, 20, 50].map((opt) => (
+              <option key={opt} value={opt}>
+                {opt}
+              </option>
+            ))}
+          </select>
+        </div>
 
-         <div className="flex items-center gap-2">
-             <button
-                className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                disabled={currentPage === 1}
-                onClick={handlePrevious}
-             >
-                <FiChevronLeft />
-             </button>
-             <span className="text-sm font-bold text-gunmetal-900 px-2">
-                Page {currentPage} of {totalPages || 1}
-             </span>
-             <button
-                className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                disabled={currentPage === totalPages || totalPages === 0}
-                onClick={handleNext}
-             >
-                <FiChevronRight />
-             </button>
-         </div>
+        <div className="flex items-center gap-2">
+          <button
+            className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            disabled={currentPage === 1}
+            onClick={handlePrevious}
+          >
+            <FiChevronLeft />
+          </button>
+          <span className="text-sm font-bold text-gunmetal-900 px-2">
+            Page {currentPage} of {totalPages || 1}
+          </span>
+          <button
+            className="p-2 rounded-lg border border-platinum-200 text-slate-grey-600 hover:bg-alabaster-grey-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+            disabled={currentPage === totalPages || totalPages === 0}
+            onClick={handleNext}
+          >
+            <FiChevronRight />
+          </button>
+        </div>
       </div>
 
       <TicketDetailModal

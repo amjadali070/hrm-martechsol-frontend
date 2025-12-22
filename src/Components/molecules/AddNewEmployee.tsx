@@ -9,10 +9,10 @@ import {
   FaBriefcase, 
   FaCalendarAlt, 
   FaUserShield,
-  FaSpinner,
   FaBuilding,
   FaLayerGroup
 } from "react-icons/fa";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const AddNewEmployee: React.FC = () => {
   const departments: { [key: string]: string[] } = {
@@ -395,8 +395,14 @@ const AddNewEmployee: React.FC = () => {
                     disabled={isSubmitting}
                     className="w-full md:w-auto px-8 py-4 bg-gunmetal-900 text-white font-bold rounded-xl hover:bg-gunmetal-800 transition-all shadow-lg hover:shadow-gunmetal-500/30 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
                 >
-                    {isSubmitting ? <FaSpinner className="animate-spin text-lg" /> : <FaUser className="text-lg" />}
-                    <span>{isSubmitting ? "Processing..." : "Create Employee Account"}</span>
+                    {isSubmitting ? (
+                        <LoadingSpinner size="sm" color="white" />
+                    ) : (
+                        <>
+                            <FaUser className="text-lg" />
+                            <span>Create Employee Account</span>
+                        </>
+                    )}
                 </button>
             </div>
 

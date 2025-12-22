@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FaCalendarAlt, FaFilter, FaSpinner, FaUmbrellaBeach, FaBriefcaseMedical, FaPlaneDeparture } from "react-icons/fa";
+import { FaCalendarAlt, FaFilter, FaUmbrellaBeach, FaBriefcaseMedical, FaPlaneDeparture } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axios from "axios";
 
@@ -137,8 +138,8 @@ const LeavesAvailable: React.FC = () => {
 
       {loading ? (
         <div className="flex flex-col items-center justify-center h-48">
-          <FaSpinner className="text-gunmetal-500 mb-3 animate-spin" size={32} />
-          <p className="text-slate-grey-500 text-sm">Loading leave balances...</p>
+          <LoadingSpinner size="md" />
+          <p className="text-slate-grey-500 text-sm mt-4">Loading leave balances...</p>
         </div>
       ) : (
         <>

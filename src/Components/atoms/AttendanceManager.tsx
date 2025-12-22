@@ -1,5 +1,6 @@
 import React, { useState, useEffect, FormEvent, useMemo } from "react";
-import { FaSpinner, FaEdit, FaTrash } from "react-icons/fa";
+import { FaEdit, FaTrash } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import useUser from "../../hooks/useUser";
 import axiosInstance from "../../utils/axiosConfig";
 import { AttendanceType, TimeLog } from "../../types/attendance";
@@ -579,7 +580,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                 className="flex justify-center items-center"
                 style={{ height: "200px" }}
               >
-                <FaSpinner className="text-blue-500 animate-spin" size={30} />
+                <LoadingSpinner size="md" />
               </div>
             ) : error ? (
               <div className="text-red-500 text-center">{error}</div>
@@ -779,7 +780,7 @@ const AttendanceManager: React.FC<AttendanceManagerProps> = () => {
                 className="flex justify-center items-center"
                 style={{ height: "200px" }}
               >
-                <FaSpinner className="text-blue-500 animate-spin" size={30} />
+                <LoadingSpinner size="md" />
               </div>
             ) : error ? (
               <div className="text-red-500 text-center">{error}</div>

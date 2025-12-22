@@ -8,7 +8,6 @@ import Tab from "./Tab";
 import { toast } from "react-toastify";
 import UserSalaryUpdater from "./UserSalaryUpdater";
 import UserProfileDetails from "./UserProfileDetails";
-import { FaSpinner } from "react-icons/fa";
 
 // Define interfaces for better type safety
 interface Education {
@@ -234,15 +233,14 @@ const UserProfileUpdater: React.FC = () => {
 
       if (newProfilePicture) {
         setEmployee((prev) =>
-            prev
+          prev
             ? {
                 ...prev,
                 profilePicture: newProfilePicture,
-                }
+              }
             : null
         );
       }
-
 
       toast.success("Profile picture updated successfully");
     } catch (error) {

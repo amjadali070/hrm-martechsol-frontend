@@ -6,9 +6,9 @@ import {
   FaUsers,
   FaUserTag,
   FaCalendarAlt,
-  FaSpinner,
   FaInbox,
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface User {
   _id: string;
@@ -229,7 +229,7 @@ const AllWorkAnniversaries: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <FaSpinner size={40} className="text-blue-500 animate-spin" />
+          <LoadingSpinner size="md" />
         </div>
       ) : filteredAnniversaries.length === 0 ? (
         <div className="flex flex-col items-center py-10">

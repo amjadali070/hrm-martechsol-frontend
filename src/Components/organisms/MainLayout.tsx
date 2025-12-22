@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router";
 import axios from "axios";
 import Sidebar from "../molecules/Sidebar";
 import Header from "../atoms/Header";
-import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface User {
   _id: string;
@@ -39,10 +39,7 @@ const MainLayout: React.FC = () => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen bg-surface-50">
-        <div className="flex flex-col items-center">
-          <FaSpinner size={40} className="text-brand-600 mb-4 animate-spin" />
-          <p className="text-surface-800 font-medium">Loading...</p>
-        </div>
+        <LoadingSpinner size="md" text="Loading..." color="primary" />
       </div>
     );
   }

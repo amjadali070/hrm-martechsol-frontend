@@ -5,7 +5,6 @@ import {
   FaFilter,
   FaInbox,
   FaSearch,
-  FaSpinner,
   FaTimes,
   FaEdit,
   FaCheckCircle,
@@ -22,6 +21,7 @@ import { LeaveRequest } from "../../types/LeaveRequest";
 import EditLeaveRequestModal from "../atoms/EditLeaveRequestModal";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -493,13 +493,13 @@ const LeaveManagement: React.FC = () => {
                 >
                   <div className="flex flex-col items-center justify-center">
                     {isLoading ? (
-                         <FaSpinner size={32} className="animate-spin text-gunmetal-500 mb-2" />
+                         <LoadingSpinner size="md" text="Loading requests..." />
                     ) : (
+                         <>
                          <FaInbox size={32} className="opacity-50 mb-2" />
+                         <span className="text-sm font-medium">No requests found.</span>
+                         </>
                     )}
-                    <span className="text-sm font-medium">
-                      {isLoading ? "Loading requests..." : "No requests found."}
-                    </span>
                   </div>
                 </td>
               </tr>

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaTimes, FaCalendarCheck, FaSpinner } from "react-icons/fa";
+import { FaTimes, FaCalendarCheck } from "react-icons/fa";
+import LoadingSpinner from "../../atoms/LoadingSpinner";
 import { getMonthNumber } from "../../../utils/monthUtils";
 
 interface ProcessPayrollModalProps {
@@ -54,7 +55,7 @@ const ProcessPayrollModal: React.FC<ProcessPayrollModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
+      className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn"
       aria-labelledby="process-payroll-modal"
       role="dialog"
       aria-modal="true"
@@ -128,8 +129,8 @@ const ProcessPayrollModal: React.FC<ProcessPayrollModalProps> = ({
                         disabled={loading}
                         className="flex-1 px-4 py-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 transition-all shadow-lg hover:shadow-emerald-500/20 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                      >
-                         {loading ? <FaSpinner className="animate-spin" /> : null}
-                         {loading ? "Processing..." : "Confirm & Process"}
+                         {loading ? <LoadingSpinner size="sm" color="white" /> : null}
+                         {loading ? " Processing..." : "Confirm & Process"}
                      </button>
                  </div>
             </form>

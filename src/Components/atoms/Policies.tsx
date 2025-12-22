@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaDownload, FaQuestionCircle, FaFileContract, FaSpinner } from "react-icons/fa";
+import { FaDownload, FaQuestionCircle, FaFileContract } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface PolicyInfoModalProps {
   isOpen: boolean;
@@ -89,7 +90,7 @@ const Policies: React.FC = () => {
         >
             {isLoading ? (
             <>
-                <FaSpinner className="animate-spin text-gunmetal-600" />
+                <LoadingSpinner size="sm" />
                 <span>Preparing...</span>
             </>
             ) : (

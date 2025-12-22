@@ -7,7 +7,8 @@ import {
   IoFilterSharp,
   IoTimeOutline,
 } from "react-icons/io5";
-import { FaBell, FaInbox, FaSpinner, FaArrowLeft, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import { FaBell, FaInbox, FaArrowLeft, FaChevronDown, FaChevronUp } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { useNavigate } from "react-router-dom";
 import useNotifications, { Notification } from "../../hooks/useNotifications";
 import useUser from "../../hooks/useUser";
@@ -143,8 +144,8 @@ const FullNotificationsPage: React.FC = () => {
           <div className="p-6 bg-alabaster-grey-50/30 min-h-[400px]">
               {isLoading ? (
                   <div className="flex flex-col items-center justify-center h-64">
-                       <FaSpinner className="animate-spin text-gunmetal-500 text-3xl mb-3" />
-                       <p className="text-slate-grey-500 font-medium">Loading notifications...</p>
+                       <LoadingSpinner size="md" />
+                       <p className="text-slate-grey-500 font-medium mt-4">Loading notifications...</p>
                   </div>
               ) : filteredNotifications.length === 0 ? (
                   <div className="flex flex-col items-center justify-center h-64 border-2 border-dashed border-platinum-200 rounded-2xl bg-white/50">

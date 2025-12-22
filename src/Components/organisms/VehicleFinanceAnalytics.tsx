@@ -1,6 +1,5 @@
 import React, { useEffect, useState, ChangeEvent } from "react";
 import { 
-  FaSpinner, 
   FaInbox, 
   FaCar, 
   FaMoneyBillWave, 
@@ -22,6 +21,7 @@ import {
 } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
 import axiosInstance from "../../utils/axiosConfig";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -208,10 +208,7 @@ const VehicleFinanceAnalytics = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <FaSpinner className="animate-spin text-4xl text-gunmetal-600 mb-4" />
-        <p className="text-slate-grey-500 font-medium">Loading vehicle finance data...</p>
-      </div>
+      <LoadingSpinner className="h-96" size="lg" text="Loading vehicle finance data..." />
     );
   }
 

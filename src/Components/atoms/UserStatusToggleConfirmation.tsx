@@ -62,7 +62,7 @@ const UserStatusToggleConfirmation: React.FC<UserStatusToggleProps> = ({
       </div>
 
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+        <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="flex justify-between items-center p-4 border-b">
               <div className="flex items-center">

@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "../LoadingSpinner";
 import { toast } from "react-toastify";
 
 interface Notice {
@@ -119,7 +119,7 @@ const CreateNotice: React.FC = () => {
             className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
             disabled={loading}
           >
-            {loading ? <FaSpinner className="animate-spin" /> : "Create"}
+            {loading ? <LoadingSpinner size="sm" color="white" /> : "Create"}
           </button>
         </div>
       </form>
