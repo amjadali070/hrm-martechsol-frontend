@@ -145,7 +145,7 @@ const AttendanceManagement: React.FC = () => {
   const isDateInRange = (
     dateToCheck: string,
     start: Date | null,
-    end: Date | null
+    end: Date | null,
   ) => {
     if (!start || !end) return true; // If no date range is specified, include all dates
 
@@ -187,7 +187,7 @@ const AttendanceManagement: React.FC = () => {
         case "This Week": {
           start = new Date(today);
           start.setDate(
-            today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1)
+            today.getDate() - today.getDay() + (today.getDay() === 0 ? -6 : 1),
           ); // Start from Monday
           end = new Date(today);
           end.setDate(start.getDate() + 6); // End on Sunday
@@ -222,7 +222,7 @@ const AttendanceManagement: React.FC = () => {
 
       return { start, end };
     },
-    [fromDate, toDate]
+    [fromDate, toDate],
   );
 
   useEffect(() => {
@@ -232,14 +232,14 @@ const AttendanceManagement: React.FC = () => {
     // Apply date range filter
     if (startDate && endDate) {
       filteredData = filteredData.filter((record) =>
-        isDateInRange(record.createdAt, startDate, endDate)
+        isDateInRange(record.createdAt, startDate, endDate),
       );
     }
 
     // Apply job title filter
     if (jobTitleFilter !== "All") {
       filteredData = filteredData.filter(
-        (log) => log.user.personalDetails?.jobTitle === jobTitleFilter
+        (log) => log.user.personalDetails?.jobTitle === jobTitleFilter,
       );
     }
 
@@ -247,14 +247,14 @@ const AttendanceManagement: React.FC = () => {
     if (debouncedSearchName.trim() !== "") {
       const searchLower = debouncedSearchName.toLowerCase();
       filteredData = filteredData.filter((log) =>
-        log.user.name.toLowerCase().includes(searchLower)
+        log.user.name.toLowerCase().includes(searchLower),
       );
     }
 
     // Apply type filter
     if (typeFilter !== "All") {
       filteredData = filteredData.filter(
-        (record) => record.type === typeFilter
+        (record) => record.type === typeFilter,
       );
     }
 
@@ -289,7 +289,7 @@ const AttendanceManagement: React.FC = () => {
 
       const { data } = await axiosInstance.get<ApiResponse>(
         `${backendUrl}/api/attendance`,
-        { params }
+        { params },
       );
 
       let fetchedData = data.attendances || [];
@@ -326,7 +326,7 @@ const AttendanceManagement: React.FC = () => {
     });
 
     const dates = Object.keys(grouped).sort(
-      (a, b) => new Date(b).getTime() - new Date(a).getTime()
+      (a, b) => new Date(b).getTime() - new Date(a).getTime(),
     );
 
     dates.forEach((date) => {
@@ -367,7 +367,6 @@ const AttendanceManagement: React.FC = () => {
   const currentDateDisplay = currentDateKey
     ? formatDateWithWeekday(currentDateKey)
     : "";
-  const currentDayDisplay = currentDateKey ? getDayOfWeek(currentDateKey) : "";
   const paginatedData = currentDateKey
     ? groupedAttendanceData[currentDateKey]
     : [];
@@ -375,7 +374,11 @@ const AttendanceManagement: React.FC = () => {
   return (
     <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
       {loading && (
-        <LoadingSpinner className="min-h-[400px]" size="lg" text="Loading attendance records..." />
+        <LoadingSpinner
+          className="min-h-[400px]"
+          size="lg"
+          text="Loading attendance records..."
+        />
       )}
 
       {!loading && (
@@ -409,44 +412,50 @@ const AttendanceManagement: React.FC = () => {
           </div>
 
           <div className="flex flex-col md:flex-row justify-between items-center mb-6 bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
-             <div className="flex items-center gap-2 mb-2 md:mb-0">
-                 <div className="w-1 h-8 bg-gunmetal-500 rounded-full"></div>
-                 {currentDateDisplay && (
-                    <div className="flex flex-col">
-                        <span className="text-xs font-bold uppercase tracking-wider text-slate-grey-400">Viewing Date</span>
-                        <span className="text-sm font-bold text-gunmetal-900">{currentDateDisplay}</span>
-                    </div>
-                 )}
-             </div>
-             
-             {/* Pagination Controls */}
-              {uniqueDates.length > 0 && (
-                <div className="flex items-center bg-white rounded-lg border border-platinum-200 shadow-sm p-1">
-                  <button
-                    className={`p-2 rounded-md transition-colors ${
-                      currentPage === 1 ? "text-slate-grey-300 cursor-not-allowed" : "text-gunmetal-600 hover:bg-platinum-100"
-                    }`}
-                    disabled={currentPage === 1}
-                    onClick={handlePrevious}
-                  >
-                    <FiChevronLeft size={18} />
-                  </button>
-                  <span className="text-xs font-mono font-medium px-4 text-gunmetal-700 border-x border-platinum-100 min-w-[100px] text-center">
-                    Page {currentPage} / {totalPages}
+            <div className="flex items-center gap-2 mb-2 md:mb-0">
+              <div className="w-1 h-8 bg-gunmetal-500 rounded-full"></div>
+              {currentDateDisplay && (
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-grey-400">
+                    Viewing Date
                   </span>
-                  <button
-                    className={`p-2 rounded-md transition-colors ${
-                      currentPage === totalPages || totalPages === 0
-                        ? "text-slate-grey-300 cursor-not-allowed"
-                        : "text-gunmetal-600 hover:bg-platinum-100"
-                    }`}
-                    disabled={currentPage === totalPages || totalPages === 0}
-                    onClick={handleNext}
-                  >
-                    <FiChevronRight size={18} />
-                  </button>
+                  <span className="text-sm font-bold text-gunmetal-900">
+                    {currentDateDisplay}
+                  </span>
                 </div>
               )}
+            </div>
+
+            {/* Pagination Controls */}
+            {uniqueDates.length > 0 && (
+              <div className="flex items-center bg-white rounded-lg border border-platinum-200 shadow-sm p-1">
+                <button
+                  className={`p-2 rounded-md transition-colors ${
+                    currentPage === 1
+                      ? "text-slate-grey-300 cursor-not-allowed"
+                      : "text-gunmetal-600 hover:bg-platinum-100"
+                  }`}
+                  disabled={currentPage === 1}
+                  onClick={handlePrevious}
+                >
+                  <FiChevronLeft size={18} />
+                </button>
+                <span className="text-xs font-mono font-medium px-4 text-gunmetal-700 border-x border-platinum-100 min-w-[100px] text-center">
+                  Page {currentPage} / {totalPages}
+                </span>
+                <button
+                  className={`p-2 rounded-md transition-colors ${
+                    currentPage === totalPages || totalPages === 0
+                      ? "text-slate-grey-300 cursor-not-allowed"
+                      : "text-gunmetal-600 hover:bg-platinum-100"
+                  }`}
+                  disabled={currentPage === totalPages || totalPages === 0}
+                  onClick={handleNext}
+                >
+                  <FiChevronRight size={18} />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Filters Grid */}
@@ -507,153 +516,161 @@ const AttendanceManagement: React.FC = () => {
               >
                 <option value="All">All Job Titles</option>
                 {jobTitleOptions.map((title) => (
-                    <option key={title} value={title}>
-                      {title}
-                    </option>
-                  ))}
+                  <option key={title} value={title}>
+                    {title}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
-          
-           {dateRange === "Custom" && (
-              <div className="flex gap-4 mb-6 animate-fadeIn">
-                 <div className="flex-1">
-                     <label className="block text-xs font-bold text-slate-grey-500 mb-1 uppercase tracking-wide">From Date</label>
-                     <input
-                        type="date"
-                        value={fromDate}
-                        onChange={(e) => setFromDate(e.target.value)}
-                        className="w-full px-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-700 focus:outline-none focus:border-gunmetal-500"
-                      />
-                 </div>
-                 <div className="flex-1">
-                     <label className="block text-xs font-bold text-slate-grey-500 mb-1 uppercase tracking-wide">To Date</label>
-                     <input
-                        type="date"
-                        value={toDate}
-                        onChange={(e) => setToDate(e.target.value)}
-                        className="w-full px-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-700 focus:outline-none focus:border-gunmetal-500"
-                      />
-                 </div>
+
+          {dateRange === "Custom" && (
+            <div className="flex gap-4 mb-6 animate-fadeIn">
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-slate-grey-500 mb-1 uppercase tracking-wide">
+                  From Date
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full px-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-700 focus:outline-none focus:border-gunmetal-500"
+                />
               </div>
-            )}
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-slate-grey-500 mb-1 uppercase tracking-wide">
+                  To Date
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full px-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-700 focus:outline-none focus:border-gunmetal-500"
+                />
+              </div>
+            </div>
+          )}
 
           {/* Table */}
           <div className="overflow-hidden rounded-xl border border-platinum-200 shadow-sm mb-6">
             <div className="overflow-x-auto">
-                <table className="w-full table-auto bg-white">
+              <table className="w-full table-auto bg-white">
                 <thead className="bg-alabaster-grey-50 border-b border-platinum-200">
-                    <tr>
+                  <tr>
                     <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Employee
-                    </th>
-                    <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Job Title
+                      Employee
                     </th>
                     <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Date
+                      Job Title
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
+                      Date
                     </th>
                     <th className="py-3 px-4 text-center text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Time In
+                      Time In
                     </th>
                     <th className="py-3 px-4 text-center text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Time Out
+                      Time Out
                     </th>
                     <th className="py-3 px-4 text-center text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Total
+                      Total
                     </th>
                     <th className="py-3 px-4 text-center text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
-                        Status
+                      Status
                     </th>
 
                     {user?.role === "SuperAdmin" && (
-                        <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
+                      <th className="py-3 px-4 text-left text-xs font-bold text-slate-grey-500 uppercase tracking-wider">
                         Location
-                        </th>
+                      </th>
                     )}
-                    </tr>
+                  </tr>
                 </thead>
                 <tbody className="divide-y divide-platinum-100">
-                    {paginatedData && paginatedData.length > 0 ? (
+                  {paginatedData && paginatedData.length > 0 ? (
                     paginatedData.map((record) => (
-                        <tr
+                      <tr
                         key={record._id}
                         className="hover:bg-alabaster-grey-50/50 transition-colors"
-                        >
+                      >
                         <td className="py-3 px-4">
-                            <span
-                            onClick={() => navigate(`/attendance/user/${record.user._id}`)}
+                          <span
+                            onClick={() =>
+                              navigate(`/attendance/user/${record.user._id}`)
+                            }
                             className="text-sm font-semibold text-gunmetal-900 hover:text-gunmetal-600 transition-colors cursor-pointer"
-                            >
+                          >
                             {record.user.name}
-                            </span>
+                          </span>
                         </td>
                         <td className="py-3 px-4 text-sm text-slate-grey-600">
-                            {record.user.personalDetails?.jobTitle || "N/A"}
+                          {record.user.personalDetails?.jobTitle || "N/A"}
                         </td>
                         <td className="py-3 px-4 text-sm text-slate-grey-600">
-                            {new Date(record.createdAt).toLocaleDateString(
+                          {new Date(record.createdAt).toLocaleDateString(
                             undefined,
                             {
-                                month: "short",
-                                day: "numeric",
-                            }
-                            )}
-                            <span className="text-xs text-slate-grey-400 block">{getDayOfWeek(record.createdAt)}</span>
+                              month: "short",
+                              day: "numeric",
+                            },
+                          )}
+                          <span className="text-xs text-slate-grey-400 block">
+                            {getDayOfWeek(record.createdAt)}
+                          </span>
                         </td>
                         <td className="py-3 px-4 text-sm font-mono text-center text-gunmetal-700">
-                            {record.timeIn
+                          {record.timeIn
                             ? new Date(record.timeIn).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                            })
+                              })
                             : "--:--"}
                         </td>
                         <td className="py-3 px-4 text-sm font-mono text-center text-gunmetal-700">
-                            {record.timeOut
+                          {record.timeOut
                             ? new Date(record.timeOut).toLocaleTimeString([], {
                                 hour: "2-digit",
                                 minute: "2-digit",
-                            })
+                              })
                             : "--:--"}
                         </td>
                         <td className="py-3 px-4 text-sm font-mono text-center font-semibold text-gunmetal-900 bg-alabaster-grey-50/30">
-                            {formatDuration(record.duration)}
+                          {formatDuration(record.duration)}
                         </td>
                         <td className="py-3 px-4 text-center">
-                            <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ${
-                                getStatusStyles(record.type)
-                            }`}
-                            >
+                          <span
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide ring-1 ring-inset ${getStatusStyles(
+                              record.type,
+                            )}`}
+                          >
                             {record.type}
-                            </span>
+                          </span>
                         </td>
 
                         {user?.role === "SuperAdmin" && (
-                            <td className="py-3 px-4 text-sm text-slate-grey-600">
+                          <td className="py-3 px-4 text-sm text-slate-grey-600">
                             {record.workLocation || "N/A"}
-                            </td>
+                          </td>
                         )}
-                        </tr>
+                      </tr>
                     ))
-                    ) : (
+                  ) : (
                     <tr>
-                        <td
+                      <td
                         className="py-12 px-4 text-center"
                         colSpan={user?.role === "SuperAdmin" ? 8 : 7}
-                        >
+                      >
                         <div className="flex flex-col items-center justify-center text-slate-grey-400">
-                            <FaInbox size={32} className="mb-3 opacity-30" />
-                            <span className="text-sm font-medium">
+                          <FaInbox size={32} className="mb-3 opacity-30" />
+                          <span className="text-sm font-medium">
                             No attendance records found.
-                            </span>
+                          </span>
                         </div>
-                        </td>
+                      </td>
                     </tr>
-                    )}
+                  )}
                 </tbody>
-                </table>
+              </table>
             </div>
           </div>
 
@@ -668,9 +685,17 @@ const AttendanceManagement: React.FC = () => {
                     key={type}
                     className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border bg-white border-platinum-200 shadow-sm text-xs font-bold"
                   >
-                     <span className={`w-2 h-2 rounded-full ${getStatusStyles(type).match(/bg-[a-z]+-50/)?.[0].replace('-50', '-500') || 'bg-gray-500'}`}></span>
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        getStatusStyles(type)
+                          .match(/bg-[a-z]+-50/)?.[0]
+                          .replace("-50", "-500") || "bg-gray-500"
+                      }`}
+                    ></span>
                     <span className="text-gunmetal-700">{type}</span>
-                    <span className="ml-1 bg-alabaster-grey-50 px-1.5 rounded text-gunmetal-900 border border-platinum-100">{count}</span>
+                    <span className="ml-1 bg-alabaster-grey-50 px-1.5 rounded text-gunmetal-900 border border-platinum-100">
+                      {count}
+                    </span>
                   </div>
                 ))}
               </div>

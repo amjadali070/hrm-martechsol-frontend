@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   FaSearch,
   FaFilter,
   FaSpinner,
   FaInbox,
   FaFileExport,
-  FaHistory,
 } from "react-icons/fa";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import axiosInstance from "../../utils/axiosConfig";
@@ -75,11 +74,7 @@ const ActivityLogManagement: React.FC = () => {
     "AUTH",
   ];
 
-  useEffect(() => {
-    fetchActivityLogs();
-  }, [currentPage, pageSize]);
-
-  const fetchActivityLogs = async () => {
+  const fetchActivityLogs = useCallback(async () => {
     setIsLoading(true);
     try {
       const params: any = {
@@ -117,30 +112,17 @@ const ActivityLogManagement: React.FC = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [backendUrl, currentPage, pageSize, filters]);
+
+  useEffect(() => {
+    fetchActivityLogs();
+  }, [fetchActivityLogs]);
 
   const handleFilterChange = (
     field: keyof ActivityLogFilters,
     value: string,
   ) => {
     setFilters((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleApplyFilters = () => {
-    setCurrentPage(1);
-    fetchActivityLogs();
-  };
-
-  const handleResetFilters = () => {
-    setFilters({
-      action: "ALL",
-      module: "ALL",
-      userId: "",
-      startDate: "",
-      endDate: "",
-      search: "",
-    });
-    setCurrentPage(1);
   };
 
   const handleExportToExcel = async () => {
