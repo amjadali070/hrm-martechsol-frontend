@@ -32,6 +32,7 @@ import TrackApplication from "./Components/atoms/TrackApplication";
 import ViewAttendance from "./Components/atoms/ViewAttendance";
 import AddNewEmployee from "./Components/molecules/AddNewEmployee";
 import AttendanceManagement from "./Components/molecules/AttendanceManagement";
+import ActivityLogManagement from "./Components/molecules/ActivityLogManagement";
 import EditablePayrollPage from "./Components/molecules/EditablePayrollPage";
 import EditProfilePage from "./Components/molecules/EditProfilePage";
 import EmployeeManagement from "./Components/molecules/EmployeeManagement";
@@ -220,6 +221,10 @@ const App: React.FC = () => {
                 <Route
                   path="/organization/team-management"
                   element={<TeamManagement />}
+                />
+                <Route
+                  path="/organization/activity-logs"
+                  element={<ActivityLogManagement />}
                 />
                 <Route
                   path="/all-anniversaries"

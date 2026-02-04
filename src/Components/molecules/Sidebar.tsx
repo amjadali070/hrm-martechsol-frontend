@@ -105,6 +105,11 @@ const menuItems: MenuItem[] = [
         visibleTo: ["HR", "SuperAdmin"],
       },
       {
+        label: "Activity Logs",
+        path: "/organization/activity-logs",
+        visibleTo: ["HR", "SuperAdmin"],
+      },
+      {
         label: "Passwords",
         path: "/admin/password-manager",
         visibleTo: ["SuperAdmin"],
@@ -202,7 +207,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
     role === "Finance"
       ? menuItems.filter((item) => item.label === "Organization")
       : menuItems.filter(
-          (item) => !item.visibleTo || item.visibleTo.includes(role)
+          (item) => !item.visibleTo || item.visibleTo.includes(role),
         );
 
   return (
@@ -298,7 +303,7 @@ const Sidebar: React.FC<SidebarProps> = ({ role }) => {
                           .filter(
                             (subItem) =>
                               !subItem.visibleTo ||
-                              subItem.visibleTo.includes(role)
+                              subItem.visibleTo.includes(role),
                           )
                           .map((subItem, subIndex) => {
                             const isSubActive =
