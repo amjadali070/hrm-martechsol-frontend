@@ -5,7 +5,6 @@ import saveAs from "file-saver";
 import ExcelJS from "exceljs";
 import { useNavigate } from "react-router-dom";
 import {
-  FaSpinner,
   FaSearch,
   FaUsers,
   FaBriefcase,
@@ -16,6 +15,7 @@ import UserPayrolls from "../atoms/UserPayrolls";
 import { IoDocumentText } from "react-icons/io5";
 import axios from "axios";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 export interface PayrollDetails {
   payrollId: string;
@@ -351,7 +351,7 @@ const PayrollManagement: React.FC = () => {
 
   return (
     <div className="w-full mx-auto p-6 bg-white rounded-lg">
-      <h1 className="text-3xl font-bold text-gray-800 mb-4">
+      <h1 className="text-3xl font-bold text-black mb-4">
         Payroll Management
       </h1>
 
@@ -473,7 +473,7 @@ const PayrollManagement: React.FC = () => {
                     disabled={generateLoading}
                     className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition duration-300 flex items-center space-x-2"
                   >
-                    {generateLoading && <FaSpinner className="animate-spin" />}
+                    {generateLoading && <LoadingSpinner size="sm" color="white" />}
                     <span>Generate</span>
                   </button>
                 </div>
@@ -582,10 +582,7 @@ const PayrollManagement: React.FC = () => {
           {/* Payroll Table */}
           {loading ? (
             <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
-              <FaSpinner
-                size={30}
-                className="text-blue-500 mb-10 animate-spin"
-              />
+              <LoadingSpinner size="lg" text="Loading payrolls..." />
             </div>
           ) : currentPayrolls.length === 0 ? (
             <div className="text-center py-4 text-gray-500">
@@ -794,10 +791,7 @@ const PayrollManagement: React.FC = () => {
 
           {userLoading ? (
             <div className="w-full p-10 mt-10 bg-white rounded-lg flex justify-center items-center">
-              <FaSpinner
-                size={30}
-                className="text-blue-500 mb-10 animate-spin"
-              />
+              <LoadingSpinner size="lg" text="Loading user payrolls..." />
             </div>
           ) : currentUsers.length === 0 ? (
             <div className="text-center py-4 text-gray-500">

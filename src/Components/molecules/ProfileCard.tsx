@@ -1,12 +1,7 @@
-// ProfileCard.tsx
-
 import React from "react";
 import { useNavigate } from "react-router";
 import profilePlaceholder from "../../assets/placeholder.png";
-
-interface ProfileImageProps {
-  src: string;
-}
+import { FaClock, FaBriefcase, FaEdit } from "react-icons/fa";
 
 interface ProfileCardProps {
   name: string;
@@ -15,53 +10,6 @@ interface ProfileCardProps {
   shiftStartTime?: string;
   shiftEndTime?: string;
 }
-
-interface ProfileInfoProps {
-  name: string;
-  jobTitle: string;
-  shiftStartTime?: string;
-  shiftEndTime?: string;
-}
-
-const ProfileImage: React.FC<ProfileImageProps> = ({ src }) => {
-  return (
-    <div className="flex justify-center object-cover w-1/5 max-md:w-24 max-sm:w-1/3">
-      <img
-        src={src || profilePlaceholder}
-        alt="Profile"
-        className="rounded-full object-cover border-[6px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
-        onError={(e) => {
-          console.error("Failed to load image:", src);
-          e.currentTarget.src = profilePlaceholder;
-        }}
-      />
-    </div>
-  );
-};
-
-const ProfileInfo: React.FC<ProfileInfoProps> = ({
-  name,
-  jobTitle,
-  shiftStartTime,
-  shiftEndTime,
-}) => {
-  const formatShift = () => {
-    if (shiftStartTime && shiftEndTime) {
-      return `${shiftStartTime} - ${shiftEndTime}`;
-    }
-    return "N/A";
-  };
-
-  return (
-    <div className="flex flex-col ml-5 w-4/5 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col text-white">
-        <h1 className="text-3xl font-bold sm:text-4xl">{name}</h1>
-        <h2 className="mt-2 text-xl sm:text-xl">{jobTitle}</h2>
-        <span className="mt-2 text-sm text-white">Shift: {formatShift()}</span>
-      </div>
-    </div>
-  );
-};
 
 const ProfileCard: React.FC<ProfileCardProps> = ({
   name,
@@ -76,24 +24,62 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
     navigate("/edit-profile");
   };
 
+  const formatShift = () => {
+    if (shiftStartTime && shiftEndTime) {
+      return `${shiftStartTime} - ${shiftEndTime}`;
+    }
+    return "Not Assigned";
+  };
+
   return (
-    <section className="flex flex-col md:flex-row items-center justify-between gap-6 px-6 py-8 bg-sky-500 rounded-[28px] max-w-full">
-      <div className="flex flex-col md:flex-row items-center w-full">
-        <ProfileImage src={imageSrc} />
-        <ProfileInfo
-          name={name}
-          jobTitle={jobTitle}
-          shiftStartTime={shiftStartTime}
-          shiftEndTime={shiftEndTime}
-        />
+    <div className="relative overflow-hidden rounded-3xl bg-gradient-to-r from-brand-600 via-brand-700 to-brand-900 shadow-xl text-white p-8 animate-fadeIn">
+      {/* Background Decor */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/4 blur-3xl"></div>
+      
+      <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+        {/* Avatar */}
+        <div className="relative shrink-0">
+          <div className="w-32 h-32 rounded-full p-1 bg-white/20 backdrop-blur-sm">
+            <img
+              src={imageSrc || profilePlaceholder}
+              alt={name}
+              onError={(e) => {
+                e.currentTarget.src = profilePlaceholder;
+              }}
+              className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
+            />
+          </div>
+          <div className="absolute bottom-2 right-2 w-6 h-6 bg-accent-500 border-4 border-brand-800 rounded-full"></div>
+        </div>
+
+        {/* Info */}
+        <div className="flex-1 text-center md:text-left">
+          <h1 className="text-3xl sm:text-4xl font-display font-bold mb-2 tracking-tight">
+            {name}
+          </h1>
+          
+          <div className="flex flex-col md:flex-row items-center gap-4 text-brand-100 text-sm font-medium">
+            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+              <FaBriefcase className="text-accent-400" />
+              <span>{jobTitle}</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
+              <FaClock className="text-accent-400" />
+              <span>Shift: {formatShift()}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Action */}
+        <button
+          onClick={handleEditProfile}
+          className="shrink-0 flex items-center gap-2 bg-white text-brand-700 px-6 py-3 rounded-xl font-semibold hover:bg-brand-50 transition-colors shadow-lg shadow-black/10"
+        >
+          <FaEdit />
+          Edit Profile
+        </button>
       </div>
-      <button
-        onClick={handleEditProfile}
-        className="w-[18%] px-6 py-3 my-auto mr-5 font-semibold text-black bg-white rounded-[30px] hover:bg-gray-100 transition-colors duration-300 max-md:w-3/4 max-md:px-4 max-md:py-2 mt-4 md:mt-11"
-      >
-        Edit Profile
-      </button>
-    </section>
+    </div>
   );
 };
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import {
-  FaSpinner,
   FaSort,
   FaSortUp,
   FaSortDown,
   FaTrashAlt,
   FaPen,
 } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import axiosInstance from "../../utils/axiosConfig";
 import ConfirmDialog from "./ConfirmDialog";
 import { toast } from "react-toastify";
@@ -107,6 +107,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
     if (isOpen) {
       fetchInvoices();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen, page, sortBy, sortOrder, dateRange]);
 
   const handleSort = (field: "date" | "amount") => {
@@ -324,7 +325,7 @@ const InvoicesModal = ({ isOpen, onClose, vehicleId }: InvoicesModalProps) => {
 
             {loading ? (
               <div className="flex justify-center items-center py-8">
-                <FaSpinner className="animate-spin text-blue-600 text-2xl" />
+                <LoadingSpinner size="md" />
               </div>
             ) : error ? (
               <div className="text-gray-600 p-4 text-center">

@@ -5,10 +5,17 @@ import {
   FaFilter,
   FaInbox,
   FaSearch,
-  FaSpinner,
+  FaPlus,
+  FaEdit,
+  FaTrashAlt,
+  FaUmbrellaBeach,
+  FaSave,
+  FaTimes
 } from "react-icons/fa";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { formatDate } from "../../utils/formatDate";
 import { toast } from "react-toastify";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface Holiday {
   _id: number;
@@ -30,7 +37,7 @@ const HolidayManagement: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [filters, setFilters] = useState({ search: "", date: "", month: "" });
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(5);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [loading, setLoading] = useState(false);
 
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -51,6 +58,7 @@ const HolidayManagement: React.FC = () => {
 
   useEffect(() => {
     fetchHolidays();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleAddOrUpdate = async () => {
@@ -125,6 +133,8 @@ const HolidayManagement: React.FC = () => {
   };
 
   const handleDelete = async (_id: number) => {
+    if(!window.confirm("Are you sure you want to delete this holiday?")) return;
+
     try {
       await axios.delete(`${backendUrl}/api/holidays/${_id}`, {
         withCredentials: true,
@@ -174,254 +184,280 @@ const HolidayManagement: React.FC = () => {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages));
   const handlePrevious = () => setCurrentPage((prev) => Math.max(prev - 1, 1));
 
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setForm({
+        _id: 0,
+        fromDate: "",
+        toDate: "",
+        holidayName: "",
+        description: "",
+    });
+  }
+
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-lg">
-      <h1 className="text-2xl font-bold mb-6">Holiday Management</h1>
-
-      <div className="p-4 rounded-lg mb-6">
-        <h2 className="text-lg font-bold mb-4">
-          {isEditing ? "Edit Holiday" : "Add New Holiday"}
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              From Date
-            </label>
-            <input
-              type="date"
-              value={form.fromDate}
-              onChange={(e) => setForm({ ...form, fromDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              To Date (Optional)
-            </label>
-            <input
-              type="date"
-              value={form.toDate}
-              onChange={(e) => setForm({ ...form, toDate: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Holiday Name
-            </label>
-            <input
-              type="text"
-              placeholder="Holiday Name"
-              value={form.holidayName}
-              onChange={(e) =>
-                setForm({ ...form, holidayName: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div className="col-span-2">
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              placeholder="Description"
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-        </div>
-        <button
-          onClick={handleAddOrUpdate}
-          className={`mt-4 px-4 py-2 text-white rounded-full hover:bg-opacity-90 ${
-            isEditing
-              ? "bg-orange-500 hover:bg-orange-600"
-              : "bg-blue-600 hover:bg-blue-700"
-          }`}
-        >
-          {isEditing ? "Update Holiday" : "Add Holiday"}
-        </button>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaSearch className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            name="search"
-            placeholder="Search by holiday name, description"
-            value={filters.search}
-            onChange={(e) => setFilters({ ...filters, search: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-600 placeholder-gray-400"
-          />
-        </div>
-
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaCalendarAlt className="text-gray-400 mr-2" />
-          <input
-            type="date"
-            value={filters.date}
-            onChange={(e) => setFilters({ ...filters, date: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          />
-        </div>
-
-        <div className="flex items-center bg-white rounded-lg px-3 py-2 border border-gray-300">
-          <FaFilter className="text-gray-400 mr-2" />
-          <select
-            value={filters.month}
-            onChange={(e) => setFilters({ ...filters, month: e.target.value })}
-            className="w-full border-none focus:outline-none text-sm text-gray-600"
-          >
-            <option value="">Select Month</option>
-            {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
-              <option key={month} value={month}>
-                {new Date(2024, month - 1).toLocaleString("default", {
-                  month: "long",
-                })}
-              </option>
-            ))}
-          </select>
+    <div className="w-full bg-white rounded-2xl shadow-xl border border-platinum-200 p-6 flex flex-col mb-8 gap-6 animate-fadeIn">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-platinum-200 pb-6">
+         <div className="flex items-center gap-4">
+             <div className="bg-gunmetal-50 p-3.5 rounded-2xl border border-platinum-200 shadow-inner">
+               <FaUmbrellaBeach className="text-gunmetal-600 text-2xl" />
+             </div>
+             <div>
+                <h2 className="text-2xl font-extrabold text-gunmetal-900 tracking-tight">
+                    Holiday Management
+                </h2>
+                <p className="text-sm text-slate-grey-500 font-medium">
+                    Configure and manage the annual company holiday calendar.
+                </p>
+             </div>
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse bg-white border border-gray-300 rounded-lg">
-          <colgroup>
-            <col style={{ width: "5%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "10%" }} />
-            <col style={{ width: "20%" }} />
-            <col style={{ width: "30%" }} />
-            <col style={{ width: "10%" }} />
-          </colgroup>
-          <thead className="bg-purple-900">
-            <tr>
-              {[
-                "S.No",
-                "From Date",
-                "To Date",
-                "Holiday Name",
-                "Description",
-                "Actions",
-              ].map((header) => (
-                <th
-                  key={header}
-                  className="px-4 py-2 text-center text-sm font-medium text-white"
-                >
-                  {header}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="text-center py-8 text-blue-600">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaSpinner
-                      className="text-blue-500 mb-4 animate-spin"
-                      size={30}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Form Section */}
+        <div className="lg:col-span-1">
+            <div className="bg-alabaster-grey-50 rounded-2xl p-6 border border-platinum-200 shadow-sm sticky top-6">
+               <div className="flex items-center justify-between mb-6">
+                   <h3 className="font-bold text-gunmetal-900 flex items-center gap-2 text-lg">
+                     {isEditing ? <FaEdit className="text-amber-500" /> : <FaPlus className="text-emerald-500" />}
+                     {isEditing ? "Edit Holiday" : "New Holiday"}
+                   </h3>
+                   {isEditing && (
+                       <button onClick={handleCancelEdit} className="text-xs font-bold text-slate-grey-500 hover:text-rose-500 flex items-center gap-1 transition-colors">
+                           <FaTimes /> Cancel
+                       </button>
+                   )}
+               </div>
+               
+               <div className="space-y-5">
+                  <div>
+                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
+                      Event Name
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="e.g. Annual Company Retreat"
+                      value={form.holidayName}
+                      onChange={(e) =>
+                        setForm({ ...form, holidayName: e.target.value })
+                      }
+                      className="w-full px-4 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all shadow-sm placeholder:text-slate-grey-300"
                     />
                   </div>
-                </td>
-              </tr>
-            ) : currentHolidays.length > 0 ? (
-              currentHolidays.map((holiday, index) => (
-                <tr key={holiday._id} className="hover:bg-gray-100">
-                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
-                    {indexOfFirstItem + index + 1}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
-                    {formatDate(holiday.fromDate)}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
-                    {holiday.toDate ? formatDate(holiday.toDate) : "Single Day"}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
-                    {holiday.holidayName}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 text-center">
-                    {holiday.description}
-                  </td>
-                  <td className="px-4 py-2 text-sm text-gray-800 flex space-x-4 text-center">
-                    <button
-                      onClick={() => handleEdit(holiday)}
-                      className="px-3 py-1 bg-orange-500 text-white rounded-full hover:bg-orange-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(holiday._id)}
-                      className="px-3 py-1 bg-red-600 text-white rounded-full hover:bg-red-700"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={6} className="text-center py-8 text-gray-500">
-                  <div className="flex flex-col items-center justify-center">
-                    <FaInbox size={30} className="text-gray-400 mb-2" />
-                    <span className="text-md font-medium">
-                      No holidays found.
-                    </span>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                     <div>
+                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
+                          Start Date
+                        </label>
+                        <input
+                          type="date"
+                          value={form.fromDate}
+                          onChange={(e) => setForm({ ...form, fromDate: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono shadow-sm"
+                        />
+                     </div>
+                     <div>
+                        <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
+                          End Date <span className="text-slate-grey-400 font-normal lowercase">(opt)</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={form.toDate}
+                          onChange={(e) => setForm({ ...form, toDate: e.target.value })}
+                          className="w-full px-3 py-2.5 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all font-mono shadow-sm"
+                        />
+                     </div>
                   </div>
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
 
-        <div className="flex justify-between items-center mt-4">
-          <div className="flex items-center">
-            <span className="text-sm text-gray-700 mr-2">Show:</span>
-            <select
-              className="text-sm border border-gray-300 rounded-md"
-              value={itemsPerPage}
-              onChange={(e) => {
-                setItemsPerPage(parseInt(e.target.value));
-                setCurrentPage(1);
-              }}
-            >
-              {[5, 10, 20].map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="flex items-center space-x-4">
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === 1
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-gray-200 text-black hover:bg-gray-300"
-              }`}
-              disabled={currentPage === 1}
-              onClick={handlePrevious}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-gray-700">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              className={`px-3 py-1 text-sm rounded-full ${
-                currentPage === totalPages
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={currentPage === totalPages}
-              onClick={handleNext}
-            >
-              Next
-            </button>
-          </div>
+                  <div>
+                    <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">
+                      Description
+                    </label>
+                    <textarea
+                      placeholder="Additional details about the event..."
+                      value={form.description}
+                      onChange={(e) =>
+                        setForm({ ...form, description: e.target.value })
+                      }
+                      className="w-full px-4 py-3 bg-white border border-platinum-200 rounded-xl text-sm font-medium text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all min-h-[100px] resize-none shadow-sm placeholder:text-slate-grey-300"
+                    />
+                  </div>
+                  
+                  <div className="pt-2">
+                      <button
+                        onClick={handleAddOrUpdate}
+                        disabled={!form.holidayName || !form.fromDate}
+                        className={`w-full py-3 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 transform hover:-translate-y-0.5 ${
+                            isEditing
+                            ? "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20"
+                            : "bg-gunmetal-900 hover:bg-gunmetal-800 shadow-gunmetal-500/20 disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none"
+                        }`}
+                        >
+                        {isEditing ? <FaSave /> : <FaPlus />}
+                        {isEditing ? "Update Event" : "Create Event"}
+                      </button>
+                  </div>
+               </div>
+            </div>
+        </div>
+
+        {/* List Section */}
+        <div className="lg:col-span-2 flex flex-col gap-6">
+             {/* Filters */}
+             <div className="flex flex-col sm:flex-row gap-4 bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
+                <div className="relative group flex-1">
+                   <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                   <input
+                    type="text"
+                    name="search"
+                    placeholder="Search holidays..."
+                    value={filters.search}
+                    onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+                    className="w-full pl-10 pr-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all"
+                  />
+                </div>
+                
+                <div className="relative group sm:w-48">
+                   <FaFilter className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+                   <select
+                    value={filters.month}
+                    onChange={(e) => setFilters({ ...filters, month: e.target.value })}
+                    className="w-full pl-10 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
+                  >
+                    <option value="">All Months</option>
+                    {Array.from({ length: 12 }, (_, i) => i + 1).map((month) => (
+                      <option key={month} value={month}>
+                        {new Date(2024, month - 1).toLocaleString("default", {
+                          month: "long",
+                        })}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+             </div>
+
+            {/* Table */}
+            <div className="overflow-hidden rounded-xl border border-platinum-200 shadow-sm bg-white">
+                <table className="w-full text-left bg-white border-collapse">
+                  <thead className="bg-alabaster-grey-50 border-b border-platinum-200">
+                    <tr>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider">Date</th>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider">Event Details</th>
+                      <th className="py-4 px-6 text-xs font-bold text-slate-grey-500 uppercase tracking-wider text-center w-32">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-platinum-100">
+                    {loading ? (
+                      <tr>
+                        <td colSpan={3} className="text-center py-16 text-slate-grey-400">
+                               <LoadingSpinner size="md" text="Loading calendar..." />
+                        </td>
+                      </tr>
+                    ) : currentHolidays.length > 0 ? (
+                      currentHolidays.map((holiday) => (
+                        <tr key={holiday._id} className="hover:bg-alabaster-grey-50/50 transition-colors group">
+                          <td className="py-5 px-6 align-top w-56">
+                             <div className="flex flex-col gap-1.5">
+                                 <div className="flex items-center gap-2 text-gunmetal-900 font-bold font-mono">
+                                    <FaCalendarAlt className="text-slate-grey-400 text-xs" />
+                                    {formatDate(holiday.fromDate)}
+                                 </div>
+                                 {holiday.toDate && (
+                                     <span className="text-xs text-slate-grey-500 font-mono ml-5 border-l-2 border-platinum-200 pl-2">
+                                         to {formatDate(holiday.toDate)}
+                                     </span>
+                                 )}
+                                 {!holiday.toDate && (
+                                     <span className="ml-5 text-[10px] uppercase font-bold tracking-wider text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full w-fit border border-emerald-100">
+                                         Single Day
+                                     </span>
+                                 )}
+                             </div>
+                          </td>
+                          <td className="py-5 px-6 align-top">
+                            <h4 className="text-base font-bold text-gunmetal-900 mb-1.5">{holiday.holidayName}</h4>
+                            <p className="text-sm text-slate-grey-600 leading-relaxed max-w-prose">{holiday.description}</p>
+                          </td>
+                          <td className="py-5 px-6 align-top text-center">
+                            <div className="flex justify-center gap-2">
+                              <button
+                                onClick={() => handleEdit(holiday)}
+                                className="p-2 text-amber-600 hover:bg-amber-50 rounded-lg transition-colors border border-transparent hover:border-amber-200"
+                                title="Edit"
+                              >
+                                <FaEdit />
+                              </button>
+                              <button
+                                onClick={() => handleDelete(holiday._id)}
+                                className="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors border border-transparent hover:border-rose-200"
+                                title="Delete"
+                              >
+                                <FaTrashAlt />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={3} className="text-center py-16 text-slate-grey-400">
+                           <div className="flex flex-col items-center justify-center">
+                               <div className="w-16 h-16 bg-alabaster-grey-50 rounded-full flex items-center justify-center mb-4 border border-platinum-200">
+                                   <FaInbox className="text-slate-grey-300 text-3xl" />
+                               </div>
+                               <span className="text-gunmetal-900 font-bold text-lg">No holidays found</span>
+                               <p className="text-slate-grey-500 text-sm mt-1 max-w-xs mx-auto">
+                                   No holidays match your search or none have been added yet.
+                               </p>
+                           </div>
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+            </div>
+
+            {/* Pagination controls */}
+            {filteredHolidays.length > 0 && (
+                <div className="flex flex-col sm:flex-row justify-between items-center gap-4 border-t border-platinum-200 pt-2 px-1">
+                     <span className="text-sm font-medium text-slate-grey-500">
+                         Showing <span className="font-bold text-gunmetal-900">{indexOfFirstItem + 1}</span> to <span className="font-bold text-gunmetal-900">{Math.min(indexOfLastItem, filteredHolidays.length)}</span> of <span className="font-bold text-gunmetal-900">{filteredHolidays.length}</span> entries
+                     </span>
+                     <div className="flex items-center gap-2">
+                         <button
+                           className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                             currentPage === 1 
+                                ? "bg-platinum-50 text-slate-grey-300 cursor-not-allowed" 
+                                : "bg-white text-slate-grey-600 hover:bg-gunmetal-50 hover:text-gunmetal-900 hover:border-gunmetal-200 shadow-sm"
+                           }`}
+                           disabled={currentPage === 1}
+                           onClick={handlePrevious}
+                           aria-label="Previous Page"
+                         >
+                           <FiChevronLeft size={18} />
+                         </button>
+                         
+                         <span className="text-sm font-bold text-gunmetal-900 px-2">
+                            Page {currentPage} of {totalPages}
+                         </span>
+
+                         <button
+                           className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                             currentPage === totalPages 
+                                ? "bg-platinum-50 text-slate-grey-300 cursor-not-allowed" 
+                                : "bg-white text-slate-grey-600 hover:bg-gunmetal-50 hover:text-gunmetal-900 hover:border-gunmetal-200 shadow-sm"
+                           }`}
+                           disabled={currentPage === totalPages}
+                           onClick={handleNext}
+                           aria-label="Next Page"
+                         >
+                           <FiChevronRight size={18} />
+                         </button>
+                     </div>
+                </div>
+            )}
         </div>
       </div>
     </div>

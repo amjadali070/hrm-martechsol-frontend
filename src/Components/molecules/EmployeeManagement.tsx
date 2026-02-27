@@ -10,7 +10,6 @@ import {
   FaSearch,
   FaUsers,
   FaUserTag,
-  FaSpinner,
   FaPlus,
   FaFileExport,
   FaEdit,
@@ -18,18 +17,19 @@ import {
   FaChevronLeft,
 } from "react-icons/fa";
 import axios from "axios";
-import { toast } from "react-toastify"; // Import toast for notifications
+import { toast } from "react-toastify";
 import UserStatusToggleConfirmation from "../atoms/UserStatusToggleConfirmation";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface Employee {
-  _id: string; // Ensure _id is included
+  _id: string;
   name: string;
   department: string;
   jobTitle: string;
   joiningDate: string;
   jobType: "Full-Time" | "Part-Time" | "Remote" | "Contract" | "Internship";
   gender: "Male" | "Female" | "Other";
-  isActive: boolean; // Include isActive status
+  isActive: boolean;
 }
 
 const EmployeeManagement: React.FC = () => {
@@ -56,15 +56,12 @@ const EmployeeManagement: React.FC = () => {
           `${backendUrl}/api/users/getAllUsers`,
           {
             withCredentials: true,
-            // Remove pagination parameters to fetch all employees
             params: {
-              // Include other filters if the backend supports them
               department:
                 departmentFilter !== "All" ? departmentFilter : undefined,
               jobTitle: jobTitleFilter !== "All" ? jobTitleFilter : undefined,
               jobType: jobTypeFilter !== "All" ? jobTypeFilter : undefined,
               gender: genderFilter !== "All" ? genderFilter : undefined,
-              // Add searchTerm and monthFilter if backend supports them
               search: searchTerm || undefined,
               month: monthFilter !== "All" ? monthFilter : undefined,
             },
@@ -84,7 +81,6 @@ const EmployeeManagement: React.FC = () => {
 
     fetchEmployees();
   }, [
-    // Remove dependencies related to client-side pagination
     departmentFilter,
     jobTitleFilter,
     jobTypeFilter,
@@ -95,7 +91,7 @@ const EmployeeManagement: React.FC = () => {
   ]);
 
   useEffect(() => {
-    let updatedEmployees = [...employees]; // Create a copy to avoid mutating state
+    let updatedEmployees = [...employees];
 
     if (departmentFilter !== "All") {
       updatedEmployees = updatedEmployees.filter(
@@ -139,7 +135,7 @@ const EmployeeManagement: React.FC = () => {
     }
 
     setFilteredEmployees(updatedEmployees);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [
     employees,
     departmentFilter,
@@ -179,7 +175,7 @@ const EmployeeManagement: React.FC = () => {
       { header: "Joining Date", key: "joiningDate", width: 20 },
       { header: "Job Type", key: "jobType", width: 15 },
       { header: "Gender", key: "gender", width: 10 },
-      { header: "Status", key: "status", width: 15 }, // New Column for Status
+      { header: "Status", key: "status", width: 15 },
     ];
 
     filteredEmployees.forEach((employee, index) => {
@@ -198,11 +194,10 @@ const EmployeeManagement: React.FC = () => {
         ),
         jobType: employee.jobType,
         gender: employee.gender,
-        status: employee.isActive ? "Active" : "Deactivated", // Populate Status
+        status: employee.isActive ? "Active" : "Deactivated",
       });
     });
 
-    // Styling Headers
     worksheet.getRow(1).font = { bold: true };
     worksheet.columns.forEach((column) => {
       column.alignment = { vertical: "middle", horizontal: "center" };
@@ -284,51 +279,62 @@ const EmployeeManagement: React.FC = () => {
   };
 
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-lg">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-center mb-6">
-        <h2 className="text-3xl font-semibold text-gray-800 mb-4 md:mb-0">
-          Employee Management
-        </h2>
-        <div className="flex space-x-4">
+      <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+            <FaUsers className="text-gunmetal-600 text-xl" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Employee Management
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+              Oversee workforce details, roles, and employment status.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
           <button
-            className="flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-gunmetal-900 text-white rounded-lg hover:bg-gunmetal-800 transition-all duration-200 shadow-sm text-sm font-semibold"
             onClick={handleAddNewEmployee}
           >
-            <FaPlus className="mr-2" />
-            Add New Employee
+            <FaPlus className="w-3.5 h-3.5" />
+            Add Employee
           </button>
           <button
-            className="flex items-center px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-white text-gunmetal-600 border border-platinum-200 rounded-lg hover:bg-platinum-50 transition-all duration-200 shadow-sm text-sm font-semibold"
             onClick={handleExportData}
           >
-            <FaFileExport className="mr-2" />
+            <FaFileExport className="w-3.5 h-3.5" />
             Export Data
           </button>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2 mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3 mb-6">
         {/* Search Input */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaSearch className="text-gray-400 mr-2" />
+        <div className="relative group">
+          <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <input
             type="text"
             placeholder="Search by name..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700 placeholder-gray-400"
+            className="w-full pl-9 pr-4 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400"
           />
         </div>
 
         {/* Department Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaUsers className="text-gray-400 mr-2" />
+        <div className="relative group">
+          <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <select
             value={departmentFilter}
             onChange={(e) => setDepartmentFilter(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700"
+            className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
           >
             <option value="All">All Departments</option>
             <option value="Account Management">Account Management</option>
@@ -356,12 +362,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Job Type Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaBriefcase className="text-gray-400 mr-2" />
+        <div className="relative group">
+          <FaBriefcase className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <select
             value={jobTypeFilter}
             onChange={(e) => setJobTypeFilter(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700"
+            className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
           >
             <option value="All">All Job Types</option>
             <option value="Full-Time">Full-Time</option>
@@ -373,12 +379,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Job Title Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaUserTag className="text-gray-400 mr-2" />
+        <div className="relative group">
+          <FaUserTag className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <select
             value={jobTitleFilter}
             onChange={(e) => setJobTitleFilter(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700"
+            className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
           >
             <option value="All">All Job Titles</option>
             {[
@@ -405,12 +411,12 @@ const EmployeeManagement: React.FC = () => {
         </div>
 
         {/* Gender Filter */}
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaUsers className="text-gray-400 mr-2" />
+        <div className="relative group">
+          <FaUsers className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <select
             value={genderFilter}
             onChange={(e) => setGenderFilter(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700"
+            className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
           >
             <option value="All">All Genders</option>
             <option value="Male">Male</option>
@@ -419,12 +425,13 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        <div className="flex items-center bg-white rounded-lg px-4 py-2 border border-gray-300">
-          <FaCalendarAlt className="text-gray-400 mr-2" />
+        {/* Month Filter */}
+        <div className="relative group">
+          <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
           <select
             value={monthFilter}
             onChange={(e) => setMonthFilter(e.target.value)}
-            className="w-full focus:outline-none text-sm text-gray-700"
+            className="w-full pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer"
           >
             {monthOptions.map((option) => (
               <option key={option} value={option}>
@@ -440,120 +447,120 @@ const EmployeeManagement: React.FC = () => {
       </div>
 
       {/* Employees Table */}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white rounded-lg">
-          <thead>
-            <tr className="bg-purple-900 text-white">
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tl-lg">
+      <div className="overflow-x-auto rounded-xl border border-platinum-200">
+        <table className="w-full text-left border-collapse">
+          <thead className="bg-alabaster-grey-50">
+            <tr>
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
                 S.No
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
                 Name
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
                 Department
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
                 Job Title
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Joining Date
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                Joined
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Job Type
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
+                Type
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
-                Gender
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide">
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">
                 Status
               </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold uppercase tracking-wide rounded-tr-lg">
+              <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">
                 Actions
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-platinum-100">
             {currentEmployees.length > 0 ? (
               currentEmployees.map((employee, index) => (
                 <tr
                   key={employee._id}
-                  className="hover:bg-gray-50 transition-colors"
+                  className="hover:bg-alabaster-grey-50/50 transition-colors group"
                 >
-                  <td className="py-3 px-4 text-sm text-gray-700">
+                  <td className="py-3 px-4 text-sm text-slate-grey-500 font-mono">
                     {index + 1 + (currentPage - 1) * itemsPerPage}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {employee.name}
+                  <td className="py-3 px-4">
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold text-gunmetal-900 group-hover:text-gunmetal-700">
+                        {employee.name}
+                      </span>
+                      <span className="text-[10px] text-slate-grey-400 capitalize">
+                        {employee.gender}
+                      </span>
+                    </div>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
+                  <td className="py-3 px-4 text-sm text-gunmetal-700 font-medium">
                     {employee.department}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
+                  <td className="py-3 px-4 text-sm text-slate-grey-600">
                     {employee.jobTitle}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
+                  <td className="py-3 px-4 text-sm text-slate-grey-600 font-mono text-xs">
                     {new Date(employee.joiningDate).toLocaleDateString(
                       "en-US",
                       {
                         year: "numeric",
-                        month: "long",
+                        month: "short",
                         day: "numeric",
                       }
                     )}
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {employee.jobType}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-gray-700">
-                    {employee.gender}
-                  </td>
                   <td className="py-3 px-4 text-sm">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-alabaster-grey-100 text-slate-grey-600 border border-platinum-200">
+                      {employee.jobType}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4">
                     {employee.isActive ? (
-                      <span className="inline-flex items-center px-3 py-1 bg-green-200 text-green-800 rounded-full text-xs font-medium">
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-100 uppercase tracking-wide">
                         Active
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-3 py-1 bg-red-200 text-red-800 rounded-full text-xs font-medium">
-                        Deactivated
+                      <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-rose-50 text-rose-700 border border-rose-100 uppercase tracking-wide">
+                        Inactive
                       </span>
                     )}
                   </td>
-                  <td className="py-3 px-4 text-sm flex space-x-2">
-                    <button
-                      className="flex items-center px-3 py-1 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition-colors"
-                      onClick={() => handleEditClick(employee)}
-                    >
-                      <FaEdit className="mr-1" />
-                      Edit
-                    </button>
+                  <td className="py-3 px-4">
+                    <div className="flex items-center justify-center space-x-2">
+                      <button
+                        onClick={() => handleEditClick(employee)}
+                        className="p-1.5 text-slate-grey-400 hover:text-gunmetal-900 transition-colors rounded hover:bg-platinum-100"
+                        title="Edit Profile"
+                      >
+                        <FaEdit />
+                      </button>
 
-                    <UserStatusToggleConfirmation
-                      userId={employee._id}
-                      currentStatus={employee.isActive}
-                      onConfirm={() =>
-                        handleToggleStatus(employee._id, employee.isActive)
-                      }
-                    />
+                      <UserStatusToggleConfirmation
+                        userId={employee._id}
+                        currentStatus={employee.isActive}
+                        onConfirm={() =>
+                          handleToggleStatus(employee._id, employee.isActive)
+                        }
+                      />
+                    </div>
                   </td>
                 </tr>
               ))
             ) : (
               <tr>
-                <td className="py-8 px-4 text-center text-gray-500" colSpan={9}>
+                <td className="py-12 text-center" colSpan={8}>
                   {isLoading ? (
-                    <div className="flex flex-col items-center">
-                      <FaSpinner
-                        size={40}
-                        className="text-blue-500 mb-4 animate-spin"
-                      />
-                    </div>
+                    <LoadingSpinner size="md" text="Loading records..." />
                   ) : (
-                    <div className="flex flex-col items-center">
-                      <FaInbox size={40} className="text-gray-400 mb-4" />
-                      <span className="text-lg font-medium">
-                        No Employees Found.
-                      </span>
+                    <div className="flex flex-col items-center justify-center text-slate-grey-400">
+                      <FaInbox size={40} className="mb-3 opacity-50" />
+                      <p className="text-sm font-medium">
+                        No employees found matching criteria.
+                      </p>
                     </div>
                   )}
                 </td>
@@ -564,19 +571,18 @@ const EmployeeManagement: React.FC = () => {
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex justify-between items-center mt-6">
-        {/* Items Per Page */}
-        <div className="flex items-center space-x-2">
-          <span className="text-sm text-gray-700">Show:</span>
+      <div className="flex flex-col sm:flex-row justify-between items-center mt-4 gap-4">
+        <div className="flex items-center space-x-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+          <span className="font-medium">Rows per page:</span>
           <select
-            className="text-sm border border-gray-300 rounded-md p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
             value={itemsPerPage}
             onChange={(e) => {
               setItemsPerPage(parseInt(e.target.value));
-              setCurrentPage(1); // Reset to first page when items per page changes
+              setCurrentPage(1);
             }}
           >
-            {[20, 10, 5].map((option) => (
+            {[5, 10, 20, 50].map((option) => (
               <option key={option} value={option}>
                 {option}
               </option>
@@ -584,32 +590,33 @@ const EmployeeManagement: React.FC = () => {
           </select>
         </div>
 
-        {/* Pagination Buttons */}
         <div className="flex items-center space-x-2">
           <button
-            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-              currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+            className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+              currentPage === 1
+                ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed"
+                : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
             }`}
             disabled={currentPage === 1}
             onClick={handlePrevious}
           >
-            <FaChevronLeft className="mr-1" />
-            Previous
+            <FaChevronLeft size={12} />
           </button>
-          <span className="text-sm text-gray-700">
-            Page {currentPage} of {totalPages}
+
+          <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-2">
+            Page {currentPage} of {totalPages || 1}
           </span>
+
           <button
-            className={`flex items-center px-3 py-1 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
+            className={`p-2 rounded-lg border border-platinum-200 transition-all ${
               currentPage === totalPages || totalPages === 0
-                ? "cursor-not-allowed opacity-50"
-                : ""
+                ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed"
+                : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
             }`}
             disabled={currentPage === totalPages || totalPages === 0}
             onClick={handleNext}
           >
-            Next
-            <FaChevronRight className="ml-1" />
+            <FaChevronRight size={12} />
           </button>
         </div>
       </div>

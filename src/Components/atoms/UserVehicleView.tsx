@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import VehicleCard from "./VehicleCard";
 import axiosInstance from "../../utils/axiosConfig";
-import { FaInbox, FaSpinner } from "react-icons/fa";
+import { FaInbox } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface AssignedTo {
   _id: string;
@@ -26,8 +27,6 @@ interface UserVehicleViewProps {
   userId: string;
 }
 
-const backendUrl = process.env.REACT_APP_BACKEND_URL || "";
-
 const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
   const [vehicles, setVehicles] = useState<Vehicle[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -37,12 +36,8 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
     const fetchUserVehicles = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.get(`${backendUrl}/api/vehicles`, {
-          params: {
-            assignedTo: userId,
-            limit: 1000,
-          },
-          withCredentials: true,
+        const response = await axiosInstance.get(`/api/vehicles`, {
+          params: { assignedTo: userId, limit: 1000 },
         });
         setVehicles(response.data.vehicles);
         setError(null);
@@ -58,50 +53,34 @@ const UserVehicleView: React.FC<UserVehicleViewProps> = ({ userId }) => {
   }, [userId]);
 
   return (
-    <section className="flex flex-col w-full md:w-6/12 max-md:w-full">
-      <div
-        className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl"
-        style={{ height: "280px" }}
-      >
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-          <h2 className="text-2xl font-bold text-black">
-            My Assigned Vehicles
-          </h2>
-        </div>
-
-        {loading ? (
-          <div
-            className="flex justify-center items-center"
-            style={{ height: "207px" }}
-          >
-            <FaSpinner className="text-blue-500 animate-spin" size={30} />
-          </div>
-        ) : error ? (
-          <div
-            className="flex flex-col items-center justify-center"
-            style={{ height: "207px" }}
-          >
-            <FaInbox size={30} className="text-gray-400 mb-2" />
-            <span className="text-md font-medium text-red-500">{error}</span>
-          </div>
-        ) : vehicles.length > 0 ? (
-          <div className="space-y-4">
-            {vehicles.map((vehicle) => (
-              <VehicleCard key={vehicle._id} vehicle={vehicle} />
-            ))}
-          </div>
-        ) : (
-          <div
-            className="flex flex-col items-center justify-center"
-            style={{ height: "280px" }}
-          >
-            <FaInbox size={30} className="text-gray-400 mb-2" />
-            <span className="text-md font-medium">
-              No Vehicles Assigned to You.
-            </span>
-          </div>
-        )}
+    <section className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-bold text-gunmetal-900 tracking-tight">
+          Assigned Vehicles
+        </h2>
       </div>
+
+      {loading ? (
+        <div className="flex justify-center items-center flex-1 h-48">
+          <LoadingSpinner size="md" />
+        </div>
+      ) : error ? (
+        <div className="flex flex-col items-center justify-center flex-1 text-red-500 h-48">
+          <FaInbox size={32} className="mb-2 opacity-50" />
+          <span className="text-sm font-medium">{error}</span>
+        </div>
+      ) : vehicles.length > 0 ? (
+        <div className="space-y-4 overflow-auto custom-scroll flex-1">
+          {vehicles.map((vehicle) => (
+            <VehicleCard key={vehicle._id} vehicle={vehicle} />
+          ))}
+        </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center flex-1 text-slate-grey-400 h-48">
+          <FaInbox size={32} className="mb-3 opacity-30 text-gunmetal-300" />
+          <p className="text-sm font-medium">No vehicles assigned</p>
+        </div>
+      )}
     </section>
   );
 };

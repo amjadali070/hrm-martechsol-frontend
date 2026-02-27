@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import axiosInstance from "../../utils/axiosConfig";
-import { FaFileInvoice, FaSpinner } from "react-icons/fa";
+import { FaFileInvoice } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface AddInvoiceModalProps {
   isOpen: boolean;
@@ -64,8 +65,8 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-[1050]">
+      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
         <h2 className="text-xl font-semibold mb-4 flex items-center">
           <FaFileInvoice className="mr-2" />
           Add Invoice
@@ -135,7 +136,7 @@ const AddInvoiceModal: React.FC<AddInvoiceModalProps> = ({
               disabled={loading}
             >
               {loading ? (
-                <FaSpinner className="animate-spin mr-2" />
+                <div className="mr-2"><LoadingSpinner size="sm" color="white" /></div>
               ) : (
                 <FaFileInvoice className="mr-2" />
               )}

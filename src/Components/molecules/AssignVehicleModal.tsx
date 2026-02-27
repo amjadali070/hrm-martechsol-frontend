@@ -5,9 +5,9 @@ import {
   FaUsers,
   FaCheckCircle,
   FaTimesCircle,
-  FaSpinner,
 } from "react-icons/fa";
 import axiosInstance from "../../utils/axiosConfig";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface AssignVehicleModalProps {
   isOpen: boolean;
@@ -72,6 +72,7 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
     if (isOpen) {
       fetchUsers();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOpen]);
 
   const handleAssign = async () => {
@@ -101,8 +102,8 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-auto p-4">
-      <div className="bg-white rounded-2xl w-full max-w-2xl mx-auto transform transition-all duration-300 ease-in-out">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1050] overflow-auto p-4">
+      <div className="bg-white rounded-2xl w-full max-w-2xl mx-auto transform transition-all duration-300 ease-in-out max-h-[90vh] overflow-y-auto">
         {/* Modal Header */}
         <div className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-6 rounded-t-2xl flex items-center">
           <FaCar className="mr-3 w-8 h-8" />
@@ -185,10 +186,7 @@ const AssignVehicleModal: React.FC<AssignVehicleModalProps> = ({
             }`}
           >
             {loading ? (
-              <>
-                <FaSpinner className="mr-2 animate-spin" />
-                Assigning...
-              </>
+              <LoadingSpinner size="sm" color="white" />
             ) : (
               <>
                 <FaCheckCircle className="mr-2" /> Assign

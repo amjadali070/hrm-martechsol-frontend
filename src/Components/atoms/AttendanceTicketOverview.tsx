@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import axiosInstance from "../../utils/axiosConfig";
 import { useNavigate } from "react-router-dom";
 import useUser from "../../hooks/useUser";
 import { formatDate } from "../../utils/formatDate";
-import { FaSpinner, FaInbox } from "react-icons/fa";
+import { FaInbox, FaChevronRight } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { truncateComment } from "../../utils/truncateComment";
 
 interface AttendanceRecord {
@@ -14,13 +15,10 @@ interface AttendanceRecord {
 }
 
 const AttendanceTicketOverview: React.FC = () => {
-  const [attendanceTickets, setAttendanceTickets] = useState<
-    AttendanceRecord[]
-  >([]);
+  const [attendanceTickets, setAttendanceTickets] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const navigate = useNavigate();
   const { user } = useUser();
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const userId = user?._id;
 
   useEffect(() => {
@@ -29,17 +27,10 @@ const AttendanceTicketOverview: React.FC = () => {
 
       try {
         setLoading(true);
-        // Fetch only the top 3 most recent attendance tickets
-        const response = await axios.get<AttendanceRecord[]>(
-          `${backendUrl}/api/attendance-tickets/user/${userId}?limit=3`,
-          {
-            withCredentials: true,
-          }
+        const response = await axiosInstance.get<AttendanceRecord[]>(
+          `/api/attendance-tickets/user/${userId}?limit=5`
         );
-
-        // Set state with only top 3 records
-        const tickets = response.data.slice(0, 3);
-        setAttendanceTickets(tickets);
+        setAttendanceTickets(response.data.slice(0, 5));
       } catch (error) {
         console.error("Error fetching recent attendance tickets:", error);
       } finally {
@@ -48,84 +39,63 @@ const AttendanceTicketOverview: React.FC = () => {
     };
 
     fetchRecentAttendanceTickets();
-  }, [backendUrl, userId]);
+  }, [userId]);
 
   const handleViewAll = () => {
     navigate("/tickets/attendance");
   };
 
   return (
-    <section className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full">
-      <div className="flex flex-col p-6 mx-auto w-full bg-white rounded-xl">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
-          <h2 className="text-2xl sm:text-2xl font-bold text-black">
-            Attendance Ticket Status
-          </h2>
-          <button
-            onClick={handleViewAll}
-            className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
-          >
-            View All
-          </button>
-        </div>
+    <section className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-lg font-bold text-gunmetal-900 tracking-tight">
+          Recent Tickets
+        </h2>
+        <button
+          onClick={handleViewAll}
+          className="text-xs font-semibold text-gunmetal-600 hover:text-gunmetal-800 flex items-center gap-1 uppercase tracking-wider transition-colors"
+        >
+          View All <FaChevronRight size={8} />
+        </button>
+      </div>
 
-        <div className="overflow-x-auto" style={{ height: "180px" }}>
-          {loading ? (
-            <div className="flex justify-center items-center h-40">
-              <FaSpinner className="text-blue-500 animate-spin" size={30} />
-            </div>
-          ) : attendanceTickets.length > 0 ? (
-            <table className="min-w-full divide-y divide-gray-200 table-fixed">
-              <thead className="bg-purple-900">
+      <div className="flex-1 overflow-auto custom-scroll">
+        {loading ? (
+          <div className="flex justify-center items-center h-48">
+            <LoadingSpinner size="md" />
+          </div>
+        ) : attendanceTickets.length > 0 ? (
+          <div className="w-full">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-alabaster-grey-50 text-slate-grey-500 font-semibold text-xs uppercase tracking-wider">
                 <tr>
-                  <th
-                    scope="col"
-                    className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-l-md"
-                  >
-                    S.No
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider"
-                  >
-                    Date
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-2 md:px-4 py-3 text-left text-xs font-medium text-white uppercase tracking-wider"
-                  >
-                    Comments
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-2 md:px-4 py-3 text-center text-xs font-medium text-white uppercase tracking-wider rounded-r-md"
-                  >
-                    Status
-                  </th>
+                  <th className="px-4 py-3 rounded-l-md font-medium">Date</th>
+                  <th className="px-4 py-3 font-medium">Topic</th>
+                  <th className="px-4 py-3 rounded-r-md text-right font-medium">Status</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="divide-y divide-platinum-100">
                 {attendanceTickets.map((ticket, index) => (
-                  <tr key={ticket._id} className="hover:bg-gray-100">
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
-                      {index + 1}
-                    </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-center">
+                  <tr key={ticket._id} className="hover:bg-alabaster-grey-50/50 transition-colors group">
+                    <td className="px-4 py-3.5 text-gunmetal-800 font-medium text-xs">
                       {formatDate(ticket.date)}
                     </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-sm text-gray-700 text-left">
+                    <td className="px-4 py-3.5 text-gunmetal-600 text-xs">
                       {truncateComment(ticket.comments)}
                     </td>
-                    <td className="px-2 md:px-4 py-2 whitespace-nowrap text-center">
+                    <td className="px-4 py-3.5 text-right">
                       <span
-                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        className={`px-2.5 py-1 inline-flex text-[10px] font-bold uppercase tracking-wider rounded-md border items-center gap-1.5 ${
                           ticket.status === "Closed"
-                            ? "bg-red-100 text-red-800"
+                            ? "bg-red-50 text-red-700 border-red-200"
                             : ticket.status === "Open"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-green-100 text-green-800"
+                            ? "bg-yellow-50 text-yellow-700 border-yellow-200"
+                            : "bg-green-50 text-green-700 border-green-200"
                         }`}
                       >
+                         <span className={`w-1.5 h-1.5 rounded-full ${
+                           ticket.status === "Closed" ? "bg-red-500" : ticket.status === "Open" ? "bg-yellow-500" : "bg-green-500"
+                        }`}></span>
                         {ticket.status}
                       </span>
                     </td>
@@ -133,18 +103,13 @@ const AttendanceTicketOverview: React.FC = () => {
                 ))}
               </tbody>
             </table>
-          ) : (
-            <div
-              className="flex flex-col items-center justify-center"
-              style={{ height: "180px" }}
-            >
-              <FaInbox size={30} className="text-gray-400 mb-2" />
-              <span className="text-md font-medium">
-                No recent attendance tickets found.
-              </span>
-            </div>
-          )}
-        </div>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-48 text-slate-grey-400">
+            <FaInbox size={32} className="mb-3 opacity-30 text-gunmetal-300" />
+            <p className="text-sm font-medium">No recent tickets</p>
+          </div>
+        )}
       </div>
     </section>
   );

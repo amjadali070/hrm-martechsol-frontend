@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaPhone, FaEnvelope, FaMapMarkerAlt, FaCity } from "react-icons/fa";
 import Select from "react-select";
 import { City } from "country-state-city";
 
@@ -77,190 +77,166 @@ const ContactDetails: React.FC<ContactDetailsProps> = ({
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      height: "50px",
-      border: "1px solid #D1D5DB",
-      borderRadius: "0.375rem",
-      backgroundColor: "#F3F4F6",
-      boxShadow: state.isFocused ? "0 0 0 2px #6B46C1" : "none",
+      height: "42px",
+      borderColor: state.isFocused ? "#2A3342" : "#E2E8F0", // Gunmetal-like focus or platinum border
+      borderRadius: "0.5rem",
+      backgroundColor: "#FFFFFF",
+      boxShadow: state.isFocused ? "0 0 0 2px rgba(42, 51, 66, 0.2)" : "none",
       "&:hover": {
-        borderColor: "#6B46C1",
+        borderColor: "#2A3342",
       },
+       fontSize: "0.875rem",
     }),
     singleValue: (base: any) => ({
-      ...base,
-      fontSize: "1rem",
+       ...base,
+       color: "#1A202C", // gunmetal-900 like
     }),
-    placeholder: (base: any) => ({
+     option: (base: any, state: any) => ({
       ...base,
-      fontSize: "1rem",
-    }),
+      backgroundColor: state.isSelected ? "#2A3342" : state.isFocused ? "#F8FAFC" : "white",
+      color: state.isSelected ? "white" : "#1A202C",
+        fontSize: "0.875rem",
+     }),
   };
 
+   const renderField = (label: string, icon: React.ReactNode, content: React.ReactNode) => (
+      <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
+          <div className="flex items-center gap-2 mb-2">
+              <span className="text-gunmetal-400 text-sm">{icon}</span>
+              <p className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide">{label}</p>
+          </div>
+          {content}
+      </div>
+  );
+
   return (
-    <div className="bg-white p-16 rounded-lg w-full mx-auto relative">
-      <button
-        onClick={toggleEdit}
-        className="absolute top-10 right-16 text-blue-600 hover:text-blue-500 transition-all"
-        aria-label="Edit Bank Account Details"
-      >
-        <FaEdit size={24} />
-      </button>
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label
-              htmlFor="phoneNumber1"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Phone Number 1
-            </label>
-            <input
-              type="text"
-              id="phoneNumber1"
-              name="phoneNumber1"
-              value={formData.phoneNumber1}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="phoneNumber2"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Phone Number 2
-            </label>
-            <input
-              type="text"
-              id="phoneNumber2"
-              name="phoneNumber2"
-              value={formData.phoneNumber2}
-              onChange={handleChange}
-              disabled={!isEditing}
-              placeholder="Phone Number 2"
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
+    <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden relative">
+        <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">Contact Information</h2>
+            {!isEditing && (
+                <button
+                onClick={toggleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm"
+                >
+                <FaEdit /> Edit Details
+                </button>
+            )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label
-              htmlFor="currentCity"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Current City
-            </label>
-            {isEditing ? (
-              <Select
-                id="currentCity"
-                name="currentCity"
-                value={pakistanCities.find(
-                  (city) => city.value === formData.currentCity
-                )}
-                onChange={(selectedOption) =>
-                  handleCityChange(
-                    selectedOption as { value: string; label: string },
-                    "currentCity"
-                  )
-                }
-                options={pakistanCities}
-                styles={customSelectStyles}
-              />
-            ) : (
-              <div className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-                {formData.currentCity || "No City Selected"}
-              </div>
-            )}
-          </div>
+      <form onSubmit={handleSubmit} className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+             {renderField("Primary Phone", <FaPhone />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="phoneNumber1"
+                        value={formData.phoneNumber1}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.phoneNumber1 || "N/A"}</p>
+                 )
+             )}
 
-          <div>
-            <label
-              htmlFor="currentAddress"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Current Address
-            </label>
-            <textarea
-              id="currentAddress"
-              name="currentAddress"
-              value={formData.currentAddress}
-              onChange={handleChange}
-              disabled={!isEditing}
-              rows={1}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            ></textarea>
-          </div>
+             {renderField("Secondary Phone", <FaPhone />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="phoneNumber2"
+                        value={formData.phoneNumber2}
+                        onChange={handleChange}
+                        placeholder="Optional"
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.phoneNumber2 || "N/A"}</p>
+                 )
+             )}
+
+             {renderField("Email Address", <FaEnvelope />, 
+                  <p className="text-sm font-semibold text-gunmetal-800">{formData.email || "N/A"}</p>
+             )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label
-              htmlFor="permanentCity"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Permanent City
-            </label>
-            {isEditing ? (
-              <Select
-                id="permanentCity"
-                name="permanentCity"
-                value={pakistanCities.find(
-                  (city) => city.value === formData.permanentCity
-                )}
-                onChange={(selectedOption) =>
-                  handleCityChange(
-                    selectedOption as { value: string; label: string },
-                    "permanentCity"
-                  )
-                }
-                options={pakistanCities}
-                styles={customSelectStyles}
-              />
-            ) : (
-              <div className="p-3 border border-gray-300 rounded-md bg-[#F3F4F6]">
-                {formData.permanentCity || "No City Selected"}
-              </div>
-            )}
-          </div>
+        <h3 className="text-sm font-bold text-gunmetal-500 uppercase tracking-wider mb-4 px-1 border-b border-platinum-100 pb-2">Current Address Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            {renderField("Current City", <FaCity />, 
+                 isEditing ? (
+                    <Select
+                        name="currentCity"
+                        value={pakistanCities.find(c => c.value === formData.currentCity)}
+                        onChange={(option: any) => handleCityChange(option, "currentCity")}
+                        options={pakistanCities}
+                        styles={customSelectStyles}
+                        placeholder="Select City"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.currentCity || "N/A"}</p>
+                 )
+             )}
 
-          <div>
-            <label
-              htmlFor="permanentAddress"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
-              Permanent Address
-            </label>
-            <textarea
-              id="permanentAddress"
-              name="permanentAddress"
-              value={formData.permanentAddress}
-              onChange={handleChange}
-              disabled={!isEditing}
-              rows={1}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            ></textarea>
-          </div>
+             {renderField("Current Address", <FaMapMarkerAlt />, 
+                 isEditing ? (
+                    <textarea
+                        name="currentAddress"
+                        value={formData.currentAddress}
+                        onChange={handleChange}
+                        rows={1}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 resize-none"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.currentAddress || "N/A"}</p>
+                 )
+             )}
+        </div>
+
+        <h3 className="text-sm font-bold text-gunmetal-500 uppercase tracking-wider mb-4 px-1 border-b border-platinum-100 pb-2">Permanent Address Details</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {renderField("Permanent City", <FaCity />, 
+                 isEditing ? (
+                    <Select
+                        name="permanentCity"
+                        value={pakistanCities.find(c => c.value === formData.permanentCity)}
+                        onChange={(option: any) => handleCityChange(option, "permanentCity")}
+                        options={pakistanCities}
+                        styles={customSelectStyles}
+                        placeholder="Select City"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.permanentCity || "N/A"}</p>
+                 )
+             )}
+
+             {renderField("Permanent Address", <FaMapMarkerAlt />, 
+                 isEditing ? (
+                    <textarea
+                        name="permanentAddress"
+                        value={formData.permanentAddress}
+                        onChange={handleChange}
+                        rows={1}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 resize-none"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.permanentAddress || "N/A"}</p>
+                 )
+             )}
         </div>
 
         {isEditing && (
-          <div className="flex justify-start mt-4">
+          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-platinum-200">
+             <button
+              type="button"
+              onClick={toggleEdit}
+              className="px-6 py-2.5 bg-white border border-platinum-200 text-slate-grey-600 rounded-lg text-sm font-bold hover:bg-alabaster-grey-50 transition-all"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-500 transition-all text-lg font-semibold"
+              className="px-6 py-2.5 bg-gunmetal-900 text-white rounded-lg text-sm font-bold hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20"
             >
-              Update
+              Save Changes
             </button>
           </div>
         )}

@@ -1,7 +1,6 @@
-// src/components/atoms/EditAttendanceModal.tsx
-
 import React, { useState, useEffect } from "react";
-import { FaTimes } from "react-icons/fa";
+import { FaTimes, FaCalendarAlt, FaClock, FaMapMarkerAlt, FaSave, FaExclamationCircle } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { formatAttendenceTicketTime } from "../../utils/formateTime";
@@ -41,16 +40,14 @@ const EditAttendanceModal: React.FC<Props> = ({
   const [date, setDate] = useState<string>("");
   const [timeIn, setTimeIn] = useState<string>("");
   const [timeOut, setTimeOut] = useState<string>("");
-  const [workLocation, setWorkLocation] = useState<"Remote" | "On-site">(
-    "Remote"
-  );
+  const [workLocation, setWorkLocation] = useState<"Remote" | "On-site">("Remote");
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
   const [duration, setDuration] = useState<string>("");
 
   useEffect(() => {
     if (ticket) {
-      setDate(ticket.date.split("T")[0]); // Assuming ISO format
+      setDate(ticket.date.split("T")[0]); 
       setTimeIn(ticket.timeIn);
       setTimeOut(ticket.timeOut);
       setWorkLocation(ticket.workLocation);
@@ -61,11 +58,8 @@ const EditAttendanceModal: React.FC<Props> = ({
 
   if (!isOpen || !ticket) return null;
 
-  /**
-   * Calculates the duration between timeIn and timeOut.
-   * Assumes timeOut can be on the next day.
-   */
   const calculateDuration = (inTime: string, outTime: string) => {
+    if (!inTime || !outTime) return;
     const [inHours, inMinutes] = inTime.split(":").map(Number);
     const [outHours, outMinutes] = outTime.split(":").map(Number);
 
@@ -75,7 +69,6 @@ const EditAttendanceModal: React.FC<Props> = ({
     let end = new Date();
     end.setHours(outHours, outMinutes, 0, 0);
 
-    // If end time is before or equal to start time, assume it's the next day
     if (end <= start) {
       end.setDate(end.getDate() + 1);
     }
@@ -84,214 +77,151 @@ const EditAttendanceModal: React.FC<Props> = ({
     const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
-    setDuration(`${diffHours} hours ${diffMinutes} minutes`);
+    setDuration(`${diffHours} hrs ${diffMinutes} mins`);
   };
 
-  /**
-   * Handles form submission to update the attendance ticket.
-   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Basic validation
     if (!date || !timeIn || !timeOut || !workLocation) {
-      setError("Please fill in all required fields.");
-      toast.error("Please fill in all required fields.");
+      setError("All fields are required.");
       return;
-    }
-
-    // Validate time formats (HH:MM)
-    const timeFormatRegex = /^([0-1]\d|2[0-3]):([0-5]\d)$/;
-    if (!timeFormatRegex.test(timeIn) || !timeFormatRegex.test(timeOut)) {
-      setError("Time In and Time Out must be in HH:MM format.");
-
-      return;
-    }
-
-    setError("");
-
-    // Calculate duration
-    const [inHours, inMinutes] = timeIn.split(":").map(Number);
-    const [outHours, outMinutes] = timeOut.split(":").map(Number);
-
-    let start = new Date(date);
-    start.setHours(inHours, inMinutes, 0, 0);
-
-    let end = new Date(date);
-    end.setHours(outHours, outMinutes, 0, 0);
-
-    if (end <= start) {
-      end.setDate(end.getDate() + 1);
     }
 
     setLoading(true);
-
     try {
       const backendUrl = process.env.REACT_APP_BACKEND_URL;
       await axios.put(
         `${backendUrl}/api/attendance-tickets/${ticket._id}/edit`,
-        {
-          date,
-          timeIn,
-          timeOut,
-          workLocation,
-        },
+        { date, timeIn, timeOut, workLocation },
         { withCredentials: true }
       );
 
-      toast.success("Attendance ticket updated successfully!");
+      toast.success("Attendance updated successfully!");
       onSuccess();
     } catch (error: any) {
-      console.error("Error updating attendance ticket:", error);
-      setError(
-        error.response?.data?.message || "Failed to update attendance ticket."
-      );
+      setError(error.response?.data?.message || "Failed to update ticket.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-      onClick={onClose}
-    >
-      <div
-        className="bg-white rounded-lg w-full max-w-md mx-4 p-6 relative overflow-y-auto max-h-full"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
-      >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
-          aria-label="Close modal"
-        >
-          <FaTimes className="h-5 w-5" />
-        </button>
-
-        <h2 className="text-xl font-semibold mb-4">Edit Attendance Ticket</h2>
-
-        {/* Display Existing Time In and Time Out */}
-        <div className="mb-4">
-          <p>
-            <strong>Submitted Time In:</strong>{" "}
-            {formatAttendenceTicketTime(ticket.timeIn)}
-          </p>
-          <p>
-            <strong>Submitted Time Out:</strong>{" "}
-            {formatAttendenceTicketTime(ticket.timeOut)}
-          </p>
-          <p>
-            <strong>Calculated Duration:</strong> {duration}
-          </p>
+    <div className="fixed inset-0 z-[1050] flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-fadeIn">
+      <div className="bg-white rounded-2xl w-full max-w-lg shadow-2xl border border-platinum-200 overflow-hidden">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-platinum-200 bg-white">
+          <div className="flex items-center gap-3">
+             <div className="bg-gunmetal-50 p-2 rounded-xl text-gunmetal-600">
+                 <FaClock size={20} />
+             </div>
+             <div>
+                 <h2 className="text-lg font-bold text-gunmetal-900">Edit Attendance</h2>
+                 <p className="text-xs text-slate-grey-500">Modify time logs or location</p>
+             </div>
+          </div>
+          <button onClick={onClose} className="p-2 text-slate-grey-400 hover:text-gunmetal-900 hover:bg-platinum-50 rounded-full transition-colors">
+            <FaTimes size={16} />
+          </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Date */}
-          <div>
-            <label
-              htmlFor="date"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Date<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={date}
-              onChange={(e) => {
-                setDate(e.target.value);
-                calculateDuration(e.target.value, timeOut);
-              }}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+        {/* Form Body */}
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+           
+           {/* Original Summary */}
+           <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 text-sm">
+               <h4 className="font-bold text-gunmetal-700 text-xs uppercase mb-2">Original Submission</h4>
+               <div className="grid grid-cols-2 gap-2 text-slate-grey-600">
+                   <p>In: <span className="font-mono font-semibold">{formatAttendenceTicketTime(ticket.timeIn)}</span></p>
+                   <p>Out: <span className="font-mono font-semibold">{formatAttendenceTicketTime(ticket.timeOut)}</span></p>
+               </div>
+           </div>
 
-          {/* Time In */}
-          <div>
-            <label
-              htmlFor="timeIn"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Time In<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              id="timeIn"
-              value={timeIn}
-              onChange={(e) => {
-                setTimeIn(e.target.value);
-                calculateDuration(e.target.value, timeOut);
-              }}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+           <div className="space-y-4">
+               <div>
+                  <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">Date</label>
+                  <div className="relative">
+                      <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 pointer-events-none" />
+                      <input
+                        type="date"
+                        value={date}
+                        onChange={(e) => {
+                           setDate(e.target.value);
+                           calculateDuration(timeIn, timeOut);
+                        }}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-platinum-300 rounded-xl text-gunmetal-900 focus:border-gunmetal-500 focus:ring-2 focus:ring-gunmetal-200 outline-none transition-all font-medium text-sm shadow-sm"
+                      />
+                  </div>
+               </div>
 
-          {/* Time Out */}
-          <div>
-            <label
-              htmlFor="timeOut"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Time Out<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="time"
-              id="timeOut"
-              value={timeOut}
-              onChange={(e) => {
-                setTimeOut(e.target.value);
-                calculateDuration(timeIn, e.target.value);
-              }}
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            />
-          </div>
+               <div className="grid grid-cols-2 gap-4">
+                  <div>
+                      <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">Time In</label>
+                      <input
+                        type="time"
+                        value={timeIn}
+                        onChange={(e) => {
+                            setTimeIn(e.target.value);
+                            calculateDuration(e.target.value, timeOut);
+                        }}
+                        className="w-full px-4 py-2.5 bg-white border border-platinum-300 rounded-xl text-gunmetal-900 focus:border-gunmetal-500 focus:ring-2 focus:ring-gunmetal-200 outline-none transition-all font-medium text-sm shadow-sm font-mono"
+                      />
+                  </div>
+                  <div>
+                      <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">Time Out</label>
+                     <input
+                        type="time"
+                        value={timeOut}
+                        onChange={(e) => {
+                            setTimeOut(e.target.value);
+                            calculateDuration(timeIn, e.target.value);
+                        }}
+                        className="w-full px-4 py-2.5 bg-white border border-platinum-300 rounded-xl text-gunmetal-900 focus:border-gunmetal-500 focus:ring-2 focus:ring-gunmetal-200 outline-none transition-all font-medium text-sm shadow-sm font-mono"
+                      />
+                  </div>
+               </div>
+               
+               {/* Duration Indicator */}
+               <div className="flex justify-between items-center text-xs px-2">
+                   <span className="text-slate-grey-500 font-medium">Calculated Duration:</span>
+                   <span className="font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">{duration || "--"}</span>
+               </div>
 
-          {/* Work Location */}
-          <div>
-            <label
-              htmlFor="workLocation"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Work Location<span className="text-red-500">*</span>
-            </label>
-            <select
-              id="workLocation"
-              value={workLocation}
-              onChange={(e) =>
-                setWorkLocation(e.target.value as "Remote" | "On-site")
-              }
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"
-              required
-            >
-              <option value="Remote">Remote</option>
-              <option value="On-site">On-site</option>
-            </select>
-          </div>
+               <div>
+                  <label className="block text-xs font-bold text-slate-grey-500 uppercase mb-1.5 ml-1">Location</label>
+                  <div className="relative">
+                      <FaMapMarkerAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 pointer-events-none" />
+                      <select
+                        value={workLocation}
+                        onChange={(e) => setWorkLocation(e.target.value as "Remote" | "On-site")}
+                        className="w-full pl-10 pr-4 py-2.5 bg-white border border-platinum-300 rounded-xl text-gunmetal-900 focus:border-gunmetal-500 focus:ring-2 focus:ring-gunmetal-200 outline-none transition-all font-medium text-sm shadow-sm appearance-none cursor-pointer"
+                      >
+                          <option value="Remote">Remote</option>
+                          <option value="On-site">On-site</option>
+                      </select>
+                  </div>
+               </div>
+           </div>
 
-          {/* Display Error Message */}
-          {error && (
-            <div className="text-red-500 text-sm">
-              <p>{error}</p>
-            </div>
-          )}
+           {error && (
+             <div className="flex items-center gap-2 text-rose-600 bg-rose-50 p-3 rounded-lg border border-rose-100 text-sm font-medium">
+                 <FaExclamationCircle />
+                 {error}
+             </div>
+           )}
 
-          {/* Submit Button */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className={`w-full flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-white ${
-                loading
-                  ? "bg-indigo-300 cursor-not-allowed"
-                  : "bg-indigo-600 hover:bg-indigo-700"
-              } focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500`}
-            >
-              {loading ? "Updating..." : "Update Ticket"}
-            </button>
-          </div>
+           <div className="pt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-gunmetal-900 hover:bg-gunmetal-800 text-white font-bold rounded-xl shadow-lg hover:shadow-gunmetal-500/20 transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
+              >
+                  {loading ? <LoadingSpinner size="sm" color="white" /> : <FaSave />}
+                  {loading ? "Updating Ticket..." : "Save Changes"}
+              </button>
+           </div>
+
         </form>
       </div>
     </div>

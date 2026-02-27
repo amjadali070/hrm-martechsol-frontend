@@ -186,8 +186,8 @@ const UpdateVehicleModal: React.FC<UpdateVehicleModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-2">
-        <div className="bg-white rounded-3xl p-6 w-full max-w-xl relative border border-blue-100">
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[1050] p-2">
+        <div className="bg-white rounded-3xl p-6 w-full max-w-xl relative border border-blue-100 max-h-[90vh] overflow-y-auto">
           <div className="absolute top-6 right-6 flex space-x-3">
             {!isEditing ? (
               <button

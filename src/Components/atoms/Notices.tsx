@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { IoIosCloseCircle } from "react-icons/io";
 import { formatDate } from "../../utils/formatDate";
-import { FaInbox, FaSpinner } from "react-icons/fa";
+import { FaInbox } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface Notice {
   _id: string;
@@ -118,7 +119,7 @@ const Notices: React.FC = () => {
     return (
       <div className="w-full p-6 text-center">
         <div className="p-20 flex flex-col items-center justify-center">
-          <FaSpinner className="text-blue-500 mb-4 animate-spin" size={30} />
+          <LoadingSpinner size="md" />
         </div>
       </div>
     );

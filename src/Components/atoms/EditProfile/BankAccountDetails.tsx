@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaUniversity, FaCodeBranch, FaUser, FaMoneyCheck } from "react-icons/fa";
 import Select from "react-select";
 import { pakistaniBanks } from "../../../utils/pakistaniBanks";
 
@@ -61,161 +61,150 @@ const BankAccountDetails: React.FC<BankAccountDetailsProps> = ({
   const customSelectStyles = {
     control: (base: any, state: any) => ({
       ...base,
-      minHeight: "48px", // Match the input field height
-      height: "48px",
-      border: "1px solid #D1D5DB",
-      borderRadius: "0.375rem",
-      backgroundColor: "#F3F4F6",
-      boxShadow: state.isFocused ? "0 0 0 2px #6B46C1" : "none",
+      height: "42px",
+      borderColor: state.isFocused ? "#2A3342" : "#E2E8F0", // Gunmetal-like focus or platinum border
+      borderRadius: "0.5rem",
+      backgroundColor: "#FFFFFF",
+      boxShadow: state.isFocused ? "0 0 0 2px rgba(42, 51, 66, 0.2)" : "none",
       "&:hover": {
-        borderColor: "#6B46C1",
+        borderColor: "#2A3342",
       },
-      padding: "0px", // Remove default padding
-    }),
-    valueContainer: (base: any) => ({
-      ...base,
-      height: "100%",
-      padding: "0 12px", // Match p-3 (12px) padding
-      display: "flex",
-      alignItems: "center",
-    }),
-    input: (base: any) => ({
-      ...base,
-      margin: "0px",
-      padding: "0px",
-      height: "100%",
-      boxSizing: "border-box",
-    }),
-    indicatorsContainer: (base: any) => ({
-      ...base,
-      height: "100%",
+       fontSize: "0.875rem",
     }),
     singleValue: (base: any) => ({
-      ...base,
-      fontSize: "1rem",
+       ...base,
+       color: "#1A202C", // gunmetal-900 like
     }),
-    placeholder: (base: any) => ({
+     option: (base: any, state: any) => ({
       ...base,
-      fontSize: "1rem",
-    }),
+      backgroundColor: state.isSelected ? "#2A3342" : state.isFocused ? "#F8FAFC" : "white",
+      color: state.isSelected ? "white" : "#1A202C",
+        fontSize: "0.875rem",
+     }),
   };
+  
+    const renderField = (label: string, icon: React.ReactNode, content: React.ReactNode) => (
+      <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
+          <div className="flex items-center gap-2 mb-2">
+              <span className="text-gunmetal-400 text-sm">{icon}</span>
+              <p className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide">{label}</p>
+          </div>
+          {content}
+      </div>
+    );
+
 
   return (
-    <div className="bg-white p-10 rounded-lg w-full mx-auto relative">
-      <button
-        onClick={toggleEdit}
-        className="absolute top-10 right-10 text-blue-600 hover:text-blue-500 transition-all"
-        aria-label="Edit Bank Account Details"
-      >
-        <FaEdit size={24} />
-      </button>
-
-      <form onSubmit={handleSubmit}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 mt-10">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bank Name
-            </label>
-            {isEditing ? (
-              <Select
-                value={pakistaniBanks.find(
-                  (bank) => bank.value === formData.bankName
-                )}
-                onChange={(selectedOption) =>
-                  handleBankNameChange(
-                    selectedOption as { value: string; label: string }
-                  )
-                }
-                options={pakistaniBanks}
-                isDisabled={!isEditing}
-                classNamePrefix="react-select"
-                className="react-select-container"
-                styles={customSelectStyles}
-                placeholder="Select a bank"
-              />
-            ) : (
-              <div className="w-full border border-gray-300 rounded-md bg-[#F3F4F6] flex items-center px-3 min-h-[48px]">
-                {formData.bankName ? (
-                  formData.bankName
-                ) : (
-                  <span className="text-gray-500">No bank selected</span>
-                )}
-              </div>
+    <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden relative">
+      <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">Bank Information</h2>
+            {!isEditing && (
+                <button
+                onClick={toggleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm"
+                >
+                <FaEdit /> Edit Details
+                </button>
             )}
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Branch Name
-            </label>
-            <input
-              type="text"
-              name="branchName"
-              value={formData.branchName}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
         </div>
 
-        <div className="mb-6">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Account Title
-          </label>
-          <input
-            type="text"
-            name="accountTitle"
-            value={formData.accountTitle}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          />
+      <form onSubmit={handleSubmit} className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+             {renderField("Bank Name", <FaUniversity />, 
+                 isEditing ? (
+                    <Select
+                        value={pakistaniBanks.find(
+                        (bank) => bank.value === formData.bankName
+                        )}
+                        onChange={(selectedOption) =>
+                        handleBankNameChange(
+                            selectedOption as { value: string; label: string }
+                        )
+                        }
+                        options={pakistaniBanks}
+                        isDisabled={!isEditing}
+                        styles={customSelectStyles}
+                        placeholder="Select a bank"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.bankName || "No bank selected"}</p>
+                 )
+             )}
+
+             {renderField("Branch Name/Code", <FaCodeBranch />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="branchName"
+                        value={formData.branchName}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.branchName || "N/A"}</p>
+                 )
+             )}
+
+             {renderField("Account Title", <FaUser />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                         name="accountTitle"
+                        value={formData.accountTitle}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.accountTitle || "N/A"}</p>
+                 )
+             )}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Account Number
-            </label>
-            <input
-              type="text"
-              name="accountNumber"
-              value={formData.accountNumber}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              IBAN Number
-            </label>
-            <input
-              type="text"
-              name="ibanNumber"
-              value={formData.ibanNumber}
-              onChange={handleChange}
-              disabled={!isEditing}
-              className={`w-full p-3 border border-gray-300 rounded-md bg-[#F3F4F6] focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-                !isEditing ? "cursor-not-allowed" : ""
-              }`}
-            />
-          </div>
+        <h3 className="text-sm font-bold text-gunmetal-500 uppercase tracking-wider mb-4 px-1 border-b border-platinum-100 pb-2">Account Identifiers</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {renderField("Account Number", <FaMoneyCheck />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="accountNumber"
+                        value={formData.accountNumber}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800 tracking-wider">{formData.accountNumber || "N/A"}</p>
+                 )
+             )}
+
+             {renderField("IBAN Number", <FaMoneyCheck />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="ibanNumber"
+                        value={formData.ibanNumber}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800 tracking-widest">{formData.ibanNumber || "N/A"}</p>
+                 )
+             )}
         </div>
 
         {isEditing && (
-          <div className="flex justify-start">
+          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-platinum-200">
+             <button
+              type="button"
+              onClick={toggleEdit}
+              className="px-6 py-2.5 bg-white border border-platinum-200 text-slate-grey-600 rounded-lg text-sm font-bold hover:bg-alabaster-grey-50 transition-all"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-600 transition-all text-lg font-semibold"
+              className="px-6 py-2.5 bg-gunmetal-900 text-white rounded-lg text-sm font-bold hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20"
             >
-              Update
+              Save Changes
             </button>
           </div>
         )}

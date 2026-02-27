@@ -1,8 +1,5 @@
-// Header.tsx
-
 import React, { useState, useEffect, useRef } from "react";
-import MarTechLogo from "../../assets/LogoMartechSol.png";
-import { IoNotificationsSharp } from "react-icons/io5";
+import { IoNotificationsOutline } from "react-icons/io5";
 import { MdOutlineMoreTime, MdOutlineTimerOff } from "react-icons/md";
 import { RiLogoutCircleRLine } from "react-icons/ri";
 import { useNavigate } from "react-router";
@@ -23,19 +20,22 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   onCancel,
 }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-      <div className="bg-white rounded shadow-lg p-6 max-w-sm w-full">
-        <p className="text-gray-800">{message}</p>
-        <div className="flex justify-end mt-4">
+    <div className="fixed inset-0 flex items-center justify-center bg-surface-900/40 backdrop-blur-sm z-50">
+      <div className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full transform transition-all scale-100">
+        <h3 className="text-lg font-bold text-surface-900 mb-2">
+          Confirmation
+        </h3>
+        <p className="text-surface-600 mb-6">{message}</p>
+        <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 mr-2 bg-gray-300 rounded hover:bg-gray-400 transition duration-300"
+            className="px-5 py-2.5 text-sm font-medium text-surface-600 bg-surface-100 rounded-lg hover:bg-surface-200 transition-colors"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition duration-300"
+            className="px-5 py-2.5 text-sm font-medium text-white bg-brand-600 rounded-lg hover:bg-brand-700 shadow-lg shadow-brand-500/20 transition-all"
           >
             Confirm
           </button>
@@ -59,11 +59,6 @@ const Header: React.FC = () => {
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  /**
-   * Formats seconds into HH:MM:SS format.
-   * @param seconds Number of seconds.
-   * @returns Formatted time string.
-   */
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -74,10 +69,6 @@ const Header: React.FC = () => {
     )}:${String(secs).padStart(2, "0")}`;
   };
 
-  /**
-   * Starts the timer with an initial count.
-   * @param initialSeconds Initial seconds to start the timer.
-   */
   const startTimer = (initialSeconds = 0) => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -88,9 +79,6 @@ const Header: React.FC = () => {
     }, 1000);
   };
 
-  /**
-   * Checks the current active attendance status of the user.
-   */
   const checkActiveAttendance = async () => {
     if (!user?._id) return;
     try {
@@ -114,10 +102,6 @@ const Header: React.FC = () => {
     } catch (error: any) {
       if (error.response?.status !== 404) {
         console.error("Error fetching active attendance:", error);
-        const errorMessage =
-          error.response?.data?.message ||
-          "Failed to retrieve active attendance status";
-        toast.error(errorMessage);
       }
       setIsTimedIn(false);
     } finally {
@@ -129,8 +113,6 @@ const Header: React.FC = () => {
     if (!loading && user) {
       checkActiveAttendance();
     } else if (!loading && !user) {
-      // If user is not fetched (null) after loading,
-      // mark time status as checked so we don't wait indefinitely.
       setTimeStatusChecked(true);
     }
     return () => {
@@ -141,25 +123,17 @@ const Header: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loading, user]);
 
-  /**
-   * Handles toggling between Time In and Time Out.
-   */
   const handleTimeToggle = async () => {
-    if (isTimeToggleLoading) return; // Prevent duplicate clicks
+    if (isTimeToggleLoading) return;
 
-    // If the user is currently timed in, ask for confirmation before timing out.
     if (isTimedIn) {
       setShowTimeoutConfirm(true);
       return;
     }
 
-    // Time In action
     setIsTimeToggleLoading(true);
-    if (!user?._id) {
-      toast.error("User information not available");
-      setIsTimeToggleLoading(false);
-      return;
-    }
+    if (!user?._id) return;
+
     try {
       const response = await axiosInstance.post(
         `${backendUrl}/api/attendance/time-in`,
@@ -173,18 +147,12 @@ const Header: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error logging time:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "An error occurred while trying to clock in.";
-      toast.error(errorMessage);
+      toast.error(error.response?.data?.message || "Error logging time");
     } finally {
       setIsTimeToggleLoading(false);
     }
   };
 
-  /**
-   * Handles confirming the Time Out action.
-   */
   const handleConfirmTimeout = async () => {
     setIsTimeToggleLoading(true);
     setShowTimeoutConfirm(false);
@@ -204,25 +172,12 @@ const Header: React.FC = () => {
       }
     } catch (error: any) {
       console.error("Error logging time:", error);
-      const errorMessage =
-        error.response?.data?.message ||
-        "An error occurred while trying to clock out.";
-      toast.error(errorMessage);
+      toast.error("Error logging time");
     } finally {
       setIsTimeToggleLoading(false);
     }
   };
 
-  /**
-   * Handles cancelling the Time Out confirmation.
-   */
-  const handleCancelTimeout = () => {
-    setShowTimeoutConfirm(false);
-  };
-
-  /**
-   * Handles logging out the user.
-   */
   const handleLogout = async () => {
     try {
       await axiosInstance.post(
@@ -234,54 +189,41 @@ const Header: React.FC = () => {
       toast.success("Logged out successfully.");
     } catch (error: any) {
       console.error("Logout failed:", error);
-      const errorMessage =
-        error.response?.data?.message || "Logout failed. Please try again.";
-      toast.error(errorMessage);
     }
   };
 
-  /**
-   * Opens the notification modal.
-   */
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-
-  /**
-   * Closes the notification modal and fetches updated notifications.
-   */
+  const handleOpenModal = () => setIsModalOpen(true);
   const handleCloseModal = async () => {
     await fetchNotifications();
     setIsModalOpen(false);
   };
 
   return (
-    <header className="mt-1">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-surface-200 shadow-sm">
+      <div className="max-w-auto mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16 md:h-20">
-          {/* Company Logo */}
-          <div className="flex items-center ml-2 sm:ml-2">
-            <img
-              src={MarTechLogo}
-              alt="Company logo"
-              className="h-6 w-auto sm:h-5 md:h-10"
-            />
+          {/* Welcome Message (Replaces Logo) */}
+          <div className="flex flex-col">
+            <h1 className="text-xl font-display font-bold text-surface-900 hidden md:block">
+              Welcome back,{" "}
+              <span className="text-brand-600">
+                {user?.name?.split(" ")[0]}
+              </span>
+            </h1>
           </div>
 
-          <div className="flex flex-wrap gap-1 justify-end items-center md:flex-nowrap md:space-x-3">
+          <div className="flex flex-wrap gap-3 justify-end items-center">
             {/* Notification Button */}
             {!loading && user && (
               <>
                 <button
                   onClick={handleOpenModal}
-                  className="relative p-2 rounded-full bg-purple-900 text-white hover:bg-purple-800 transition duration-300"
+                  className="relative p-2.5 rounded-full text-surface-500 hover:bg-surface-100 hover:text-brand-600 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-brand-500/20"
                   aria-label="Notifications"
                 >
-                  <IoNotificationsSharp size={20} />
+                  <IoNotificationsOutline size={22} />
                   {unreadCount > 0 && (
-                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full px-1">
-                      {unreadCount}
-                    </span>
+                    <span className="absolute top-2 right-2 h-2.5 w-2.5 bg-red-500 border-2 border-white rounded-full"></span>
                   )}
                 </button>
                 <NotificationModal
@@ -296,103 +238,64 @@ const Header: React.FC = () => {
               </>
             )}
 
-            {/* Render timer and time buttons only after time status is checked */}
+            {/* Timer and Time Actions */}
             {!loading && user && timeStatusChecked && (
-              <>
-                {/* Timer Display when Timed In */}
+              <div className="flex items-center gap-3 pl-3 border-l border-surface-200">
                 {isTimedIn && (
-                  <div className="flex items-center">
-                    <div
-                      style={{
-                        position: "relative",
-                        width: "100%",
-                        maxWidth: "200px",
-                        height: "7px",
-                        backgroundColor: "#22C55E",
-                        borderRadius: "9999px",
-                        overflow: "hidden",
-                      }}
-                    >
-                      <div
-                        style={{
-                          position: "absolute",
-                          left: 0,
-                          top: 0,
-                          height: "100%",
-                          width: `${((timer % 3600) / 3600) * 100}%`,
-                          background: "#22C55E",
-                          transition: "width 0.5s ease-in-out",
-                        }}
-                      ></div>
-                    </div>
-
-                    <div
-                      style={{
-                        background: "#22C55E",
-                        color: "white",
-                        borderRadius: "9999px",
-                        padding: "5px 16px",
-                        fontFamily: "'Roboto Mono', monospace",
-                        fontSize: "1.25rem",
-                        fontWeight: "bold",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        animation: "pulse 1.5s infinite",
-                      }}
-                    >
+                  <div className="hidden md:flex items-center bg-accent-500/10 px-3 py-1.5 rounded-lg border border-accent-500/20">
+                    <div className="w-2 h-2 rounded-full bg-accent-500 animate-pulse mr-2"></div>
+                    <span className="font-mono text-lg font-bold text-accent-600 tracking-wider">
                       {formatTime(timer)}
-                    </div>
+                    </span>
                   </div>
                 )}
 
-                {/* Time In/Out Button */}
                 <button
                   onClick={handleTimeToggle}
                   disabled={isTimeToggleLoading}
-                  className={`flex items-center w-25 gap-2 px-4 py-2 rounded-full text-white uppercase font-medium text-xs sm:text-xs md:text-base ${
+                  className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-semibold shadow-lg shadow-brand-500/10 transition-all duration-300 transform active:scale-95 ${
                     isTimedIn
-                      ? "bg-red-600 hover:bg-red-700"
-                      : "bg-green-600 hover:bg-green-700"
+                      ? "bg-white text-red-600 border border-red-200 hover:bg-red-50 hover:border-red-300"
+                      : "bg-brand-600 text-surface-900 hover:bg-brand-700 hover:shadow-brand-600/20"
                   }`}
                 >
                   {isTimedIn ? (
                     <>
                       <MdOutlineTimerOff size={18} />
-                      <span>Time Out</span>
+                      <span className="hidden sm:inline">Clock Out</span>
                     </>
                   ) : (
                     <>
                       <MdOutlineMoreTime size={18} />
-                      <span>Time In</span>
+                      <span className="hidden sm:inline">Clock In</span>
                     </>
                   )}
                 </button>
-              </>
+              </div>
             )}
 
             {/* Logout Button */}
             {!loading && user && (
               <button
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 rounded-full bg-black text-white uppercase font-medium text-xs sm:text-xs md:text-base hover:bg-neutral-800 transition duration-300"
+                className="group flex items-center gap-2 px-3 py-2 rounded-lg text-surface-500 hover:bg-red-50 hover:text-red-600 transition-all duration-200 ml-1"
+                title="Sign Out"
               >
-                <RiLogoutCircleRLine size={18} />
-                <span>Log Out</span>
+                <RiLogoutCircleRLine
+                  size={20}
+                  className="group-hover:rotate-180 transition-transform duration-300"
+                />
               </button>
             )}
-
-            {loading && <div className="text-gray-500"></div>}
           </div>
         </div>
       </div>
 
-      {/* Confirmation Modal for Time Out */}
       {showTimeoutConfirm && (
         <ConfirmModal
-          message="Are you sure you want to Time Out?"
+          message="Are you sure you want to clock out for the day?"
           onConfirm={handleConfirmTimeout}
-          onCancel={handleCancelTimeout}
+          onCancel={() => setShowTimeoutConfirm(false)}
         />
       )}
     </header>

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { FaBirthdayCake } from "react-icons/fa";
+import axiosInstance from "../../utils/axiosConfig";
+import { FaBirthdayCake, FaChevronRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 interface User {
@@ -10,28 +10,22 @@ interface User {
     dateOfBirth: string;
     abbreviatedJobTitle: string;
   };
-  nextBirthday: string; // Added for clarity, though it's returned by the API
+  nextBirthday: string;
 }
 
 const UpcomingBirthdaysCard: React.FC = () => {
   const [birthdays, setBirthdays] = useState<User[]>([]);
-  const backendUrl = process.env.REACT_APP_BACKEND_URL;
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchBirthdays = async () => {
       try {
-        const { data } = await axios.get(
-          `${backendUrl}/api/users/upcoming-birthdays`,
-          {
-            withCredentials: true,
-          }
+        const { data } = await axiosInstance.get(
+          `/api/users/upcoming-birthdays`
         );
 
         if (data.upcomingBirthdays) {
           setBirthdays(data.upcomingBirthdays);
-        } else {
-          console.error("Unexpected API response structure:", data);
         }
       } catch (error) {
         console.error("Error fetching upcoming birthdays:", error);
@@ -39,65 +33,59 @@ const UpcomingBirthdaysCard: React.FC = () => {
     };
 
     fetchBirthdays();
-  }, [backendUrl]);
+  }, []);
 
-  // Show only top 5 upcoming birthdays
   const topFiveBirthdays = birthdays.slice(0, 5);
 
   return (
-    <div className="flex flex-col w-full md:w-6/12 max-md:ml-0 max-md:w-full bg-white rounded-xl p-6">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl sm:text-2xl font-extrabold tracking-wide text-black">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col h-full hover:shadow-md transition-shadow duration-300">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-lg font-bold text-gunmetal-900 tracking-tight">
           Upcoming Birthdays
         </h2>
         <button
-          aria-label="View all upcoming birthdays"
           onClick={() => navigate("/all-upcoming-birthdays")}
-          className="mt-4 sm:mt-0 px-6 py-2 text-sm sm:text-base text-center text-white bg-sky-500 rounded-full hover:bg-sky-600 transition-colors duration-300"
+          className="text-xs font-semibold text-gunmetal-600 hover:text-gunmetal-800 flex items-center gap-1 uppercase tracking-wider transition-colors"
         >
-          View All
+          View All <FaChevronRight size={8} />
         </button>
       </div>
 
       {topFiveBirthdays.length === 0 && (
-        <p className="text-sm text-gray-600 mt-4 text-center">
-          No upcoming birthdays.
-        </p>
+        <div className="flex flex-col items-center justify-center flex-1 text-slate-grey-400 h-32">
+          <FaBirthdayCake size={32} className="mb-3 opacity-30 text-gunmetal-300" />
+          <p className="text-sm font-medium">No upcoming birthdays.</p>
+        </div>
       )}
 
-      <ul className="divide-y divide-gray-200">
+      <ul className="space-y-2">
         {topFiveBirthdays.map((user) => {
           const dateOfBirth = new Date(user.personalDetails.dateOfBirth);
-          const options: Intl.DateTimeFormatOptions = {
-            month: "long",
+          const birthdayDate = dateOfBirth.toLocaleDateString(undefined, {
+            month: "short",
             day: "numeric",
-          };
-          const birthdayDate = dateOfBirth.toLocaleDateString(
-            undefined,
-            options
-          );
+          });
 
           return (
             <li
               key={user._id}
-              className="flex items-center p-3 sm:p-4 hover:bg-gray-50 transition"
+              className="flex items-center p-3 rounded-lg hover:bg-alabaster-grey-50 transition-colors border border-transparent hover:border-platinum-200 group"
             >
-              <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 bg-purple-900 rounded-lg text-white text-xl sm:text-2xl relative">
-                <FaBirthdayCake size={25} />
+              <div className="flex items-center justify-center w-10 h-10 bg-rose-50 text-rose-500 rounded-lg shrink-0 border border-rose-100">
+                <FaBirthdayCake size={16} />
               </div>
-              <div className="ml-3 sm:ml-3 flex items-center flex-1">
-                <div className="flex flex-col">
-                  <span className="text-md sm:text-md font-bold text-black">
-                    {user.name}
-                  </span>
-                  <span className="text-xs sm:text-sm text-gray-600">
-                    {user.personalDetails.abbreviatedJobTitle}
-                  </span>
-                </div>
+              
+              <div className="ml-3 flex-1">
+                <span className="text-sm font-semibold text-gunmetal-800 block">
+                  {user.name}
+                </span>
+                <span className="text-xs text-slate-grey-500 block">
+                  {user.personalDetails.abbreviatedJobTitle}
+                </span>
               </div>
 
-              <div className="ml-auto flex items-center text-sm sm:text-lg font-semibold text-black">
-                <span className="font-bold">{birthdayDate}</span>
+              <div className="text-[10px] font-bold uppercase tracking-wider text-gunmetal-600 bg-white border border-platinum-200 px-2 py-1 rounded shadow-sm">
+                {birthdayDate}
               </div>
             </li>
           );

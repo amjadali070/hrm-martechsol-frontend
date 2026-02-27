@@ -4,15 +4,26 @@ import profilePlaceholder from "../../assets/placeholder.png";
 import Announcements from "../atoms/Announcements";
 import AttendanceOverview from "../atoms/AttendanceOverview";
 import LeaveOverview from "../atoms/LeaveOverview";
-import QuickActions from "../atoms/QuickAction";
-import ProfileCard from "../molecules/ProfileCard";
+import QuickActions, { QuickActionItem } from "../atoms/QuickAction";
 import AttendanceTicketOverview from "../atoms/AttendanceTicketOverview";
 import { AuthContext } from "./AuthContext";
 import WorkAnniversariesCard from "../atoms/WorkAnniversariesCard";
 import UpcomingBirthdaysCard from "../atoms/UpcomingBirthdaysCard";
-import { FaSpinner } from "react-icons/fa";
+import {
+  FaMoneyBillWave,
+  FaCar,
+  FaCalendarPlus,
+  FaTicketAlt,
+  FaFileInvoiceDollar,
+  FaHeadset,
+  FaBook,
+  FaBriefcase,
+  FaClock,
+  FaCalendarDay,
+} from "react-icons/fa";
 import UserVehicleView from "../atoms/UserVehicleView";
 import LeaveManagementCard from "../atoms/LeaveManagementCard";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const DashboardLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -21,14 +32,11 @@ const DashboardLayout: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="flex justify-center items-center h-screen">
-        <div className="flex flex-col items-center justify-center mt-20 mb-20">
-          <FaSpinner
-            size={30}
-            className="animate-spin text-blue-600 mb-2"
-            aria-hidden="true"
-          />
-        </div>
+      <div className="flex justify-center items-center h-[calc(100vh-200px)]">
+        <LoadingSpinner
+          text="Initializing Workspace..."
+          className="text-gunmetal-600 mb-4"
+        />
       </div>
     );
   }
@@ -47,98 +55,163 @@ const DashboardLayout: React.FC = () => {
       .replace(/^\/+/, "")}`;
   };
 
-  const getActions = () => {
+  const getActions = (): QuickActionItem[] => {
     if (isFinance) {
       return [
         {
           label: "Payroll Finances",
           onClick: () => navigate("/organization/payroll-finance"),
           tooltip: "View and manage payroll finances",
+          icon: FaMoneyBillWave,
+          color:
+            "bg-alabaster-grey-50 text-gunmetal-700 border border-alabaster-grey-200",
         },
         {
           label: "Vehicle Finances",
           onClick: () => navigate("/organization/vehicle-finance"),
           tooltip: "View and manage vehicle finances",
+          icon: FaCar,
+          color:
+            "bg-alabaster-grey-50 text-gunmetal-700 border border-alabaster-grey-200",
         },
-        // {
-        //   label: "Total Finances",
-        //   onClick: () => navigate("/finance/overview"),
-        //   tooltip: "View total financial overview",
-        // },
       ];
     }
 
     return [
       {
-        label: "Apply for Leave",
+        label: "Apply Leave",
         onClick: () => navigate("/forms/leave-application"),
-        tooltip: "Apply for a new leave request",
+        tooltip: "New Request",
+        icon: FaCalendarPlus,
+        color:
+          "bg-white text-carbon-black-900 border border-platinum-200 hover:border-platinum-300",
       },
       {
-        label: "Attendance Ticket",
+        label: "Tickets",
         onClick: () => navigate("/tickets/attendance"),
-        tooltip: "View your latest payslip",
+        tooltip: "Support",
+        icon: FaTicketAlt,
+        color:
+          "bg-white text-carbon-black-900 border border-platinum-200 hover:border-platinum-300",
       },
       {
-        label: "View Payroll",
+        label: "Payroll",
         onClick: () => navigate("/payroll/view"),
-        tooltip: "Check your attendance records",
+        tooltip: "Payslips",
+        icon: FaFileInvoiceDollar,
+        color:
+          "bg-white text-carbon-black-900 border border-platinum-200 hover:border-platinum-300",
       },
       {
-        label: "Submit a Ticket",
+        label: "Support",
         onClick: () => navigate("/create-ticket"),
-        tooltip: "Report an issue or request support",
+        tooltip: "Help Desk",
+        icon: FaHeadset,
+        color:
+          "bg-white text-carbon-black-900 border border-platinum-200 hover:border-platinum-300",
       },
       {
-        label: "View Policies",
+        label: "Policies",
         onClick: () => navigate("/policies"),
-        tooltip: "Review company policies",
+        tooltip: "Guidelines",
+        icon: FaBook,
+        color:
+          "bg-white text-carbon-black-900 border border-platinum-200 hover:border-platinum-300",
       },
     ];
   };
 
   const handleViewAllAttendance = () => navigate("/attendance/view");
-
-  const handleViewLeaveApplications = () => {
+  const handleViewLeaveApplications = () =>
     navigate("/forms/track-application");
-  };
+
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
 
   return (
-    <div className="flex flex-col space-y-5 md:space-y-10">
-      <ProfileCard
-        name={user.name}
-        jobTitle={user.personalDetails?.abbreviatedJobTitle || "N/A"}
-        imageSrc={
-          processPath(user.personalDetails?.profilePicture) ||
-          profilePlaceholder
-        }
-        shiftStartTime={user.personalDetails?.shiftStartTime || "N/A"}
-        shiftEndTime={user.personalDetails?.shiftEndTime || "N/A"}
-      />
+    <div className="pb-12 animate-fadeIn space-y-8">
+      {/* 1. Hero Section - Premium Corporate Aesthetic */}
+      <div className="relative rounded-xl bg-linear-to-r from-gunmetal-900 to-black text-white overflow-hidden shadow-2xl p-8 lg:p-10 border border-white/10">
+        {/* Subtle abstract geometric background instead of blobs */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-white/5 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/2 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-gunmetal-700/20 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/4 pointer-events-none"></div>
 
+        <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+            <div className="relative group">
+              <div className="w-20 h-20 md:w-24 md:h-24 rounded-lg p-1 bg-white/5 backdrop-blur-md border border-white/10 shadow-lg ring-1 ring-white/5 group-hover:ring-white/20 transition-all">
+                <img
+                  src={
+                    processPath(user.personalDetails?.profilePicture) ||
+                    profilePlaceholder
+                  }
+                  alt={user.name}
+                  onError={(e) => {
+                    e.currentTarget.src = profilePlaceholder;
+                  }}
+                  className="w-full h-full rounded-md object-cover grayscale-[0.2] transition-all duration-500 group-hover:grayscale-0"
+                />
+              </div>
+              <div className="absolute -bottom-2 -right-2 bg-white text-green-600 text-[9px] font-bold px-2 py-0.5 rounded shadow-sm border border-platinum-200 tracking-wider">
+                ONLINE
+              </div>
+            </div>
+
+            <div>
+              <p className="text-platinum-400 font-medium mb-1 text-sm tracking-wide flex items-center gap-2">
+                <FaCalendarDay className="opacity-70 text-xs" /> {today}
+              </p>
+              <h1 className="relative z-10 text-3xl md:text-4xl font-display font-semibold tracking-tight mb-3 text-surface-700">
+                Good Afternoon, {user.name.split(" ")[0]}
+              </h1>
+              <div className="flex flex-wrap gap-3">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 text-xs font-medium text-platinum-200 border border-white/10 hover:bg-white/10 transition-colors">
+                  <FaBriefcase className="text-platinum-400" />{" "}
+                  {user.personalDetails?.abbreviatedJobTitle}
+                </span>
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-white/5 text-xs font-medium text-platinum-200 border border-white/10 hover:bg-white/10 transition-colors">
+                  <FaClock className="text-platinum-400" />{" "}
+                  {user.personalDetails?.shiftStartTime || "09:00"} -{" "}
+                  {user.personalDetails?.shiftEndTime || "18:00"}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="hidden lg:block text-right">
+            <p className="text-gunmetal-300 text-xs mb-1 uppercase tracking-[0.2em] font-semibold">
+              Workspace
+            </p>
+            <p className="text-2xl font-light font-display text-surface-400 tracking-wide">
+              {user.role}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* 2. Quick Actions Bar */}
       <QuickActions actions={getActions()} />
 
       {!isFinance && (
-        <div>
-          <div className="flex flex-col md:flex-row gap-3">
-            <Announcements />
-            <LeaveOverview />
-          </div>
+        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+          <AttendanceOverview onViewAll={handleViewAllAttendance} />
+          <LeaveManagementCard onViewAll={handleViewLeaveApplications} />
 
-          <div className="flex flex-col md:flex-row gap-3 mt-3">
-            <AttendanceOverview onViewAll={handleViewAllAttendance} />
-            <AttendanceTicketOverview />
-          </div>
-          <div className="flex flex-col md:flex-row gap-3 mt-3">
-            <UserVehicleView userId={user._id} />
-            <LeaveManagementCard onViewAll={handleViewLeaveApplications} />
-          </div>
+          <AttendanceTicketOverview />
+          <UserVehicleView userId={user._id} />
+
+          <Announcements />
+          <LeaveOverview />
 
           {isAuthorized && (
-            <div className="flex flex-col md:flex-row gap-3 mt-3">
+            <>
               <WorkAnniversariesCard />
               <UpcomingBirthdaysCard />
-            </div>
+            </>
           )}
         </div>
       )}

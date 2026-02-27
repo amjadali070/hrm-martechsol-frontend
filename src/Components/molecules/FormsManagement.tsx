@@ -2,13 +2,24 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { FaInbox, FaSpinner, FaEye } from "react-icons/fa";
+import { 
+  FaInbox, 
+  FaEye, 
+  FaSearch, 
+  FaRegFileAlt, 
+  FaUser, 
+  FaBriefcase, 
+  FaCalendarAlt,
+  FaCheckCircle,
+  FaExclamationCircle,
+  FaTimes
+} from "react-icons/fa";
 import { formatDate } from "../../utils/formatDate";
 import useUser from "../../hooks/useUser";
-import { ToastContainer, toast } from "react-toastify"; // Importing Toastify
-import "react-toastify/dist/ReactToastify.css"; // Importing Toastify CSS
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import { IoCloseCircle } from "react-icons/io5";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface UserInfo {
   name: string;
@@ -33,9 +44,7 @@ const FormsManagement: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  const [activeTab, setActiveTab] = useState<"Feedback" | "Suggestion">(
-    "Feedback"
-  );
+  const [activeTab, setActiveTab] = useState<"Feedback" | "Suggestion">("Feedback");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [itemsPerPage, setItemsPerPage] = useState<number>(10);
@@ -63,13 +72,13 @@ const FormsManagement: React.FC = () => {
           params: {
             formType: activeTab.toLowerCase(),
             page: 1, // Fetch all forms for frontend handling
-            limit: 1000, // Adjust based on expected maximum number of forms
+            limit: 1000, 
           },
           withCredentials: true,
         });
 
         setForms(response.data);
-        setTotalPages(1); // Reset pagination as it's handled on the frontend
+        setTotalPages(1); 
       } catch (err: any) {
         console.error("Error fetching forms:", err);
         setError(err.response?.data?.message || "Failed to fetch forms.");
@@ -91,8 +100,7 @@ const FormsManagement: React.FC = () => {
       const subject = form.subject.toLowerCase();
       return (
         form.formType.toLowerCase() === activeTab.toLowerCase() &&
-        (name.includes(lowerCaseSearchTerm) ||
-          subject.includes(lowerCaseSearchTerm))
+        (name.includes(lowerCaseSearchTerm) || subject.includes(lowerCaseSearchTerm))
       );
     });
   }, [forms, activeTab, searchTerm]);
@@ -169,41 +177,38 @@ const FormsManagement: React.FC = () => {
 
   if (userLoading || loading) {
     return (
-      <div className="flex justify-center items-center h-40">
-        <FaSpinner className="text-indigo-500 animate-spin" size={40} />
-      </div>
+      <LoadingSpinner className="h-96" size="xl" text="Loading forms..." />
     );
   }
 
   return (
-    <div className="w-full p-8 bg-gray-50 rounded-lg mb-8">
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
       <ToastContainer position="top-center" />
-      <h2 className="text-3xl font-extrabold text-gray-800 mb-6">
-        Forms Management
-      </h2>
-
-      {/* Search Bar */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search by subject or name..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setCurrentPage(1); // Reset to first page on new search
-          }}
-          className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          aria-label="Search Forms"
-        />
+      
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-3">
+             <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+               <FaRegFileAlt className="text-gunmetal-600 text-xl" />
+             </div>
+             <div>
+                <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Forms Management
+                </h2>
+                <p className="text-sm text-slate-grey-500">
+                    Review and manage feedback and suggestions.
+                </p>
+             </div>
+        </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b mb-6">
+      <div className="flex border-b border-platinum-200 mb-6">
         <button
-          className={`py-2 px-6 focus:outline-none ${
+          className={`py-3 px-6 text-sm font-bold focus:outline-none transition-all relative ${
             activeTab === "Feedback"
-              ? "border-b-2 border-indigo-600 text-indigo-600 font-semibold"
-              : "text-gray-600 hover:text-indigo-600"
+              ? "text-gunmetal-900"
+              : "text-slate-grey-500 hover:text-gunmetal-700"
           }`}
           onClick={() => {
             setActiveTab("Feedback");
@@ -212,12 +217,15 @@ const FormsManagement: React.FC = () => {
           }}
         >
           Feedback Forms
+           {activeTab === "Feedback" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gunmetal-900 rounded-t-full"></span>
+            )}
         </button>
         <button
-          className={`py-2 px-6 focus:outline-none ${
+          className={`py-3 px-6 text-sm font-bold focus:outline-none transition-all relative ${
             activeTab === "Suggestion"
-              ? "border-b-2 border-indigo-600 text-indigo-600 font-semibold"
-              : "text-gray-600 hover:text-indigo-600"
+              ? "text-gunmetal-900"
+              : "text-slate-grey-500 hover:text-gunmetal-700"
           }`}
           onClick={() => {
             setActiveTab("Suggestion");
@@ -226,96 +234,95 @@ const FormsManagement: React.FC = () => {
           }}
         >
           Suggestion Forms
+           {activeTab === "Suggestion" && (
+              <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gunmetal-900 rounded-t-full"></span>
+            )}
         </button>
+      </div>
+
+       {/* Search Bar */}
+      <div className="flex justify-between items-center mb-6">
+         <div className="relative group w-full md:w-96">
+           <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400 group-focus-within:text-gunmetal-500 transition-colors" />
+           <input
+            type="text"
+            placeholder="Search by name or subject..."
+            value={searchTerm}
+            onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+            }}
+            className="w-full pl-9 pr-4 py-2.5 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all placeholder:text-slate-grey-400 shadow-sm"
+          />
+        </div>
       </div>
 
       {/* No Forms Message */}
       {!error && filteredForms.length === 0 && (
-        <div className="text-center py-10">
-          <div className="flex flex-col items-center justify-center">
-            <FaInbox size={30} className="text-gray-400 mb-2" />
-            <span className="text-md font-medium">
-              No {activeTab} Forms Available
-            </span>
-          </div>
-          <p className="text-gray-500 text-sm mt-2">
-            There are no {activeTab.toLowerCase()} forms submitted yet.
-          </p>
+        <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-platinum-200 rounded-xl bg-alabaster-grey-50/50">
+             <FaInbox size={48} className="text-slate-grey-300 mb-3" />
+            <h3 className="text-lg font-bold text-gunmetal-800">No forms found</h3>
+            <p className="text-slate-grey-500 text-sm mt-1">
+                 There are no {activeTab.toLowerCase()} forms matching your criteria.
+            </p>
         </div>
       )}
 
       {/* Forms Table */}
       {filteredForms.length > 0 && (
         <>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white rounded-lg overflow-hidden">
-              <thead>
-                <tr className="bg-purple-900 text-white">
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    S.No
-                  </th>
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    Job Title
-                  </th>
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    Subject
-                  </th>
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="py-3 px-4 text-center text-sm font-semibold uppercase tracking-wider">
-                    Action
-                  </th>
+          <div className="overflow-x-auto rounded-xl border border-platinum-200 shadow-sm">
+            <table className="w-full text-left bg-white border-collapse">
+              <thead className="bg-alabaster-grey-50">
+                <tr>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 w-16 text-center">No.</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Name</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Job Title</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200">Subject</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Status</th>
+                  <th className="py-3 px-4 text-xs font-bold text-slate-grey-500 uppercase tracking-wider border-b border-platinum-200 text-center">Action</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="divide-y divide-platinum-100">
                 {paginatedForms.map((form, index) => (
                   <tr
                     key={form._id}
-                    className={`border-b ${
-                      form.status === "unread" ? "bg-indigo-50" : "bg-white"
-                    } hover:bg-indigo-100 transition-colors`}
+                    className={`hover:bg-alabaster-grey-50/50 transition-colors ${
+                      form.status === "unread" ? "bg-emerald-50/30" : ""
+                    }`}
                   >
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
+                    <td className="py-4 px-4 text-sm text-slate-grey-500 text-center font-mono">
                       {index + 1 + (currentPage - 1) * itemsPerPage}
                     </td>
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
+                    <td className="py-4 px-4 text-sm font-semibold text-gunmetal-900">
                       {form.user?.name || "Anonymous"}
                     </td>
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
+                    <td className="py-4 px-4 text-sm text-slate-grey-600">
                       {form.user?.personalDetails?.abbreviatedJobTitle || "N/A"}
                     </td>
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
+                    <td className="py-4 px-4 text-sm text-gunmetal-800">
                       {form.subject}
                     </td>
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
+                    <td className="py-4 px-4 text-center">
                       <span
-                        className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-semibold border ${
                           form.status === "read"
-                            ? "bg-green-200 text-green-800"
-                            : "bg-blue-200 text-blue-800"
+                            ? "bg-slate-100 text-slate-600 border-slate-200"
+                            : "bg-emerald-50 text-emerald-700 border-emerald-100"
                         }`}
                       >
-                        {form.status.charAt(0).toUpperCase() +
-                          form.status.slice(1)}
+                         {form.status === "read" ? <FaCheckCircle size={10} /> : <FaExclamationCircle size={10} />}
+                        {form.status.charAt(0).toUpperCase() + form.status.slice(1)}
                       </span>
                     </td>
-                    <td className="text-sm text-gray-700 px-4 py-2 whitespace-nowrap text-center">
-                      <div className="flex justify-center space-x-3">
+                    <td className="py-4 px-4 text-center">
                         <button
-                          className="flex items-center px-3 py-1 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition"
+                          className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-platinum-200 text-gunmetal-600 rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all font-medium text-xs shadow-sm group"
                           onClick={() => openModal(form)}
-                          aria-label={`View form from ${
-                            form.user?.name || "Anonymous"
-                          }`}
                         >
-                          <FaEye className="mr-2" />
+                          <FaEye className="group-hover:text-white transition-colors" />
                           View
                         </button>
-                      </div>
                     </td>
                   </tr>
                 ))}
@@ -323,51 +330,52 @@ const FormsManagement: React.FC = () => {
             </table>
           </div>
 
-          {/* Pagination and Items Per Page */}
-          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 space-y-4 sm:space-y-0">
-            <div className="flex items-center">
-              <span className="text-sm text-gray-700 mr-3">Show:</span>
-              <select
-                className="text-sm border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                value={itemsPerPage}
-                onChange={(e) => {
-                  setItemsPerPage(parseInt(e.target.value));
-                  setCurrentPage(1);
-                }}
-              >
-                {[5, 10, 20].map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </select>
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row justify-between items-center mt-6 gap-4">
+             <div className="flex items-center gap-2 text-sm text-slate-grey-600 bg-alabaster-grey-50 px-3 py-1.5 rounded-lg border border-platinum-200">
+                <span className="font-medium">Rows:</span>
+                <select
+                    className="bg-transparent border-none focus:outline-none font-semibold text-gunmetal-800 cursor-pointer"
+                    value={itemsPerPage}
+                    onChange={(e) => {
+                    setItemsPerPage(parseInt(e.target.value));
+                    setCurrentPage(1);
+                    }}
+                >
+                    {[5, 10, 20].map((option) => (
+                    <option key={option} value={option}>{option}</option>
+                    ))}
+                </select>
             </div>
-            <div className="flex items-center space-x-3">
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === 1 ? "cursor-not-allowed opacity-50" : ""
+
+            <div className="flex items-center gap-2">
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === 1 
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
                 }`}
                 disabled={currentPage === 1}
                 onClick={handlePrevious}
-              >
-                <FiChevronLeft className="mr-2" />
-                Previous
-              </button>
-              <span className="text-sm text-gray-700">
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                className={`flex items-center px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors ${
-                  currentPage === totalPages || totalPages === 0
-                    ? "cursor-not-allowed opacity-50"
-                    : ""
+            >
+                <FiChevronLeft size={16} />
+            </button>
+            
+            <span className="text-xs font-semibold text-gunmetal-600 uppercase tracking-wide px-3">
+                Page {currentPage} of {totalPages || 1}
+            </span>
+            
+            <button
+                className={`p-2 rounded-lg border border-platinum-200 transition-all ${
+                currentPage === totalPages || totalPages === 0
+                    ? "bg-alabaster-grey-50 text-slate-grey-300 cursor-not-allowed" 
+                    : "bg-white text-gunmetal-600 hover:bg-platinum-50 hover:text-gunmetal-900 shadow-sm"
                 }`}
                 disabled={currentPage === totalPages || totalPages === 0}
                 onClick={handleNext}
-              >
-                Next
-                <FiChevronRight className="ml-2" />
-              </button>
+            >
+                <FiChevronRight size={16} />
+            </button>
             </div>
           </div>
         </>
@@ -376,67 +384,67 @@ const FormsManagement: React.FC = () => {
       {/* Form Details Modal */}
       {selectedForm && isModalOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
-          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-gunmetal-900/60 backdrop-blur-sm p-4 animate-in fade-in zoom-in duration-200"
           role="dialog"
         >
-          <div className="bg-white dark:bg-gray-800 p-8 rounded-lg w-11/12 md:w-3/4 lg:w-1/2 max-h-screen overflow-y-auto relative">
-            <button
-              onClick={closeModal}
-              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 focus:outline-none transition-colors duration-200"
-              aria-label="Close Form Details Modal"
-            >
-              <IoCloseCircle size={20} />
-            </button>
-            <h3 className="text-2xl font-semibold text-gray-800 dark:text-white mb-4">
-              {selectedForm.subject}
-            </h3>
-            <div className="mb-4">
-              <strong>Name:</strong>{" "}
-              <span className="text-gray-700 dark:text-gray-300">
-                {selectedForm.user?.name || "Anonymous"}
-              </span>
+          <div className="bg-white rounded-xl w-full max-w-2xl shadow-2xl border border-platinum-200 flex flex-col max-h-[90vh]">
+             {/* Modal Header */}
+            <div className="flex justify-between items-start px-6 py-5 border-b border-platinum-200 bg-alabaster-grey-50 rounded-t-xl">
+                 <div>
+                     <h3 className="text-lg font-bold text-gunmetal-900 line-clamp-1">{selectedForm.subject}</h3>
+                     <p className="text-xs text-slate-grey-500 mt-1 flex items-center gap-2">
+                        <FaCalendarAlt /> Submitted on {formatDate(selectedForm.createdAt)}
+                     </p>
+                 </div>
+                <button
+                  onClick={closeModal}
+                  className="text-slate-grey-400 hover:text-gunmetal-900 transition-colors p-1"
+                >
+                  <FaTimes size={18} />
+                </button>
             </div>
-            <div className="mb-4">
-              <strong>Job Title:</strong>{" "}
-              <span className="text-gray-700 dark:text-gray-300">
-                {selectedForm.user?.personalDetails?.abbreviatedJobTitle ||
-                  "N/A"}
-              </span>
+
+            {/* Modal Body */}
+            <div className="p-6 overflow-y-auto">
+                <div className="flex flex-col sm:flex-row gap-6 mb-6">
+                     <div className="flex items-center gap-3 p-3 bg-alabaster-grey-50 rounded-lg border border-platinum-200 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gunmetal-600 shadow-sm border border-platinum-100">
+                             <FaUser />
+                        </div>
+                        <div>
+                             <p className="text-xs text-slate-grey-500 font-semibold uppercase">Submitted By</p>
+                             <p className="text-sm font-bold text-gunmetal-900">{selectedForm.user?.name || "Anonymous"}</p>
+                        </div>
+                     </div>
+                     
+                     <div className="flex items-center gap-3 p-3 bg-alabaster-grey-50 rounded-lg border border-platinum-200 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gunmetal-600 shadow-sm border border-platinum-100">
+                             <FaBriefcase />
+                        </div>
+                         <div>
+                             <p className="text-xs text-slate-grey-500 font-semibold uppercase">Job Title</p>
+                             <p className="text-sm font-bold text-gunmetal-900">{selectedForm.user?.personalDetails?.abbreviatedJobTitle || "N/A"}</p>
+                        </div>
+                     </div>
+                </div>
+
+                <div className="mb-2">
+                    <h4 className="text-sm font-bold text-gunmetal-900 mb-2 uppercase tracking-wide">Message Content</h4>
+                    <div
+                        className="p-5 border border-platinum-200 rounded-xl bg-white text-slate-grey-700 text-sm leading-relaxed shadow-sm min-h-[150px] prose prose-sm max-w-none prose-p:text-slate-grey-700 prose-headings:text-gunmetal-900"
+                        dangerouslySetInnerHTML={{ __html: selectedForm.message }}
+                    ></div>
+                </div>
             </div>
-            <div className="mb-4">
-              <strong>Date Submitted:</strong>{" "}
-              <span className="text-gray-700 dark:text-gray-300">
-                {formatDate(selectedForm.createdAt)}
-              </span>
-            </div>
-            <div className="mb-4">
-              <strong>Status:</strong>{" "}
-              <span
-                className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                  selectedForm.status === "read"
-                    ? "bg-green-200 text-green-800"
-                    : "bg-blue-200 text-blue-800"
-                }`}
-              >
-                {selectedForm.status.charAt(0).toUpperCase() +
-                  selectedForm.status.slice(1)}
-              </span>
-            </div>
-            <div className="mb-4">
-              <strong>Message:</strong>
-              <div
-                className="mt-2 p-4 border rounded-md bg-gray-50 dark:bg-gray-700 overflow-auto"
-                dangerouslySetInnerHTML={{ __html: selectedForm.message }}
-              ></div>
-            </div>
-            <div className="flex justify-end">
-              <button
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-platinum-200 bg-white rounded-b-xl flex justify-end">
+               <button
                 onClick={closeModal}
-                className="px-6 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-colors duration-200 focus:outline-none"
-              >
-                Close
-              </button>
+                className="px-6 py-2 bg-gunmetal-900 text-white font-semibold rounded-lg hover:bg-gunmetal-800 transition-colors shadow-lg shadow-gunmetal-500/20 text-sm"
+               >
+                Close Details
+               </button>
             </div>
           </div>
         </div>

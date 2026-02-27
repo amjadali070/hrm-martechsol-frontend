@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FaSpinner, FaInbox } from "react-icons/fa";
+import { FaInbox, FaChartLine, FaChartPie, FaChartBar, FaCalendarAlt } from "react-icons/fa";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,6 +15,7 @@ import {
 import { Line, Pie, Bar } from "react-chartjs-2";
 import { getMonthName } from "../../utils/monthUtils";
 import axiosInstance from "../../utils/axiosConfig";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 ChartJS.register(
   CategoryScale,
@@ -86,10 +87,8 @@ interface MonthlyBreakdown {
 const PayrollFinanceAnalytics: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [financeData, setFinanceData] = useState<FinanceData | null>(null);
-  const [monthlyBreakdown, setMonthlyBreakdown] = useState<MonthlyBreakdown[]>(
-    []
-  );
-  const [filter, setFilter] = useState<string>("this_month"); // Default filter
+  const [monthlyBreakdown, setMonthlyBreakdown] = useState<MonthlyBreakdown[]>([]);
+  const [filter, setFilter] = useState<string>("this_month");
 
   const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#8884d8"];
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
@@ -114,6 +113,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
 
   useEffect(() => {
     fetchFinanceData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const formatCurrency = (value: number) => {
@@ -123,7 +123,7 @@ const PayrollFinanceAnalytics: React.FC = () => {
   const filterDataByPeriod = (data: MonthlyBreakdown[], period: string) => {
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
-    const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed in JS
+    const currentMonth = currentDate.getMonth() + 1;
 
     switch (period) {
       case "this_month":
@@ -157,14 +157,18 @@ const PayrollFinanceAnalytics: React.FC = () => {
         {
           label: "Gross Salary",
           data: filteredData.map((item) => item.totalGrossSalary),
-          borderColor: "#8884d8",
+          borderColor: "#0f172a", // Gunmetal-900
+          backgroundColor: "#0f172a",
           tension: 0.1,
+          pointRadius: 4,
         },
         {
           label: "Net Salary",
           data: filteredData.map((item) => item.totalNetSalary),
-          borderColor: "#82ca9d",
+          borderColor: "#10b981", // Emerald-500
+          backgroundColor: "#10b981",
           tension: 0.1,
+          pointRadius: 4,
         },
       ],
     };
@@ -182,6 +186,8 @@ const PayrollFinanceAnalytics: React.FC = () => {
         {
           data: deductionData.map(([_, value]) => value),
           backgroundColor: COLORS,
+          borderColor: "#ffffff",
+          borderWidth: 2,
         },
       ],
     };
@@ -197,147 +203,176 @@ const PayrollFinanceAnalytics: React.FC = () => {
           financeData?.metrics.averageNetToGrossRatio || 0,
           financeData?.metrics.averageTaxPercentage || 0,
         ],
-        backgroundColor: "#8884d8",
+        backgroundColor: ["#f59e0b", "#10b981", "#ef4444"], // Amber, Emerald, Rose
+        borderRadius: 4,
       },
     ],
   });
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center h-96">
-        <FaSpinner className="animate-spin text-4xl text-purple-600 mb-4" />
-        <p className="text-gray-600">Loading financial data...</p>
-      </div>
+      <LoadingSpinner className="h-96" size="lg" text="Loading financial data..." />
     );
   }
 
   if (!financeData) {
     return (
       <div className="flex flex-col items-center justify-center h-96">
-        <FaInbox className="text-4xl text-gray-400 mb-4" />
-        <p className="text-gray-600">No financial data available</p>
+        <FaInbox className="text-4xl text-slate-grey-300 mb-4" />
+        <p className="text-slate-grey-500 font-medium">No financial data available.</p>
       </div>
     );
   }
 
   return (
-    <div className="w-full p-6 bg-gray-50 rounded-xl">
-      <h2 className="text-3xl font-semibold mb-6 text-center text-gray-800">
-        Payroll Financial Analytics
-      </h2>
-
-      {/* Date Filter Dropdown */}
-      <div className="flex justify-end mb-6">
-        <select
-          value={filter}
-          onChange={(e) => setFilter(e.target.value)}
-          className="p-2 border border-gray-300 rounded-md"
-        >
-          <option value="this_month">This Month</option>
-          <option value="last_six_months">Last Six Months</option>
-          <option value="this_year">This Year</option>
-        </select>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Total Employees</h3>
-          <div className="text-3xl font-bold">{financeData.totalEmployees}</div>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 p-6 flex flex-col mb-8">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div className="flex items-center gap-3">
+             <div className="bg-gunmetal-50 p-3 rounded-xl border border-platinum-200">
+               <FaChartLine className="text-gunmetal-600 text-xl" />
+             </div>
+             <div>
+                <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+                    Payroll Financial Analytics
+                </h2>
+                <p className="text-sm text-slate-grey-500">
+                    Comprehensive insights into salary trends and expenses.
+                </p>
+             </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Total Gross Salary</h3>
-          <div className="text-3xl font-bold">
+        {/* Filter */}
+        <div className="relative group">
+            <FaCalendarAlt className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-grey-400" />
+            <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                className="pl-9 pr-8 py-2 bg-white border border-platinum-200 rounded-lg text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20 focus:border-gunmetal-500 transition-all appearance-none cursor-pointer shadow-sm"
+            >
+                <option value="this_month">This Month</option>
+                <option value="last_six_months">Last Six Months</option>
+                <option value="this_year">This Year</option>
+            </select>
+        </div>
+      </div>
+
+      {/* Summary Cards Row 1 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-alabaster-grey-50 p-6 rounded-xl border border-platinum-200">
+          <h3 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-2">Total Employees</h3>
+          <div className="text-3xl font-bold text-gunmetal-900">{financeData.totalEmployees}</div>
+        </div>
+
+        <div className="bg-alabaster-grey-50 p-6 rounded-xl border border-platinum-200">
+          <h3 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-2">Total Gross Salary</h3>
+          <div className="text-3xl font-bold text-gunmetal-900">
             {formatCurrency(financeData.grossSalary.total)}
           </div>
-          <p className="text-sm text-gray-500">
-            Average: {formatCurrency(financeData.grossSalary.average)}
+          <p className="text-xs text-slate-grey-500 mt-1 font-mono">
+            Avg: {formatCurrency(financeData.grossSalary.average)}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Total Net Salary</h3>
-          <div className="text-3xl font-bold">
+        <div className="bg-alabaster-grey-50 p-6 rounded-xl border border-platinum-200">
+          <h3 className="text-xs font-bold text-slate-grey-500 uppercase tracking-wider mb-2">Total Net Salary</h3>
+          <div className="text-3xl font-bold text-emerald-600">
             {formatCurrency(Number(financeData.netSalary.total.toFixed(0)))}
           </div>
-          <p className="text-sm text-gray-500">
-            Average: {formatCurrency(financeData.netSalary.average)}
+          <p className="text-xs text-slate-grey-500 mt-1 font-mono">
+            Avg: {formatCurrency(financeData.netSalary.average)}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Basic Salary</h3>
-          <div className="text-3xl font-bold">
+      {/* Summary Cards Row 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-2">Basic Salary</h3>
+          <div className="text-2xl font-bold text-gunmetal-900 mb-1">
             {formatCurrency(financeData.basicSalary.total)}
           </div>
-          <p className="text-sm text-gray-500">
-            Average: {formatCurrency(financeData.basicSalary.average)}
+          <p className="text-xs text-slate-grey-500">
+            Avg: {formatCurrency(financeData.basicSalary.average)}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Allowances</h3>
-          <div className="text-3xl font-bold">
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-2">Allowances</h3>
+          <div className="text-2xl font-bold text-gunmetal-900 mb-1">
             {formatCurrency(financeData.allowances.total)}
           </div>
-          <p className="text-sm text-gray-500">
-            Average: {formatCurrency(financeData.allowances.average)}
+          <p className="text-xs text-slate-grey-500">
+            Avg: {formatCurrency(financeData.allowances.average)}
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Deductions</h3>
-          <div className="text-3xl font-bold">
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-2">Deductions</h3>
+          <div className="text-2xl font-bold text-rose-600 mb-1">
             {formatCurrency(Number(financeData.deductions.total.toFixed(0)))}
           </div>
-          <p className="text-sm text-gray-500">
-            Average:{" "}
-            {formatCurrency(Number(financeData.deductions.average.toFixed(0)))}
+          <p className="text-xs text-slate-grey-500">
+            Avg: {formatCurrency(Number(financeData.deductions.average.toFixed(0)))}
           </p>
         </div>
       </div>
 
+      {/* Metrics Row */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Extra Payments</h3>
-          <div className="text-3xl font-bold">
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm flex flex-col justify-between">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-2">Extra Payments</h3>
+          <div className="text-2xl font-bold text-amber-500">
             {formatCurrency(financeData.extraPayments)}
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Attendance</h3>
-          <div className="text-sm text-gray-500">
-            <p>Total Absent Days: {financeData.attendance.totalAbsentDays}</p>
-            <p>Total Half Days: {financeData.attendance.totalHalfDays}</p>
-            <p>Total Late Ins: {financeData.attendance.totalLateIns}</p>
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-3">Attendance Stats</h3>
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Absent Days</span>
+                <span className="font-bold text-gunmetal-900">{financeData.attendance.totalAbsentDays}</span>
+            </div>
+            <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Half Days</span>
+                <span className="font-bold text-gunmetal-900">{financeData.attendance.totalHalfDays}</span>
+            </div>
+             <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Late Ins</span>
+                <span className="font-bold text-gunmetal-900">{financeData.attendance.totalLateIns}</span>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-2">Metrics</h3>
-          <div className="text-sm text-gray-500">
-            <p>
-              Average Deduction Percentage:{" "}
-              {financeData.metrics.averageDeductionPercentage}%
-            </p>
-            <p>
-              Average Net/Gross Ratio:{" "}
-              {financeData.metrics.averageNetToGrossRatio}%
-            </p>
-            <p>
-              Average Tax Percentage: {financeData.metrics.averageTaxPercentage}
-              %
-            </p>
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <h3 className="text-sm font-bold text-gunmetal-800 mb-3">Key Ratios</h3>
+          <div className="space-y-1">
+            <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Avg. Deduction</span>
+                <span className="font-bold text-rose-600">{financeData.metrics.averageDeductionPercentage}%</span>
+            </div>
+            <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Net/Gross Ratio</span>
+                <span className="font-bold text-emerald-600">{financeData.metrics.averageNetToGrossRatio}%</span>
+            </div>
+             <div className="flex justify-between text-sm">
+                <span className="text-slate-grey-600">Avg. Tax</span>
+                <span className="font-bold text-amber-600">{financeData.metrics.averageTaxPercentage}%</span>
+            </div>
           </div>
         </div>
       </div>
 
+      {/* Charts Section */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Monthly Salary Trends</h3>
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+               <div className="bg-gunmetal-50 p-2 rounded text-gunmetal-600">
+                   <FaChartLine />
+               </div>
+               <h3 className="text-lg font-bold text-gunmetal-900">Monthly Salary Trends</h3>
+          </div>
           <div className="h-80">
             <Line
               data={getMonthlyTrendsData()}
@@ -347,15 +382,48 @@ const PayrollFinanceAnalytics: React.FC = () => {
                 plugins: {
                   legend: {
                     position: "top" as const,
+                    labels: {
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 12
+                        },
+                        color: "#64748b" // slate-500
+                    }
                   },
                 },
+                scales: {
+                    x: {
+                        grid: {
+                            display: false,
+                        },
+                        ticks: {
+                            color: "#64748b",
+                            font: { family: "'Inter', sans-serif" }
+                        }
+                    },
+                    y: {
+                        border: { display: false },
+                        grid: {
+                            color: "#f1f5f9" // slate-100
+                        },
+                        ticks: {
+                             color: "#64748b",
+                             font: { family: "'Inter', sans-serif" }
+                        }
+                    }
+                }
               }}
             />
           </div>
         </div>
 
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Deductions Breakdown</h3>
+        <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+          <div className="flex items-center gap-2 mb-6">
+               <div className="bg-gunmetal-50 p-2 rounded text-gunmetal-600">
+                   <FaChartPie />
+               </div>
+               <h3 className="text-lg font-bold text-gunmetal-900">Deductions Breakdown</h3>
+          </div>
           <div className="h-80">
             <Pie
               data={getDeductionsData()}
@@ -364,7 +432,15 @@ const PayrollFinanceAnalytics: React.FC = () => {
                 maintainAspectRatio: false,
                 plugins: {
                   legend: {
-                    position: "top" as const,
+                    position: "right" as const,
+                     labels: {
+                        font: {
+                            family: "'Inter', sans-serif",
+                            size: 11
+                        },
+                        color: "#64748b",
+                        boxWidth: 12
+                    }
                   },
                 },
               }}
@@ -372,9 +448,15 @@ const PayrollFinanceAnalytics: React.FC = () => {
           </div>
         </div>
       </div>
-
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold mb-4">Financial Metrics</h3>
+      
+      {/* Metrics Bar Chart */}
+      <div className="bg-white p-6 rounded-xl border border-platinum-200 shadow-sm">
+         <div className="flex items-center gap-2 mb-6">
+               <div className="bg-gunmetal-50 p-2 rounded text-gunmetal-600">
+                   <FaChartBar />
+               </div>
+               <h3 className="text-lg font-bold text-gunmetal-900">Financial Metrics Overview</h3>
+          </div>
         <div className="h-80">
           <Bar
             data={getMetricsData()}
@@ -383,12 +465,25 @@ const PayrollFinanceAnalytics: React.FC = () => {
               maintainAspectRatio: false,
               plugins: {
                 legend: {
-                  position: "top" as const,
+                  display: false,
                 },
               },
               scales: {
+                x: {
+                    grid: { display: false },
+                     ticks: {
+                        color: "#64748b",
+                        font: { family: "'Inter', sans-serif", weight: 'bold' }
+                    }
+                },
                 y: {
                   beginAtZero: true,
+                  border: { display: false },
+                  grid: { color: "#f1f5f9" },
+                   ticks: {
+                        color: "#64748b",
+                        font: { family: "'Inter', sans-serif" }
+                    }
                 },
               },
             }}

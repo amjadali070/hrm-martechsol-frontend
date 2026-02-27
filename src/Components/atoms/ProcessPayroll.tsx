@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { PayrollDetails } from "../molecules/PayrollManagement";
-import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import { toast } from "react-toastify";
 
 const ProcessPayroll: React.FC = () => {
@@ -65,7 +65,7 @@ const ProcessPayroll: React.FC = () => {
 
       {loading ? (
         <div className="flex justify-center items-center mt-10">
-          <FaSpinner className="animate-spin text-blue-500" size={30} />
+          <LoadingSpinner size="md" />
         </div>
       ) : payrolls.length === 0 ? (
         <div className="text-center py-4 text-gray-500">
@@ -124,7 +124,7 @@ const ProcessPayroll: React.FC = () => {
                     disabled={processingId === payroll.payrollId}
                   >
                     {processingId === payroll.payrollId ? (
-                      <FaSpinner className="animate-spin" />
+                      <LoadingSpinner size="sm" color="white" />
                     ) : (
                       "Process"
                     )}

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { PayrollDetails } from "../molecules/PayrollManagement";
-import { FaInbox, FaSpinner, FaTimes } from "react-icons/fa";
+import { FaInbox, FaTimes } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 import saveAs from "file-saver";
 import ExcelJS from "exceljs";
 
@@ -144,7 +145,7 @@ const UserPayrolls: React.FC<UserPayrollsProps> = ({
     <div>
       {loading ? (
         <div className="flex flex-col items-center justify-center mt-20 mb-20">
-          <FaSpinner size={30} className="text-blue-500 mb-2 animate-spin" />
+          <LoadingSpinner size="md" />
         </div>
       ) : (
         <>

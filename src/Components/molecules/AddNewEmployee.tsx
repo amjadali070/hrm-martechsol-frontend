@@ -2,6 +2,17 @@ import { useState } from "react";
 import axiosInstance from "../../utils/axiosConfig";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { 
+  FaUser, 
+  FaEnvelope, 
+  FaLock, 
+  FaBriefcase, 
+  FaCalendarAlt, 
+  FaUserShield,
+  FaBuilding,
+  FaLayerGroup
+} from "react-icons/fa";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 const AddNewEmployee: React.FC = () => {
   const departments: { [key: string]: string[] } = {
@@ -211,224 +222,192 @@ const AddNewEmployee: React.FC = () => {
     }
   };
 
+  // Helper for Input Groups
+  const InputGroup = ({ label, icon: Icon, children }: { label: string, icon: any, children: React.ReactNode }) => (
+      <div className="mb-4">
+          <label className="block text-xs font-bold text-slate-grey-500 uppercase tracking-widest mb-2 flex items-center gap-2">
+              <Icon className="text-gunmetal-500" /> {label} <span className="text-red-500">*</span>
+          </label>
+          {children}
+      </div>
+  );
+
   return (
-    <div className="w-[50%] mx-auto my-10 p-6 bg-white rounded-lg">
-      <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
-        Add New Employee
-      </h2>
-      <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="relative">
-          <label
-            htmlFor="name"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Employee Name<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            id="name"
-            name="name"
-            value={formData.name}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400"
-            placeholder="John Doe"
-          />
+    <div className="min-h-screen bg-alabaster-grey-50 py-12 px-4 sm:px-6 lg:px-8 flex justify-center items-start">
+      <div className="max-w-4xl w-full bg-white rounded-2xl shadow-xl border border-platinum-200 overflow-hidden">
+        
+        {/* Header */}
+        <div className="bg-gunmetal-900 px-8 py-6 text-white text-center">
+            <h2 className="text-3xl font-extrabold tracking-tight">Onboard New Talent</h2>
+            <p className="text-platinum-400 mt-2 text-sm uppercase">Create a new employee profile and access credentials</p>
         </div>
 
-        <div>
-          <label
-            htmlFor="email"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Employee Email<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400"
-            placeholder="example@company.com"
-          />
-        </div>
+        <form onSubmit={handleSubmit} className="p-8">
+            {/* Section: Personal Info */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold text-gunmetal-900 border-b border-platinum-200 pb-2 mb-6">Personal Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputGroup label="Full Name" icon={FaUser}>
+                         <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all"
+                            placeholder="e.g. John Doe"
+                         />
+                    </InputGroup>
+                    <InputGroup label="Email Address" icon={FaEnvelope}>
+                         <input
+                            type="email"
+                            name="email"
+                            value={formData.email}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all"
+                            placeholder="e.g. john.doe@company.com"
+                         />
+                    </InputGroup>
+                </div>
+            </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Password<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400"
-            placeholder="Create a strong password"
-          />
-        </div>
+            {/* Section: Credentials */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold text-gunmetal-900 border-b border-platinum-200 pb-2 mb-6">Security Credentials</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <InputGroup label="Password" icon={FaLock}>
+                         <input
+                            type="password"
+                            name="password"
+                            value={formData.password}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all"
+                            placeholder="Min. 6 characters"
+                         />
+                    </InputGroup>
+                     <InputGroup label="Confirm Password" icon={FaLock}>
+                         <input
+                            type="password"
+                            name="confirmPassword"
+                            value={formData.confirmPassword}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all"
+                            placeholder="Re-enter password"
+                         />
+                    </InputGroup>
+                </div>
+            </div>
 
-        <div>
-          <label
-            htmlFor="confirmPassword"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Confirm Password<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent placeholder-gray-400"
-            placeholder="Re-enter your password"
-          />
-        </div>
+            {/* Section: Employment Details */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold text-gunmetal-900 border-b border-platinum-200 pb-2 mb-6">Employment Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputGroup label="Department" icon={FaBuilding}>
+                         <select
+                            name="department"
+                            value={formData.department}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all cursor-pointer"
+                         >
+                             {Object.keys(departments).map((dept) => (
+                                <option key={dept} value={dept}>{dept}</option>
+                             ))}
+                         </select>
+                    </InputGroup>
 
-        <div>
-          <label
-            htmlFor="department"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Department<span className="text-red-500">*</span>
-          </label>
-          <select
-            id="department"
-            name="department"
-            value={formData.department}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            {Object.keys(departments).map((dept) => (
-              <option key={dept} value={dept}>
-                {dept}
-              </option>
-            ))}
-          </select>
-        </div>
+                    {departments[formData.department].length > 0 && (
+                        <InputGroup label="Job Category" icon={FaLayerGroup}>
+                            <select
+                                name="jobCategory"
+                                value={formData.jobCategory}
+                                onChange={handleChange}
+                                className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all cursor-pointer"
+                            >
+                                {departments[formData.department].map((cat) => (
+                                    <option key={cat} value={cat}>{cat}</option>
+                                ))}
+                            </select>
+                        </InputGroup>
+                    )}
 
-        {departments[formData.department].length > 0 && (
-          <div>
-            <label
-              htmlFor="jobCategory"
-              className="block text-gray-600 font-medium mb-1"
-            >
-              Job Category<span className="text-red-500">*</span>
-            </label>
-            <select
-              id="jobCategory"
-              name="jobCategory"
-              value={formData.jobCategory}
-              onChange={handleChange}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            >
-              {departments[formData.department].map((cat) => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
+                     <InputGroup label="Job Title" icon={FaBriefcase}>
+                        <select
+                            name="jobTitle"
+                            value={formData.jobTitle}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all cursor-pointer"
+                        >
+                            {jobTitles.map((title) => (
+                                <option key={title} value={title}>{title}</option>
+                            ))}
+                        </select>
+                    </InputGroup>
 
-        <div>
-          <label
-            htmlFor="jobTitle"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Job Title<span className="text-red-500">*</span>
-          </label>
-          <select
-            id="jobTitle"
-            name="jobTitle"
-            value={formData.jobTitle}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            {jobTitles.map((title) => (
-              <option key={title} value={title}>
-                {title}
-              </option>
-            ))}
-          </select>
-        </div>
+                    <InputGroup label="Job Type" icon={FaBriefcase}>
+                        <select
+                            name="jobType"
+                            value={formData.jobType}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all cursor-pointer"
+                        >
+                            <option value="Full-Time">Full-Time</option>
+                            <option value="Part-Time">Part-Time</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Contract">Contract</option>
+                            <option value="Internship">Internship</option>
+                        </select>
+                    </InputGroup>
+                    
+                    <InputGroup label="User Role" icon={FaUserShield}>
+                        <select
+                            name="role"
+                            value={formData.role}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all cursor-pointer"
+                        >
+                            <option value="normal">Employee (Standard)</option>
+                            <option value="HR">HR Manager</option>
+                            <option value="manager">Project Manager</option>
+                            <option value="SuperAdmin">Super Administrator</option>
+                        </select>
+                    </InputGroup>
 
-        <div>
-          <label
-            htmlFor="jobType"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Job Type<span className="text-red-500">*</span>
-          </label>
-          <select
-            id="jobType"
-            name="jobType"
-            value={formData.jobType}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="Full-Time">Full-Time</option>
-            <option value="Part-Time">Part-Time</option>
-            <option value="Remote">Remote</option>
-            <option value="Contract">Contract</option>
-            <option value="Internship">Internship</option>
-          </select>
-        </div>
+                    <InputGroup label="Joining Date" icon={FaCalendarAlt}>
+                        <input
+                            type="date"
+                            name="joiningDate"
+                            value={formData.joiningDate}
+                            onChange={handleChange}
+                            className="w-full px-4 py-3 bg-alabaster-grey-50 border border-platinum-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-gunmetal-500 focus:border-transparent transition-all"
+                        />
+                    </InputGroup>
+                </div>
+            </div>
 
-        <div>
-          <label
-            htmlFor="joiningDate"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Joining Date<span className="text-red-500">*</span>
-          </label>
-          <input
-            type="date"
-            id="joiningDate"
-            name="joiningDate"
-            value={formData.joiningDate}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          />
-        </div>
+            {errorMessage && (
+                <div className="mb-6 bg-red-50 text-red-600 p-4 rounded-xl text-center text-sm font-medium border border-red-200 animate-fadeIn">
+                    {errorMessage}
+                </div>
+            )}
 
-        <div>
-          <label
-            htmlFor="role"
-            className="block text-gray-600 font-medium mb-1"
-          >
-            Role<span className="text-red-500">*</span>
-          </label>
-          <select
-            id="role"
-            name="role"
-            value={formData.role}
-            onChange={handleChange}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-          >
-            <option value="normal">Normal</option>
-            <option value="HR">HR</option>
-            <option value="manager">Manager</option>
-            <option value="SuperAdmin">SuperAdmin</option>
-          </select>
-        </div>
+            <div className="flex justify-end pt-4">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full md:w-auto px-8 py-4 bg-gunmetal-900 text-white font-bold rounded-xl hover:bg-gunmetal-800 transition-all shadow-lg hover:shadow-gunmetal-500/30 transform hover:-translate-y-1 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center gap-3"
+                >
+                    {isSubmitting ? (
+                        <LoadingSpinner size="sm" color="white" />
+                    ) : (
+                        <>
+                            <FaUser className="text-lg" />
+                            <span>Create Employee Account</span>
+                        </>
+                    )}
+                </button>
+            </div>
 
-        {errorMessage && (
-          <div className="text-red-500 text-center">{errorMessage}</div>
-        )}
-
-        <button
-          type="submit"
-          className="w-full bg-blue-600 text-white py-2 rounded-lg disabled:bg-gray-400"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? "Adding..." : "Add Employee"}
-        </button>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };

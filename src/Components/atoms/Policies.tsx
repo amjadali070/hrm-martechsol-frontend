@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { FaDownload, FaQuestionCircle } from "react-icons/fa";
+import { FaDownload, FaQuestionCircle, FaFileContract } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 interface PolicyInfoModalProps {
   isOpen: boolean;
@@ -13,24 +14,27 @@ const PolicyInfoModal: React.FC<PolicyInfoModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-      <div className="bg-white rounded-xl p-6 max-w-md w-full relative">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-800 transition-colors"
-        >
-          ✕
-        </button>
-        <h3 className="text-xl font-bold mb-4 text-purple-900">
-          Policy Information
-        </h3>
-        <p className="text-gray-600 mb-4">
-          Our employee handbook provides comprehensive guidelines and policies
-          to ensure a supportive and productive work environment.
-        </p>
-        <div className="flex items-center space-x-2 text-blue-600">
-          <FaQuestionCircle size={20} />
-          <span>Need more information? Contact HR Support</span>
+    <div className="fixed inset-0 bg-gunmetal-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full relative overflow-hidden">
+         <div className="bg-alabaster-grey-50 px-6 py-4 border-b border-platinum-200">
+             <h3 className="text-lg font-bold text-gunmetal-900">Policy Information</h3>
+         </div>
+        <div className="p-6">
+            <p className="text-slate-grey-600 mb-6 text-sm leading-relaxed">
+            Our employee handbook provides comprehensive guidelines and policies
+            to ensure a supportive and productive work environment. Please review it carefully.
+            </p>
+            <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg text-blue-700">
+                <FaQuestionCircle size={20} className="shrink-0 mt-0.5" />
+                <span className="text-sm font-medium">Need more information? Contact <strong className="text-blue-800">HR Support</strong>.</span>
+            </div>
+            
+            <button
+                onClick={onClose}
+                className="w-full mt-6 py-2.5 bg-gunmetal-900 text-white rounded-lg text-sm font-bold hover:bg-gunmetal-800 transition-colors"
+                >
+                Close
+            </button>
         </div>
       </div>
     </div>
@@ -53,68 +57,65 @@ const Policies: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-10">
-      <div className="bg-white rounded-2xl overflow-hidden">
-        <div className="p-6 md:p-10 relative">
-          <div className="flex flex-col md:flex-row md:justify-between md:items-center mb-1">
-            <h2 className="text-3xl font-extrabold text-black">
-              MartechSol Policies
-            </h2>
-            <button
-              onClick={handleDownload}
-              disabled={isLoading}
-              className={`
-                flex items-center justify-center 
-                mt-4 md:mt-0 
-                
-                hover:from-blue-700 hover:to-purple-800 
-                transition-all 
-                text-md 
-                font-semibold
-                px-4 py-3 text-white bg-blue-600 rounded-lg hover:bg-blue-500
-                ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
-              `}
-            >
-              {isLoading ? (
-                <>
-                  <svg
-                    className="animate-spin -ml-1 mr-2 h-5 w-5 text-white"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    />
-                  </svg>
-                  Preparing...
-                </>
-              ) : (
-                <>
-                  <FaDownload className="mr-2" size={20} />
-                  Download Policies PDF
-                </>
-              )}
-            </button>
+    <div className="w-full bg-white rounded-xl shadow-sm border border-platinum-200 mb-8 overflow-hidden">
+       {/* Header */}
+       <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div className="flex items-center gap-3">
+          <div className="bg-white p-2.5 rounded-xl border border-platinum-200 shadow-sm">
+            <FaFileContract className="text-gunmetal-600 text-xl" />
           </div>
-
-          <div className="flex flex-col md:flex-row items-left justify-left space-y-4 md:space-y-0 md:space-x-6 mb-8">
-            <p className="text-lg text-blue-700 text-left flex items-left">
-              Employee Handbook (Updated Version)
+          <div>
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">
+              Company Policies
+            </h2>
+            <p className="text-sm text-slate-grey-500">
+               Official employee handbook and guidelines.
             </p>
           </div>
+        </div>
+        
+        <button
+            onClick={handleDownload}
+            disabled={isLoading}
+            className={`
+            flex items-center justify-center gap-2
+            px-5 py-2.5 
+            bg-white border border-platinum-200 
+            text-gunmetal-700 text-sm font-bold 
+            rounded-lg shadow-sm 
+            hover:bg-gunmetal-50 hover:text-gunmetal-900 hover:border-gunmetal-300
+            transition-all
+            ${isLoading ? "opacity-70 cursor-not-allowed" : ""}
+            `}
+        >
+            {isLoading ? (
+            <>
+                <LoadingSpinner size="sm" />
+                <span>Preparing...</span>
+            </>
+            ) : (
+            <>
+                <FaDownload className="text-gunmetal-500" />
+                <span>Download Handbook</span>
+            </>
+            )}
+        </button>
+      </div>
 
-          <div className="w-full h-[700px] rounded-xl overflow-hidden mb-6">
+      <div className="p-8">
+          <div className="flex justify-between items-center mb-6">
+               <h3 className="text-lg font-bold text-gunmetal-900 flex items-center gap-2">
+                   Employee Handbook <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-100">Updated</span>
+               </h3>
+               <button 
+                onClick={() => setIsModalOpen(true)}
+                className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1 hover:underline"
+               >
+                 <FaQuestionCircle /> Policy Info
+               </button>
+          </div>
+
+          <div className="w-full h-[700px] rounded-xl overflow-hidden border border-platinum-200 shadow-inner bg-slate-100">
             <iframe
               src="https://drive.google.com/file/d/19eN4m2C8HHH6f7_e47hXauprGbjcBb-A/preview"
               title="Employee Handbook"
@@ -124,14 +125,14 @@ const Policies: React.FC = () => {
             />
           </div>
 
-          <div className="mt-8 text-center bg-blue-50 p-4 rounded-xl">
-            <p className="text-sm text-gray-700 leading-relaxed">
-              Questions or need clarification? Contact{" "}
-              <span className="font-bold text-purple-700">HR Support</span> for
-              immediate assistance.
-            </p>
+           <div className="mt-6 flex items-center justify-center">
+             <div className="bg-alabaster-grey-50 border border-platinum-200 rounded-lg py-3 px-6 text-center">
+                <p className="text-xs text-slate-grey-500 leading-relaxed">
+                By accessing this document, you acknowledge that you have read and understood the company policies.
+                <br/>For clarifications, contact <strong className="text-gunmetal-700">HR Department</strong>.
+                </p>
+             </div>
           </div>
-        </div>
       </div>
 
       <PolicyInfoModal

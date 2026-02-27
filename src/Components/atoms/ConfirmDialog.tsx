@@ -16,7 +16,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   loading,
 }) => {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-[1050]">
       <div className="bg-white rounded-lg p-6 w-96">
         <h2 className="text-xl font-semibold mb-4">{title}</h2>
         <p className="mb-6">{message}</p>

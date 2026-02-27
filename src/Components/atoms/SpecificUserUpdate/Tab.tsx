@@ -18,26 +18,25 @@ const Tab: React.FC<TabProps> = ({
   tabClassName = "",
 }) => {
   return (
-    <div className={`flex justify-center space-x-4 mb-4 ${className}`}>
+    <div className={`flex justify-center space-x-2 md:space-x-4 mb-8 ${className}`}>
       {tabs.map((tab) => (
         <button
           key={tab}
           className={`
-            px-6 py-2 
+            px-6 py-2.5
             text-sm 
-            font-semibold 
-            rounded-full
+            font-bold 
+            rounded-xl
             transition-all 
             duration-300 
             focus:outline-none 
             focus:ring-2 
-            w-full
-            focus:ring-blue-400
-            hover:bg-blue-100 hover:text-blue-700
+            focus:ring-gunmetal-200
+            shadow-sm
             ${
               activeTab === tab
-                ? `bg-blue-600 text-white  ${activeTabClassName}`
-                : `bg-gray-200 text-gray-700 ${tabClassName}`
+                ? `bg-gunmetal-900 text-white shadow-gunmetal-500/20 transform -translate-y-0.5 ${activeTabClassName}`
+                : `bg-white text-slate-grey-600 border border-platinum-200 hover:bg-alabaster-grey-50 hover:text-gunmetal-700 hover:border-gunmetal-200 ${tabClassName}`
             }
           `}
           onClick={() => onTabChange(tab)}

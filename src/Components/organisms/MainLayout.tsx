@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from "react-router";
 import axios from "axios";
 import Sidebar from "../molecules/Sidebar";
 import Header from "../atoms/Header";
-import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "../atoms/LoadingSpinner";
 
 interface User {
   _id: string;
@@ -36,62 +36,26 @@ const MainLayout: React.FC = () => {
     fetchUserProfile();
   }, [navigate]);
 
-  const mainLayoutStyles: React.CSSProperties = {
-    display: "flex",
-    height: "100vh",
-    overflow: "hidden",
-    backgroundColor: "#efefef",
-  };
-
-  const mainContentStyles: React.CSSProperties = {
-    flex: 1,
-    marginLeft: 0,
-    marginTop: "1rem",
-    overflowY: "auto",
-    padding: "0 1rem",
-    scrollbarWidth: "thin",
-    scrollbarColor: "#581c87 #f0f0f0",
-  };
-
-  const customScrollbar = `
-    ::-webkit-scrollbar {
-      width: 10px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #f0f0f0;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #007bff;
-      border-radius: 10px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0056b3;
-    }
-  `;
-
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-screen bg-[#efefef]">
-        <div className="text-center text-gray-500">
-          <div className="flex flex-col items-center">
-            <FaSpinner size={40} className="text-blue-500 mb-4 animate-spin" />
-          </div>
-        </div>
+      <div className="flex justify-center items-center h-screen bg-surface-50">
+        <LoadingSpinner size="md" text="Loading..." color="primary" />
       </div>
     );
   }
 
   return (
-    <div style={mainLayoutStyles}>
-      <style>{customScrollbar}</style>
-
+    <div className="flex h-screen bg-surface-50 text-surface-900 font-sans overflow-hidden">
       {user && <Sidebar role={user.role} />}
 
-      <main style={mainContentStyles}>
+      <main className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         <Header />
-        <div className="flex flex-col w-full p-2 pb-10">
-          <Outlet />
+        
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 scroll-smooth">
+          <div className="max-w-auto mx-auto w-full animate-fadeIn">
+            <Outlet />
+          </div>
         </div>
       </main>
     </div>

@@ -1,7 +1,7 @@
 // PersonalDetailsUpdater.tsx
 
 import React, { useRef, useState } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaCamera, FaUser } from "react-icons/fa";
 
 const DEPARTMENT_CATEGORIES: { [key: string]: string[] } = {
   "Account Management": [
@@ -106,6 +106,11 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedEmployee, setEditedEmployee] = useState(employee);
+  const [imageError, setImageError] = useState(false);
+
+  React.useEffect(() => {
+    setImageError(false);
+  }, [employee.profilePicture]);
 
   const handleEditClick = () => {
     if (isEditable) {
@@ -166,24 +171,40 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
   );
 
   return (
-    <div className="bg-white p-4 rounded-xl flex flex-col items-center relative">
+    <div className="bg-white p-8 rounded-2xl flex flex-col items-center relative border border-platinum-200 shadow-sm">
       {isEditable && !isEditing && (
         <button
           onClick={handleEditClick}
-          className="absolute top-5 right-8 text-blue-600 hover:text-blue-500 transition-all"
+          className="absolute top-6 right-6 p-2 rounded-full bg-alabaster-grey-50 text-gunmetal-600 hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm border border-platinum-200"
           aria-label="Edit User Details"
         >
-          <FaEdit size={24} />
+          <FaEdit size={18} />
         </button>
       )}
 
-      <div className="relative border-[7px] border-blue-600 rounded-full">
-        <img
-          src={`${employee.profilePicture.replace(/\\/g, "/")}`}
-          alt="Profile"
-          className="rounded-full object-cover border-[4px] border-white w-36 h-36 max-md:w-24 max-md:h-24"
-        />
-
+      {/* Profile Picture Section */}
+      <div className="relative group mb-10">
+        <div className="relative p-1 rounded-full border-2 border-platinum-200 shadow-lg bg-alabaster-grey-50 flex items-center justify-center overflow-hidden w-40 h-40 max-md:w-32 max-md:h-32">
+             {!imageError && employee.profilePicture ? (
+                <img
+                    src={`${(employee.profilePicture || "").replace(/\\/g, "/")}`}
+                    alt="Profile"
+                    onError={() => setImageError(true)}
+                    className="rounded-full object-cover w-full h-full transition-transform duration-300 group-hover:scale-[1.02]"
+                />
+             ) : (
+                <FaUser className="text-slate-grey-400 text-6xl" />
+             )}
+            {isEditable && (
+                <div 
+                    className="absolute bottom-1 right-2 w-10 h-10 bg-gunmetal-900 rounded-full flex items-center justify-center text-white cursor-pointer hover:bg-gunmetal-700 transition-colors shadow-md border-2 border-white"
+                    onClick={() => fileInputRef.current?.click()}
+                >
+                    <FaCamera size={16} />
+                </div>
+            )}
+        </div>
+        
         <input
           type="file"
           ref={fileInputRef}
@@ -193,11 +214,11 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
         />
       </div>
 
-      <div className="mt-10 w-full max-w-3xl">
+      <div className="w-full max-w-5xl">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Employee Name Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Employee Name</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Employee Name</p>
             {isEditing ? (
               <input
                 type="text"
@@ -205,24 +226,24 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 placeholder={employee.name || "Employee Name"}
                 value={editedEmployee.name}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all"
               />
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.name}
               </h2>
             )}
           </div>
 
           {/* Job Title Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Job Title</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Job Title</p>
             {isEditing ? (
               <select
                 name="jobTitle"
                 value={editedEmployee.jobTitle}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Job Title</option>
                 {jobTitles.map((title) => (
@@ -232,21 +253,21 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 ))}
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.jobTitle}
               </h2>
             )}
           </div>
 
           {/* Department Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Department</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Department</p>
             {isEditing ? (
               <select
                 name="department"
                 value={editedEmployee.department}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Department</option>
                 {departments.map((dept) => (
@@ -256,21 +277,21 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 ))}
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.department}
               </h2>
             )}
           </div>
 
           {/* Job Category Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Job Category</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Job Category</p>
             {isEditing ? (
               <select
                 name="jobCategory"
                 value={editedEmployee.jobCategory}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Job Category</option>
                 {getCurrentDepartmentCategories().length > 0 ? (
@@ -284,21 +305,21 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 )}
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
-                {employee.jobCategory}
+              <h2 className="text-lg font-bold text-gunmetal-900">
+                {employee.jobCategory || "--"}
               </h2>
             )}
           </div>
 
           {/* Job Type Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Job Type</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Job Type</p>
             {isEditing ? (
               <select
                 name="jobType"
                 value={editedEmployee.jobType}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Job Type</option>
                 <option value="Full-Time">Full-Time</option>
@@ -308,60 +329,60 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 <option value="Internship">Internship</option>
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.jobType}
               </h2>
             )}
           </div>
 
           {/* Job Status Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Job Status</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Job Status</p>
             {isEditing ? (
               <select
                 name="jobStatus"
                 value={editedEmployee.jobStatus}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Job Status</option>
                 <option value="Probation">Probation</option>
                 <option value="Permanent">Permanent</option>
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.jobStatus}
               </h2>
             )}
           </div>
 
           {/* Date of Birth Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Date of Birth</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Date of Birth</p>
             {isEditing ? (
               <input
                 type="date"
                 name="dateOfBirth"
                 value={editedEmployee.dateOfBirth}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all"
               />
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {formattedDate}
               </h2>
             )}
           </div>
 
           {/* Gender Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Gender</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+             <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Gender</p>
             {isEditing ? (
               <select
                 name="gender"
                 value={editedEmployee.gender}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Gender</option>
                 <option value="Male">Male</option>
@@ -369,21 +390,21 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 <option value="Other">Other</option>
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.gender}
               </h2>
             )}
           </div>
 
           {/* Shift Timings Field */}
-          <div className="bg-gray-50 p-3 rounded-lg text-center border border-gray-200">
-            <p className="text-sm font-medium text-gray-500">Shift Timings</p>
+          <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200 flex flex-col items-center justify-center min-h-[100px]">
+            <p className="text-xs font-bold uppercase text-slate-grey-500 mb-2">Shift Timings</p>
             {isEditing ? (
               <select
                 name="shiftTimings"
                 value={editedEmployee.shiftTimings}
                 onChange={handleInputChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md p-2 bg-white"
+                className="w-full text-center bg-white border border-platinum-200 rounded-lg p-2 text-gunmetal-900 font-medium focus:outline-none focus:ring-2 focus:ring-gunmetal-200 transition-all cursor-pointer"
               >
                 <option value="">Select Shift Timing</option>
                 {additionalShiftTimings.map((timing) => (
@@ -393,7 +414,7 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
                 ))}
               </select>
             ) : (
-              <h2 className="text-lg lg:text-lg font-semibold text-gray-800">
+              <h2 className="text-lg font-bold text-gunmetal-900">
                 {employee.shiftTimings}
               </h2>
             )}
@@ -401,16 +422,16 @@ const PersonalDetailsUpdater: React.FC<PersonalDetailsUpdaterProps> = ({
         </div>
 
         {isEditing && (
-          <div className="mt-6 flex space-x-4">
+          <div className="mt-8 flex justify-center space-x-4 animate-fadeIn">
             <button
               onClick={handleUpdate}
-              className="bg-blue-600 text-white px-4 py-2 rounded-full hover:bg-blue-500 transition-colors"
+              className="bg-gunmetal-900 text-white px-8 py-3 rounded-xl font-bold hover:bg-gunmetal-800 transition-all shadow-lg hover:shadow-gunmetal-500/20 transform hover:-translate-y-0.5"
             >
-              Update
+              Update Details
             </button>
             <button
               onClick={handleCancel}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-full hover:bg-gray-400 transition-colors"
+              className="bg-white text-slate-grey-600 border border-platinum-200 px-8 py-3 rounded-xl font-bold hover:bg-alabaster-grey-50 transition-all"
             >
               Cancel
             </button>

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaEdit } from "react-icons/fa";
+import { FaEdit, FaUniversity, FaGraduationCap, FaBookOpen, FaStar, FaCalendarAlt } from "react-icons/fa";
 
 interface EducationProps {
   institute: string;
@@ -56,132 +56,121 @@ const Education: React.FC<EducationProps> = ({
     (_, i) => new Date().getFullYear() - i
   );
 
+  const renderField = (label: string, icon: React.ReactNode, content: React.ReactNode) => (
+      <div className="bg-alabaster-grey-50 p-4 rounded-xl border border-platinum-200">
+          <div className="flex items-center gap-2 mb-2">
+              <span className="text-gunmetal-400 text-sm">{icon}</span>
+              <p className="text-xs font-bold text-slate-grey-500 uppercase tracking-wide">{label}</p>
+          </div>
+          {content}
+      </div>
+  );
+
   return (
-    <div className="bg-white p-8 rounded-lg w-full mx-auto relative">
-      <button
-        onClick={toggleEdit}
-        className="absolute top-5 right-8 text-blue-600 hover:text-blue-500 transition-all"
-        aria-label="Edit Bank Account Details"
-      >
-        <FaEdit size={24} />
-      </button>
-
-      <form onSubmit={handleSubmit}>
-        <div className="mb-6">
-          <label
-            htmlFor="institute"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Institute
-          </label>
-          <input
-            type="text"
-            id="institute"
-            name="institute"
-            value={formData.institute}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          />
+    <div className="bg-white rounded-xl shadow-sm border border-platinum-200 overflow-hidden relative">
+        <div className="bg-alabaster-grey-50 px-8 py-6 border-b border-platinum-200 flex justify-between items-center">
+            <h2 className="text-xl font-bold text-gunmetal-900 tracking-tight">Education Details</h2>
+            {!isEditing && (
+                <button
+                onClick={toggleEdit}
+                className="flex items-center gap-2 px-4 py-2 bg-white border border-platinum-200 text-gunmetal-700 text-sm font-bold rounded-lg hover:bg-gunmetal-900 hover:text-white transition-all shadow-sm"
+                >
+                <FaEdit /> Edit Details
+                </button>
+            )}
         </div>
 
-        <div className="mb-6">
-          <label
-            htmlFor="degree"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Degree
-          </label>
-          <input
-            type="text"
-            id="degree"
-            name="degree"
-            value={formData.degree}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          />
-        </div>
+      <form onSubmit={handleSubmit} className="p-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             {renderField("Institute Name", <FaUniversity />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="institute"
+                        value={formData.institute}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.institute || "N/A"}</p>
+                 )
+             )}
 
-        <div className="mb-6">
-          <label
-            htmlFor="fieldOfStudy"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Field of Study
-          </label>
-          <input
-            type="text"
-            id="fieldOfStudy"
-            name="fieldOfStudy"
-            value={formData.fieldOfStudy}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          />
-        </div>
+             {renderField("Degree Title", <FaGraduationCap />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="degree"
+                        value={formData.degree}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.degree || "N/A"}</p>
+                 )
+             )}
 
-        {/* GPA */}
-        <div className="mb-6">
-          <label
-            htmlFor="GPA"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            GPA
-          </label>
-          <input
-            type="text"
-            id="GPA"
-            name="GPA"
-            value={formData.GPA}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          />
-        </div>
+             {renderField("Field of Study", <FaBookOpen />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="fieldOfStudy"
+                        value={formData.fieldOfStudy}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.fieldOfStudy || "N/A"}</p>
+                 )
+             )}
 
-        {/* Year of Completion */}
-        <div className="mb-6">
-          <label
-            htmlFor="yearOfCompletion"
-            className="block text-sm font-medium text-gray-700 mb-2"
-          >
-            Year of Completion
-          </label>
-          <select
-            id="yearOfCompletion"
-            name="yearOfCompletion"
-            value={formData.yearOfCompletion}
-            onChange={handleChange}
-            disabled={!isEditing}
-            className={`w-full p-3 border border-gray-300 rounded-md bg-gray-100 focus:outline-none focus:ring-2 focus:ring-purple-900 ${
-              !isEditing ? "cursor-not-allowed" : ""
-            }`}
-          >
-            <option value="">-- Select Year --</option>
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {year}
-              </option>
-            ))}
-          </select>
+             {renderField("CGPA / Grade", <FaStar />, 
+                 isEditing ? (
+                    <input
+                        type="text"
+                        name="GPA"
+                        value={formData.GPA}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    />
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.GPA || "N/A"}</p>
+                 )
+             )}
+
+             {renderField("Completion Year", <FaCalendarAlt />, 
+                 isEditing ? (
+                    <select
+                        name="yearOfCompletion"
+                        value={formData.yearOfCompletion}
+                        onChange={handleChange}
+                        className="w-full bg-white border border-platinum-300 rounded-lg px-3 py-2 text-sm text-gunmetal-900 focus:outline-none focus:ring-2 focus:ring-gunmetal-500/20"
+                    >
+                        <option value="">Select Year</option>
+                        {years.map((year) => (
+                        <option key={year} value={year}>{year}</option>
+                        ))}
+                    </select>
+                 ) : (
+                    <p className="text-sm font-semibold text-gunmetal-800">{formData.yearOfCompletion || "N/A"}</p>
+                 )
+             )}
         </div>
 
         {isEditing && (
-          <div className="flex justify-start">
+          <div className="flex justify-end gap-3 mt-8 pt-6 border-t border-platinum-200">
+             <button
+              type="button"
+              onClick={toggleEdit}
+              className="px-6 py-2.5 bg-white border border-platinum-200 text-slate-grey-600 rounded-lg text-sm font-bold hover:bg-alabaster-grey-50 transition-all"
+            >
+              Cancel
+            </button>
             <button
               type="submit"
-              className="px-6 py-3 bg-blue-600 text-white rounded-full hover:bg-blue-500 transition-all text-lg font-semibold"
+              className="px-6 py-2.5 bg-gunmetal-900 text-white rounded-lg text-sm font-bold hover:bg-gunmetal-800 transition-all shadow-lg shadow-gunmetal-500/20"
             >
-              Update
+              Save Changes
             </button>
           </div>
         )}

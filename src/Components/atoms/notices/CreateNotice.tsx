@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
-import { FaSpinner } from "react-icons/fa";
+import LoadingSpinner from "../LoadingSpinner";
 import { toast } from "react-toastify";
 
 interface Notice {
@@ -22,7 +22,6 @@ const CreateNotice: React.FC = () => {
     paragraph: "",
   });
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
   const [previewMode, setPreviewMode] = useState<boolean>(false);
 
   const backendUrl =
@@ -33,7 +32,6 @@ const CreateNotice: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError(null);
 
     try {
       await axios.post(
@@ -48,7 +46,6 @@ const CreateNotice: React.FC = () => {
       toast.success("Notice created successfully");
       navigate("/organization/notice-management");
     } catch (err) {
-      setError("Failed to create notice");
       console.error(err);
     } finally {
       setLoading(false);
@@ -122,7 +119,7 @@ const CreateNotice: React.FC = () => {
             className="px-4 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700"
             disabled={loading}
           >
-            {loading ? <FaSpinner className="animate-spin" /> : "Create"}
+            {loading ? <LoadingSpinner size="sm" color="white" /> : "Create"}
           </button>
         </div>
       </form>

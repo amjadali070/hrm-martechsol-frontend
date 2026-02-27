@@ -2,18 +2,19 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   FaArrowLeft,
-  FaBuilding,
   FaRegCalendarCheck,
   FaMoneyBillWave,
   FaFileInvoiceDollar,
-  FaSpinner,
   FaDownload,
+  FaUser,
+  FaUniversity,
 } from "react-icons/fa";
 import axiosInstance from "../../../utils/axiosConfig";
 import { getMonthName } from "../../../utils/monthUtils";
 import { PayrollData } from "./PayrollContext";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import SalarySlipPDF from "../../../html/SalarySlipPDF";
+import LoadingSpinner from "../../atoms/LoadingSpinner";
 
 const ViewPayroll: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,7 +28,6 @@ const ViewPayroll: React.FC = () => {
   const [eobi, setEobi] = useState<number>(0);
   const [employeePF, setEmployeePF] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string | null>(null);
 
   const parseCurrency = (value: string): number => {
     return Number(value.replace(/[^0-9.-]+/g, ""));
@@ -51,7 +51,6 @@ const ViewPayroll: React.FC = () => {
   useEffect(() => {
     const fetchPayroll = async () => {
       if (!id) {
-        setError("Invalid payroll ID.");
         return;
       }
       try {
@@ -65,7 +64,6 @@ const ViewPayroll: React.FC = () => {
         setEmployeePF(fetchedPayroll.employeePF || 0);
       } catch (err: any) {
         console.error("Error fetching payroll:", err);
-        setError(err.response?.data?.message || "Failed to fetch payroll.");
       } finally {
         setLoading(false);
       }
@@ -173,498 +171,352 @@ const ViewPayroll: React.FC = () => {
     return pdfData;
   };
 
+  // Helper Components
+  const SectionTitle = ({
+    icon: Icon,
+    title,
+  }: {
+    icon: any;
+    title: string;
+  }) => (
+    <div className="flex items-center gap-2 mb-6 pb-2 border-b border-platinum-200">
+      <div className="bg-gunmetal-50 p-2 rounded text-gunmetal-600">
+        <Icon size={18} />
+      </div>
+      <h3 className="text-xl font-bold text-gunmetal-900">{title}</h3>
+    </div>
+  );
+
+  const DetailRow = ({
+    label,
+    value,
+    isBold = false,
+    isCurrency = false,
+  }: {
+    label: string;
+    value: string | number;
+    isBold?: boolean;
+    isCurrency?: boolean;
+  }) => (
+    <div className="flex justify-between items-center py-2 border-b border-platinum-100 last:border-0 hover:bg-alabaster-grey-50 px-2 rounded transition-colors bg-white">
+      <span className="text-sm font-medium text-slate-grey-600">{label}</span>
+      <span
+        className={`text-sm ${
+          isBold ? "font-bold text-gunmetal-900" : "text-gunmetal-700"
+        } ${isCurrency ? "font-mono" : ""}`}
+      >
+        {value}
+      </span>
+    </div>
+  );
+
   if (loading && !payroll) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <FaSpinner className="animate-spin text-blue-500" size={50} />
-      </div>
+      <LoadingSpinner
+        className="h-[80vh]"
+        size="xl"
+        text="Loading Payroll..."
+      />
     );
   }
 
   if (!loading && !payroll) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-700">No payroll data found.</p>
+      <div className="flex flex-col items-center justify-center h-[80vh] text-center p-6">
+        <FaFileInvoiceDollar size={48} className="text-slate-grey-300 mb-4" />
+        <h3 className="text-xl font-bold text-gunmetal-900">
+          Payroll Not Found
+        </h3>
+        <p className="text-slate-grey-500 mt-2 mb-6">
+          The requested payroll record is not available.
+        </p>
+        <button
+          onClick={() => navigate("/organization/payroll-management")}
+          className="px-6 py-2 bg-gunmetal-900 text-white rounded-lg hover:bg-gunmetal-800 transition-colors font-medium"
+        >
+          Return to Dashboard
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
-      <div className="w-full dark:bg-gray-800 p-6 rounded-lg">
-        <div className="flex justify-between items-center mb-8">
-          <div className="flex items-center space-x-3">
-            <h2 className="text-3xl font-bold text-black px-4 py-2">
-              View Payroll
-            </h2>
+    <div className="min-h-screen bg-alabaster-grey-50 p-6 md:p-12">
+      <div className="max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+          <div>
+            <h1 className="text-3xl font-extrabold text-gunmetal-900 tracking-tight">
+              Payroll Details
+            </h1>
+            <p className="text-slate-grey-500 mt-1">
+              Viewing record for{" "}
+              <span className="font-semibold text-gunmetal-700">
+                {getMonthName(payroll!.month)} {payroll!.year}
+              </span>
+            </p>
           </div>
-          <div className="flex justify-end">
-            <div className="flex justify-end space-x-4">
-              <button
-                onClick={() =>
-                  navigate(
-                    `/organization/payroll-management?month=${
-                      payroll!.month
-                    }&year=${payroll!.year}`
-                  )
-                }
-                className="flex items-center px-6 py-3 bg-blue-600 text-white rounded-full transition-colors"
-              >
-                <FaArrowLeft className="mr-2" /> Back
-              </button>
-              <PDFDownloadLink
-                document={<SalarySlipPDF data={preparePDFData()!} />}
-                fileName={`salary-slip-${payroll?.month}-${payroll?.year}.pdf`}
-                className="flex items-center px-6 py-3 bg-green-600 text-white rounded-full transition-colors "
-              >
-                <FaDownload className="mr-2" />
-                Download PDF
-              </PDFDownloadLink>
-            </div>
+
+          <div className="flex gap-3">
+            <button
+              onClick={() =>
+                navigate(
+                  `/organization/payroll-management?month=${
+                    payroll!.month
+                  }&year=${payroll!.year}`
+                )
+              }
+              className="px-5 py-2.5 bg-white border border-platinum-200 text-slate-grey-600 rounded-xl hover:bg-platinum-50 hover:text-gunmetal-900 transition-all font-semibold shadow-sm flex items-center gap-2 group"
+            >
+              <FaArrowLeft className="group-hover:-translate-x-1 transition-transform" />
+              Back
+            </button>
+
+            <PDFDownloadLink
+              document={<SalarySlipPDF data={preparePDFData()!} />}
+              fileName={`salary-slip-${payroll?.month}-${payroll?.year}.pdf`}
+              className="px-5 py-2.5 bg-gunmetal-900 text-white rounded-xl hover:bg-gunmetal-800 transition-all font-bold shadow-lg hover:shadow-gunmetal-500/20 flex items-center gap-2"
+            >
+              {({ loading }) => (
+                <>
+                  {loading ? (
+                    <LoadingSpinner size="sm" color="white" />
+                  ) : (
+                    <FaDownload />
+                  )}
+                  {loading ? " Preparing..." : "Download Play Slip"}
+                </>
+              )}
+            </PDFDownloadLink>
           </div>
         </div>
 
-        {/* Payroll details in read-only mode */}
-        <div className="space-y-8">
-          {/* Section 1: User Details */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaBuilding className="mr-2" /> User Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Name</label>
-                <div className="mt-1">{payroll?.user.name}</div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeIn">
+          {/* Left Col: Employee & Earnings */}
+          <div className="lg:col-span-2 space-y-8">
+            {/* Employee Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-platinum-200 relative overflow-hidden">
+              <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
+                <FaUser size={120} />
               </div>
-              <div>
-                <label className="block text-sm font-medium">Email</label>
-                <div className="mt-1">{payroll?.user.email}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Department</label>
-                <div className="mt-1">
-                  {payroll?.user.personalDetails?.department}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Job Title</label>
-                <div className="mt-1">
-                  {payroll?.user.personalDetails?.jobTitle || "N/A"}
-                </div>
+              <SectionTitle icon={FaUser} title="Employee Info" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                <DetailRow
+                  label="Employee Name"
+                  value={payroll!.user.name}
+                  isBold={true}
+                />
+                <DetailRow
+                  label="Department"
+                  value={payroll!.user.personalDetails?.department}
+                />
+                <DetailRow
+                  label="Job Title"
+                  value={payroll!.user.personalDetails?.jobTitle || "N/A"}
+                />
+                <DetailRow label="Email" value={payroll!.user.email} />
               </div>
             </div>
-          </div>
 
-          {/* Section 2: Payroll Period */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaRegCalendarCheck className="mr-2" /> Payroll Period
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Month</label>
-                <div className="mt-1">{getMonthName(payroll!.month)}</div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Year</label>
-                <div className="mt-1">{payroll!.year}</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 3: Salary Details */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaMoneyBillWave className="mr-2" /> Salary Details
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">
-                  Basic Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(payroll!.basicSalary.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Medical Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
+            {/* Earnings Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-platinum-200">
+              <SectionTitle icon={FaMoneyBillWave} title="Earnings" />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2">
+                <DetailRow
+                  label="Basic Salary"
+                  value={formatCurrency(payroll!.basicSalary)}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Medical Allowance"
+                  value={formatCurrency(
                     (payroll as any)?.user?.salaryDetails?.medicalAllowance ||
                       payroll!.allowances
                   )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Mobile Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {(payroll as any)?.user?.salaryDetails?.mobileAllowance || 0}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Fuel Allowance (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {(payroll as any)?.user?.salaryDetails?.fuelAllowance || 0}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Per Day Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(payroll!.perDaySalary.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Gross Salary (PKR)
-                </label>
-                <div className="mt-1 font-bold text-green-700">
-                  {formatCurrency(payroll!.totalSalary.toFixed(0))}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Mobile Allowance"
+                  value={formatCurrency(
+                    (payroll as any)?.user?.salaryDetails?.mobileAllowance || 0
+                  )}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Fuel Allowance"
+                  value={formatCurrency(
+                    (payroll as any)?.user?.salaryDetails?.fuelAllowance || 0
+                  )}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Per Day Rate"
+                  value={formatCurrency(payroll!.perDaySalary)}
+                  isCurrency={true}
+                />
+                <div className="md:col-span-2 bg-emerald-50 rounded-lg p-3 flex justify-between items-center mt-2 border border-emerald-100">
+                  <span className="font-bold text-emerald-800">
+                    Total Earnings (Gross)
+                  </span>
+                  <span className="font-mono font-bold text-emerald-700 text-lg">
+                    {formatCurrency(payroll!.totalSalary)}
+                  </span>
                 </div>
               </div>
             </div>
+
+            {/* Attendance/Leave Report Card */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-platinum-200">
+              <SectionTitle
+                icon={FaRegCalendarCheck}
+                title="Attendance & Leaves"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div className="bg-alabaster-grey-50 p-3 rounded-xl border border-platinum-100 text-center">
+                  <span className="block text-2xl font-bold text-gunmetal-900">
+                    {payroll?.absentDates?.length || 0}
+                  </span>
+                  <span className="text-xs text-slate-grey-500 uppercase font-bold">
+                    Absent Days
+                  </span>
+                </div>
+                <div className="bg-alabaster-grey-50 p-3 rounded-xl border border-platinum-100 text-center">
+                  <span className="block text-2xl font-bold text-gunmetal-900">
+                    {payroll?.lateIns || 0}
+                  </span>
+                  <span className="text-xs text-slate-grey-500 uppercase font-bold">
+                    Late Arrivals
+                  </span>
+                </div>
+                <div className="bg-alabaster-grey-50 p-3 rounded-xl border border-platinum-100 text-center">
+                  <span className="block text-2xl font-bold text-gunmetal-900">
+                    {payroll?.halfDays || 0}
+                  </span>
+                  <span className="text-xs text-slate-grey-500 uppercase font-bold">
+                    Half Days
+                  </span>
+                </div>
+              </div>
+
+              {payroll?.absentDates && payroll.absentDates.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-xs font-bold text-slate-grey-400 uppercase mb-2">
+                    Absent Dates Log
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {payroll.absentDates.map((date, i) => (
+                      <span
+                        key={i}
+                        className="px-2 py-1 bg-red-50 text-red-600 rounded text-xs border border-red-100 font-mono"
+                      >
+                        {new Date(date).toLocaleDateString()}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Section 4: Absent Dates */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Absent Dates
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {payroll?.absentDates && payroll.absentDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payroll.absentDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No absent dates recorded.</p>
-              )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Absent Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
+          {/* Right Col: Calculations & Net */}
+          <div className="flex flex-col gap-8">
+            {/* Deductions */}
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-platinum-200">
+              <SectionTitle icon={FaFileInvoiceDollar} title="Deductions" />
+              <div className="space-y-1">
+                <DetailRow
+                  label="Absent Deductions"
+                  value={formatCurrency(
                     (payroll?.absentDates?.length || 0) *
                       (payroll?.perDaySalary || 0)
                   )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Section 8: Late In Dates and Deductions */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Late In Details
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {payroll?.lateInDates && payroll.lateInDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payroll.lateInDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No late in dates recorded.</p>
-              )}
-              <div className="mt-4 space-y-4">
-                {payroll?.lateIns && payroll.lateIns > 0 && (
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Late In Salary Deductions (PKR)
-                    </label>
-                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                      {formatCurrency(
-                        (Math.floor((payroll?.lateIns ?? 0) / 4) *
-                          (payroll?.perDaySalary ?? 0)) /
-                          2
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {payroll?.lateInCasualLeavesDeduction &&
-                  payroll.lateInCasualLeavesDeduction.deductedCasualLeaves >
-                    0 && (
-                    <div>
-                      <label className="block text-sm font-medium">
-                        Casual Leaves Deducted Due to Late Ins
-                      </label>
-                      <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                        {
-                          payroll.lateInCasualLeavesDeduction
-                            .deductedCasualLeaves
-                        }{" "}
-                        Casual Leave(s)
-                      </div>
-                    </div>
-                  )}
-              </div>
-            </div>
-          </div>
-
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Half Days Details
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {payroll?.halfDayDates && payroll.halfDayDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payroll.halfDayDates.map((date, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(date).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No half day dates recorded.</p>
-              )}
-              <div className="mt-4">
-                <label className="block text-sm font-medium">
-                  Total Half Days Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                  {formatCurrency(
-                    ((payroll?.halfDays || 0) * (payroll?.perDaySalary || 0)) /
-                      2
-                  )}
-                </div>
-              </div>
-            </div>
-
-            <div className="text-gray-800 dark:text-gray-100 mt-3">
-              {payroll?.halfDayCasualLeavesDeduction &&
-                payroll.halfDayCasualLeavesDeduction.deductedCasualLeaves >
-                  0 && (
-                  <div>
-                    <label className="block text-sm font-medium">
-                      Casual Leaves Deducted Due to Half Days
-                    </label>
-                    <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                      {
-                        payroll.halfDayCasualLeavesDeduction
-                          .deductedCasualLeaves
-                      }{" "}
-                      Casual Leave(s)
-                    </div>
-                  </div>
-                )}
-            </div>
-          </div>
-
-          {/* NEW Section 5: Leave Dates */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Leave Dates
-            </h3>
-            <div className="text-gray-800 dark:text-gray-100">
-              {payroll?.leaveDates && payroll.leaveDates.length > 0 ? (
-                <table className="min-w-full border divide-y divide-gray-300">
-                  <thead className="bg-gray-200">
-                    <tr>
-                      <th className="px-4 py-2 text-sm font-semibold">S.No</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Date</th>
-                      <th className="px-4 py-2 text-sm font-semibold">Type</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {payroll.leaveDates.map((entry, idx) => (
-                      <tr key={idx} className="hover:bg-gray-100">
-                        <td className="px-4 py-2 text-center">{idx + 1}</td>
-                        <td className="px-4 py-2 text-center">
-                          {new Date(entry.date).toLocaleDateString()}
-                        </td>
-                        <td className="px-4 py-2 text-center">{entry.type}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              ) : (
-                <p className="text-gray-500">No leave dates recorded.</p>
-              )}
-            </div>
-          </div>
-
-          {/* Section 6: Deductions */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Deductions
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-800 dark:text-gray-100">
-              <div>
-                <label className="block text-sm font-medium">Tax (PKR)</label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(tax.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">EOBI (PKR)</label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(eobi.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Employee PF (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(employeePF.toFixed(0))}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Absent Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
-                    (payroll?.absentDates?.length || 0) *
-                      (payroll?.perDaySalary || 0)
-                  )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Late IN Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Late Deductions"
+                  value={formatCurrency(
                     (Math.floor((payroll?.lateIns ?? 0) / 4) *
                       (payroll?.perDaySalary ?? 0)) /
                       2
                   )}
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">
-                  Half Days Deductions (PKR)
-                </label>
-                <div className="mt-1 font-bold">
-                  {formatCurrency(
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Half Day Deductions"
+                  value={formatCurrency(
                     ((payroll?.halfDays || 0) * (payroll?.perDaySalary || 0)) /
                       2
                   )}
+                  isCurrency={true}
+                />
+                <div className="my-2 border-t border-platinum-100"></div>
+                <DetailRow
+                  label="Income Tax"
+                  value={formatCurrency(tax)}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="EOBI"
+                  value={formatCurrency(eobi)}
+                  isCurrency={true}
+                />
+                <DetailRow
+                  label="Provident Fund"
+                  value={formatCurrency(employeePF)}
+                  isCurrency={true}
+                />
+
+                <div className="bg-rose-50 rounded-lg p-3 flex justify-between items-center mt-3 border border-rose-100">
+                  <span className="font-bold text-rose-800">
+                    Total Deductions
+                  </span>
+                  <span className="font-mono font-bold text-rose-700 text-lg">
+                    -
+                    {formatCurrency(
+                      payroll!.deductions + tax + eobi + employeePF
+                    )}
+                  </span>
                 </div>
               </div>
             </div>
-            <div className="mt-4">
-              <label className="block text-sm font-medium">
-                Total Deductions (PKR)
-              </label>
-              <div className="mt-1 font-bold text-red-700 rounded bg-red-50 p-2">
-                {formatCurrency(payroll!.deductions + tax + eobi + employeePF)}
-              </div>
-            </div>
-          </div>
 
-          {/* Section 7: Extra Payments */}
-          <div className="p-6 border rounded-lg bg-gray-50 dark:bg-gray-700">
-            <h3 className="text-xl font-semibold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaMoneyBillWave className="mr-2" /> Extra Payments
-            </h3>
-            {extraPayments.length > 0 ? (
-              <table className="min-w-full border divide-y divide-gray-300 rounded-lg overflow-hidden text-center">
-                <thead className="bg-gray-200">
-                  <tr>
-                    <th className="px-4 py-2 text-sm font-semibold">
-                      Description
-                    </th>
-                    <th className="px-4 py-2 text-sm font-semibold">
-                      Amount (PKR)
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {extraPayments.map((payment) => (
-                    <tr key={payment.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-2">{payment.description}</td>
-                      <td className="px-4 py-2">
-                        {formatCurrency(payment.amount.toFixed(0))}
-                      </td>
-                    </tr>
+            {/* Extra Payments */}
+            {extraPayments.length > 0 && (
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-platinum-200">
+                <SectionTitle icon={FaMoneyBillWave} title="Bonuses" />
+                <div className="space-y-2">
+                  {extraPayments.map((pay) => (
+                    <div
+                      key={pay.id}
+                      className="flex justify-between items-center text-sm"
+                    >
+                      <span className="text-gunmetal-700">
+                        {pay.description}
+                      </span>
+                      <span className="font-mono font-bold text-emerald-600">
+                        +{formatCurrency(pay.amount)}
+                      </span>
+                    </div>
                   ))}
-                </tbody>
-              </table>
-            ) : (
-              <p className="text-gray-500">No extra payments added.</p>
+                </div>
+              </div>
             )}
-          </div>
 
-          {/* Section 8: Payroll Summary */}
-          <div className="p-6 border rounded-lg bg-white dark:bg-gray-600">
-            <h3 className="text-2xl font-bold text-white bg-purple-900 px-4 py-2 rounded mb-4 flex items-center">
-              <FaFileInvoiceDollar className="mr-2" /> Payroll Summary
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="p-4 bg-green-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">
-                  Gross Salary (PKR)
+            {/* Net Payout Summary */}
+            <div className="bg-gunmetal-900 p-6 rounded-2xl shadow-xl text-white">
+              <div className="flex items-center gap-3 mb-4 opacity-80">
+                <FaUniversity />
+                <span className="text-sm font-bold uppercase tracking-widest">
+                  Net Payable
                 </span>
-                <div className="mt-2 text-2xl font-extrabold text-green-800">
-                  {formatCurrency(payroll!.totalSalary)}
-                </div>
               </div>
-              <div className="p-4 bg-yellow-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">
-                  Total Deductions (PKR)
-                </span>
-                <div className="mt-2 text-2xl font-extrabold text-yellow-800">
-                  {formatCurrency(
-                    payroll!.deductions + tax + eobi + employeePF
-                  )}
-                </div>
-              </div>
-              <div className="p-4 bg-blue-100 rounded-lg text-center">
-                <span className="text-sm text-gray-700">Net Salary (PKR)</span>
-                <div className="mt-2 text-2xl font-extrabold text-blue-800">
-                  {formatCurrency(calculateNetSalary())}
-                </div>
-              </div>
+              <p className="text-4xl font-extrabold tracking-tight mb-2">
+                {formatCurrency(calculateNetSalary())}
+              </p>
+              <p className="text-sm text-gunmetal-300">
+                This is the final amount to be transferred to the employees
+                account after all adjustments.
+              </p>
             </div>
           </div>
         </div>

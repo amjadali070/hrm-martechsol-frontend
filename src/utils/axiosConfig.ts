@@ -4,9 +4,7 @@ import axios from "axios";
 
 // Determine backend URL
 const backendUrl =
-  process.env.REACT_APP_BACKEND_URL ||
-  "http://localhost:5000/api" ||
-  "https://hrm-martechsol-server-dbba68b93770.herokuapp.com/api";
+  process.env.REACT_APP_BACKEND_URL
 
 const axiosInstance = axios.create({
   baseURL: backendUrl,
@@ -29,7 +27,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Response Interceptor for global error handling
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -44,6 +41,9 @@ axiosInstance.interceptors.response.use(
         case 401:
           // Redirect to login or refresh token
           console.log("Unauthorized: Redirecting to login");
+          if (!window.location.pathname.includes("/login")) {
+             window.location.href = "/login";
+          }
           break;
         case 403:
           console.log("Forbidden: Insufficient permissions");

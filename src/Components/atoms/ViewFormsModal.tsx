@@ -67,7 +67,7 @@ const FormsModal: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-[1050] flex justify-center items-center">
           <div className="bg-white rounded-lg w-11/12 max-w-4xl max-h-[80vh] flex flex-col">
             {/* Modal Header */}
             <div className="flex justify-between items-center p-4 border-b">
@@ -144,7 +144,7 @@ const FormsModal: React.FC = () => {
 
           {/* Form Details Modal */}
           {selectedForm && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-[1050] flex justify-center items-center">
               <div className="bg-white rounded-lg w-11/12 max-w-md max-h-[80vh] flex flex-col">
                 <div className="flex justify-between items-center p-4 border-b">
                   <h2 className="text-xl font-bold">{selectedForm.subject}</h2>

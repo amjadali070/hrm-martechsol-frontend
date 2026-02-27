@@ -1,6 +1,5 @@
-// EditProfilePage.tsx
-
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import profilePlaceHolder from "../../assets/placeholder.png";
 import BankAccountDetails from "../atoms/EditProfile/BankAccountDetails";
 import ContactDetails from "../atoms/EditProfile/ContactDetails";
@@ -14,9 +13,23 @@ import useUser from "../../hooks/useUser";
 import axios from "axios";
 import { toast } from "react-toastify";
 import SalaryDetails from "../atoms/EditProfile/SalaryDetails";
+import { 
+  FaUser, 
+  FaPhoneAlt, 
+  FaGraduationCap, 
+  FaHeartbeat, 
+  FaFileAlt, 
+  FaFolderOpen, 
+  FaMoneyCheckAlt, 
+  FaMoneyBillWave, 
+  FaLock, 
+  FaChevronRight,
+  FaCog 
+} from "react-icons/fa";
 
 const EditProfilePage: React.FC = () => {
-  const [selectedMenu, setSelectedMenu] = useState("Personal Details");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "Personal Details";
   const { user, refetchUser } = useUser();
   const backendUrl = process.env.REACT_APP_BACKEND_URL;
 
@@ -53,68 +66,30 @@ const EditProfilePage: React.FC = () => {
     }
   }, [user]);
 
+  const handleTabChange = (tabName: string) => {
+      setSearchParams({ tab: tabName });
+  };
+
   const handleUpdatePersonalDetails = async (
     updatedEmployee: typeof employee
   ) => {
     try {
-      const {
-        name,
-        department,
-        jobTitle,
-        jobCategory,
-        jobType,
-        shiftStartTime,
-        shiftEndTime,
-        jobStatus,
-        gender,
-        dateOfBirth,
-      } = updatedEmployee;
-
-      const updatedDetails = {
-        name,
-        department,
-        jobTitle,
-        jobCategory,
-        jobType,
-        shiftStartTime,
-        shiftEndTime,
-        jobStatus,
-        gender,
-        dateOfBirth,
-      };
-
       const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         withCredentials: true,
       };
 
       const { data } = await axios.put(
         `${backendUrl}/api/users/personal-details`,
-        updatedDetails,
+        updatedEmployee,
         config
       );
 
-      setEmployee((prev) => ({
-        ...prev,
-        name: data.name,
-        department: data.department,
-        jobTitle: data.jobTitle,
-        jobCategory: data.jobCategory,
-        jobType: data.jobType,
-        shiftStartTime: data.shiftStartTime,
-        shiftEndTime: data.shiftEndTime,
-        jobStatus: data.jobStatus,
-        gender: data.gender,
-        dateOfBirth: data.dateOfBirth,
-      }));
-
+      setEmployee((prev) => ({ ...prev, ...data }));
       toast.success("Personal details updated successfully");
       await refetchUser();
     } catch (error) {
       toast.error("Failed to update personal details");
-      console.error("Update error:", error);
     }
   };
 
@@ -122,11 +97,8 @@ const EditProfilePage: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append("profilePicture", file);
-
       const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+        headers: { "Content-Type": "multipart/form-data" },
         withCredentials: true,
       };
       await axios.put(
@@ -134,8 +106,6 @@ const EditProfilePage: React.FC = () => {
         formData,
         config
       );
-
-      // Refetch user data after successful upload
       await refetchUser();
       toast.success("Profile picture updated successfully");
     } catch (error) {
@@ -143,29 +113,17 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const handleUpdateContactDetails = async (details: {
-    phoneNumber1: string;
-    phoneNumber2?: string;
-    email: string;
-    currentCity: string;
-    currentAddress: string;
-    permanentCity: string;
-    permanentAddress: string;
-  }) => {
+  const handleUpdateContactDetails = async (details: any) => {
     try {
       const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         withCredentials: true,
       };
-
       await axios.put(
         `${backendUrl}/api/users/contact-details`,
         details,
         config
       );
-
       toast.success("Contact details updated successfully");
       await refetchUser();
     } catch (error) {
@@ -173,237 +131,154 @@ const EditProfilePage: React.FC = () => {
     }
   };
 
-  const handleUpdateEducation = async (details: {
-    institute: string;
-    degree: string;
-    fieldOfStudy: string;
-    GPA: string;
-    yearOfCompletion: string;
-  }) => {
+  const handleUpdateEducation = async (details: any) => {
     try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(`${backendUrl}/api/users/education`, details, config);
-
-      toast.success("Education details updated successfully");
-      await refetchUser();
+        const config = {
+            headers: { "Content-Type": "application/json" },
+            withCredentials: true,
+        };
+        await axios.put(`${backendUrl}/api/users/education`, details, config);
+        toast.success("Education details updated successfully");
+        await refetchUser();
     } catch (error) {
-      toast.error("Failed to update Education details");
+        toast.error("Failed to update Education details");
     }
   };
 
-  const handleUpdateEmergencyContacts = async (contacts: {
-    name1: string;
-    relation1: string;
-    contactNumber1: string;
-    name2: string;
-    relation2: string;
-    contactNumber2: string;
-  }) => {
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
+    const handleUpdateEmergencyContacts = async (contacts: any) => {
+        try {
+            const config = {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            };
+            await axios.put(
+                `${backendUrl}/api/users/emergency-contacts`,
+                contacts,
+                config
+            );
+            toast.success("Emergency details updated successfully");
+            await refetchUser();
+        } catch (error) {
+             toast.error("Failed to update Emergency details");
+        }
+    };
+
+    const handleResumeUpdate = async (file: File) => {
+        try {
+             const formData = new FormData();
+             formData.append("resume", file);
+             const config = {
+                headers: { "Content-Type": "multipart/form-data" },
+                withCredentials: true,
+             };
+             await axios.put(`${backendUrl}/api/users/resume`, formData, config);
+             await refetchUser();
+             toast.success("Resume updated successfully");
+        } catch (error) {
+            toast.error("Failed to update resume");
+        }
+    };
+
+    const handleUpdateBankDetails = async (details: any) => {
+        try {
+            const config = {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            };
+            await axios.put(`${backendUrl}/api/users/bank-details`, details, config);
+            toast.success("Bank account details updated successfully");
+            await refetchUser();
+        } catch (error) {
+             toast.error("Failed to update bank account details");
+        }
+    };
+
+    const handleUpdateSalaryDetails = async (details: any) => {
+        try {
+            const config = {
+                headers: { "Content-Type": "application/json" },
+                withCredentials: true,
+            };
+            await axios.put(
+                `${backendUrl}/api/users/salary-details`,
+                details,
+                config
+            );
+            toast.success("Salary details updated successfully");
+            await refetchUser();
+        } catch (error) {
+            toast.error("Failed to update salary details");
+        }
+    };
+
+    const documents: {
+        name: string;
+        type: "image" | "pdf";
+        fileUrl: string | null;
+      }[] = [
+        { name: "NIC", type: "image", fileUrl: user?.documents?.NIC || null },
+        { name: "Experience Letter", type: "pdf", fileUrl: user?.documents?.experienceLetter || null },
+        { name: "Salary Slip", type: "pdf", fileUrl: user?.documents?.salarySlip || null },
+        { name: "Academic Document", type: "image", fileUrl: user?.documents?.academicDocuments || null },
+        { name: "Non Disclosure Agreement (NDA)", type: "pdf", fileUrl: user?.documents?.NDA || null },
+      ];
+
+      const handleDocumentUpdate = async (name: string, file: File) => {
+        try {
+          const formData = new FormData();
+          const backendFieldName = name === "Non Disclosure Agreement (NDA)" ? "Non Disclosure Agreement (NDA)" : name;
+    
+          formData.append(backendFieldName, file);
+    
+          const config = {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          };
+    
+          await axios.put(`${backendUrl}/api/users/documents`, formData, config);
+    
+          await refetchUser();
+          toast.success("Document uploaded successfully");
+        } catch (error) {
+          toast.error("Failed to upload document");
+        }
       };
 
-      await axios.put(
-        `${backendUrl}/api/users/emergency-contacts`,
-        contacts,
-        config
-      );
 
-      toast.success("Emergency details updated successfully");
-      await refetchUser();
-    } catch (error) {
-      toast.error("Failed to update Emergency details");
-    }
-  };
-
-  const handleResumeUpdate = async (file: File) => {
-    try {
-      const formData = new FormData();
-      formData.append("resume", file);
-
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(`${backendUrl}/api/users/resume`, formData, config);
-
-      // Refetch user data after successful upload
-      await refetchUser();
-      toast.success("Resume updated successfully");
-    } catch (error) {
-      toast.error("Failed to update resume");
-    }
-  };
-
-  const handleUpdateBankDetails = async (details: {
-    bankName: string;
-    branchName: string;
-    accountTitle: string;
-    accountNumber: string;
-    ibanNumber: string;
-  }) => {
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(`${backendUrl}/api/users/bank-details`, details, config);
-
-      toast.success("Bank account details updated successfully");
-      await refetchUser();
-    } catch (error) {
-      toast.error("Failed to update bank account details");
-    }
-  };
-
-  const handleUpdateSalaryDetails = async (details: {
-    basicSalary: number;
-    medicalAllowance: number;
-    mobileAllowance: number;
-    fuelAllowance: number;
-  }) => {
-    try {
-      const config = {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(
-        `${backendUrl}/api/users/salary-details`,
-        details,
-        config
-      );
-
-      toast.success("Salary details updated successfully");
-      await refetchUser();
-    } catch (error) {
-      toast.error("Failed to update salary details");
-      console.error("Update error:", error);
-    }
-  };
-
-  const documents: {
-    name: string;
-    type: "image" | "pdf";
-    fileUrl: string | null;
-  }[] = [
-    { name: "NIC", type: "image", fileUrl: user?.documents?.NIC || null },
-    {
-      name: "Experience Letter",
-      type: "pdf",
-      fileUrl: user?.documents?.experienceLetter || null,
-    },
-    {
-      name: "Salary Slip",
-      type: "pdf",
-      fileUrl: user?.documents?.salarySlip || null,
-    },
-    {
-      name: "Academic Document",
-      type: "image",
-      fileUrl: user?.documents?.academicDocuments || null,
-    },
-    {
-      name: "Non Disclosure Agreement (NDA)",
-      type: "pdf",
-      fileUrl: user?.documents?.NDA || null,
-    },
+  const menuItems = [
+    { name: "Personal Details", icon: <FaUser /> },
+    { name: "Contact Details", icon: <FaPhoneAlt /> },
+    { name: "Education", icon: <FaGraduationCap /> },
+    { name: "Emergency Contact", icon: <FaHeartbeat /> },
+    { name: "Resume", icon: <FaFileAlt /> },
+    { name: "Document", icon: <FaFolderOpen /> },
+    { name: "Bank Account Details", icon: <FaMoneyCheckAlt /> },
+    { name: "Salary Details", icon: <FaMoneyBillWave /> },
+    { name: "Update Password", icon: <FaLock /> },
   ];
 
-  const handleDocumentUpdate = async (name: string, file: File) => {
-    try {
-      const formData = new FormData();
-
-      const backendFieldName =
-        name === "Non Disclosure Agreement (NDA)"
-          ? "Non Disclosure Agreement (NDA)"
-          : name;
-
-      formData.append(backendFieldName, file);
-
-      const config = {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      };
-
-      await axios.put(`${backendUrl}/api/users/documents`, formData, config);
-
-      await refetchUser();
-      toast.success("Document uploaded successfully");
-    } catch (error) {
-      toast.error("Failed to upload document");
-      console.error("Error uploading document:", error);
-    }
-  };
-
   const renderContent = () => {
-    switch (selectedMenu) {
+    switch (activeTab) {
       case "Personal Details":
-        return (
-          <PersonalDetails
+        return <PersonalDetails
             employee={employee}
             departments={[
-              "Account Management",
-              "Project Management",
-              "Content Production",
-              "Book Marketing",
-              "Design Production",
-              "SEO",
-              "Creative Media",
-              "Web Development",
-              "Paid Advertising",
-              "Software Production",
-              "IT & Networking",
-              "Human Resource",
-              "Training & Development",
-              "Admin",
-              "Finance",
-              "Brand Development",
-              "Corporate Communication",
-              "Lead Generation",
+              "Account Management", "Project Management", "Content Production", "Book Marketing",
+              "Design Production", "SEO", "Creative Media", "Web Development", "Paid Advertising",
+              "Software Production", "IT & Networking", "Human Resource", "Training & Development",
+              "Admin", "Finance", "Brand Development", "Corporate Communication", "Lead Generation",
             ]}
             jobTitles={[
-              "Executive",
-              "Senior Executive",
-              "Assistant Manager",
-              "Associate Manager",
-              "Manager",
-              "Senior Manager",
-              "Assistant Vice President",
-              "Associate Vice President",
-              "Vice President",
-              "Senior Vice President",
-              "President",
-              "Head of Department",
+              "Executive", "Senior Executive", "Assistant Manager", "Associate Manager", "Manager",
+              "Senior Manager", "Assistant Vice President", "Associate Vice President", "Vice President",
+              "Senior Vice President", "President", "Head of Department",
             ]}
             onProfilePictureChange={handleProfilePictureChange}
             isEditable={user?.role === "HR" || user?.role === "SuperAdmin"}
             onUpdate={handleUpdatePersonalDetails}
-          />
-        );
+          />;
       case "Contact Details":
-        return (
-          <ContactDetails
+        return <ContactDetails
             phoneNumber1={user?.contactDetails?.phoneNumber1 || ""}
             phoneNumber2={user?.contactDetails?.phoneNumber2 || ""}
             email={user?.contactDetails?.email || user?.email || ""}
@@ -412,24 +287,19 @@ const EditProfilePage: React.FC = () => {
             permanentCity={user?.contactDetails?.permanentCity || ""}
             permanentAddress={user?.contactDetails?.permanentAddress || ""}
             onUpdate={handleUpdateContactDetails}
-          />
-        );
+          />;
       case "Education":
-        return (
-          <Education
+        return <Education
             institute={user?.education?.[0]?.institute || "N/A"}
             degree={user?.education?.[0]?.degree || "N/A"}
             fieldOfStudy={user?.education?.[0]?.fieldOfStudy || "N/A"}
             GPA={user?.education?.[0]?.GPA || "N/A"}
-            yearOfCompletion={
-              String(user?.education?.[0]?.yearOfCompletion) || "N/A"
-            }
+            yearOfCompletion={String(user?.education?.[0]?.yearOfCompletion) || "N/A"}
             onUpdate={handleUpdateEducation}
-          />
-        );
+            // Add isEditable prop if Education component supports it, otherwise assumes it does or handles it internally
+          />;
       case "Emergency Contact":
-        return (
-          <EmergencyContact
+        return <EmergencyContact
             name1={user?.emergencyContacts?.[0]?.name1 || ""}
             relation1={user?.emergencyContacts?.[0]?.relation1 || ""}
             contactNumber1={user?.emergencyContacts?.[0]?.contactNumber1 || ""}
@@ -437,81 +307,82 @@ const EditProfilePage: React.FC = () => {
             relation2={user?.emergencyContacts?.[0]?.relation2 || ""}
             contactNumber2={user?.emergencyContacts?.[0]?.contactNumber2 || ""}
             onUpdate={handleUpdateEmergencyContacts}
-          />
-        );
-
+          />;
       case "Resume":
-        return (
-          <Resume
-            resumeUrl={user?.resume || null} // Updated line
-            onUpdate={handleResumeUpdate}
-          />
-        );
-
+        return <Resume resumeUrl={user?.resume || null} onUpdate={handleResumeUpdate} />;
       case "Document":
-        return (
-          <Documents documents={documents} onUpdate={handleDocumentUpdate} />
-        );
-
+        return <Documents documents={documents} onUpdate={handleDocumentUpdate} />;
       case "Bank Account Details":
-        return (
-          <BankAccountDetails
+        return <BankAccountDetails
             bankName={user?.bankAccountDetails?.bankName || ""}
             branchName={user?.bankAccountDetails?.branchName || ""}
             accountTitle={user?.bankAccountDetails?.accountTitle || ""}
             accountNumber={user?.bankAccountDetails?.accountNumber || ""}
             ibanNumber={user?.bankAccountDetails?.IBANNumber || ""}
             onUpdate={handleUpdateBankDetails}
-          />
-        );
+          />;
       case "Salary Details":
-        return (
-          <SalaryDetails
+        return <SalaryDetails
             basicSalary={user?.salaryDetails?.basicSalary || 0}
             medicalAllowance={user?.salaryDetails?.medicalAllowance || 0}
             mobileAllowance={user?.salaryDetails?.mobileAllowance || 0}
             fuelAllowance={user?.salaryDetails?.fuelAllowance || 0}
-            onUpdate={handleUpdateSalaryDetails} // Now valid
-          />
-        );
+            onUpdate={handleUpdateSalaryDetails}
+          />;
       case "Update Password":
         return <UpdatePassword />;
       default:
-        return <div className="p-6">Select a menu item to view details.</div>;
+        return null;
     }
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-4">
-      <div className="bg-white w-full lg:w-1/4 p-6 rounded-xl">
-        <ul className="space-y-4">
-          {[
-            "Personal Details",
-            "Contact Details",
-            "Education",
-            "Emergency Contact",
-            "Resume",
-            "Document",
-            "Bank Account Details",
-            "Salary Details",
-            "Update Password",
-          ].map((item, index) => (
-            <li
-              key={index}
-              onClick={() => setSelectedMenu(item)}
-              className={`py-3 px-4 rounded-lg text-left cursor-pointer ${
-                selectedMenu === item
-                  ? "bg-purple-900 font-bold text-white"
-                  : "bg-gray-100"
-              } hover:bg-purple-900 hover:text-white transition-all duration-200`}
-            >
-              {item}
-            </li>
-          ))}
-        </ul>
+    <div className="flex flex-col lg:flex-row gap-8 items-start animate-fadeIn max-w-[1600px] mx-auto p-6">
+      {/* Sidebar */}
+      <div className="w-full lg:w-72 shrink-0">
+          <div className="bg-white rounded-2xl shadow-xl border border-platinum-200 overflow-hidden sticky top-8">
+               <div className="p-6 bg-white border-b border-platinum-200">
+                   <div className="flex items-center gap-3 mb-2">
+                       <div className="p-2 bg-gunmetal-50 rounded-lg text-gunmetal-600">
+                           <FaCog className="text-xl" />
+                       </div>
+                       <h3 className="font-extrabold text-gunmetal-900 text-lg tracking-tight">Settings</h3>
+                   </div>
+                    <p className="text-sm font-medium text-slate-grey-500">Manage your profile & preferences</p>
+               </div>
+               <nav className="p-3 space-y-1">
+                {menuItems.map((item) => (
+                    <button
+                        key={item.name}
+                        onClick={() => handleTabChange(item.name)}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all duration-200 group relative ${
+                        activeTab === item.name
+                            ? "bg-gunmetal-900 text-white shadow-lg shadow-gunmetal-500/20"
+                            : "text-slate-grey-600 hover:bg-alabaster-grey-50 hover:text-gunmetal-900"
+                        }`}
+                    >
+                        <span className="flex items-center gap-3 relative z-10">
+                            <span className={`text-lg transition-colors ${activeTab === item.name ? "text-gunmetal-100" : "text-slate-grey-400 group-hover:text-gunmetal-500"}`}>
+                                {item.icon}
+                            </span>
+                            {item.name}
+                        </span>
+                         {activeTab === item.name && <FaChevronRight size={12} className="text-gunmetal-100" />}
+                    </button>
+                ))}
+            </nav>
+        </div>
       </div>
 
-      <div className="w-full">{renderContent()}</div>
+      {/* Main Content Area */}
+      <div className="flex-1 w-full min-w-0">
+          {/* We render content directly. The containers are inside the atoms mostly, but we can ensure a wrapper if needed. 
+              The atoms (Education, etc.) seem to be full components. We'll wrap them in a consistent fade-in div.
+          */}
+         <div key={activeTab} className="animate-fadeIn">
+             {renderContent()}
+         </div>
+      </div>
     </div>
   );
 };
