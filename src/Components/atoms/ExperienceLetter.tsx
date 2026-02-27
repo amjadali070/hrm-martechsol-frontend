@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
-import { FaAward, FaStar, FaInfoCircle } from "react-icons/fa";
+import { FaAward, FaStar} from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
 import ExperienceLetterPDF, {
   ExperienceLetterProps,

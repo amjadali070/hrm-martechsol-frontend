@@ -10,7 +10,6 @@ import {
   FaMoneyBillWave,
   FaFileAlt,
   FaEye,
-  FaDownload,
 } from "react-icons/fa";
 import DocumentViewerModal from "../DocumentViewerModal";
 

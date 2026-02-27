@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FaMoneyBillWave, FaEdit, FaHeartbeat, FaMobileAlt, FaGasPump } from "react-icons/fa";
+import { FaMoneyBillWave, FaHeartbeat, FaMobileAlt, FaGasPump } from "react-icons/fa";
 
 interface SalaryDetailsProps {
   basicSalary: number;
